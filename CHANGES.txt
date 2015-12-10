@@ -1,0 +1,125 @@
+
+Version 1.7.0 (26th October 2015)
+---------------------------------
+
+- Reduced requirement for OpenGL from 3.0 to 2.1 (i.e. GLSL 1.3 to 1.2).
+  This permits successful compilation on Mac.
+- The code for watching file changes via inotify has been made optional so that
+  cvkit also compiles on systems that do support it, e.g. Mac.
+- rainbow color mapping in sv is adapted to min/max intensity range, but will
+  always be a power of 10.
+- sv now has the additional parameter -scale for setting the initial image
+  scale factor.
+- imgcmd now has parameter -jet for converting disparity images into colored
+  versions for visualization.
+- Captured images in sv are now stored without a possible black border.
+- Fixed bug when storing pgm, ppm or pfm under Windows.
+- Some minor bugfixes.
+
+Version 1.6.6 (8th June 2015)
+-----------------------------
+
+- cmake config files will be installed together with libs for further
+  development.
+
+Version 1.6.2 - 1.6.5 (18th May 2015)
+-------------------------------------
+
+- Removed "using namespace" declarations
+- Minor changes and bugfixes
+
+Version 1.6.1 (16th February 2015)
+----------------------------------
+
+sv:
+- Bugfix for 0.5 pixel shift error.
+
+Version 1.6.0 (19th December 2014)
+----------------------------------
+
+sv:
+- If GDAL is compiled in, then the EXIF_Orientation tag that is given in jpeg
+  images is used for automatic image rotation and flipping.
+- 'f' flips the image horizontally.
+- 'd' renames the current image by adding ".bak" and removes it from the list.
+- 't' shows smoothed images that are computed by trilinear interpolation.
+- Some internal changes.
+
+Version 1.5.1 (14th November 2014)
+----------------------------------
+
+- Internal cleanup.
+
+Version 1.5.0 (16th September 2014)
+-----------------------------------
+
+- sv can now show individual color channels (see help).
+- Header files and libs can optionally be installed for further development.
+- Bugfix: Starting sv with a single image that does not exist caused showing
+  all other images in that directory. An error is shown now.
+- Internal cleanup.
+
+Version 1.4.1 (11th July 2014)
+------------------------------
+
+- Minor bug fixes.
+
+Version 1.4.0 (16th June 2014)
+------------------------------
+
+plyv:
+- 's' toggles between shading in grey and special colors. Each object gets an
+  individual color, which helps comparing data sets.
+- 'b' toggles backface culling on (default) and off.
+- <tab> toggle between color schemes.
+- In the Middlebury naming convention, calib.txt is loaded automatically as
+  camera definition file. If calib.txt is not specified explicitely, then the
+  cameras are hidden by default and shown by pressing 'k'.
+- Reduced requirement for OpenGL from 3.3 to 3.0 (i.e. GLSL 3.3 to 1.3).
+- Some bugs fixed.
+
+Version 1.3.0 (6th June 2014)
+-----------------------------
+
+- Reduced requirement for cmake from 2.8.10 to 2.8.9.
+- Documentation improved.
+- Some bugs fixed.
+
+Version 1.2.0 (6th June 2014)
+-----------------------------
+
+- Reduced requirement for cmake from 2.8.12 to 2.8.10.
+- Added -sub and -div options to imgcmd.
+
+Version 1.1.0 (5th June 2014)
+-----------------------------
+
+all:
+- Added an installer for Windows.
+- Optional support for reading and writing png in 8 and 16 bit using libpng.
+- Makes sure that normals have length 1 when reading PLY files.
+- Some bugs fixed.
+- Documentation updated.
+
+plyv:
+- plyview has been renamed to plyv to avoid conflicts with other software
+- Support for Middlebury naming convention and calib file format for on the fly
+  3d visualization of ground truth datasets.
+- If *.txt files are given, these files are loaded as parameters of cameras,
+  that are visualized using pyramids.
+- Captured images are now saved lossless in PNG format if libpng is compiled
+  in. Otherwise, if GDAL is available, tif is used. As fallback, saving as ppm
+  is used.
+
+sv:
+- If only one image is given as argument, then additionally to showing this
+  image, all other images of the same directory can be selected by the left and
+  right cursor keys.
+- Showing the image name including path (if given) in the window title.
+- Increased speed of zooming and panning using OpenMP.
+- Captured images are saved as PNG by default, as in plyv (see above).
+
+Version 1.0.0 (5th May 2014)
+----------------------------
+
+- First public release.
