@@ -1,7 +1,20 @@
 
-compile:
+build_amd64:
+  stage: build
   script:
     - mkdir build
     - cd build
     - cmake ..
     - make
+  tags:
+    - amd64
+
+build_armhf:
+  stage: build
+  script:
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+  tags:
+    - armhf
