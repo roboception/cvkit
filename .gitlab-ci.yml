@@ -18,3 +18,19 @@ build_armhf:
     - make
   tags:
     - armhf
+
+package_amd64:
+  stage: deploy
+  script:
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+    - make package
+    - upload_deb.sh testing cvkit_*_amd64.deb
+  only:
+    - master
+    - tags
+  tags:
+    - amd64
+    - trusty
