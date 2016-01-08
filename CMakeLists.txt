@@ -51,6 +51,39 @@ set(CPACK_PACKAGE_VERSION_MINOR "7")
 set(CPACK_PACKAGE_VERSION_PATCH "1")
 set(CVKIT_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
 
+find_program(GIT_CMD git)
+if (GIT_CMD AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
+  execute_process(COMMAND ${GIT_CMD} rev-parse --short HEAD
+          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+          OUTPUT_VARIABLE GIT_SHA1
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+  #message(STATUS "GIT_SHA1: " ${GIT_SHA1})
+  execute_process(COMMAND ${GIT_CMD} describe --match "*[0-9].[0-9]*" HEAD
+          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+          OUTPUT_VARIABLE GIT_DESCRIBE
+          ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+  #message(STATUS "GIT_DESCRIBE: " ${GIT_DESCRIBE})
+
+  if (GIT_DESCRIBE)
+    string(REGEX REPLACE "v?([0-9.]+).*" "\\1" GIT_VERSION ${GIT_DESCRIBE})
+    #message(STATUS "GIT_VERSION: " ${GIT_VERSION})
+    if (NOT GIT_DESCRIBE MATCHES ${CVKIT_VERSION})
+      message(WARNING "Version from git (${GIT_VERSION}) doesn't match cmake (${CVKIT_VERSION})")
+    endif()
+    if (GIT_DESCRIBE MATCHES ".*-g.*")
+      # convert a git describe string to usable debian version, e.g. v1.7.1-7-ge324c81 to 1.7.1+7+ge324c81
+      string(REGEX REPLACE "v?([0-9.]*)-([0-9]*)-([a-g0-9]*).*" "\\1+\\2+\\3" DEB_GIT_VERSION ${GIT_DESCRIBE})
+      set(CPACK_PACKAGE_VERSION ${DEB_GIT_VERSION})
+    else()
+      # current HEAD is git tag (i.e. releaase), directly use the version
+      set(CPACK_PACKAGE_VERSION ${GIT_VERSION})
+    endif()
+  else ()
+    set(CPACK_PACKAGE_VERSION ${CVKIT_VERSION}+g${GIT_SHA1})
+  endif ()
+  #message(STATUS "CPACK_PACKAGE_VERSION: " ${CPACK_PACKAGE_VERSION})
+endif ()
+
 if (WIN32)
   set(CPACK_GENERATOR NSIS)
   
@@ -96,7 +129,7 @@ if (WIN32)
   ")
 else (WIN32)
   set(CPACK_GENERATOR "DEB")
-  
+
   find_program(DPKG_CMD dpkg)
   if (NOT DPKG_CMD)
     message(STATUS "Can not find dpkg in your path, default to i386.")
@@ -106,7 +139,10 @@ else (WIN32)
       OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
       OUTPUT_STRIP_TRAILING_WHITESPACE)
   endif ()
-  
+
+  string(TOLOWER "${PROJECT_NAME}" CPACK_PACKAGE_NAME)
+  set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+
   set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
   
   set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
