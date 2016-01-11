@@ -19,9 +19,10 @@ build_armhf:
   tags:
     - armhf
 
-package_amd64:
+package_testing_amd64:
   stage: deploy
   script:
+    - echo $CI_BUILD_TAG
     - mkdir build
     - cd build
     - cmake ..
@@ -30,7 +31,54 @@ package_amd64:
     - upload_deb.sh testing cvkit_*_amd64.deb
   only:
     - master
+  tags:
+    - amd64
+    - trusty
+
+package_stable_amd64:
+  stage: deploy
+  script:
+    - echo $CI_BUILD_TAG
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j 4
+    - make package
+    - upload_deb.sh stable cvkit_*_amd64.deb
+  only:
     - tags
   tags:
     - amd64
+    - trusty
+
+package_testing_armhf:
+  stage: deploy
+  script:
+    - echo $CI_BUILD_TAG
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j 4
+    - make package
+    - upload_deb.sh testing cvkit_*_armhf.deb
+  only:
+    - master
+  tags:
+    - armhf
+    - trusty
+
+package_stable_armhf:
+  stage: deploy
+  script:
+    - echo $CI_BUILD_TAG
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j 4
+    - make package
+    - upload_deb.sh stable cvkit_*_armhf.deb
+  only:
+    - tags
+  tags:
+    - armhf
     - trusty
