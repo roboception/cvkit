@@ -53,6 +53,18 @@ class Distortion
     virtual ~Distortion();
     
     /**
+      Creates and initializes the appropriate distortion model from the given
+      parameters.
+      
+      @param prop Camera parameters.
+      @param id   Camera id or -1.
+      @return     Pointer to created distortion model. The pointer must be deleted
+                  by the calling function.
+    */
+    
+    static Distortion *create(const gutil::Properties &prop, int id=-1);
+    
+    /**
       Clones the current object.
       
       @return Pointer to clone object. The pointer must be deleted by the
@@ -154,18 +166,6 @@ class EquidistantDistortion : public Distortion
   
     double ed[4];
 };
-
-/**
-  Creates and initializes the appropriate distortion model from the given
-  parameters.
-  
-  @param prop Camera parameters.
-  @param id   Camera id or -1.
-  @return     Pointer to created distortion model. The pointer must be deleted
-              by the calling function.
-*/
-
-Distortion *createDistortion(const gutil::Properties &prop, int id=-1);
 
 }
 

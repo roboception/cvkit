@@ -66,6 +66,25 @@ std::string getCameraKey(const char *key, int id)
 Distortion::~Distortion()
 { }
 
+Distortion *Distortion::create(const gutil::Properties &prop, int id)
+{
+    EquidistantDistortion ed(prop, id);
+    
+    if (ed.getParameter(0) != 0 || ed.getParameter(1) != 0 ||
+        ed.getParameter(2) != 0 || ed.getParameter(3) != 0)
+      return ed.clone();
+    
+    RadialTangentialDistortion rtd(prop, id);
+    
+    if (ed.getParameter(0) != 0 || ed.getParameter(1) != 0)
+      return rtd.clone();
+    
+    if (rtd.countParameter() >= 1)
+      return new RadialDistortion(prop, id);
+    
+    return 0;
+}
+
 Distortion *Distortion::clone() const
 {
     return new Distortion();
@@ -501,25 +520,6 @@ void EquidistantDistortion::getProperties(gutil::Properties &prop, int id) const
     prop.putValue(getCameraKey("e2", id).c_str(), ed[1]);
     prop.putValue(getCameraKey("e3", id).c_str(), ed[2]);
     prop.putValue(getCameraKey("e4", id).c_str(), ed[3]);
-}
-
-Distortion *createDistortion(const gutil::Properties &prop, int id)
-{
-    EquidistantDistortion ed(prop, id);
-    
-    if (ed.getParameter(0) != 0 || ed.getParameter(1) != 0 ||
-        ed.getParameter(2) != 0 || ed.getParameter(3) != 0)
-      return ed.clone();
-    
-    RadialTangentialDistortion rtd(prop, id);
-    
-    if (ed.getParameter(0) != 0 || ed.getParameter(1) != 0)
-      return rtd.clone();
-    
-    if (rtd.countParameter() > 2)
-      return new RadialDistortion(prop, id);
-    
-    return 0;
 }
 
 }

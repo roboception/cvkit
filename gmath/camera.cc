@@ -173,7 +173,7 @@ PinholeCamera::PinholeCamera(const Properties &prop, int id)
       rho=f*t;
     }
     
-    dist=createDistortion(prop, id);
+    dist=Distortion::create(prop, id);
 }
 
 const PinholeCamera &PinholeCamera::operator = (const PinholeCamera &pc)

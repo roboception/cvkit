@@ -92,13 +92,21 @@ template<class T> void paste(Image<T> &image, const Image<T> &image2, long i0=0,
 }
 
 template<class T> void drawLine(Image<T> &image, long x1, long y1, long x2,
-  long y2, T v, int c=-1)
+  long y2, float r, float g=-1, float b=-1)
 {
-    int cmin=0;
-    int cmax=image.getDepth()-1;
+    T v[3];
     
-    if (c >= 0)
-      cmin=cmax=c;
+    if (g < 0)
+      g=r;
+    
+    if (b < 0)
+      b=r;
+    
+    v[0]=static_cast<T>(r);
+    v[1]=static_cast<T>(g);
+    v[2]=static_cast<T>(b);
+    
+    int cn=std::min(3, image.getDepth());
     
     long dx=x2-x1;
     long dy=y2-y1;
@@ -138,8 +146,8 @@ template<class T> void drawLine(Image<T> &image, long x1, long y1, long x2,
           long k=y1+(i-x1)*dy/dx;
           if (k >= 0 && k < image.getHeight())
           {
-            for (c=cmin; c<=cmax; c++)
-              image.set(i, k, c, v);
+            for (int c=0; c<cn; c++)
+              image.set(i, k, c, v[c]);
           }
           
           i++;
@@ -175,8 +183,8 @@ template<class T> void drawLine(Image<T> &image, long x1, long y1, long x2,
           long i=x1+(k-y1)*dx/dy;
           if (i >= 0 && i < image.getWidth())
           {
-            for (c=cmin; c<=cmax; c++)
-              image.set(i, k, c, v);
+            for (int c=0; c<cn; c++)
+              image.set(i, k, c, v[c]);
           }
           
           k++;
@@ -187,44 +195,52 @@ template<class T> void drawLine(Image<T> &image, long x1, long y1, long x2,
     {
       if (x1 >= 0 && y1 >= 0 && x1 < image.getWidth() && y1 < image.getHeight())
       {
-        for (c=cmin; c<=cmax; c++)
-          image.set(x1, y1, c, v);
+        for (int c=0; c<cn; c++)
+          image.set(x1, y1, c, v[c]);
       }
     }
 }
 
 template<class T> void drawRect(Image<T> &image, long x, long y, long w,
-  long h, T v, int c=-1)
+  long h, float r, float g=-1, float b=-1)
 {
     w=std::max(1l, w);
     h=std::max(1l, h);
     
-    drawLine(image, x, y, x+w-1, y, v, c);
-    drawLine(image, x+w-1, y, x+w-1, y+h-1, v, c);
-    drawLine(image, x+w-1, y+h-1, x, y+h-1, v, c);
-    drawLine(image, x, y+h-1, x, y, v, c);
+    drawLine(image, x, y, x+w-1, y, r, g, b);
+    drawLine(image, x+w-1, y, x+w-1, y+h-1, r, g, b);
+    drawLine(image, x+w-1, y+h-1, x, y+h-1, r, g, b);
+    drawLine(image, x, y+h-1, x, y, r, g, b);
 }
 
 template<class T> void fillRect(Image<T> &image, long x, long y, long w,
-  long h, T v, int c=-1)
+  long h, float r, float g=-1, float b=-1)
 {
-    int cmin=0;
-    int cmax=image.getDepth()-1;
+    T v[3];
     
-    if (c >= 0)
-      cmin=cmax=c;
+    if (g < 0)
+      g=r;
+    
+    if (b < 0)
+      b=r;
+    
+    v[0]=static_cast<T>(r);
+    v[1]=static_cast<T>(g);
+    v[2]=static_cast<T>(b);
+    
+    int cn=std::min(3, image.getDepth());
     
     long x1=std::max(0l, x);
     long y1=std::max(0l, y);
     long x2=std::min(x+std::max(0l, w-1), image.getWidth()-1);
     long y2=std::min(y+std::max(0l, h-1), image.getHeight()-1);
     
-    for (c=cmin; c<=cmax; c++)
+    for (int c=0; c<cn; c++)
     {
       for (y=y1; y<=y2; y++)
       {
         for (x=x1; x<=x2; x++)
-          image.set(x, y, c, v);
+          image.set(x, y, c, v[c]);
       }
     }
 }
