@@ -201,6 +201,36 @@ template<class T> void drawLine(Image<T> &image, long x1, long y1, long x2,
     }
 }
 
+template<class T> void drawArrowHead(Image<T> &image, long x1, long y1, long x2,
+  long y2, long alen, float r, float g=-1, float b=-1)
+{
+    if (alen > 0)
+    {
+      double dx=x2-x1;
+      double dy=y2-y1;
+      double len=std::sqrt(dx*dx+dy*dy);
+      
+      double x=x2-alen/len*dx;
+      double y=y2-alen/len*dy;
+      
+      long xa=static_cast<long>(x+alen/(3*len)*dy+0.5);
+      long ya=static_cast<long>(y-alen/(3*len)*dx+0.5);
+      drawLine(image, x2, y2, xa, ya, r, g, b);
+      
+      xa=static_cast<long>(x-alen/(3*len)*dy+0.5);
+      ya=static_cast<long>(y+alen/(3*len)*dx+0.5);
+      drawLine(image, x2, y2, xa, ya, r, g, b);
+    }
+}
+
+template<class T> void drawArrowLine(Image<T> &image, long x1, long y1, long x2,
+  long y2, long alen1, long alen2, float r, float g=-1, float b=-1)
+{
+    drawLine(image, x1, y1, x2, y2, r, g, b);
+    drawArrowHead(image, x1, y1, x2, y2, alen2, r, g, b);
+    drawArrowHead(image, x2, y2, x1, y1, alen1, r, g, b);
+}
+
 template<class T> void drawRect(Image<T> &image, long x, long y, long w,
   long h, float r, float g=-1, float b=-1)
 {
