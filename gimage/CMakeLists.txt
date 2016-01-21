@@ -88,18 +88,18 @@ endif ()
 
 if (INSTALL_DEVELOPMENT)
   add_library(gimage SHARED ${gimage_src})
-  target_link_libraries(gimage gmath)
+  target_link_libraries(gimage LINK_PRIVATE gmath)
 
   if (JPEG_FOUND)
-    target_link_libraries(gimage ${JPEG_LIBRARIES})
+    target_link_libraries(gimage LINK_PRIVATE ${JPEG_LIBRARIES})
   endif ()
 
   if (PNG_FOUND)
-    target_link_libraries(gimage ${PNG_LIBRARIES})
+    target_link_libraries(gimage LINK_PRIVATE ${PNG_LIBRARIES})
   endif ()
 
   if (USE_GDAL)
-    target_link_libraries(gimage ${GDAL_LIBRARIES})
+    target_link_libraries(gimage LINK_PRIVATE ${GDAL_LIBRARIES})
   endif ()
 
   install(TARGETS gimage gimage_static EXPORT CVKITTargets DESTINATION lib)

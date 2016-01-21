@@ -82,10 +82,10 @@ endif ()
 
 if (INSTALL_DEVELOPMENT)
   add_library(bgui SHARED ${bgui_src})
-  target_link_libraries(bgui gimage)
+  target_link_libraries(bgui LINK_PRIVATE gimage)
 
   if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
-    target_link_libraries(bgui ${X11_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(bgui LINK_PRIVATE ${X11_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
   endif ()
 
   install(TARGETS bgui_static bgui EXPORT CVKITTargets DESTINATION lib)

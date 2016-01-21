@@ -73,7 +73,7 @@ if (INSTALL_DEVELOPMENT)
   add_library(gutil SHARED ${gutil_src})
 
   if (INCLUDE_PTHREADS)
-    target_link_libraries(gutil ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(gutil LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT})
   endif ()
 
   install(TARGETS gutil_static gutil EXPORT CVKITTargets DESTINATION lib)

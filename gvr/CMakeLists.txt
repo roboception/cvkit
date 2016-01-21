@@ -121,15 +121,15 @@ endif ()
 
 if (INSTALL_DEVELOPMENT)
   add_library(gvr SHARED ${gvr_src})
-  target_link_libraries(gvr gimage)
+  target_link_libraries(gvr LINK_PRIVATE gimage)
 
   if (OPENGL_FOUND AND GLUT_FOUND AND GLEW_FOUND)
-    target_link_libraries(gvr ${GLUT_glut_LIBRARY})
-    target_link_libraries(gvr ${GLEW_LIBRARIES})
-    target_link_libraries(gvr ${OPENGL_LIBRARIES})
+    target_link_libraries(gvr LINK_PRIVATE ${GLUT_glut_LIBRARY})
+    target_link_libraries(gvr LINK_PRIVATE ${GLEW_LIBRARIES})
+    target_link_libraries(gvr LINK_PRIVATE ${OPENGL_LIBRARIES})
 	
     if (WIN32)
-      target_link_libraries(gvr winmm)
+      target_link_libraries(gvr LINK_PRIVATE winmm)
     endif ()
   endif ()
 
