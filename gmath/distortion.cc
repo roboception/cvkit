@@ -76,7 +76,7 @@ Distortion *Distortion::create(const gutil::Properties &prop, int id)
     
     RadialTangentialDistortion rtd(prop, id);
     
-    if (ed.getParameter(0) != 0 || ed.getParameter(1) != 0)
+    if (rtd.getParameter(0) != 0 || rtd.getParameter(1) != 0)
       return rtd.clone();
     
     if (rtd.countParameter() >= 1)
