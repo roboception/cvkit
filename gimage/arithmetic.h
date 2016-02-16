@@ -197,6 +197,22 @@ template<class T> void fillGammaMap(Image<T> &map, const Image<T> &image, double
       fillGammaMap(map, d, 0, image.absMaxValue(), g);
 }
 
+template<class T> void rotate180(Image<T> &image)
+{
+  for (int j=0; j<image.getDepth(); j++)
+  {
+    T *start=image.getPtr(0, 0, j);
+    T *end=start+image.getWidth()*image.getHeight()-1;
+    
+    while (start < end)
+    {
+      T v=*start;
+      *start++=*end;
+      *end--=v;
+    }
+  }
+}
+
 }
 
 #endif
