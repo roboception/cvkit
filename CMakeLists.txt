@@ -86,12 +86,12 @@ endif ()
 
 if (WIN32)
   set(CPACK_GENERATOR NSIS)
-  
+
   set(CPACK_NSIS_INSTALL_ROOT "C:")
   set(CPACK_PACKAGE_INSTALL_DIRECTORY "cvkit")
-  
+
   list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-  
+
   set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
     \\\${registerExtension} '\\\$INSTDIR\\\\bin\\\\plyv.exe' '.ply' 'cvkit.plyv.ply'
     \\\${registerExtension} '\\\$INSTDIR\\\\bin\\\\sv.exe' '.pfm' 'cvkit.sv.pfm'
@@ -103,13 +103,13 @@ if (WIN32)
     \\\${registerExtension} '\\\$INSTDIR\\\\bin\\\\sv.exe' '.vrt' 'cvkit.sv.vrt'
     System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)'
   ")
-  
+
   set(CPACK_NSIS_CREATE_ICONS_EXTRA "
     CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Example.lnk' '\\\$INSTDIR\\\\example'
     CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Readme.lnk' '\\\$INSTDIR\\\\doc\\\\README.txt'
     CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Usage.lnk' '\\\$INSTDIR\\\\doc\\\\USAGE.txt'
   ")
-  
+
   set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
     \\\${unregisterExtension} '.ply' 'cvkit.plyv.ply'
     \\\${unregisterExtension} '.pfm' 'cvkit.sv.pfm'
@@ -121,7 +121,7 @@ if (WIN32)
     \\\${unregisterExtension} '.vrt' 'cvkit.sv.vrt'
     System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)'
   ")
-  
+
   set(CPACK_NSIS_DELETE_ICONS_EXTRA "
     Delete '\\\$SMPROGRAMS\\\\\$MUI_TEMP\\\\Readme.lnk'
     Delete '\\\$SMPROGRAMS\\\\\$MUI_TEMP\\\\Usage.lnk'
@@ -144,8 +144,18 @@ else (WIN32)
   set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 
   set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-  
+
   set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
+
+  # Generate postinst, postrm hooks which call ldconfig
+  set(POSTINST_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/postinst")
+  set(POSTRM_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/postrm")
+  file(WRITE "${POSTINST_SCRIPT}" "#!/bin/sh\n\nset -e\n")
+  file(WRITE "${POSTRM_SCRIPT}" "#!/bin/sh\n\nset -e\n")
+  file(APPEND "${POSTINST_SCRIPT}" "if [ \"$1\" = \"configure\" ]; then\n        ldconfig\nfi\n")
+  file(APPEND "${POSTRM_SCRIPT}" "if [ \"$1\" = \"remove\" ]; then\n        ldconfig\nfi\n")
+  execute_process(COMMAND chmod 755 "${POSTINST_SCRIPT}" "${POSTRM_SCRIPT}")
+  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${POSTINST_SCRIPT};${POSTRM_SCRIPT}")
 endif ()
 
 include(CPack)
@@ -172,7 +182,7 @@ find_package(GLEW)
 if (NOT WIN32 AND NOT CYGWIN)
   find_package(X11)
   find_path(INOTIFY_DIR sys/inotify.h)
-  
+
   if (INOTIFY_DIR)
     include_directories(INOTIFY_DIR)
     add_definitions(-DINCLUDE_INOTIFY)
@@ -238,19 +248,19 @@ add_subdirectory(example)
 if (INSTALL_DEVELOPMENT)
   export(TARGETS gutil gmath gimage bgui gvr
     FILE "${PROJECT_BINARY_DIR}/CVKITTargets.cmake")
-  
+
   set(CONF_INCLUDE_DIRS "\${CVKIT_CMAKE_DIR}/../../include")
-  
+
   configure_file(cmake/CVKITConfig.cmake.in
     "${PROJECT_BINARY_DIR}/CVKITConfig.cmake" @ONLY)
-  
+
   configure_file(cmake/CVKITConfigVersion.cmake.in
     "${PROJECT_BINARY_DIR}/CVKITConfigVersion.cmake" @ONLY)
-  
+
   install(FILES
     "${PROJECT_BINARY_DIR}/CVKITConfig.cmake"
     "${PROJECT_BINARY_DIR}/CVKITConfigVersion.cmake"
     DESTINATION lib/cvkit)
-  
+
   install(EXPORT CVKITTargets DESTINATION lib/cvkit)
 endif ()
