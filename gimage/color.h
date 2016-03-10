@@ -210,12 +210,16 @@ void imageToColor(Image<T, traits> &ret, const Image<T, traits> &image)
  */
 
 template<class T>
-void imageToJET(ImageU8 &ret, const Image<T> &image)
+void imageToJET(ImageU8 &ret, const Image<T> &image, double imin=0, double imax=-1)
 {
     ret.setSize(image.getWidth(), image.getHeight(), 3);
     
-    double imin=image.minValue();
-    double imax=image.maxValue();
+    if (imax <= imin)
+    {
+      imin=image.minValue();
+      imax=image.maxValue();
+    }
+    
     double irange=imax-imin;
     
     if (irange <= 0)
