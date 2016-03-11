@@ -46,7 +46,9 @@ package_stable_amd64:
     - make package
     - upload_deb.sh stable cvkit_*_amd64.deb
   only:
-    - tags
+    - /^v[0-9.]+$/
+  except:
+    - branches
   tags:
     - amd64
     - trusty
@@ -78,7 +80,9 @@ package_stable_armhf:
     - make package
     - upload_deb.sh stable cvkit_*_armhf.deb
   only:
-    - tags
+    - /^v[0-9.]+$/
+  except:
+    - branches
   tags:
     - armhf
     - trusty
