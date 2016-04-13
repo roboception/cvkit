@@ -58,113 +58,138 @@ namespace gutil
 class Properties
 {
   public:
-    
+
     Properties() { }
-    
+
     explicit Properties(const char *name)
     {
       load(name);
     }
-    
+
     bool contains(const char *key) const
     {
       return data.find(key) != data.end();
     }
-    
+
+    bool operator == (const Properties &p) const;
+
+    bool operator != (const Properties &p) const
+    {
+      return !(operator == (p));
+    }
+
     void getString(const char *key, std::string &value, const char *defvalue=0)
       const;
-    
+
     template <class T> void getValue(const char *key, T &value,
       const char *defvalue=0) const
     {
       std::string v;
-      
+
       getString(key, v, defvalue);
-      
+
       std::istringstream in(v);
       in >> value;
-      
+
       if (in.fail())
         throw IOException("Format error: "+std::string(key)+"="+v);
     }
-    
+
+    template <class T> void getValue(const char *key, T &value,
+      const T &defvalue) const
+    {
+      std::string v;
+
+      getString(key, v, "");
+
+      value=defvalue;
+      if (v.size() > 0)
+      {
+        std::istringstream in(v);
+        in >> value;
+
+        if (in.fail())
+          throw IOException("Format error: "+std::string(key)+"="+v);
+      }
+    }
+
     void getStringVector(const char *key, std::vector<std::string> &value,
       const char *defvalue=0, const char sep='|') const;
-    
+
     template <class T> void getValueVector(const char *key, std::vector<T> &value,
       const char *defvalue=0, const char sep='|') const
     {
       std::vector<std::string> vs;
-      
+
       getStringVector(key, vs, defvalue, sep);
-      
+
       value.clear();
-      
+
       for (size_t i=0; i<vs.size(); i++)
       {
         T v;
-        
+
         std::istringstream in(vs[i]);
         in >> v;
-        
+
         if (in.fail())
           throw IOException("Format error: "+std::string(key)+"="+vs[i]);
-        
+
         value.push_back(v);
       }
     }
-    
+
     void putString(const char *key, const std::string &value);
-    
+
     template <class T> void putValue(const char *key, const T &value)
     {
       std::ostringstream out;
       out << value;
       putString(key, out.str());
     }
-    
+
     template <class T> void putValueVector(const char *key,
       const std::vector<T> &value, const char sep='|')
     {
       std::ostringstream out;
       typename std::vector<T>::const_iterator it;
-      
+
       for (it=value.begin(); it+1<value.end(); it++)
         out << *it << sep;
-      
+
       if (it < value.end())
           out << *it;
-      
+
       putString(key, out.str());
     }
-    
+
     void putStringVector(const char *key, const std::vector<std::string> &value,
       const char sep='|')
     {
       putValueVector(key, value, sep);
     }
-    
+
     void remove(const std::string &key)
     {
       data.erase(key);
     }
-    
+
     void clear()
     {
       data.clear();
     }
-    
+
     bool isEmpty() const
     {
       return data.empty();
     }
-    
+
     void load(const char *name);
     void save(const char *name, const char *comment=0) const;
     void print();
-    
+
   private:
-    
+
     std::map<std::string, std::string> data;
 };
 

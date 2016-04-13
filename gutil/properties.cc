@@ -51,11 +51,34 @@ using std::pair;
 namespace gutil
 {
 
+bool Properties::operator == (const Properties &p) const
+{
+    bool ret=true;
+
+    if (data.size() == p.data.size())
+    {
+      for (map<string,string>::const_iterator it=data.begin(); it!=data.end(); it++)
+      {
+        map<string,string>::const_iterator pit=p.data.find(it->first);
+
+        if (pit == data.end() || it->second != pit->second)
+        {
+          ret=false;
+          break;
+        }
+      }
+    }
+    else
+      ret=false;
+
+    return ret;
+}
+
 void Properties::getString(const char *key, string &value,
   const char *defvalue) const
 {
     map<string,string>::const_iterator it=data.find(key);
-    
+
     if (it != data.end())
     {
       value=it->second;
@@ -73,17 +96,17 @@ void Properties::getStringVector(const char *key, vector<string> &value,
 {
     string s;
     size_t start, end;
-    
+
     getString(key, s, defvalue);
-    
+
     value.clear();
-    
+
     start=0;
     end=s.find(sep);
     while (start < s.size())
     {
       value.push_back(s.substr(start, end-start));
-      
+
       start=s.size();
       if (end < s.size())
       {
@@ -96,10 +119,10 @@ void Properties::getStringVector(const char *key, vector<string> &value,
 void Properties::putString(const char *key, const string &value)
 {
     map<string,string>::iterator it=data.find(key);
-    
+
     if (it != data.end())
       data.erase(key);
-    
+
     data.insert(pair<string,string>(key, value));
 }
 
@@ -108,44 +131,44 @@ void Properties::load(const char *name)
     ifstream in;
     string   line;
     size_t   pos;
-    
+
     try
     {
       in.exceptions(ios_base::badbit);
       in.open(name);
-      
+
       if (!in.good())
         throw IOException(name);
-      
+
       while (in.good())
       {
         getline(in, line);
-        
+
         trim(line);
-        
+
         pos=line.find('#');
         if (pos != line.npos)
           line=line.substr(0, pos);
-        
+
         if (line.size() > 0)
         {
           pos=line.find('=');
-          
+
           if (pos != line.npos)
           {
             string key=line.substr(0, pos);
             string value=line.substr(pos+1);
-            
+
             trim(key);
             trim(value);
-            
+
             data.insert(pair<string,string>(key, value));
           }
           else
             throw IOException("Format <key>=<value> expected: "+line);
         }
       }
-      
+
       in.close();
     }
     catch (ios_base::failure ex)
@@ -157,18 +180,18 @@ void Properties::load(const char *name)
 void Properties::save(const char *name, const char *comment) const
 {
     ofstream out;
-    
+
     try
     {
       out.exceptions(ios_base::failbit | ios_base::badbit | ios_base::eofbit);
       out.open(name);
-      
+
       if (comment != 0)
          out << "# " << comment << endl;
-      
+
       for (map<string,string>::const_iterator it=data.begin(); it!=data.end(); it++)
         out << it->first << "=" << it->second << endl;
-      
+
       out.close();
     }
     catch (ios_base::failure ex)

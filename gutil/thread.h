@@ -48,15 +48,15 @@ namespace gutil
 class ThreadFunction
 {
   public:
-    
+
     /**
       Function that can be called by a thread.
-      
+
       @param start Start of iteration.
       @param end   End of iteration. It can be smaller than start.
       @param step  Increment of each iteration. It can also be negative.
     */
-    
+
     virtual void run(long start, long end, long step)=0;
 };
 
@@ -65,43 +65,46 @@ struct ThreadData;
 class Thread
 {
   public:
-    
+
     Thread();
     ~Thread();
-    
+
     /*
      * Runs the given function in an own thread, with the given arguments. If
      * affinity is >= 0 (and getMaxThreads() > 1 and getMaxThreads() ==
      * getProcessingUnits()) then the thread will only run on exactly this
      * processing unit. affinity must be between 0 and getProcessingUnits()-1).
      */
-    
+
     void create(ThreadFunction &fct, long start=0, long end=0, long step=1,
       int affinity=-1);
-    
+
     /*
      * Wait until the thread has finished.
      */
-    
+
     void join();
-  
+
     /*
      * Returns the number of processing units. If it cannot be determined,
      * then 1 is returned.
      */
-    
+
     static int getProcessingUnits();
-    
+
     /*
      * Get/set the maximum number of threads that should be started in
      * parallel.
      */
-    
+
     static int getMaxThreads();
     static void setMaxThreads(int n);
-    
+
   private:
-    
+
+    Thread(const Thread &);
+    Thread& operator=(const Thread &);
+
     ThreadData *p;
 };
 
@@ -115,17 +118,17 @@ inline void runParallel(ThreadFunction &fct, long start, long end, long step)
 {
     int n=Thread::getMaxThreads();
     n=std::min(n, static_cast<int>((end-start+1+step-1)/step));
-    
+
     if (n > 1)
     {
       Thread *thread=new Thread [n];
-      
+
       for (int i=0; i<n; i++)
         thread[i].create(fct, start+i*step, end, n*step, -1);
-      
+
       for (int i=0; i<n; i++)
         thread[i].join();
-      
+
       delete [] thread;
     }
     else

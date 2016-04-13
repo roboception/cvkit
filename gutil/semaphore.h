@@ -41,19 +41,52 @@ namespace gutil
 
 struct SemaphoreData;
 
+/**
+  Semaphore for synchronisation in the producer/consumer schema.
+*/
+
 class Semaphore
 {
   public:
-  
+
     Semaphore(int c=0);
     ~Semaphore();
-    
+
     void increment();
     void decrement();
-    
+
   private:
-    
+
+    Semaphore(const Semaphore &);
+    Semaphore& operator=(const Semaphore &);
+
     SemaphoreData *p;
+};
+
+/**
+  Lock is based on a semaphore. It decrements the semaphore in the constructor
+  and increments it in the destructor. Thus, if the semaphore is initialized
+  with 1, only one thread can enter a block during the lifetime of the Lock
+  object.
+*/
+
+class Lock
+{
+  public:
+
+    Lock(Semaphore &s) : sem(s)
+    {
+      sem.decrement();
+    }
+
+    ~Lock()
+    {
+      sem.increment();
+    }
+
+  private:
+
+    Semaphore &sem;
 };
 
 }
