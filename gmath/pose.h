@@ -59,10 +59,10 @@ inline Matrix33d getRotation(const Vector6d &pose)
 {
   Vector3d n(pose[3], pose[4], pose[5]);
   double phi=norm(n);
-  
+
   if (phi != 0)
     return createR(n/phi, phi);
-    
+
   return Matrix33d();
 }
 
@@ -76,14 +76,14 @@ inline Vector6d getPose(const Matrix33d &R, const Vector3d &T)
   Vector3d n;
   double   phi=recoverAngleAxis(R, n);
   Vector6d pose(T[0], T[1], T[2], 0, 0, 0);
-  
+
   if (phi != 0)
   {
     pose[3]=n[0]*phi;
     pose[4]=n[1]*phi;
     pose[5]=n[2]*phi;
   }
-  
+
   return pose;
 }
 
@@ -92,14 +92,14 @@ inline Vector6d getPose(const Matrix34d &RT)
   Vector3d n;
   double   phi=recoverAngleAxis(getRotation(RT), n);
   Vector6d pose(RT(0, 3), RT(1, 3), RT(2, 3), 0, 0, 0);
-  
+
   if (phi != 0)
   {
     pose[3]=n[0]*phi;
     pose[4]=n[1]*phi;
     pose[5]=n[2]*phi;
   }
-  
+
   return pose;
 }
 
@@ -108,10 +108,10 @@ inline Vector4d getQuaternion(const Vector6d &pose)
   Vector3d n(pose[3], pose[4], pose[5]);
   double phi=norm(n);
   double s=std::sin(phi/2);
-  
+
   if (phi != 0)
     s/=phi;
-  
+
   return Vector4d(n[0]*s, n[1]*s, n[2]*s, std::cos(phi/2));
 }
 
@@ -119,15 +119,15 @@ inline Vector6d getPose(const Vector4d &Q, const Vector3d &T)
 {
   double phi=2*std::acos(Q[3]);
   Vector6d pose(T[0], T[1], T[2], 0, 0, 0);
-  
-  if (phi != 0 && Q[4] != 1)
+
+  if (phi != 0 && Q[3] != 1)
   {
     double s=std::sqrt(1-Q[3]*Q[3]);
     pose[3]=phi*Q[0]/s;
     pose[4]=phi*Q[1]/s;
     pose[5]=phi*Q[2]/s;
   }
-  
+
   return pose;
 }
 
@@ -160,7 +160,7 @@ inline Vector6d combine(const Vector6d &pose0, const Vector6d &pose1)
 
 Vector6d combineError(const Vector6d &pose0, const Vector6d &pose1,
   const Vector6d &pose0_err, const Vector6d &pose1_err);
-                             
+
 }
 
 #endif
