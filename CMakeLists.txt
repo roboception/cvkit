@@ -199,7 +199,7 @@ endif ()
 
 # - Optionally compile as C++11 -
 
-set(USE_CPP11 0 CACHE BOOL "Compile as C++11 (and use standard threads)")
+set(USE_CPP11 1 CACHE BOOL "Compile as C++11 (and use standard threads)")
 
 if (USE_CPP11)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DINCLUDE_CPP11")
