@@ -48,7 +48,12 @@ Thread::Thread()
 Thread::~Thread()
 { }
 
-void Thread::create(ThreadFunction &fct, long start, long end, long step,
+void Thread::create(ThreadFunction &fct)
+{
+    fct.run();
+}
+
+void Thread::create(ParallelFunction &fct, long start, long end, long step,
   int affinity)
 {
     fct.run(start, end, step);

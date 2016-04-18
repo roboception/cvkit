@@ -56,9 +56,10 @@ struct ThreadData
 {
     bool running;
     pthread_t thread;
-    
-    ThreadFunction *fct;
-    
+
+    ThreadFunction *tfct;
+    ParallelFunction *pfct;
+
     long start;
     long end;
     long step;
@@ -70,9 +71,13 @@ namespace
 void *ptfct(void *fa)
 {
     ThreadData *p=reinterpret_cast<ThreadData *>(fa);
-    
-    p->fct->run(p->start, p->end, p->step);
-    
+
+    if (p->tfct != 0)
+      p->tfct->run();
+
+    if (p->pfct != 0)
+      p->pfct->run(p->start, p->end, p->step);
+
     return 0;
 }
 
@@ -91,18 +96,43 @@ Thread::~Thread()
       pthread_cancel(p->thread);
       pthread_join(p->thread, 0);
     }
-    
+
     delete p;
 }
 
-void Thread::create(ThreadFunction &fct, long start, long end, long step,
+void Thread::create(ThreadFunction &fct)
+{
+    assert(!p->running);
+
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+
+    p->tfct=&fct;
+    p->pfct=0;
+    p->start=0;
+    p->end=0;
+    p->step=0;
+
+#ifndef NDEBUG
+    int err=
+#endif
+    pthread_create(&(p->thread), &attr, ptfct, p);
+
+    pthread_attr_destroy(&attr);
+
+    assert(err == 0);
+
+    p->running=true;
+}
+
+void Thread::create(ParallelFunction &fct, long start, long end, long step,
   int affinity)
 {
     assert(!p->running);
-    
+
     pthread_attr_t attr;
     pthread_attr_init(&attr);
-    
+
 #ifdef _GNU_SOURCE
     if (affinity >= 0 && getMaxThreads() > 1 &&
       getMaxThreads() == getProcessingUnits())
@@ -110,25 +140,26 @@ void Thread::create(ThreadFunction &fct, long start, long end, long step,
       cpu_set_t cpuset;
       CPU_ZERO(&cpuset);
       CPU_SET(affinity, &cpuset);
-      
+
       pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
     }
 #endif
-    
-    p->fct=&fct;
+
+    p->tfct=0;
+    p->pfct=&fct;
     p->start=start;
     p->end=end;
     p->step=step;
-    
+
 #ifndef NDEBUG
     int err=
 #endif
     pthread_create(&(p->thread), &attr, ptfct, p);
-    
+
     pthread_attr_destroy(&attr);
-    
+
     assert(err == 0);
-    
+
     p->running=true;
 }
 
@@ -140,9 +171,9 @@ void Thread::join()
       int err=
 #endif
       pthread_join(p->thread, 0);
-      
+
       p->running=false;
-      
+
       assert(err == 0);
     }
 }
@@ -160,24 +191,24 @@ int Thread::getProcessingUnits()
     if (procunits <= 0)
     {
       procunits=sysconf(_SC_NPROCESSORS_ONLN);
-      
+
       if (procunits <= 0)
       {
         cerr << "Cannot determine number of CPUs, assuming one!" << endl;
         procunits=1;
       }
-      
+
       const char *s=std::getenv("CVKIT_MAX_THREADS");
-      
+
       if (s != 0)
       {
         int n=std::max(1, std::atoi(s));
-        
+
         if (n < procunits)
           procunits=n;
       }
     }
-    
+
     return procunits;
 }
 
@@ -185,7 +216,7 @@ int Thread::getMaxThreads()
 {
     if (nthreads <= 0)
       nthreads=getProcessingUnits();
-    
+
     return nthreads;
 }
 
@@ -193,7 +224,7 @@ void Thread::setMaxThreads(int n)
 {
     if (n <= 0 || n > getProcessingUnits())
       n=getProcessingUnits();
-    
+
     nthreads=n;
 }
 

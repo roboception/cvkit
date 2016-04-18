@@ -68,11 +68,18 @@ Thread::~Thread()
     delete reinterpret_cast<std::thread *>(p);
 }
 
-void Thread::create(ThreadFunction &fct, long start, long end, long step,
+void Thread::create(ThreadFunction &fct)
+{
+    assert(p == 0);
+
+    p=reinterpret_cast<ThreadData *>(new thread(&ThreadFunction::run, &fct));
+}
+
+void Thread::create(ParallelFunction &fct, long start, long end, long step,
   int affinity)
 {
     assert(p == 0);
-    
+
     p=reinterpret_cast<ThreadData *>(new thread(&ThreadFunction::run, &fct,
       start, end, step));
 }
@@ -91,24 +98,24 @@ int Thread::getProcessingUnits()
     if (procunits <= 0)
     {
       procunits=std::thread::hardware_concurrency();
-      
+
       if (procunits <= 0)
       {
         cerr << "Cannot determine number of CPUs, assuming one!" << endl;
         procunits=1;
       }
-      
+
       const char *s=std::getenv("CVKIT_MAX_THREADS");
-      
+
       if (s != 0)
       {
         int n=std::max(1, std::atoi(s));
-        
+
         if (n < procunits)
           procunits=n;
       }
     }
-    
+
     return procunits;
 }
 
@@ -116,7 +123,7 @@ int Thread::getMaxThreads()
 {
     if (nthreads <= 0)
       nthreads=getProcessingUnits();
-    
+
     return nthreads;
 }
 
@@ -124,7 +131,7 @@ void Thread::setMaxThreads(int n)
 {
     if (n <= 0 || n > getProcessingUnits())
       n=getProcessingUnits();
-    
+
     nthreads=n;
 }
 

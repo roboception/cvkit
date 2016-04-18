@@ -42,10 +42,26 @@ namespace gutil
 {
 
 /**
-  This class defines a function that can be called by executed in a thread.
+  This class defines a method that can be executed in a thread.
 */
 
 class ThreadFunction
+{
+  public:
+
+    /**
+      Function that can be called by a thread.
+    */
+
+    virtual void run()=0;
+};
+
+/**
+  This class defines a method that can be executed in a thread. The
+  parameters permit the simple parallelization of a loop.
+*/
+
+class ParallelFunction
 {
   public:
 
@@ -70,13 +86,19 @@ class Thread
     ~Thread();
 
     /*
+     * Runs the given function in an own thread.
+     */
+
+    void create(ThreadFunction &fct);
+
+    /*
      * Runs the given function in an own thread, with the given arguments. If
      * affinity is >= 0 (and getMaxThreads() > 1 and getMaxThreads() ==
      * getProcessingUnits()) then the thread will only run on exactly this
      * processing unit. affinity must be between 0 and getProcessingUnits()-1).
      */
 
-    void create(ThreadFunction &fct, long start=0, long end=0, long step=1,
+    void create(ParallelFunction &fct, long start=0, long end=0, long step=1,
       int affinity=-1);
 
     /*
@@ -114,7 +136,7 @@ class Thread
  * threads have finished.
  */
 
-inline void runParallel(ThreadFunction &fct, long start, long end, long step)
+inline void runParallel(ParallelFunction &fct, long start, long end, long step)
 {
     int n=Thread::getMaxThreads();
     n=std::min(n, static_cast<int>((end-start+1+step-1)/step));
