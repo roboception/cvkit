@@ -190,7 +190,7 @@ int Thread::getProcessingUnits()
 {
     if (procunits <= 0)
     {
-      procunits=sysconf(_SC_NPROCESSORS_ONLN);
+      procunits=sysconf(_SC_NPROCESSORS_CONF);
 
       if (procunits <= 0)
       {
