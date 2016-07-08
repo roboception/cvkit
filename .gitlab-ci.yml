@@ -1,89 +1,82 @@
-image: registry.roboception.de/tools/docker_images:buildimage
+#############
+# Templates
+#############
 
+.amd64_template: &amd64_job   # Hidden job that defines an anchor named 'amd64_job'
+  image: registry.roboception.de/tools/docker_images:buildimage
+  tags:
+    - amd64
+    - docker
+
+.armhf_template: &armhf_job   # Hidden job that defines an anchor named 'armhf_job'
+  image: armhf/ubuntu:trusty
+  before_script:
+    - sudo apt-get update -yq && sudo apt-get install -y cmake g++ libgdal-dev freeglut3-dev libglew-dev lintian
+  tags:
+    - armhf
+    - docker
+
+.package_testing_t: &package_testing
+  stage: deploy
+  script:
+    - echo $CI_BUILD_TAG
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j 4
+    - make package
+    - upload_deb.sh testing *.deb
+  only:
+    - master
+
+.package_stable_t: &package_stable
+  stage: deploy
+  script:
+    - echo $CI_BUILD_TAG
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j 4
+    - make package
+    - upload_deb.sh stable *.deb
+  only:
+    - /^v[0-9.]+$/
+  except:
+    - branches
+
+##############
+# Jobs
+##############
 build_amd64:
+  <<: *amd64_job
   stage: build
   script:
     - mkdir build
     - cd build
     - cmake ..
     - make -j 4
-  tags:
-    - amd64
 
 build_armhf:
+  <<: *armhf_job
   stage: build
   script:
     - mkdir build
     - cd build
     - cmake ..
     - make -j 4
-  tags:
-    - armhf
 
 package_testing_amd64:
-  stage: deploy
-  script:
-    - echo $CI_BUILD_TAG
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make -j 4
-    - make package
-    - upload_deb.sh testing cvkit_*_amd64.deb
-  only:
-    - master
-  tags:
-    - amd64
-    - trusty
+  <<: *amd64_job
+  <<: *package_testing
 
 package_stable_amd64:
-  stage: deploy
-  script:
-    - echo $CI_BUILD_TAG
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make -j 4
-    - make package
-    - upload_deb.sh stable cvkit_*_amd64.deb
-  only:
-    - /^v[0-9.]+$/
-  except:
-    - branches
-  tags:
-    - amd64
-    - trusty
+  <<: *amd64_job
+  <<: *package_stable
 
 package_testing_armhf:
-  stage: deploy
-  script:
-    - echo $CI_BUILD_TAG
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make -j 4
-    - make package
-    - upload_deb.sh testing cvkit_*_armhf.deb
-  only:
-    - master
-  tags:
-    - armhf
-    - trusty
+  <<: *armhf_job
+  <<: *package_testing
 
 package_stable_armhf:
-  stage: deploy
-  script:
-    - echo $CI_BUILD_TAG
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make -j 4
-    - make package
-    - upload_deb.sh stable cvkit_*_armhf.deb
-  only:
-    - /^v[0-9.]+$/
-  except:
-    - branches
-  tags:
-    - armhf
-    - trusty
+  <<: *armhf_job
+  <<: *package_stable
