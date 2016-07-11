@@ -9,9 +9,7 @@
     - docker
 
 .armhf_template: &armhf_job   # Hidden job that defines an anchor named 'armhf_job'
-  image: armhf/ubuntu:trusty
-  before_script:
-    - sudo apt-get update -yq && sudo apt-get install -y cmake g++ libgdal-dev freeglut3-dev libglew-dev lintian
+  image: registry.roboception.de/tools/docker_images:armhf-buildimage
   tags:
     - armhf
     - docker
