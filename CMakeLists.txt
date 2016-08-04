@@ -140,6 +140,22 @@ else (WIN32)
       OUTPUT_STRIP_TRAILING_WHITESPACE)
   endif ()
 
+  # add ~distribution-codename (e.g. ~trusty or ~xenial) to end of package version
+  # if lsb_release is available, take it from there or fall back to DISTRO_CODENAME env variable
+  set(DISTRO_CODENAME $ENV{DISTRO_CODENAME})
+  find_program(LSB_RELEASE_CMD lsb_release)
+  mark_as_advanced(LSB_RELEASE_CMD)
+  if (LSB_RELEASE_CMD)
+      execute_process(COMMAND "${LSB_RELEASE_CMD}" --codename --short
+              OUTPUT_VARIABLE DISTRO_CODENAME
+              OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif ()
+  if (DISTRO_CODENAME)
+      set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}~${DISTRO_CODENAME})
+  else ()
+      message(STATUS "Could not find lsb_release nor is DISTRO_CODENAME set.")
+  endif ()
+
   string(TOLOWER "${PROJECT_NAME}" CPACK_PACKAGE_NAME)
   set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 

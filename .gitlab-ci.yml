@@ -4,39 +4,65 @@
 
 .amd64_template: &amd64_job   # Hidden job that defines an anchor named 'amd64_job'
   image: registry.roboception.de/tools/docker_images:buildimage
+  variables:
+    DISTRO_CODENAME: trusty
   tags:
     - amd64
     - docker
 
 .armhf_template: &armhf_job   # Hidden job that defines an anchor named 'armhf_job'
   image: registry.roboception.de/tools/docker_images:armhf-buildimage
+  variables:
+    DISTRO_CODENAME: trusty
   tags:
     - armhf
     - docker
 
+.amd64_xenial_template: &amd64_xenial_job
+  image: registry.roboception.de/tools/docker_images:xenial-buildimage
+  variables:
+    DISTRO_CODENAME: xenial
+  tags:
+    - amd64
+    - docker
+
+.armhf_xenial_template: &armhf_xenial_job
+  image: registry.roboception.de/tools/docker_images:armhf-xenial-buildimage
+  variables:
+    DISTRO_CODENAME: xenial
+  tags:
+    - armhf
+    - docker
+
+.build_t: &build
+  stage: build
+  script:
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j 4
+
 .package_testing_t: &package_testing
   stage: deploy
   script:
-    - echo $CI_BUILD_TAG
     - mkdir build
     - cd build
     - cmake ..
     - make -j 4
     - make package
-    - upload_deb.sh testing *.deb
+    - upload_deb.sh $DISTRO_CODENAME-testing *.deb
   only:
     - master
 
 .package_stable_t: &package_stable
   stage: deploy
   script:
-    - echo $CI_BUILD_TAG
     - mkdir build
     - cd build
     - cmake ..
     - make -j 4
     - make package
-    - upload_deb.sh stable *.deb
+    - upload_deb.sh $DISTRO_CODENAME-stable *.deb
   only:
     - /^v[0-9.]+$/
   except:
@@ -47,21 +73,19 @@
 ##############
 build_amd64:
   <<: *amd64_job
-  stage: build
-  script:
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make -j 4
+  <<: *build
 
 build_armhf:
   <<: *armhf_job
-  stage: build
-  script:
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make -j 4
+  <<: *build
+
+build_xenial_amd64:
+  <<: *amd64_xenial_job
+  <<: *build
+
+build_xenial_armhf:
+  <<: *armhf_xenial_job
+  <<: *build
 
 package_testing_amd64:
   <<: *amd64_job
@@ -77,4 +101,20 @@ package_testing_armhf:
 
 package_stable_armhf:
   <<: *armhf_job
+  <<: *package_stable
+
+package_xenial_testing_amd64:
+  <<: *amd64_xenial_job
+  <<: *package_testing
+
+package_xenial_stable_amd64:
+  <<: *amd64_xenial_job
+  <<: *package_stable
+
+package_xenial_testing_armhf:
+  <<: *armhf_xenial_job
+  <<: *package_testing
+
+package_xenial_stable_armhf:
+  <<: *armhf_xenial_job
   <<: *package_stable
