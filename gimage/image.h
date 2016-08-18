@@ -467,6 +467,111 @@ template<class T, class traits=PixelTraits<T> > class Image
       }
     }
 
+    /**
+     * Access with out-of-bound check (returns the nearest
+     * valid neighbor, if out-of-bounds, and returns invalid,
+     * if one if the four neighbors are invalid)
+     */
+
+    work_t getBicubic(float x, float y, int j=0) const
+    {
+      if (x >= 1.5f && x+1.5f < width && y >= 1.5f && y+1.5f < height)
+      {
+        long i, k;
+
+        j=std::max(0, j);
+        j=std::min(depth-1, j);
+
+        x-=0.5f;
+        y-=0.5f;
+
+        i=static_cast<long>(x);
+        k=static_cast<long>(y);
+
+        x-=i;
+        y-=k;
+
+        float v[4];
+        for (int kk=0; kk<4; kk++)
+        {
+          const T *p=img[j][k-1+kk]+i-1;
+
+          if (!isValidS(p[0]) || !isValidS(p[1]) || !isValidS(p[2]) || !isValidS(p[3]))
+            return ptraits::invalid();
+
+          const float p0=static_cast<float>(p[0]);
+          const float p1=static_cast<float>(p[1]);
+          const float p2=static_cast<float>(p[2]);
+          const float p3=static_cast<float>(p[3]);
+
+          v[kk]=p1+0.5f*x*(p2-p0+x*(2*p0-5*p1+4*p2-p3+x*(3*(p1-p2)+p3-p0)));
+        }
+
+        return ptraits::limit(v[1]+0.5f*y*(v[2]-v[0]+y*(2*v[0]-5*v[1]+4*v[2]-v[3]+y*(3*(v[1]-v[2])+
+                                                                                     v[3]-v[0]))));
+      }
+
+      return getBilinear(x, y, j);
+    }
+
+    void getBicubic(std::vector<work_t> &p, float x, float y) const
+    {
+      if (x >= 1.5f && x+1.5f < width && y >= 1.5f && y+1.5f < height)
+      {
+        long i, k;
+
+        x-=0.5f;
+        y-=0.5f;
+
+        i=static_cast<long>(x);
+        k=static_cast<long>(y);
+
+        x-=i;
+        y-=k;
+
+        float x2=x*x;
+        float x3=x2*x;
+
+        float a[4];
+        a[0]=-0.5f*x+x2-0.5f*x3;
+        a[1]=1-2.5f*x2+1.5f*x3;
+        a[2]=0.5f*x+2*x2-1.5f*x3;
+        a[3]=-0.5*x2+0.5*x3;
+
+        float y2=y*y;
+        float y3=y2*y;
+
+        float b[4];
+        b[0]=-0.5f*y+y2-0.5f*y3;
+        b[1]=1-2.5f*y2+1.5f*y3;
+        b[2]=0.5f*y+2*y2-1.5f*y3;
+        b[3]=-0.5*y2+0.5*y3;
+
+        for (int j=0; j<depth; j++)
+        {
+          float res=0;
+          for (int kk=0; kk<4; kk++)
+          {
+            const T *v=img[j][k-1+kk]+i-1;
+
+            if (!isValidS(v[0]) || !isValidS(v[1]) || !isValidS(v[2]) || !isValidS(v[3]))
+            {
+              res=ptraits::invalid();
+              break;
+            }
+
+            res+=b[kk]*(a[0]*v[0]+a[1]*v[1]+a[2]*v[2]+a[3]*v[3]);
+          }
+
+          p[j]=ptraits::limit(res);
+        }
+      }
+      else
+      {
+        getBilinear(p, x, y);
+      }
+    }
+
     work_t absMinValue() const
     {
       return ptraits::minValue();
