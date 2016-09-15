@@ -237,7 +237,7 @@ void PinholeCamera::setPart(long x, long y, long w, long h)
 
 void PinholeCamera::getProperties(Properties &prop, int id) const
 {
-    Camera::getProperties(prop);
+    Camera::getProperties(prop, id);
 
     prop.putValue(getCameraKey("A", id).c_str(), A);
     prop.putValue(getCameraKey("rho", id).c_str(), rho);
