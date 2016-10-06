@@ -148,6 +148,45 @@ inline Vector6d combine(const Vector6d &pose0, const Vector6d &pose1)
 }
 
 /**
+   Returns the errors (i.e. standard deviations) of the parameters from a
+   covariance matrix.
+
+   @param pose_cov Covarience matrix.
+   @return         Error vector.
+*/
+
+inline Vector6d getError(const Matrix66d &pose_cov)
+{
+  Vector6d ret;
+
+  for (int i=0; i<6; i++)
+  {
+    ret[i]=std::sqrt(pose_cov(i, i));
+  }
+
+  return ret;
+}
+
+/**
+   Returns a covariance matrix from an error vector with standard deviations.
+
+   @param pose_err Error vector.
+   @return         Covarience matrix.
+*/
+
+inline Matrix66d getCovariance(const Vector6d pose_err)
+{
+  Matrix66d ret;
+
+  for (int i=0; i<6; i++)
+  {
+    ret(i, i)=pose_err[i]*pose_err[i];
+  }
+
+  return ret;
+}
+
+/**
    Combines the pose errors according to the combination of two pose
    transformations.
 
