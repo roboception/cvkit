@@ -11,7 +11,7 @@ static integer c__1 = 1;
 static logical c_true = TRUE_;
 
 /*<    >*/
-/* Subroutine */ int lmdif_cvkit(S_fp fcn, integer *m, integer *n, doublereal *x, 
+/* Subroutine */ int lmdif_cvkit(S_fp fcn, integer *m, integer *n, doublereal *x,
 	doublereal *fvec, doublereal *ftol, doublereal *xtol, doublereal *
 	gtol, integer *maxfev, doublereal *epsfcn, doublereal *diag, integer *
 	mode, doublereal *factor, integer *nprint, integer *info, integer *
@@ -41,17 +41,17 @@ static logical c_true = TRUE_;
     doublereal temp=0, temp1, temp2;
     integer i__, j, l, fret, iflag;
     doublereal delta;
-    extern /* Subroutine */ int qrfac_cvkit(integer *, integer *, doublereal *, 
-	    integer *, logical *, integer *, integer *, doublereal *, 
-	    doublereal *, doublereal *), lmpar_cvkit(integer *, doublereal *, 
-	    integer *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, 
+    extern /* Subroutine */ int qrfac_cvkit(integer *, integer *, doublereal *,
+	    integer *, logical *, integer *, integer *, doublereal *,
+	    doublereal *, doublereal *), lmpar_cvkit(integer *, doublereal *,
+	    integer *, integer *, doublereal *, doublereal *, doublereal *,
+	    doublereal *, doublereal *, doublereal *, doublereal *,
 	    doublereal *);
     doublereal ratio;
     extern doublereal enorm_cvkit(integer *, doublereal *);
     doublereal fnorm, gnorm;
-    extern /* Subroutine */ int fdjac2_cvkit(S_fp, integer *, integer *, 
-	    doublereal *, doublereal *, doublereal *, integer *, integer *, 
+    extern /* Subroutine */ int fdjac2_cvkit(S_fp, integer *, integer *,
+	    doublereal *, doublereal *, doublereal *, integer *, integer *,
 	    doublereal *, doublereal *, void *);
     doublereal pnorm, xnorm=0, fnorm1, actred, dirder, epsmch, prered;
     extern doublereal dpmpar_cvkit(integer *);
@@ -277,7 +277,7 @@ static logical c_true = TRUE_;
 /*     check the input parameters for errors. */
 
 /*<    >*/
-    if (*n <= 0 || *m < *n || *ldfjac < *m || *ftol < zero || *xtol < zero || 
+    if (*n <= 0 || *m < *n || *ldfjac < *m || *ftol < zero || *xtol < zero ||
 	    *gtol < zero || *maxfev <= 0 || *factor <= zero) {
 	goto L300;
     }
@@ -736,7 +736,7 @@ L290:
 	*info = 2;
     }
 /*<    >*/
-    if (abs(actred) <= *ftol && prered <= *ftol && p5 * ratio <= one && *info 
+    if (abs(actred) <= *ftol && prered <= *ftol && p5 * ratio <= one && *info
 	    == 2) {
 	*info = 3;
     }
@@ -803,4 +803,3 @@ L300:
 
 /*<       end >*/
 } /* lmdif_ */
-

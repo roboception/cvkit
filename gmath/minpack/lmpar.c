@@ -10,9 +10,9 @@
 static integer c__2 = 2;
 
 /*<    >*/
-/* Subroutine */ int lmpar_cvkit(integer *n, doublereal *r__, integer *ldr, 
-	integer *ipvt, doublereal *diag, doublereal *qtb, doublereal *delta, 
-	doublereal *par, doublereal *x, doublereal *sdiag, doublereal *wa1, 
+/* Subroutine */ int lmpar_cvkit(integer *n, doublereal *r__, integer *ldr,
+	integer *ipvt, doublereal *diag, doublereal *qtb, doublereal *delta,
+	doublereal *par, doublereal *x, doublereal *sdiag, doublereal *wa1,
 	doublereal *wa2)
 {
     /* Initialized data */
@@ -40,7 +40,7 @@ static integer c__2 = 2;
     extern doublereal dpmpar_cvkit(integer *);
     doublereal dxnorm;
     integer jm1, jp1;
-    extern /* Subroutine */ int qrsolv_cvkit(integer *, doublereal *, integer *, 
+    extern /* Subroutine */ int qrsolv_cvkit(integer *, doublereal *, integer *,
 	    integer *, doublereal *, doublereal *, doublereal *, doublereal *,
 	     doublereal *);
     doublereal sum;
@@ -487,4 +487,3 @@ L220:
 
 /*<       end >*/
 } /* lmpar_ */
-

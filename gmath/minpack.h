@@ -41,7 +41,7 @@ namespace gmath
 
 /**
   Computes the root-mean-square of the values of the given vector.
-  
+
   @param m    Number of functions.
   @param fvec Returned list of function values of size m.
   @return     Root mean square of fvec.
@@ -51,10 +51,10 @@ double rms(int m, double fvec[]);
 
 /**
   Prototype for calculating the function values fvec at x, i.e.
-  
+
   fvec[0] = f_0(x[0], ... x[n])
   fvec[m] = f_m(x[0], ... x[n])
-  
+
   @param n    Number of variables.
   @param x    List of variables of size n.
   @param m    Number of functions.
@@ -68,10 +68,10 @@ typedef int (*lmdifFct) (int n, double x[], int m, double fvec[], void *up);
 /**
   Prototype for calculating the function fvec or jacobian fjac at x. fvec and
   fjac may be NULL, if calculation is not required.
-  
+
   fvec[0] = f_0(x[0], ... x[n])
   fvec[m] = f_m(x[0], ... x[n])
-  
+
   @param n    Number of variables.
   @param x    List of variables of size n.
   @param m    Number of functions.
@@ -86,7 +86,7 @@ typedef int (*lmderFct) (int n, double x[], int m, double fvec[],
 
 /**
   Short version of lmdif(), i.e. calls lmdif with some default parameters.
-  
+
   @param fct  Function that calculates the function values for given x.
   @param m    Number of functions.
   @param n    Number of variables.
@@ -94,17 +94,18 @@ typedef int (*lmderFct) (int n, double x[], int m, double fvec[],
   @param fvec List of function values of size m.
   @param up   Pointer to user data, which is passed to fct.
   @param tol  Threshold for aborting the optimization.
+  @param step Step size for forward-difference approximation.
   @param ltmp Temporary array of size n.
-  @param dtmp Temporary array of size 5*n+m*n+m.
+  @param dtmp Temporary array of size 5*n+m+m*n.
   @return False, if the optminization failed.
 */
 
 bool slmdif(lmdifFct fct, int m, int n, double x[], double fvec[],
-  void *up=0, double tol=1e-12, long ltmp[]=0, double dtmp[]=0);
+  void *up=0, double tol=1e-12, double step=0, long ltmp[]=0, double dtmp[]=0);
 
 /**
   Short version of lmder(), i.e. calls lmder with some default parameters.
-  
+
   @param fct  Function that calculates the function values or the jacobian for
               given x.
   @param m    Number of functions.
@@ -114,7 +115,7 @@ bool slmdif(lmdifFct fct, int m, int n, double x[], double fvec[],
   @param up   Pointer to user data, which is passed to fct.
   @param tol  Threshold for aborting the optimization, e.g. 1e-12.
   @param ltmp Temporary array of size n.
-  @param dtmp Temporary array of size 5*n+m*n+m.
+  @param dtmp Temporary array of size 5*n+m.
   @return False, if the optminization failed.
 */
 

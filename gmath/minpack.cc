@@ -42,6 +42,8 @@
 #include <assert.h>
 #include <cmath>
 
+#include <iostream>
+
 /* The functions are copied as prototypes, so that the compiler can check
    if I made mistakes while calling functions with so many parameter ;-) */
 
@@ -78,13 +80,13 @@ double rms(int m, double fvec[])
 }
 
 bool slmdif(lmdifFct fct, int m, int n, double x[], double fvec[], void *up,
-  double tol, long ltmp[], double dtmp[])
+  double tol, double step, long ltmp[], double dtmp[])
 {
     integer    mp=static_cast<integer>(m);
     integer    np=static_cast<integer>(n);
     doublereal ftol=tol, xtol=tol, gtol=0;
     integer    maxfevl=static_cast<integer>(200*(n+1));
-    doublereal epsfct=0;
+    doublereal epsfct=step;
     integer    model=1;
     doublereal factor=100;
     integer    nprint=-1;
@@ -134,11 +136,11 @@ bool slmder(lmderFct fct, int m, int n, double x[], double fvec[], void *up,
       ltmp=altmp=static_cast<long *>(calloc(n, sizeof(long)));
 
     if (dtmp == NULL)
-      dtmp=adtmp=static_cast<double *>(calloc(5*n+m*n+m, sizeof(double)));
+      dtmp=adtmp=static_cast<double *>(calloc(5*n+m, sizeof(double)));
 
     lmder_cvkit(reinterpret_cast<S_fp>(fct), &mp, &np, x, fvec, dtmp+n, &ldfjacl, &ftol, &xtol, &gtol,
       &maxfevl, dtmp, &model, &factor, &nprint, &info, &nfevl, &njevl, ltmp,
-      dtmp+n+m*n, dtmp+2*n+n*m, dtmp+3*n+n*m, dtmp+4*n+n*m, dtmp+5*n+n*m, up);
+      dtmp+n, dtmp+2*n, dtmp+3*n, dtmp+4*n, dtmp+5*n, up);
 
     free(altmp);
     free(adtmp);

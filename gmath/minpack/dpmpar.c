@@ -13,7 +13,7 @@ doublereal dpmpar_cvkit(integer *i__)
     static struct {
 	doublereal e_1[3];
 	doublereal fill_2[1];
-	} equiv_2 = { { 2.22044604926e-16, 2.22507385852e-308, 
+	} equiv_2 = { { 2.22044604926e-16, 2.22507385852e-308,
 		1.79769313485e308 } };
 
 
@@ -210,5 +210,3 @@ doublereal dpmpar_cvkit(integer *i__)
 #undef maxmag
 #undef minmag
 #undef dmach
-
-

@@ -10,8 +10,8 @@
 static integer c__1 = 1;
 
 /*<       subroutine fdjac2(fcn,m,n,x,fvec,fjac,ldfjac,iflag,epsfcn,wa) >*/
-/* Subroutine */ int fdjac2_cvkit(S_fp fcn, integer *m, integer *n, doublereal *x, 
-	doublereal *fvec, doublereal *fjac, integer *ldfjac, integer *iflag, 
+/* Subroutine */ int fdjac2_cvkit(S_fp fcn, integer *m, integer *n, doublereal *x,
+	doublereal *fvec, doublereal *fjac, integer *ldfjac, integer *iflag,
 	doublereal *epsfcn, doublereal *wa, void *up)
 {
     /* Initialized data */
@@ -173,4 +173,3 @@ L30:
 
 /*<       end >*/
 } /* fdjac2_ */
-
