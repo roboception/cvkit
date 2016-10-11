@@ -72,6 +72,17 @@ typedef int (*lmdifFct) (int n, double x[], int m, double fvec[], void *up);
   fvec[0] = f_0(x[0], ... x[n])
   fvec[m] = f_m(x[0], ... x[n])
 
+  The jacobian is expected to be linearized in column major order, i.e. a 2x3
+  matrix
+
+  a00 a01 a02
+  a10 a11 a12
+
+  should be stored in this order: a00 a10 a01 a11 a02 a12
+
+  The address of an element in row k and column i is i*m+k with m as number of
+  rows.
+
   @param n    Number of variables.
   @param x    List of variables of size n.
   @param m    Number of functions.
