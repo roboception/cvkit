@@ -140,7 +140,7 @@ bool slmder(lmderFct fct, int m, int n, double x[], double fvec[], void *up,
 
     lmder_cvkit(reinterpret_cast<S_fp>(fct), &mp, &np, x, fvec, dtmp+n, &ldfjacl, &ftol, &xtol, &gtol,
       &maxfevl, dtmp, &model, &factor, &nprint, &info, &nfevl, &njevl, ltmp,
-      dtmp+n, dtmp+2*n, dtmp+3*n, dtmp+4*n, dtmp+5*n, up);
+      dtmp+n+m*n, dtmp+2*n+m*n, dtmp+3*n+m*n, dtmp+4*n+m*n, dtmp+5*n+m*n, up);
 
     free(altmp);
     free(adtmp);

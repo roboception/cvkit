@@ -115,7 +115,7 @@ bool slmdif(lmdifFct fct, int m, int n, double x[], double fvec[],
   @param up   Pointer to user data, which is passed to fct.
   @param tol  Threshold for aborting the optimization, e.g. 1e-12.
   @param ltmp Temporary array of size n.
-  @param dtmp Temporary array of size 5*n+m.
+  @param dtmp Temporary array of size 5*n+m+m*n.
   @return False, if the optminization failed.
 */
 
