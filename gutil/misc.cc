@@ -51,28 +51,28 @@ bool gutil::isMSBFirst()
 {
     int p=1;
     char *c=reinterpret_cast<char *>(&p);
-    
+
     if (c[0] == 1)
       return false;
-    
+
     return true;
 }
 
 void gutil::trim(string &s)
 {
     size_t pos;
-    
+
     pos=0;
     while (pos < s.size() && isspace(s[pos]))
       pos++;
-    
+
     if (pos > 0)
       s=s.substr(pos);
-    
+
     pos=s.size();
     while (pos > 0 && isspace(s[pos-1]))
       pos--;
-    
+
     if (pos < s.size())
       s=s.substr(0, pos);
 }
@@ -81,7 +81,7 @@ void gutil::split(vector<string> &list, const string &s, char delim, bool skip_e
 {
     stringstream in(s);
     string elem;
-    
+
     while (getline(in, elem, delim))
     {
       if (!skip_empty || elem.size() > 0)
@@ -95,39 +95,39 @@ void gutil::getFileList(set<string> &list, const string &prefix,
 #ifdef __GNUC__
     string dir="", pref=prefix;
     size_t pos=pref.find_last_of("/\\");
-    
+
     if (pos < pref.size())
     {
       dir=pref.substr(0, pos+1);
       pref=pref.substr(pos+1);
     }
-    
+
     DIR *p;
     if (dir.size() > 0)
       p=opendir(dir.c_str());
     else
       p=opendir(".");
-    
+
     if (p == 0)
       throw IOException("Cannot open directory: "+dir);
-    
+
     list.clear();
-    
+
     struct dirent *entry=readdir(p);
     while (entry != 0)
     {
       string name=entry->d_name;
-      
-      if (name.find(pref) ==  0 && (suffix.size() == 0 ||
+
+      if (name.size() >= pref.size()+suffix.size() &&
+        name.find(pref) ==  0 && (suffix.size() == 0 ||
         name.rfind(suffix) == name.size()-suffix.size()))
         list.insert(dir+name);
-      
+
       entry=readdir(p);
     }
-    
+
     closedir(p);
 #else
     assert(false);
 #endif
 }
-
