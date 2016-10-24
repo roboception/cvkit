@@ -48,36 +48,36 @@ namespace gimage
 template<class T> Image<T> downscaleImage(const Image<T> &image, int factor)
 {
     factor=std::max(1, factor);
-    
+
     if (factor == 1)
       return image;
-    
+
     Image<T> ret((image.getWidth()+factor-1)/factor,
       (image.getHeight()+factor-1)/factor, image.getDepth());
-    
+
     for (int d=0; d<image.getDepth(); d++)
     {
       T *out=ret.getPtr(0, 0, d);
-      
+
       long k=0;
       while (k+factor <= image.getHeight())
       {
         long i=0;
-        
+
         if (factor == 2)
         {
           // speeding up special case of averaging over 2*2 pixels
-          
+
           while (i+2 <= image.getWidth())
           {
             typename Image<T>::work_t v;
-            
+
             const T *in=image.getPtr(i, k, d);
-            
+
             v=*in+in[1];
             in+=image.getWidth();
             v+=*in+in[1];
-            
+
             *out++=static_cast<typename Image<T>::store_t>((v+2)/4);
             i+=2;
           }
@@ -85,19 +85,19 @@ template<class T> Image<T> downscaleImage(const Image<T> &image, int factor)
         else if (factor == 3)
         {
           // speeding up special case of averaging over 3*3 pixels
-          
+
           while (i+3 <= image.getWidth())
           {
             typename Image<T>::work_t v=0;
-            
+
             const T *in=image.getPtr(i, k, d);
-            
+
             for (int j=0; j<3; j++)
             {
               v+=*in+in[1]+in[2];
               in+=image.getWidth();
             }
-            
+
             *out++=static_cast<typename Image<T>::store_t>((v+4)/9);
             i+=3;
           }
@@ -105,19 +105,19 @@ template<class T> Image<T> downscaleImage(const Image<T> &image, int factor)
         else if (factor == 4)
         {
           // speeding up special case of averaging over 4*4 pixels
-          
+
           while (i+4 <= image.getWidth())
           {
             typename Image<T>::work_t v=0;
-            
+
             const T *in=image.getPtr(i, k, d);
-            
+
             for (int j=0; j<4; j++)
             {
               v+=*in+in[1]+in[2]+in[3];
               in+=image.getWidth();
             }
-            
+
             *out++=static_cast<typename Image<T>::store_t>((v+8)/16);
             i+=4;
           }
@@ -125,12 +125,12 @@ template<class T> Image<T> downscaleImage(const Image<T> &image, int factor)
         else
         {
           // average over factor*factor pixels of the input image
-          
+
           while (i+factor <= image.getWidth())
           {
             typename Image<T>::work_t v=0;
             int n=0;
-            
+
             const T *in=image.getPtr(i, k, d);
             for (int kk=0; kk<factor; kk++)
             {
@@ -139,23 +139,23 @@ template<class T> Image<T> downscaleImage(const Image<T> &image, int factor)
                 v+=in[ii];
                 n++;
               }
-              
+
               in+=image.getWidth();
             }
-            
+
             *out++=static_cast<typename Image<T>::store_t>((v+(n>>1))/n);
             i+=factor;
           }
         }
-        
+
         // if there are less than factor pixels left in the image row, then
         // average with boundary check
-        
+
         if (i < image.getWidth())
         {
           typename Image<T>::work_t v=0;
           int n=0;
-          
+
           const T *in=image.getPtr(i, k, d);
           for (int kk=0; kk<factor; kk++)
           {
@@ -164,26 +164,26 @@ template<class T> Image<T> downscaleImage(const Image<T> &image, int factor)
               v+=in[ii];
               n++;
             }
-            
+
             in+=image.getWidth();
           }
-          
+
           *out++=static_cast<typename Image<T>::store_t>((v+(n>>1))/n);
         }
-        
+
         k+=factor;
       }
-      
+
       // if there are less than factor image rows left in the image, then
       // average with boundary check
-      
+
       if (k < image.getHeight())
       {
         for (long i=0; i<image.getWidth(); i+=factor)
         {
           typename Image<T>::work_t v=0;
           int n=0;
-          
+
           const T *in=image.getPtr(i, k, d);
           for (int kk=0; kk<factor && k+kk<image.getHeight(); kk++)
           {
@@ -192,27 +192,27 @@ template<class T> Image<T> downscaleImage(const Image<T> &image, int factor)
               v+=in[ii];
               n++;
             }
-            
+
             in+=image.getWidth();
           }
-          
+
           *out++=static_cast<typename Image<T>::store_t>((v+(n>>1))/n);
         }
       }
     }
-    
+
     return ret;
 }
 
 template<class T> Image<T> medianDownscaleImage(const Image<T> &image, int factor)
 {
     factor=std::max(1, factor);
-    
+
     Image<T> ret((image.getWidth()+factor-1)/factor,
       (image.getHeight()+factor-1)/factor, image.getDepth());
-    
+
     std::vector<T> v(factor*factor, 0);
-    
+
     for (int d=0; d<image.getDepth(); d++)
     {
       for (long k=0; k<image.getHeight(); k+=factor)
@@ -220,7 +220,7 @@ template<class T> Image<T> medianDownscaleImage(const Image<T> &image, int facto
         for (long i=0; i<image.getWidth(); i+=factor)
         {
           int n=0;
-          
+
           for (int kk=0; kk<factor && k+kk<image.getHeight(); kk++)
           {
             for (int ii=0; ii<factor && i+ii<image.getWidth(); ii++)
@@ -229,7 +229,7 @@ template<class T> Image<T> medianDownscaleImage(const Image<T> &image, int facto
               n++;
             }
           }
-          
+
           if (n > 0)
           {
             partial_sort(v.begin(), v.begin()+(n>>1), v.begin()+n);
@@ -238,7 +238,7 @@ template<class T> Image<T> medianDownscaleImage(const Image<T> &image, int facto
         }
       }
     }
-    
+
     return ret;
 }
 
@@ -246,19 +246,32 @@ template<class T> Image<T> cropImage(const Image<T> &image, long x, long y, long
 {
     w=std::max(0l, w);
     h=std::max(0l, h);
-    
+
     Image<T> ret(w, h, image.getDepth());
-    
-    for (int d=0; d<image.getDepth(); d++)
+
+    if (x >= 0 && y >= 0 && x+w <= image.getWidth() && y+h <= image.getHeight())
     {
-      for (long k=0; k<h; k++)
+      for (int d=0; d<image.getDepth(); d++)
       {
-        for (long i=0; i<w; i++)
-          ret.set(i, k, d,
-            static_cast<typename Image<T>::store_t>(image.getBoundsInv(x+i, y+k, d)));
+        for (long k=0; k<h; k++)
+        {
+          memcpy(ret.getPtr(0, k, d), image.getPtr(x, y+k, d), w*sizeof(T));
+        }
       }
     }
-    
+    else
+    {
+      for (int d=0; d<image.getDepth(); d++)
+      {
+        for (long k=0; k<h; k++)
+        {
+          for (long i=0; i<w; i++)
+            ret.set(i, k, d,
+              static_cast<typename Image<T>::store_t>(image.getBoundsInv(x+i, y+k, d)));
+        }
+      }
+    }
+
     return ret;
 }
 

@@ -236,7 +236,7 @@ template<class T, class traits=PixelTraits<T> > class Image
       }
       else
       {
-        for (int i=0; i<n; i++)
+        for (long i=0; i<n; i++)
           pixel[i]=inv;
       }
     }
@@ -280,6 +280,19 @@ template<class T, class traits=PixelTraits<T> > class Image
       }
 
       return true;
+    }
+
+    bool isValid() const
+    {
+      store_t inv=ptraits::limit(ptraits::invalid());
+
+      for (long i=0; i<n; i++)
+      {
+        if (pixel[i] != inv)
+          return true;
+      }
+
+      return false;
     }
 
     /**
