@@ -1,4 +1,28 @@
 
+Version 1.8.0 (2nd November 2016)
+---------------------------------
+
+- Fixed several bugs when loading tiled images
+- Added method for checking if an image contains valid pixels
+- Speeded up image cropping function
+- Added parameters for selecting the step width in minpack wrapper slmdif()
+- Added functions for converting between errors and covariances
+- Fixed bug when loading pinhole camera definition by id
+- Added bicubic interpolation for accessing values in between pixels
+- Improved speed for copying images
+- gutil::Thread::getProcessingUnits() now returns number of configured instead
+  of available CPUs
+- Changed thread interface for more flexibility
+- Fixed wrong index in gmath::getPose() from quaternion
+- Added compare operator and getValue() method to gutil::Properties class
+- Added possibility to specify intensity range in imageToJET() function
+- Added function for fast rotating an image by 180 degrees
+- Improved speed of downscaleImage() function
+- Added functions for drawing arrows into gimage/paint.h
+- Added explicit distortion models to gmath/camera
+- Compiles as C++11 by default
+- Some changes in cmake files
+
 Version 1.7.0 (26th October 2015)
 ---------------------------------
 
