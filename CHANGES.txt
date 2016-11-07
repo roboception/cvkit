@@ -1,5 +1,5 @@
 
-Version 1.8.1 (7th November 2016)
+Version 1.8.2 (7th November 2016)
 ---------------------------------
 
 - Added helper class MsgQueue for inter-thread communication
