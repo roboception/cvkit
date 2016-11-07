@@ -226,6 +226,14 @@ template<class T, class traits=PixelTraits<T> > class Image
       return *this;
     }
 
+    Image<T>& operator=(store_t v)
+    {
+      for (long i=0; i<n; i++)
+        pixel[i]=v;
+
+      return *this;
+    }
+
     void clear()
     {
       store_t inv=ptraits::limit(ptraits::invalid());

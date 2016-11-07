@@ -49,6 +49,7 @@ set(gutil_hh
   properties.h
   semaphore.h
   thread.h
+  msgqueue.h
   version.h
 )
 
