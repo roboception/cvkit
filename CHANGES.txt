@@ -1,4 +1,11 @@
 
+Version 1.8.1 (7th November 2016)
+---------------------------------
+
+- Added helper class MsgQueue for inter-thread communication
+- Added method to initialize all pixels of an image to a given value
+- Changed cmake file for adding debian package number before distro codename
+
 Version 1.8.0 (2nd November 2016)
 ---------------------------------
 
