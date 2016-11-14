@@ -225,10 +225,15 @@ template<class T> Image<T> medianDownscaleImage(const Image<T> &image, int facto
           {
             for (int ii=0; ii<factor && i+ii<image.getWidth(); ii++)
             {
-              v[n]=image.get(i+ii, k+kk, d);
-              n++;
+              if (image.isValid(i+ii, k+kk))
+              {
+                v[n]=image.get(i+ii, k+kk, d);
+                n++;
+              }
             }
           }
+
+          ret.setInvalid(i/factor, k/factor, d);
 
           if (n > 0)
           {

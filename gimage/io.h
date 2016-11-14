@@ -65,20 +65,20 @@ namespace gimage
 class BasicImageIO
 {
   public:
-    
+
     virtual ~BasicImageIO() {};
-    
+
     virtual BasicImageIO *create() const=0;
-    
+
     virtual bool handlesFile(const char *name, bool reading) const=0;
-    
+
     virtual void loadHeader(const char *name, long &width, long &height, int &depth) const;
-    
+
     virtual void loadProperties(gutil::Properties &prop, const char *name) const ;
     virtual void load(ImageU8 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
     virtual void load(ImageU16 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
     virtual void load(ImageFloat &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
-    
+
     virtual void saveProperties(const gutil::Properties &prop, const char *name) const;
     virtual void save(const ImageU8 &image, const char *name) const;
     virtual void save(const ImageU16 &image, const char *name) const;
@@ -103,29 +103,29 @@ class BasicImageIO
 class ImageIO
 {
   public:
-    
+
     ImageIO();
-    
+
     void addBasicImageIO(const BasicImageIO &io);
-    
+
     bool handlesFile(const char *name, bool reading) const;
-    
+
     void loadHeader(const char *name, long &width, long &height, int &depth) const;
-    
+
     void loadProperties(gutil::Properties &prop, const char *name) const;
     void load(ImageU8 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
     void load(ImageU16 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
     void load(ImageFloat &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
-    
+
     void saveProperties(const gutil::Properties &prop, const char *name) const;
     void save(const ImageU8 &image, const char *name) const;
     void save(const ImageU16 &image, const char *name) const;
     void save(const ImageFloat &image, const char *name) const;
-  
+
   private:
-    
+
     const BasicImageIO &getBasicImageIO(const char *name, bool reading) const;
-    
+
     std::vector<BasicImageIO *> list;
 };
 
@@ -136,9 +136,12 @@ class ImageIO
 ImageIO& getImageIO();
 
 /**
- * Returns an unused filename for storing an image. The name is derived from
- * the given prefix, which may also include a directory. This function returns
- * an empty string, if a new name cannot be generated.
+ * Returns an unused filename for storing an image. The name is derived by
+ * splitting the existing name (which may include a directory) into a prefix
+ * and suffix and putting an increasing integer number in between. If the name
+ * does not include a suffix, then the full name is taken as prefix and a
+ * suffix is internally created. This function returns an empty string, if a
+ * new name cannot be generated.
  */
 
 std::string getNewImageName(std::string prefix);
@@ -146,4 +149,3 @@ std::string getNewImageName(std::string prefix);
 }
 
 #endif
-

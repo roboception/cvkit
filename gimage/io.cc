@@ -614,13 +614,27 @@ ImageIO& getImageIO()
 
 string getNewImageName(string prefix)
 {
+      // try getting existing suffix
+
+    string suffix;
+
+    size_t i=prefix.rfind('.');
+    if (i != prefix.npos && prefix.size()-i <= 4)
+    {
+      suffix=prefix.substr(i);
+      prefix=prefix.substr(0, i);
+    }
+
       // determine supported format for writing image
 
-    string suffix=".ppm";
-    if (getImageIO().handlesFile("file.png", false))
-      suffix=".png";
-    else if (getImageIO().handlesFile("file.tif", false))
-      suffix=".tif";
+    if (suffix.size() == 0)
+    {
+      suffix=".ppm";
+      if (getImageIO().handlesFile("file.png", false))
+        suffix=".png";
+      else if (getImageIO().handlesFile("file.tif", false))
+        suffix=".tif";
+    }
 
       // find file name that is not used
 
@@ -644,6 +658,7 @@ string getNewImageName(string prefix)
 
       if (!file.is_open())
         name=out.str();
+
       file.close();
     }
 
