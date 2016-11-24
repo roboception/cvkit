@@ -131,3 +131,23 @@ void gutil::getFileList(set<string> &list, const string &prefix,
     assert(false);
 #endif
 }
+
+bool gutil::skip(std::istream &in, const char *expected)
+{
+  if (in.good())
+  {
+    std::string s;
+    in >> s;
+
+    if (s == expected)
+      return true;
+
+#ifndef NDEBUG
+    std::cerr << "gutil::skip() expected '" << expected << "' but got '" << s << "'" << std::endl;
+#endif
+
+    in.setstate(std::ios_base::failbit);
+  }
+
+  return false;
+}
