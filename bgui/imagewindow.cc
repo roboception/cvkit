@@ -66,7 +66,7 @@ namespace
 string createHelpText()
 {
     ostringstream out;
-    
+
     out << "Usage and Keycodes:\n";
     out << "\n";
     out << "left mouse click and moving for panning\n";
@@ -96,7 +96,7 @@ string createHelpText()
     out << "'b', 'w'       Scale such that pixel at current mouse position is black or white\n";
     out << "'m'            Switching between raw, jet and rainbow mapping for greyscale images\n";
     out << "'1', '2', '4'  Setting the corresponding value as gamma factor\n";
-    
+
     return out.str();
 }
 
@@ -109,9 +109,9 @@ void ImageWindow::updateInfo()
       int           w, h;
       double        scale=adapt->getScale();
       ostringstream os;
-      
+
       getSize(w, h);
-      
+
       os << "rotation=" << adapt->getRotation()*90;
       os << "; flip=" << adapt->getFlip();
       os << "; scale=" << scale;
@@ -123,7 +123,7 @@ void ImageWindow::updateInfo()
       os << ":" << adapt->getMaxIntensity();
       os << "]; smooth=" << adapt->getSmoothing();
       os << "; gamma=" << adapt->getGamma();
-      
+
       setInfoLine(os.str().c_str(), true, true);
     }
     else
@@ -142,7 +142,7 @@ ImageWindow::ImageWindow() : BaseWindow("Image", 100, 100)
     lastkey='\0';
     imx=imy=0;
     showinfo=false;
-    
+
     addHelpText(createHelpText());
 };
 
@@ -150,31 +150,31 @@ ImageWindow::ImageWindow(const ImageU8 &image, int x, int y, int w, int h,
   double vmin, double vmax) : BaseWindow("Image", 100, 100)
 {
     ImageAdapterBase *p=new ImageAdapter<uint8>(&image, vmin, vmax);
-    
+
     adapt=0;
     del=false;
     lastkey='\0';
     imx=imy=0;
     showinfo=false;
-    
+
     addHelpText(createHelpText());
-    
+
     ostringstream os;
-    
+
     os << "Image - " << image.getWidth() << "x" << image.getHeight() << "x" <<
       image.getDepth() << " " << image.getTypeDescription();
-    
+
     setTitle(os.str().c_str());
-    
+
     if (w <= 0)
       w=image.getWidth();
-    
+
     if (h <= 0)
       h=image.getHeight();
-    
+
     setAdapter(p, true, keep_none, w, h);
     setVisible(true);
-    
+
     if (x >= 0 && y >= 0)
       setPosition(x, y);
 }
@@ -183,31 +183,31 @@ ImageWindow::ImageWindow(const ImageU16 &image, int x, int y, int w, int h,
   double vmin, double vmax) : BaseWindow("Image", 100, 100)
 {
     ImageAdapterBase *p=new ImageAdapter<uint16>(&image, vmin, vmax);
-    
+
     adapt=0;
     del=false;
     lastkey='\0';
     imx=imy=0;
     showinfo=false;
-    
+
     addHelpText(createHelpText());
-    
+
     ostringstream os;
-    
+
     os << "Image - " << image.getWidth() << "x" << image.getHeight() << "x" <<
       image.getDepth() << " " << image.getTypeDescription();
-    
+
     setTitle(os.str().c_str());
-    
+
     if (w <= 0)
       w=image.getWidth();
-    
+
     if (h <= 0)
       h=image.getHeight();
-    
+
     setAdapter(p, true, keep_none, w, h);
     setVisible(true);
-    
+
     if (x >= 0 && y >= 0)
       setPosition(x, y);
 }
@@ -216,31 +216,31 @@ ImageWindow::ImageWindow(const ImageFloat &image, int x, int y, int w, int h,
   double vmin, double vmax) : BaseWindow("Image", 100, 100)
 {
     ImageAdapterBase *p=new ImageAdapter<float>(&image, vmin, vmax);
-    
+
     adapt=0;
     del=false;
     lastkey='\0';
     imx=imy=0;
     showinfo=false;
-    
+
     addHelpText(createHelpText());
-    
+
     ostringstream os;
-    
+
     os << "Image - " << image.getWidth() << "x" << image.getHeight() << "x" <<
       image.getDepth() << " " << image.getTypeDescription();
-    
+
     setTitle(os.str().c_str());
-    
+
     if (w <= 0)
       w=image.getWidth();
-    
+
     if (h <= 0)
       h=image.getHeight();
-    
+
     setAdapter(p, true, keep_none, w, h);
     setVisible(true);
-    
+
     if (x >= 0 && y >= 0)
       setPosition(x, y);
 }
@@ -256,10 +256,10 @@ void ImageWindow::setAdapter(ImageAdapterBase *adapter, bool delete_on_close,
 {
     int  dw, dh;
     long iw, ih;
-    
+
     showinfo=false;
     updateInfo();
-    
+
     if (adapter != 0 && adapt != 0)
     {
       if (k == keep_most || k == keep_all)
@@ -270,61 +270,61 @@ void ImageWindow::setAdapter(ImageAdapterBase *adapter, bool delete_on_close,
         adapter->setMapping(adapt->getMapping());
         adapter->setSmoothing(adapt->getSmoothing());
       }
-      
+
       if (k == keep_all)
       {
         adapter->setMinIntensity(adapt->getMinIntensity());
         adapter->setMaxIntensity(adapt->getMaxIntensity());
       }
     }
-    
+
       // delete current adapter
-    
+
     if (del)
       delete adapt;
-    
+
       // store adapter
-    
+
     adapt=adapter;
     del=delete_on_close;
-    
+
     if (adapt != 0)
     {
       if (k == keep_none)
       {
         bool set_window_size=false;
-        
+
         if (w >= 0 && h >= 0)
           set_window_size=true;
         else
           getSize(w, h);
-        
+
         getDisplaySize(dw, dh);
-        
+
         w=min(w, dw);
         h=min(h, dh);
-        
+
           // define scale for viewing
-        
+
         if (adapt->getScale() == 0)
         {
           adapt->setScale(1.0);
           iw=adapt->getWidth();
           ih=adapt->getHeight();
-          
+
           double s=static_cast<double>(w)/iw;
           adapt->setScale(s);
-          
+
           if (adapt->getHeight() > h)
           {
             s=static_cast<double>(h)/ih;
             adapt->setScale(s);
           }
-          
+
           if (s > 1)
             adapt->setScale(1);
         }
-        
+
         if (set_window_size)
         {
           if (size_max)
@@ -332,7 +332,7 @@ void ImageWindow::setAdapter(ImageAdapterBase *adapter, bool delete_on_close,
           else
             setSize(w, h);
         }
-        
+
         imx=0;
         imy=0;
       }
@@ -341,9 +341,9 @@ void ImageWindow::setAdapter(ImageAdapterBase *adapter, bool delete_on_close,
         iw=adapt->getWidth();
         ih=adapt->getHeight();
       }
-      
+
         // draw image
-      
+
       redrawImage();
     }
     else
@@ -364,38 +364,38 @@ void ImageWindow::redrawImage(bool force)
     {
       int w, h;
       int x=imx, y=imy;
-      
+
         // check position and modify if needed
-      
+
       getSize(w, h);
-      
+
       if (adapt->getWidth() >= w)
       {
         x=max(x, 0);
-        
+
         if (adapt->getWidth()-x < w)
           x=adapt->getWidth()-w;
       }
       else
         x=(adapt->getWidth()-w)/2;
-      
+
       if (adapt->getHeight() >= h)
       {
         y=max(y, 0);
-        
+
         if (adapt->getHeight()-y < h)
           y=adapt->getHeight()-h;
       }
       else
         y=(adapt->getHeight()-h)/2;
-      
+
         // paint only if forced or position has changed
-      
+
       if (force || x != imx || y != imy)
       {
         imx=x;
         imy=y;
-        
+
         clearBuffer();
         paintBuffer(*adapt, -imx, -imy);
         showBuffer();
@@ -409,22 +409,22 @@ void ImageWindow::visibleImagePart(long &x, long &y, long &w, long &h)
     {
       int ww, hh;
       getSize(ww, hh);
-      
+
       double scale=adapt->getScale();
-      
+
       SVector<long, 3> q1, q2;
-      
+
       q1[0]=static_cast<long>(max(imx, 0)/scale);
       q1[1]=static_cast<long>(max(imy, 0)/scale);
       q1[2]=1;
-      
+
       q2[0]=q1[0]+static_cast<long>(min(static_cast<long>(ww), adapt->getWidth())/scale);
       q2[1]=q1[1]+static_cast<long>(min(static_cast<long>(hh), adapt->getHeight())/scale);
       q2[2]=1;
-      
+
       const SVector<long, 2> p1=adapt->getRotationMatrix()*q1;
       const SVector<long, 2> p2=adapt->getRotationMatrix()*q2;
-      
+
       x=min(p1[0], p2[0]);
       y=min(p1[1], p2[1]);
       w=max(p1[0], p2[0])-x;
@@ -449,10 +449,10 @@ void ImageWindow::onMousePressed(Button b, int x, int y, int state)
     {
       case button1:
             // store for panning
-          
+
           xp=x+imx;
           yp=y+imy;
-          
+
           if ((state & shiftmask) != 0 && adapt != 0 && xp >= 0 &&
             xp < adapt->getWidth() && yp >= 0 && yp < adapt->getHeight())
           {
@@ -461,13 +461,13 @@ void ImageWindow::onMousePressed(Button b, int x, int y, int state)
           }
           else
             updateInfo();
-          
+
           break;
-      
+
       case button3:
           xp=x+imx;
           yp=y+imy;
-          
+
           if (adapt != 0 && xp >= 0 && xp < adapt->getWidth() && yp >= 0 &&
             yp < adapt->getHeight())
           {
@@ -475,7 +475,7 @@ void ImageWindow::onMousePressed(Button b, int x, int y, int state)
             setInfoLine(adapt->getDescriptionOfPixel(xp, yp).c_str(), y > getTextHeight());
           }
           break;
-          
+
       case button4:
           setInfoLine("");
           if (adapt != 0)
@@ -483,22 +483,22 @@ void ImageWindow::onMousePressed(Button b, int x, int y, int state)
             double s=adapt->getScale();
             double xx=(x+imx)/s;
             double yy=(y+imy)/s;
-            
+
             s=1.0/pow(2.0, floor(log(1.0/s)/log(2.0)));
-            
+
             if (s == adapt->getScale())
               s*=2;
-            
+
             adapt->setScale(s);
-            
+
             imx=static_cast<long>(xx*s-x);
             imy=static_cast<long>(yy*s-y);
-            
+
             redrawImage();
             updateInfo();
           }
           break;
-      
+
       case button5:
           if (adapt != 0)
           {
@@ -507,48 +507,48 @@ void ImageWindow::onMousePressed(Button b, int x, int y, int state)
             double yy=(y+imy)/s;
             int    w, h;
             long   iw, ih;
-            
+
             adapt->setScale(1.0);
             iw=adapt->getWidth();
             ih=adapt->getHeight();
-            
+
             getSize(w, h);
-            
+
             s=1.0/pow(2.0, floor(log(1.0/s)/log(2.0)+1e-6));
-            
+
             s/=2;
-            
+
             adapt->setScale(s);
-            
+
             if (s < 1)
             {
               if (adapt->getWidth() < w && adapt->getHeight() < h)
               {
                 s=static_cast<double>(w)/iw;
                 adapt->setScale(s);
-                
+
                 if (adapt->getHeight() > h)
                 {
                   s=static_cast<double>(h)/ih;
                   adapt->setScale(s);
                 }
               }
-              
+
               if (s > 1)
               {
                 s=1;
                 adapt->setScale(s);
               }
             }
-            
+
             imx=static_cast<long>(xx*s-x);
             imy=static_cast<long>(yy*s-y);
-            
+
             redrawImage();
             updateInfo();
           }
           break;
-      
+
       default:
           break;
     }
@@ -560,16 +560,16 @@ void ImageWindow::onMouseReleased(Button b, int x, int y, int state)
 void ImageWindow::onMouseMove(int x, int y, int state)
 {
       // if left button is pressed, then perform panning
-    
+
     if (state == button1mask)
     {
       imx=xp-x;
       imy=yp-y;
-      
+
       redrawImage();
       updateInfo();
     }
-    
+
     if ((state == (button1mask|shiftmask) || state == button3mask) &&
       adapt != 0 && x+imx >= 0 && x+imx < adapt->getWidth() && y+imy >= 0 &&
       y+imy < adapt->getHeight())
@@ -583,10 +583,10 @@ void ImageWindow::onMouseMove(int x, int y, int state)
 void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
 {
     lastkey=c;
-    
+
     if (c != 'h' && c != 'v')
       setInfoText("");
-    
+
     switch (c)
     {
       case '0':
@@ -597,7 +597,7 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
             updateInfo();
           }
           break;
-      
+
       case '1':
       case '2':
       case '4':
@@ -608,39 +608,39 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
             updateInfo();
           }
           break;
-      
+
       case 'R':
           if (adapt != 0)
             adapt->setChannel(0);
           redrawImage();
           break;
-      
+
       case 'G':
           if (adapt != 0)
             adapt->setChannel(1);
           redrawImage();
           break;
-      
+
       case 'B':
           if (adapt != 0)
             adapt->setChannel(2);
           redrawImage();
           break;
-      
+
       case 'C':
           if (adapt != 0)
             adapt->setChannel(-1);
           redrawImage();
           break;
-      
+
       case '+':
           onMousePressed(button4, x, y, button4mask);
           break;
-      
+
       case '-':
           onMousePressed(button5, x, y, button5mask);
           break;
-      
+
       case 't':
           if (adapt != 0)
           {
@@ -649,27 +649,27 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
             updateInfo();
           }
           break;
-      
+
       case 'a':
           if (adapt != 0)
           {
             int w, h;
-            
+
             getSize(w, h);
-            
+
             adapt->adaptMinMaxIntensity(imx, imy, w, h);
             redrawImage();
             updateInfo();
           }
           break;
-      
+
       case 'b':
           if (adapt != 0)
           {
             int w, h;
-            
+
             getSize(w, h);
-            
+
             if (x+imx >= 0 && x+imx < adapt->getWidth() && x >= 0 && x < w
               && y+imy >= 0 && y+imy < adapt->getHeight() && y >= 0 && y < h)
             {
@@ -683,14 +683,14 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
             }
           }
           break;
-      
+
       case 'w':
           if (adapt != 0)
           {
             int w, h;
-            
+
             getSize(w, h);
-            
+
             if (x+imx >= 0 && x+imx < adapt->getWidth() && x >= 0 && x < w
               && y+imy >= 0 && y+imy < adapt->getHeight() && y >= 0 && y < h)
             {
@@ -704,7 +704,7 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
             }
           }
           break;
-      
+
       case 'm':
           if (adapt != 0)
           {
@@ -713,38 +713,39 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
               case map_raw:
                   adapt->setMapping(map_jet);
                   break;
-              
+
               case map_jet:
                   adapt->setMapping(map_rainbow);
                   break;
-              
+
               case map_rainbow:
                   adapt->setMapping(map_raw);
                   break;
             }
-            
+
             redrawImage();
           }
           break;
-          
+
       case 'i':
           showinfo=!showinfo;
           updateInfo();
           break;
-      
+
       case 'h':
           if (!hasInfoText())
             setInfoText(helptext.c_str());
           else
             setInfoText("");
           break;
-      
+
       case 'v':
           if (!hasInfoText())
           {
             ostringstream out;
-            
+
             out << "This program is based on cvkit version " << VERSION << "\n";
+            out << "Copyright (C) 2016 Roboception GmbH\n";
             out << "Copyright (C) 2014, 2015 Institute of Robotics and Mechatronics, German Aerospace Center\n";
             out << "Author: Heiko Hirschmueller\n";
             out << "Contact: heiko.hirschmueller@roboception.de\n";
@@ -764,89 +765,89 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
           else
             setInfoText("");
           break;
-      
+
       case 's':
           if (adapt != 0)
             setSize(adapt->getWidth(), adapt->getHeight());
           break;
-      
+
       case 'l':
           if (adapt != 0)
           {
               // rotation around center of image part
-            
+
             int x=imx;
             int y=imy;
             int w, h;
-            
+
             getSize(w, h);
-            
+
             if (adapt->getFlip())
               x=adapt->getWidth()-w-x;
-            
+
             imx=y+h/2-w/2;
             imy=adapt->getWidth()-1-(x+w/2)-h/2;
-            
+
             if (adapt->getFlip())
               imx=adapt->getHeight()-w-imx;
-            
+
             adapt->setRotationFlip(adapt->getRotation()-1, adapt->getFlip());
-            
+
             redrawImage();
             updateInfo();
           }
           break;
-      
+
       case 'r':
           if (adapt != 0)
           {
               // rotation around center of image part
-            
+
             int x=imx;
             int y=imy;
             int w, h;
-            
+
             getSize(w, h);
-            
+
             if (adapt->getFlip())
               x=adapt->getWidth()-w-x;
-            
+
             imx=adapt->getHeight()-1-(y+h/2)-w/2;
             imy=x+w/2-h/2;
-            
+
             if (adapt->getFlip())
               imx=adapt->getHeight()-w-imx;
-            
+
             adapt->setRotationFlip(adapt->getRotation()+1, adapt->getFlip());
-            
+
             redrawImage();
             updateInfo();
           }
           break;
-      
+
       case 'f':
           if (adapt != 0)
           {
               // flip at center of image part
-            
+
             int w, h;
-            
+
             getSize(w, h);
-            
+
             imx=adapt->getWidth()-w-imx;
-              
+
             adapt->setRotationFlip(adapt->getRotation(), !adapt->getFlip());
-            
+
             redrawImage();
             updateInfo();
           }
           break;
-      
+
       case 'q':
           sendClose();
           break;
     }
-    
+
     if (key == k_esc)
       sendClose();
 }
@@ -854,9 +855,9 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
 char ImageWindow::getLastKey()
 {
     char ret=lastkey;
-    
+
     lastkey='\0';
-    
+
     return ret;
 }
 

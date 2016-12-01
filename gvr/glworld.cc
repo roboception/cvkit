@@ -79,26 +79,26 @@ GLWorld::GLWorld(int w, int h)
     extmin[0]=numeric_limits<float>::max();
     extmin[1]=numeric_limits<float>::max();
     extmin[2]=numeric_limits<float>::max();
-    
+
     extmax[0]=-numeric_limits<float>::max();
     extmax[1]=-numeric_limits<float>::max();
     extmax[2]=-numeric_limits<float>::max();
-    
+
     showid.resize(ID_MODEL_START+10);
-    
+
     for (size_t i=0; i<showid.size(); i++)
       showid[i]=true;
-    
+
     showid[ID_CAMERA_BODY]=false;
     showid[ID_CAMERA_RANGE]=false;
     showid[ID_CAMERA_LINK]=false;
-    
+
     camera.setSize(w, h);
-    
+
     fullscreen=false;
-    
+
     colorschema=0;
-    
+
     glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
     txt_rgb=0xffffff;
 }
@@ -107,17 +107,17 @@ GLWorld::~GLWorld()
 {
     for (size_t i=0; i<list.size(); i++)
       delete list[i];
-    
+
     list.resize(0);
 }
 
 void GLWorld::addModel(Model &model)
 {
     bool first=(list.size() == 0);
-    
+
     model.addGLObjects(list);
     model.addExtend(extmin, extmax);
-    
+
     if (first)
     {
       defRc=model.getDefCameraR();
@@ -147,13 +147,13 @@ void GLWorld::showCameras(bool show)
 void GLWorld::resetCamera()
 {
     Vector3d center=(extmin+extmax)/2.0;
-    
+
     double size=extmax[0]-extmin[0];
     size=max(size, extmax[1]-extmin[1]);
     size=max(size, extmax[2]-extmin[2]);
-    
+
     camera.init(center, size);
-    
+
     if (abs(det(defRc)-1) < 1e-6)
       camera.setPose(defRc, defTc);
 }
@@ -161,60 +161,60 @@ void GLWorld::resetCamera()
 void GLWorld::onRedraw()
 {
       // clear buffer
-    
+
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    
+
       // render all objects
-    
+
     for (size_t i=0; i<list.size(); i++)
     {
       int id=list[i]->getID();
-      
+
       if (id < 0 || id >= static_cast<int>(showid.size()) || showid[id])
         list[i]->draw(camera);
     }
-    
+
     if (infotext.size() > 0)
       renderInfoText(infotext.c_str(), 0xffffff, 0x4c4c4c);
-    
+
     if (infoline.size() > 0)
       renderInfoLine(infoline.c_str(), txt_rgb);
-    
+
       // swap buffer
-    
+
     glutSwapBuffers();
 }
 
 void GLWorld::onReshape(int w, int h)
 {
     glViewport(0, 0, w, h);
-    
+
     camera.setSize(w, h);
 }
 
 void GLWorld::onKey(unsigned char key, int x, int y)
 {
     bool redisplay=false;
-    
+
     if (key != 'h' && key != 'v' && infotext.size() > 0)
     {
       infotext.clear();
       redisplay=true;
     }
-    
+
     if (infoline.size() > 0)
     {
       infoline.clear();
       redisplay=true;
     }
-    
+
     switch (key)
     {
       case 'h':
           if (infotext.size() == 0)
           {
             ostringstream out;
-            
+
             out << "Usage and Keycodes:\n";
             out << "\n";
             out << "left mouse click and moving for rotation\n";
@@ -253,16 +253,17 @@ void GLWorld::onKey(unsigned char key, int x, int y)
           }
           else
             infotext.clear();
-          
+
           redisplay=true;
           break;
-      
+
       case 'v':
           if (infotext.size() == 0)
           {
             ostringstream out;
-            
+
             out << "This program is based on cvkit version " << VERSION << "\n";
+            out << "Copyright (C) 2016 Roboception GmbH\n";
             out << "Copyright (C) 2014, 2015 Institute of Robotics and Mechatronics, German Aerospace Center\n";
             out << "Author: Heiko Hirschmueller\n";
             out << "Contact: heiko.hirschmueller@roboception.de\n";
@@ -277,65 +278,65 @@ void GLWorld::onKey(unsigned char key, int x, int y)
 #if defined (INCLUDE_GDAL) || defined (INCLUDE_PNG)
             out << png_get_copyright(0) << "\n";
 #endif
-            
+
             infotext=out.str();
           }
           else
             infotext.clear();
-          
+
           redisplay=true;
           break;
-      
+
       case 'i':
           {
             int vn=0, tn=0;
-            
+
             for (size_t i=0; i<list.size(); i++)
             {
               vn+=list[i]->getVertexCount();
               tn+=list[i]->getTriangleCount();
             }
-            
+
             ostringstream out;
             out << "Vertices: " << vn << ", Triangles: " << tn;
             infoline=out.str();
             redisplay=true;
           }
           break;
-      
+
       case 'r':
           resetCamera();
           redisplay=true;
           break;
-      
+
       case 'b':
           if (glIsEnabled(GL_CULL_FACE) == GL_TRUE)
             glDisable(GL_CULL_FACE);
           else
             glEnable(GL_CULL_FACE);
-          
+
           redisplay=true;
           break;
-      
+
       case '\t':
           if (colorschema == 0)
           {
             colorschema=1;
-            
+
             glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             txt_rgb=0x4c4c4c;
           }
           else
           {
             colorschema=0;
-            
+
             glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
             txt_rgb=0xffffff;
           }
-          
+
           redisplay=true;
           break;
-      
+
       case 'f':
           if (fullscreen)
           {
@@ -349,47 +350,47 @@ void GLWorld::onKey(unsigned char key, int x, int y)
             fullscreen=true;
           }
           break;
-      
+
       case 'c':
           {
             int w=camera.getWidth();
             int h=camera.getHeight();
-            
+
             ImageU8 image(w, h, 3);
             unsigned char *pixel=new unsigned char [w*h];
-            
+
               // capture image
-            
+
             glReadPixels(0, 0, w, h, GL_RED, GL_UNSIGNED_BYTE, pixel);
-            
+
             for (int k=0; k<h; k++)
             {
               for (int i=0; i<w; i++)
                 image.set(i, h-k-1, 0, pixel[k*w+i]);
             }
-            
+
             glReadPixels(0, 0, w, h, GL_GREEN, GL_UNSIGNED_BYTE, pixel);
-            
+
             for (int k=0; k<h; k++)
             {
               for (int i=0; i<w; i++)
                 image.set(i, h-k-1, 1, pixel[k*w+i]);
             }
-            
+
             glReadPixels(0, 0, w, h, GL_BLUE, GL_UNSIGNED_BYTE, pixel);
-            
+
             for (int k=0; k<h; k++)
             {
               for (int i=0; i<w; i++)
                 image.set(i, h-k-1, 2, pixel[k*w+i]);
             }
-            
+
             delete [] pixel;
-            
+
               // store image
-            
+
             string name=getNewImageName(prefix);
-            
+
             if (name.size() > 0)
             {
               getImageIO().save(image, name.c_str());
@@ -397,29 +398,29 @@ void GLWorld::onKey(unsigned char key, int x, int y)
             }
             else
               infoline="Sorry, cannot determine file name for storing image!";
-            
+
             redisplay=true;
           }
           break;
-      
+
       case 'q':
       case 27: /* ESC */
           exit(0);
-      
+
       case '0':
           {
             bool all=true;
             for (size_t i=ID_MODEL_START; i<showid.size(); i++)
               all=all && showid[i];
-            
+
             all=!all;
             for (size_t i=ID_MODEL_START; i<showid.size(); i++)
               showid[i]=all;
-            
+
             redisplay=true;
           }
           break;
-      
+
       case '1':
       case '2':
       case '3':
@@ -432,7 +433,7 @@ void GLWorld::onKey(unsigned char key, int x, int y)
           showid[ID_MODEL_START+key-'1']=!showid[ID_MODEL_START+key-'1'];
           redisplay=true;
           break;
-      
+
       case 'k':
           if (showid[ID_CAMERA_BODY])
           {
@@ -445,26 +446,26 @@ void GLWorld::onKey(unsigned char key, int x, int y)
             showid[ID_CAMERA_BODY]=true;
             showid[ID_CAMERA_LINK]=true;
           }
-          
+
           redisplay=true;
           break;
-      
+
       case 'z':
           showid[ID_CAMERA_RANGE]=!showid[ID_CAMERA_RANGE];
           redisplay=true;
           break;
-      
+
       case 'l':
           showid[ID_CAMERA_LINK]=!showid[ID_CAMERA_LINK];
           redisplay=true;
           break;
-      
+
       default:
           if (camera.onKey(key, x, y))
             redisplay=true;
           break;
     }
-    
+
     if (redisplay)
       glutPostRedisplay();
 }
@@ -472,7 +473,7 @@ void GLWorld::onKey(unsigned char key, int x, int y)
 void GLWorld::onMouseButton(int button, int state, int x, int y)
 {
     bool redisplay=false;
-    
+
     if (state == GLUT_DOWN)
     {
       if (infotext.size() > 0)
@@ -480,69 +481,69 @@ void GLWorld::onMouseButton(int button, int state, int x, int y)
         infotext.clear();
         redisplay=true;
       }
-      
+
       if (infoline.size() > 0)
       {
         infoline.clear();
         redisplay=true;
       }
-      
+
       mod=glutGetModifiers();
-      
+
         // check for double click
-      
+
       mt.stop();
       if (mt.elapsed() < 0.5 && mod == 0 && mb == button &&
         abs(static_cast<double>(x-mx)) <= 1 && abs(static_cast<double>(y-my)) <= 1)
         mod=GLUT_ACTIVE_CTRL;
-      
+
       mt.clear();
       mt.start();
-      
+
       mb=button;
       mx=x;
       my=y;
-      
+
       if (button == GLUT_LEFT_BUTTON && (mod == GLUT_ACTIVE_SHIFT ||
         mod == GLUT_ACTIVE_CTRL))
       {
           // read z-buffer and convert to world coordinate system
-        
+
         float d;
         glReadPixels(x, camera.getHeight()-y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &d);
-        
+
         if (d < 1)
         {
           Vector3d P=camera.pixel2World(x, y, d);
           ostringstream out;
-          
+
           if (mod == GLUT_ACTIVE_CTRL)
           {
             out << "Setting rotation center to: " << offset+P;
-            
+
             camera.setRotationCenter(P);
-            
+
             P=transpose(camera.getR())*(P-camera.getT());
             P[2]=0;
-            
+
             P=camera.getT()+camera.getR()*P;
-            
+
             camera.setPose(camera.getR(), P);
           }
           else
           {
             out << P;
           }
-          
+
           infoline=out.str();
           redisplay=true;
         }
       }
     }
-    
+
     if (camera.onMouseButton(button, state, x, y))
       redisplay=true;
-    
+
     if (redisplay)
       glutPostRedisplay();
 }
@@ -550,24 +551,24 @@ void GLWorld::onMouseButton(int button, int state, int x, int y)
 void GLWorld::onMouseMove(int x, int y)
 {
     bool redisplay=false;
-    
+
     if (mb == GLUT_LEFT_BUTTON && mod == GLUT_ACTIVE_SHIFT)
     {
       float d;
       glReadPixels(x, camera.getHeight()-y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &d);
-      
+
       if (d < 1)
       {
         Vector3d P=offset+camera.pixel2World(x, y, d);
         ostringstream out;
-        
+
         out << P;
-        
+
         infoline=out.str();
       }
       else
         infoline.clear();
-      
+
       redisplay=true;
     }
     else
@@ -575,7 +576,7 @@ void GLWorld::onMouseMove(int x, int y)
       if (camera.onMouseMove(x, y))
         redisplay=true;
     }
-    
+
     if (redisplay)
       glutPostRedisplay();
 }
