@@ -4,7 +4,6 @@
  * Author: Heiko Hirschmueller
  *
  * Copyright (c) 2016 Roboception GmbH
- * Copyright (c) 2014 Institute of Robotics and Mechatronics, German Aerospace Center
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,106 +33,69 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "thread.h"
+#include "estimatedplane.h"
 
-#include <gutil/exception.h>
-
-#include <iostream>
-#include <thread>
-#include <assert.h>
-#include <cstdlib>
-
-using std::cerr;
-using std::endl;
-using std::ref;
-using std::thread;
-
-namespace
+namespace gmath
 {
-int procunits=0;
-int nthreads=0;
+
+EstimatedPlane::EstimatedPlane()
+{
+  clear();
 }
 
-namespace gutil
+void EstimatedPlane::clear()
 {
+  sx=sy=sz=0;
+  sxx=sxy=sxz=syy=syz=0;
+  n=0;
 
-struct ThreadData {};
-
-Thread::Thread()
-{
-    p=0;
+  a=b=c=std::numeric_limits<double>::infinity();
 }
 
-Thread::~Thread()
+void EstimatedPlane::add(double x, double y, double z)
 {
-    delete reinterpret_cast<std::thread *>(p);
+  sx+=x;
+  sy+=y;
+  sz+=z;
+  sxx+=x*x;
+  sxy+=x*y;
+  sxz+=x*z;
+  syy+=y*y;
+  syz+=y*z;
+  n++;
+
+  a=std::numeric_limits<double>::infinity();
 }
 
-void Thread::create(ThreadFunction &fct)
+double EstimatedPlane::getNormal(Vector3d N)
 {
-    assert(p == 0);
+  if (!std::isfinite(a))
+  {
+    computePlane();
+  }
 
-    p=reinterpret_cast<ThreadData *>(new thread(&ThreadFunction::run, &fct));
+  double div=sqrt(a*a+b*b+1);
+
+  N[0]=-a/div;
+  N[1]=-b/div;
+  N[2]=1/div;
+
+  return c/div;
 }
 
-void Thread::create(ParallelFunction &fct, long start, long end, long step,
-  int affinity)
+void EstimatedPlane::computePlane()
 {
-    assert(p == 0);
+  if (n >= 3)
+  {
+    double div=n*sxx*syy+2*sx*sy*sxy-syy*sx*sx-sxx*sy*sy-n*sxy*sxy;
 
-    p=reinterpret_cast<ThreadData *>(new thread(&ThreadFunction::run, &fct,
-      start, end, step));
-}
-
-void Thread::join()
-{
-    if (p != 0)
+    if (fabs(div) != 0)
     {
-      reinterpret_cast<std::thread *>(p)->join();
-      p=0;
+      a=(sxz*(n*syy-sy*sy)+syz*(sx*sy-n*sxy)+sz*(sxy*sy-sx*syy))/div;
+      b=(sxz*(sx*sy-n*sxy)+syz*(n*sxx-sx*sx)+sz*(sx*sxy-sxx*sy))/div;
+      c=(sxz*(sxy*sy-sx*syy)+syz*(sx*sxy-sxx*sy)+sz*(sxx*syy-sxy*sxy))/div;
     }
-}
-
-int Thread::getProcessingUnits()
-{
-    if (procunits <= 0)
-    {
-      procunits=std::thread::hardware_concurrency();
-
-      if (procunits <= 0)
-      {
-        cerr << "Cannot determine number of CPUs, assuming one!" << endl;
-        procunits=1;
-      }
-
-      const char *s=std::getenv("CVKIT_MAX_THREADS");
-
-      if (s != 0)
-      {
-        int n=std::max(1, std::atoi(s));
-
-        if (n < procunits)
-          procunits=n;
-      }
-    }
-
-    return procunits;
-}
-
-int Thread::getMaxThreads()
-{
-    if (nthreads <= 0)
-      nthreads=getProcessingUnits();
-
-    return nthreads;
-}
-
-void Thread::setMaxThreads(int n)
-{
-    if (n <= 0 || n > getProcessingUnits())
-      n=getProcessingUnits();
-
-    nthreads=n;
+  }
 }
 
 }

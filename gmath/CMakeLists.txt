@@ -49,6 +49,7 @@ set(gmath_src
   minpack/qrsolv.c
   minpack/dpmpar.c
   minpack/enorm.c
+  estimatedplane.cc
 )
 
 set(gmath_hh
@@ -64,6 +65,7 @@ set(gmath_hh
   sturmchain.h
   svector.h
   minpack.h
+  estimatedplane.h
 )
 
 add_library(gmath_static STATIC ${gmath_src})
@@ -75,4 +77,3 @@ if (INSTALL_DEVELOPMENT)
   install(TARGETS gmath_static gmath EXPORT CVKITTargets DESTINATION lib)
   install(FILES ${gmath_hh} DESTINATION include/gmath)
 endif ()
-

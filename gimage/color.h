@@ -3,7 +3,8 @@
  *
  * Author: Heiko Hirschmueller
  *
- * Copyright (c) 2014, Institute of Robotics and Mechatronics, German Aerospace Center
+ * Copyright (c) 2016 Roboception GmbH
+ * Copyright (c) 2014 Institute of Robotics and Mechatronics, German Aerospace Center
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,18 +59,18 @@ template<class T>
 void rgbToHSV(float &hue, float &sat, float &val, T red, T green, T blue, T maxval)
 {
     float delta, vmin, vmax;
-    
+
     vmin=red;
     vmin=std::min(vmin, static_cast<float>(green));
     vmin=std::min(vmin, static_cast<float>(blue));
-    
+
     vmax=red;
     vmax=std::max(vmax, static_cast<float>(green));
     vmax=std::max(vmax, static_cast<float>(blue));
-    
+
     val=vmax/maxval;
     delta=vmax-vmin;
-    
+
     if (delta > 0)
     {
       if (red == vmax)
@@ -78,10 +79,10 @@ void rgbToHSV(float &hue, float &sat, float &val, T red, T green, T blue, T maxv
         hue=2+(blue-red)/delta;
       else
         hue=4+(red-green)/delta;
-      
+
       if (hue < 0)
         hue+=6;
-      
+
       sat=delta/vmax;
     }
     else
@@ -95,7 +96,7 @@ template<class T>
 void hsvToRGB(T &red, T &green, T &blue, T maxval, float hue, float sat, float val)
 {
     val*=maxval;
-    
+
     if (sat != 0)
     {
       int   i=static_cast<int>(floorf(hue));
@@ -103,7 +104,7 @@ void hsvToRGB(T &red, T &green, T &blue, T maxval, float hue, float sat, float v
       float p=val*(1-sat);
       float q=val*(1-f*sat);
       float t=val*(1-sat*(1-f));
-      
+
       switch (i)
       {
         case 0:
@@ -111,31 +112,31 @@ void hsvToRGB(T &red, T &green, T &blue, T maxval, float hue, float sat, float v
             green=static_cast<T>(t+0.5f);
             blue=static_cast<T>(p+0.5f);
             break;
-        
+
         case 1:
             red=static_cast<T>(q+0.5f);
             green=static_cast<T>(val+0.5f);
             blue=static_cast<T>(p+0.5f);
             break;
-        
+
         case 2:
             red=static_cast<T>(p+0.5f);
             green=static_cast<T>(val+0.5f);
             blue=static_cast<T>(t+0.5f);
             break;
-        
+
         case 3:
             red=static_cast<T>(p+0.5f);
             green=static_cast<T>(q+0.5f);
             blue=static_cast<T>(val+0.5f);
             break;
-        
+
         case 4:
             red=static_cast<T>(t+0.5f);
             green=static_cast<T>(p+0.5f);
             blue=static_cast<T>(val+0.5f);
             break;
-        
+
         default:
             red=static_cast<T>(val+0.5f);
             green=static_cast<T>(p+0.5f);
@@ -156,11 +157,11 @@ template<class T>
 void imageToGrey(Image<T> &ret, const Image<T> &image)
 {
     T red, green, blue;
-    
+
     assert(image.getDepth() == 3);
-    
+
     ret.setSize(image.getWidth(), image.getHeight(), 1);
-    
+
     for (long k=0; k<image.getHeight(); k++)
     {
       for (long i=0; i<image.getWidth(); i++)
@@ -168,7 +169,7 @@ void imageToGrey(Image<T> &ret, const Image<T> &image)
         red=image.get(i, k, 0);
         green=image.get(i, k, 1);
         blue=image.get(i, k, 2);
-        
+
         if (image.isValidS(red) && image.isValidS(green) && image.isValidS(blue))
         {
           ret.setLimited(i, k, 0,
@@ -190,9 +191,9 @@ template<class T, class traits>
 void imageToColor(Image<T, traits> &ret, const Image<T, traits> &image)
 {
     assert(image.getDepth() == 1);
-    
+
     ret.setSize(image.getWidth(), image.getHeight(), 3);
-    
+
     for (long k=0; k<image.getHeight(); k++)
     {
       for (long i=0; i<image.getWidth(); i++)
@@ -213,21 +214,21 @@ template<class T>
 void imageToJET(ImageU8 &ret, const Image<T> &image, double imin=0, double imax=-1)
 {
     ret.setSize(image.getWidth(), image.getHeight(), 3);
-    
+
     if (imax <= imin)
     {
       imin=image.minValue();
       imax=image.maxValue();
     }
-    
+
     double irange=imax-imin;
-    
+
     if (irange <= 0)
     {
       ret.clear();
       return;
     }
-    
+
     for (long k=0; k<image.getHeight(); k++)
     {
       for (long i=0; i<image.getWidth(); i++)
@@ -235,14 +236,14 @@ void imageToJET(ImageU8 &ret, const Image<T> &image, double imin=0, double imax=
         if (image.isValid(i, k))
         {
           double v=image.get(i, k, 0);
-          
+
           v=(v-imin)/irange;
           v=v/1.15+0.1;
-          
+
           double r=std::max(0.0, std::min(1.0, (1.5 - 4*fabs(v-0.75))));
           double g=std::max(0.0, std::min(1.0, (1.5 - 4*fabs(v-0.5))));
           double b=std::max(0.0, std::min(1.0, (1.5 - 4*fabs(v-0.25))));
-          
+
           ret.set(i, k, 0, static_cast<unsigned char>(255*r+0.5));
           ret.set(i, k, 1, static_cast<unsigned char>(255*g+0.5));
           ret.set(i, k, 2, static_cast<unsigned char>(255*b+0.5));
@@ -265,7 +266,7 @@ template<class T, class traits>
 void imageSelect(Image<T, traits> &ret, const Image<T, traits> &image, int j)
 {
     ret.setSize(image.getWidth(), image.getHeight(), 1);
-    
+
     for (long k=0; k<image.getHeight(); k++)
     {
       for (long i=0; i<image.getWidth(); i++)
@@ -285,9 +286,9 @@ void imageCompose(Image<T, traits> &ret, const Image<T, traits> &r,
     assert(r.getHeight() == g.getHeight());
     assert(r.getWidth() == b.getWidth());
     assert(r.getHeight() == b.getHeight());
-    
+
     ret.setSize(r.getWidth(), r.getHeight(), 3);
-    
+
     for (long k=0; k<r.getHeight(); k++)
     {
       for (long i=0; i<r.getWidth(); i++)
@@ -308,18 +309,18 @@ template<class T, class traits>
 void rgbToHSV(ImageFloat &ret, const Image<T, traits> &image)
 {
     float hue, sat, val;
-    
+
     assert(image.getDepth() == 3);
-    
+
     ret.setSize(image.getWidth(), image.getHeight(), 3);
-    
+
     for (long k=0; k<image.getHeight(); k++)
     {
       for (long i=0; i<image.getWidth(); i++)
       {
         rgbToHSV(hue, sat, val, image.getW(i, k, 0), image.getW(i, k, 1),
           image.getW(i, k, 2), image.absMaxValue());
-        
+
         ret.setLimited(i, k, 0, hue);
         ret.setLimited(i, k, 1, sat);
         ret.setLimited(i, k, 2, val);
@@ -331,18 +332,18 @@ template<class T, class traits>
 void hsvToRGB(Image<T, traits> &ret, const ImageFloat &image)
 {
     typename Image<T, traits>::work_t red, green, blue;
-    
+
     assert(image.getDepth() == 3);
-    
+
     ret.setSize(image.getWidth(), image.getHeight(), 3);
-    
+
     for (long k=0; k<image.getHeight(); k++)
     {
       for (long i=0; i<image.getWidth(); i++)
       {
         hsvToRGB(red, green, blue, ret.absMaxValue(), image.getW(i, k, 0),
           image.getW(i, k, 1), image.getW(i, k, 2));
-        
+
         ret.setLimited(i, k, 0, red);
         ret.setLimited(i, k, 1, green);
         ret.setLimited(i, k, 2, blue);

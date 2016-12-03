@@ -4,7 +4,6 @@
  * Author: Heiko Hirschmueller
  *
  * Copyright (c) 2016 Roboception GmbH
- * Copyright (c) 2014 Institute of Robotics and Mechatronics, German Aerospace Center
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,106 +33,93 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "thread.h"
+#ifndef GMATH_ESTIMATEDPLANE_H
+#define GMATH_ESTIMATEDPLANE_H
 
-#include <gutil/exception.h>
+#include <gmath/svector.h>
+#include <limits>
 
-#include <iostream>
-#include <thread>
-#include <assert.h>
-#include <cstdlib>
-
-using std::cerr;
-using std::endl;
-using std::ref;
-using std::thread;
-
-namespace
-{
-int procunits=0;
-int nthreads=0;
-}
-
-namespace gutil
+namespace gmath
 {
 
-struct ThreadData {};
+/**
+  Plane that is estimated from a number of sample points.
+*/
 
-Thread::Thread()
+class EstimatedPlane
 {
-    p=0;
-}
+  public:
 
-Thread::~Thread()
-{
-    delete reinterpret_cast<std::thread *>(p);
-}
+    EstimatedPlane();
 
-void Thread::create(ThreadFunction &fct)
-{
-    assert(p == 0);
+    /**
+      Clears the plane.
+    */
 
-    p=reinterpret_cast<ThreadData *>(new thread(&ThreadFunction::run, &fct));
-}
+    void clear();
 
-void Thread::create(ParallelFunction &fct, long start, long end, long step,
-  int affinity)
-{
-    assert(p == 0);
+    /**
+      Returns if the plane is valid.
 
-    p=reinterpret_cast<ThreadData *>(new thread(&ThreadFunction::run, &fct,
-      start, end, step));
-}
+      @return True if the plane is valid.
+    */
 
-void Thread::join()
-{
-    if (p != 0)
+    bool isValid()
     {
-      reinterpret_cast<std::thread *>(p)->join();
-      p=0;
-    }
-}
-
-int Thread::getProcessingUnits()
-{
-    if (procunits <= 0)
-    {
-      procunits=std::thread::hardware_concurrency();
-
-      if (procunits <= 0)
+      if (!std::isfinite(a))
       {
-        cerr << "Cannot determine number of CPUs, assuming one!" << endl;
-        procunits=1;
+        computePlane();
       }
 
-      const char *s=std::getenv("CVKIT_MAX_THREADS");
-
-      if (s != 0)
-      {
-        int n=std::max(1, std::atoi(s));
-
-        if (n < procunits)
-          procunits=n;
-      }
+      return std::isfinite(a);
     }
 
-    return procunits;
+    /**
+      Adds a point to the plane. The plane is estimated such that the distance
+      to all given points is minimal in z direction.
+
+      @param x, y, z Coordinates of the plane.
+    */
+
+    void add(double x, double y, double z);
+
+    /**
+      Returns the normal vector and distance of the plane to the origin. The
+      equation of the plane is N*p=d. The normal vector is 0 if the plane is
+      undefined.
+
+      @param N Vector that will be set to the plane normal on return
+      @return  Distance of the plane from the origin.
+    */
+
+    double getNormal(Vector3d N);
+
+    /**
+      Returns the Z value of the plane at the coordinate x and y.
+
+      @param x, y Position of point.
+      @return z   Z value of the plane at the given position.
+    */
+
+    double getZ(double x, double y)
+    {
+      if (!std::isfinite(a))
+      {
+        computePlane();
+      }
+
+      return a*x+b*y+c;
+    }
+
+  private:
+
+    void computePlane();
+
+    double sx, sy, sz, sxx, sxy, sxz, syy, syz;
+    double a, b, c;
+    int n;
+};
+
 }
 
-int Thread::getMaxThreads()
-{
-    if (nthreads <= 0)
-      nthreads=getProcessingUnits();
-
-    return nthreads;
-}
-
-void Thread::setMaxThreads(int n)
-{
-    if (n <= 0 || n > getProcessingUnits())
-      n=getProcessingUnits();
-
-    nthreads=n;
-}
-
-}
+#endif

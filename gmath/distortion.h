@@ -3,7 +3,8 @@
  *
  * Author: Heiko Hirschmueller
  *
- * Copyright (c) 2015, Institute of Robotics and Mechatronics, German Aerospace Center
+ * Copyright (c) 2016 Roboception GmbH
+ * Copyright (c) 2015 Institute of Robotics and Mechatronics, German Aerospace Center
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,44 +50,44 @@ namespace gmath
 class Distortion
 {
   public:
-    
+
     virtual ~Distortion();
-    
+
     /**
       Creates and initializes the appropriate distortion model from the given
       parameters.
-      
+
       @param prop Camera parameters.
       @param id   Camera id or -1.
       @return     Pointer to created distortion model. The pointer must be deleted
                   by the calling function.
     */
-    
+
     static Distortion *create(const gutil::Properties &prop, int id=-1);
-    
+
     /**
       Clones the current object.
-      
+
       @return Pointer to clone object. The pointer must be deleted by the
               calling function.
     */
-    
+
     virtual Distortion *clone() const;
-    
+
     virtual int countParameter() const;
     virtual double getParameter(int i) const;
     virtual void setParameter(int i, double v);
     virtual void transform(double &x, double &y, double xd, double yd) const;
     virtual void invTransform(double &xd, double &yd, double x, double y) const;
-    
+
     /**
       Stores the parameters of the distortion model in the provided property
       object.
-      
+
       @param prop Camera parameters.
       @param id   Camera id or -1.
     */
-    
+
     virtual void getProperties(gutil::Properties &prop, int id=-1) const;
 };
 
@@ -97,21 +98,21 @@ class Distortion
 class RadialDistortion : public Distortion
 {
   public:
-    
+
     RadialDistortion(int n);
     RadialDistortion(const gutil::Properties &prop, int id=-1);
-    
+
     Distortion *clone() const;
-    
+
     int countParameter() const;
     double getParameter(int i) const;
     void setParameter(int i, double v);
     void transform(double &x, double &y, double xd, double yd) const;
     void invTransform(double &xd, double &yd, double x, double y) const;
     void getProperties(gutil::Properties &prop, int id=-1) const;
-  
+
   private:
-  
+
     int kn;
     double kd[3];
 };
@@ -123,21 +124,21 @@ class RadialDistortion : public Distortion
 class RadialTangentialDistortion : public Distortion
 {
   public:
-    
+
     RadialTangentialDistortion(int n);
     RadialTangentialDistortion(const gutil::Properties &prop, int id=-1);
-    
+
     Distortion *clone() const;
-    
+
     int countParameter() const;
     double getParameter(int i) const;
     void setParameter(int i, double v);
     void transform(double &x, double &y, double xd, double yd) const;
     void invTransform(double &xd, double &yd, double x, double y) const;
     void getProperties(gutil::Properties &prop, int id=-1) const;
-  
+
   private:
-  
+
     int kn;
     double kd[5];
 };
@@ -149,21 +150,21 @@ class RadialTangentialDistortion : public Distortion
 class EquidistantDistortion : public Distortion
 {
   public:
-    
+
     EquidistantDistortion();
     EquidistantDistortion(const gutil::Properties &prop, int id=-1);
-    
+
     Distortion *clone() const;
-    
+
     int countParameter() const;
     double getParameter(int i) const;
     void setParameter(int i, double v);
     void transform(double &x, double &y, double xd, double yd) const;
     void invTransform(double &xd, double &yd, double x, double y) const;
     void getProperties(gutil::Properties &prop, int id=-1) const;
-  
+
   private:
-  
+
     double ed[4];
 };
 

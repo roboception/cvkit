@@ -3,7 +3,8 @@
  *
  * Author: Heiko Hirschmueller
  *
- * Copyright (c) 2014, Institute of Robotics and Mechatronics, German Aerospace Center
+ * Copyright (c) 2016 Roboception GmbH
+ * Copyright (c) 2014 Institute of Robotics and Mechatronics, German Aerospace Center
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
