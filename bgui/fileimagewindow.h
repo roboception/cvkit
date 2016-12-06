@@ -52,12 +52,12 @@ namespace bgui
 class FileImageWindow : public ImageWindow
 {
   private:
-  
+
     std::string  vc;
-    
+
     std::vector<std::string> list;
     unsigned int   current;
-    
+
     double  scale;
     double  imin, imax;
     double  vmin, vmax;
@@ -66,16 +66,16 @@ class FileImageWindow : public ImageWindow
     int     channel;
     bool    watch_file;
     int     wid;
-    
+
     void load(unsigned int &pos, bool down=true, int w=-1, int h=-1,
       bool size_max=false);
-    
+
     void updateTitle();
-    
+
     void saveContent(const char *basename);
-    
+
   public:
-    
+
     FileImageWindow(const std::vector<std::string> &files,  int firstfile,
       bool watch=false, int x=-1, int y=-1, int w=-1, int h=-1,
       bool size_max=false, double init_scale=0, double init_min=0,
@@ -83,7 +83,7 @@ class FileImageWindow : public ImageWindow
       double valid_max=std::numeric_limits<float>::max(),
       keep k=keep_none, mapping m=map_raw, int c=-1, const char *viewcmd=0);
     virtual ~FileImageWindow();
-    
+
     virtual void onKey(char c, SpecialKey key, int x, int y);
     virtual void onFileChanged(int watchid);
 };
@@ -91,4 +91,3 @@ class FileImageWindow : public ImageWindow
 }
 
 #endif
-

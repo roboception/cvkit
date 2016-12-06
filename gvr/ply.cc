@@ -43,24 +43,10 @@
 #include <cctype>
 #include <assert.h>
 
-using std::cout;
-using std::endl;
-using std::string;
-using std::vector;
-using std::ostringstream;
-using std::istringstream;
-using std::streambuf;
-using std::ios_base;
-
-using gutil::isMSBFirst;
-using gutil::split;
-using gutil::IOException;
-using gutil::trim;
-
 namespace gvr
 {
 
-void PLYValue::writeListSize(streambuf *out, int v)
+void PLYValue::writeListSize(std::streambuf *out, int v)
 {
     assert(false);
 }
@@ -68,26 +54,26 @@ void PLYValue::writeListSize(streambuf *out, int v)
 namespace
 {
 
-void readASCIIElement(streambuf *in, char *out, int n)
+void readASCIIElement(std::streambuf *in, char *out, int n)
 {
       // eat white spaces
-    
+
     int c=in->sgetc();
     while (c != EOF && isspace(c))
       c=in->snextc();
-    
+
       // read until next white space or end of file
-    
+
     n--;
     int i=0;
     while (c != EOF && !isspace(c))
     {
       if (i < n)
         out[i++]=static_cast<char>(c);
-      
+
       c=in->snextc();
     }
-    
+
     out[i]='\0';
 }
 
@@ -98,12 +84,12 @@ void readASCIIElement(streambuf *in, char *out, int n)
 class PLYValueASCIIInt : public PLYValue
 {
   private:
-  
+
     int value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       char s[40];
       readASCIIElement(in, s, 40);
@@ -114,83 +100,83 @@ class PLYValueASCIIInt : public PLYValue
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, int v)
+
+    void write(std::streambuf *out, int v)
     {
       char s[40];
       sprintf(s, "%d ", v);
       out->sputn(s, strlen(s));
     }
-    
-    void write(streambuf *out, unsigned int v) { write(out, static_cast<int>(v)); }
-    void write(streambuf *out, float v) { write(out, static_cast<int>(v)); }
-    void write(streambuf *out, double v) { write(out, static_cast<int>(v)); }
+
+    void write(std::streambuf *out, unsigned int v) { write(out, static_cast<int>(v)); }
+    void write(std::streambuf *out, float v) { write(out, static_cast<int>(v)); }
+    void write(std::streambuf *out, double v) { write(out, static_cast<int>(v)); }
 };
 
 class PLYValueASCIIUInt : public PLYValue
 {
   private:
-  
+
     unsigned int value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       char s[40];
       readASCIIElement(in, s, 40);
       value=static_cast<unsigned int>(atol(s));
     }
-    
+
     int getInt(int i=0) const { return static_cast<int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return value; }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, int v) { write(out, static_cast<unsigned int>(v)); }
-    
-    void write(streambuf *out, unsigned int v)
+
+    void write(std::streambuf *out, int v) { write(out, static_cast<unsigned int>(v)); }
+
+    void write(std::streambuf *out, unsigned int v)
     {
       char s[40];
       sprintf(s, "%u ", v);
       out->sputn(s, strlen(s));
     }
-    
-    void write(streambuf *out, float v) { write(out, static_cast<unsigned int>(v)); }
-    void write(streambuf *out, double v) { write(out, static_cast<unsigned int>(v)); }
+
+    void write(std::streambuf *out, float v) { write(out, static_cast<unsigned int>(v)); }
+    void write(std::streambuf *out, double v) { write(out, static_cast<unsigned int>(v)); }
 };
 
 class PLYValueASCIIDouble : public PLYValue
 {
   private:
-  
+
     double value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       char s[40];
       readASCIIElement(in, s, 40);
       value=atof(s);
     }
-    
+
     int getInt(int i=0) const { return static_cast<int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
     float getFloat(int i=0) const { return static_cast<float>(value); }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, int v) { write(out, static_cast<double>(v)); }
-    void write(streambuf *out, unsigned int v) { write(out, static_cast<double>(v)); }
-    
-    void write(streambuf *out, float v)
+
+    void write(std::streambuf *out, int v) { write(out, static_cast<double>(v)); }
+    void write(std::streambuf *out, unsigned int v) { write(out, static_cast<double>(v)); }
+
+    void write(std::streambuf *out, float v)
     {
       char s[40];
       sprintf(s, "%.8g ", v);
       out->sputn(s, strlen(s));
     }
-    
-    void write(streambuf *out, double v)
+
+    void write(std::streambuf *out, double v)
     {
       char s[40];
       sprintf(s, "%.16g ", v);
@@ -201,310 +187,310 @@ class PLYValueASCIIDouble : public PLYValue
 class PLYValueInt8 : public PLYValue
 {
   private:
-  
+
     char value;
-  
+
   public:
-  
-    void read(streambuf *in) { value=static_cast<char>(in->sbumpc()); }
-    
+
+    void read(std::streambuf *in) { value=static_cast<char>(in->sbumpc()); }
+
     int getInt(int i=0) const { return value; }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, int v) { out->sputc(static_cast<char>(v)); }
-    void write(streambuf *out, unsigned int v) { out->sputc(static_cast<char>(v)); }
-    void write(streambuf *out, float v) { value=static_cast<char>(v); out->sputc(value); }
-    void write(streambuf *out, double v) { value=static_cast<char>(v); out->sputc(value); }
+
+    void write(std::streambuf *out, int v) { out->sputc(static_cast<char>(v)); }
+    void write(std::streambuf *out, unsigned int v) { out->sputc(static_cast<char>(v)); }
+    void write(std::streambuf *out, float v) { value=static_cast<char>(v); out->sputc(value); }
+    void write(std::streambuf *out, double v) { value=static_cast<char>(v); out->sputc(value); }
 };
 
 class PLYValueUInt8 : public PLYValue
 {
   private:
-  
+
     unsigned char value;
-  
+
   public:
-  
-    void read(streambuf *in) { value=static_cast<unsigned char>(in->sbumpc()); }
-    
+
+    void read(std::streambuf *in) { value=static_cast<unsigned char>(in->sbumpc()); }
+
     int getInt(int i=0) const { return value; }
     unsigned int getUnsignedInt(int i=0) const { return value; }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, int v) { out->sputc(static_cast<unsigned char>(v)); }
-    void write(streambuf *out, unsigned int v) { out->sputc(static_cast<unsigned char>(v)); }
-    void write(streambuf *out, float v) { value=static_cast<unsigned char>(v); out->sputc(static_cast<char>(value)); }
-    void write(streambuf *out, double v) { value=static_cast<unsigned char>(v); out->sputc(static_cast<char>(value)); }
+
+    void write(std::streambuf *out, int v) { out->sputc(static_cast<unsigned char>(v)); }
+    void write(std::streambuf *out, unsigned int v) { out->sputc(static_cast<unsigned char>(v)); }
+    void write(std::streambuf *out, float v) { value=static_cast<unsigned char>(v); out->sputc(static_cast<char>(value)); }
+    void write(std::streambuf *out, double v) { value=static_cast<unsigned char>(v); out->sputc(static_cast<char>(value)); }
 };
 
 class PLYValueBigInt16 : public PLYValue
 {
   private:
-  
+
     short value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       value=static_cast<short>(in->sbumpc()<<8);
       value|=static_cast<short>(in->sbumpc()&0xff);
     }
-    
+
     int getInt(int i=0) const { return value; }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, int v)
+
+    void write(std::streambuf *out, int v)
     {
       out->sputc(static_cast<char>((v>>8)&0xff));
       out->sputc(static_cast<char>(v&0xff));
     }
-    
-    void write(streambuf *out, unsigned int v) { write(out, static_cast<int>(v)); }
-    void write(streambuf *out, float v) { write(out, static_cast<int>(v)); }
-    void write(streambuf *out, double v) { write(out, static_cast<int>(v)); }
+
+    void write(std::streambuf *out, unsigned int v) { write(out, static_cast<int>(v)); }
+    void write(std::streambuf *out, float v) { write(out, static_cast<int>(v)); }
+    void write(std::streambuf *out, double v) { write(out, static_cast<int>(v)); }
 };
 
 class PLYValueBigUInt16 : public PLYValue
 {
   private:
-  
+
     unsigned short value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       value=static_cast<unsigned short>((in->sbumpc()&0xff)<<8);
       value|=static_cast<unsigned short>(in->sbumpc()&0xff);
     }
-    
+
     int getInt(int i=0) const { return static_cast<int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return value; }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, unsigned int v)
+
+    void write(std::streambuf *out, unsigned int v)
     {
       out->sputc(static_cast<char>((v>>8)&0xff));
       out->sputc(static_cast<char>(v&0xff));
     }
-    
-    void write(streambuf *out, int v) { write(out, static_cast<unsigned int>(v)); }
-    void write(streambuf *out, float v) { write(out, static_cast<unsigned int>(v)); }
-    void write(streambuf *out, double v) { write(out, static_cast<unsigned int>(v)); }
+
+    void write(std::streambuf *out, int v) { write(out, static_cast<unsigned int>(v)); }
+    void write(std::streambuf *out, float v) { write(out, static_cast<unsigned int>(v)); }
+    void write(std::streambuf *out, double v) { write(out, static_cast<unsigned int>(v)); }
 };
 
 class PLYValueBigInt32 : public PLYValue
 {
   private:
-  
+
     int value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       value=in->sbumpc()<<24;
       value|=(in->sbumpc()&0xff)<<16;
       value|=(in->sbumpc()&0xff)<<8;
       value|=in->sbumpc()&0xff;
     }
-    
+
     int getInt(int i=0) const { return value; }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, int v)
+
+    void write(std::streambuf *out, int v)
     {
       out->sputc(static_cast<char>((v>>24)&0xff));
       out->sputc(static_cast<char>((v>>16)&0xff));
       out->sputc(static_cast<char>((v>>8)&0xff));
       out->sputc(static_cast<char>(v&0xff));
     }
-    
-    void write(streambuf *out, unsigned int v) { write(out, static_cast<int>(v)); }
-    void write(streambuf *out, float v) { write(out, static_cast<int>(v)); }
-    void write(streambuf *out, double v) { write(out, static_cast<int>(v)); }
+
+    void write(std::streambuf *out, unsigned int v) { write(out, static_cast<int>(v)); }
+    void write(std::streambuf *out, float v) { write(out, static_cast<int>(v)); }
+    void write(std::streambuf *out, double v) { write(out, static_cast<int>(v)); }
 };
 
 class PLYValueBigUInt32 : public PLYValue
 {
   private:
-  
+
     unsigned int value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       value=(in->sbumpc()&0xff)<<24;
       value|=(in->sbumpc()&0xff)<<16;
       value|=(in->sbumpc()&0xff)<<8;
       value|=in->sbumpc()&0xff;
     }
-    
+
     int getInt(int i=0) const { return static_cast<unsigned int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return value; }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, unsigned int v)
+
+    void write(std::streambuf *out, unsigned int v)
     {
       out->sputc(static_cast<char>((v>>24)&0xff));
       out->sputc(static_cast<char>((v>>16)&0xff));
       out->sputc(static_cast<char>((v>>8)&0xff));
       out->sputc(static_cast<char>(v&0xff));
     }
-    
-    void write(streambuf *out, int v) { write(out, static_cast<unsigned int>(v)); }
-    void write(streambuf *out, float v) { write(out, static_cast<unsigned int>(v)); }
-    void write(streambuf *out, double v) { write(out, static_cast<unsigned int>(v)); }
+
+    void write(std::streambuf *out, int v) { write(out, static_cast<unsigned int>(v)); }
+    void write(std::streambuf *out, float v) { write(out, static_cast<unsigned int>(v)); }
+    void write(std::streambuf *out, double v) { write(out, static_cast<unsigned int>(v)); }
 };
 
 class PLYValueLittleInt16 : public PLYValue
 {
   private:
-  
+
     short value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       value=static_cast<short>(in->sbumpc()&0xff);
       value|=static_cast<short>(in->sbumpc()<<8);
     }
-    
+
     int getInt(int i=0) const { return value; }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, int v)
+
+    void write(std::streambuf *out, int v)
     {
       out->sputc(static_cast<char>(v&0xff));
       out->sputc(static_cast<char>((v>>8)&0xff));
     }
-    
-    void write(streambuf *out, unsigned int v) { write(out, static_cast<int>(v)); }
-    void write(streambuf *out, float v) { write(out, static_cast<int>(v)); }
-    void write(streambuf *out, double v) { write(out, static_cast<int>(v)); }
+
+    void write(std::streambuf *out, unsigned int v) { write(out, static_cast<int>(v)); }
+    void write(std::streambuf *out, float v) { write(out, static_cast<int>(v)); }
+    void write(std::streambuf *out, double v) { write(out, static_cast<int>(v)); }
 };
 
 class PLYValueLittleUInt16 : public PLYValue
 {
   private:
-  
+
     unsigned short value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       value=static_cast<unsigned short>(in->sbumpc()&0xff);
       value|=static_cast<unsigned short>((in->sbumpc()&0xff)<<8);
     }
-    
+
     int getInt(int i=0) const { return static_cast<int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return value; }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, unsigned int v)
+
+    void write(std::streambuf *out, unsigned int v)
     {
       out->sputc(static_cast<char>(v&0xff));
       out->sputc(static_cast<char>((v>>8)&0xff));
     }
-    
-    void write(streambuf *out, int v) { write(out, static_cast<unsigned int>(v)); }
-    void write(streambuf *out, float v) { write(out, static_cast<unsigned int>(v)); }
-    void write(streambuf *out, double v) { write(out, static_cast<unsigned int>(v)); }
+
+    void write(std::streambuf *out, int v) { write(out, static_cast<unsigned int>(v)); }
+    void write(std::streambuf *out, float v) { write(out, static_cast<unsigned int>(v)); }
+    void write(std::streambuf *out, double v) { write(out, static_cast<unsigned int>(v)); }
 };
 
 class PLYValueLittleInt32 : public PLYValue
 {
   private:
-  
+
     int value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       value=in->sbumpc()&0xff;
       value|=(in->sbumpc()&0xff)<<8;
       value|=(in->sbumpc()&0xff)<<16;
       value|=(in->sbumpc()&0xff)<<24;
     }
-    
+
     int getInt(int i=0) const { return value; }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, int v)
+
+    void write(std::streambuf *out, int v)
     {
       out->sputc(static_cast<char>(v&0xff));
       out->sputc(static_cast<char>((v>>8)&0xff));
       out->sputc(static_cast<char>((v>>16)&0xff));
       out->sputc(static_cast<char>((v>>24)&0xff));
     }
-    
-    void write(streambuf *out, unsigned int v) { write(out, static_cast<int>(v)); }
-    void write(streambuf *out, float v) { write(out, static_cast<int>(v)); }
-    void write(streambuf *out, double v) { write(out, static_cast<int>(v)); }
+
+    void write(std::streambuf *out, unsigned int v) { write(out, static_cast<int>(v)); }
+    void write(std::streambuf *out, float v) { write(out, static_cast<int>(v)); }
+    void write(std::streambuf *out, double v) { write(out, static_cast<int>(v)); }
 };
 
 class PLYValueLittleUInt32 : public PLYValue
 {
   private:
-  
+
     unsigned int value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       value=in->sbumpc()&0xff;
       value|=(in->sbumpc()&0xff)<<8;
       value|=(in->sbumpc()&0xff)<<16;
       value|=(in->sbumpc()&0xff)<<24;
     }
-    
+
     int getInt(int i=0) const { return static_cast<unsigned int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return value; }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, unsigned int v)
+
+    void write(std::streambuf *out, unsigned int v)
     {
       out->sputc(static_cast<char>(v&0xff));
       out->sputc(static_cast<char>((v>>8)&0xff));
       out->sputc(static_cast<char>((v>>16)&0xff));
       out->sputc(static_cast<char>((v>>24)&0xff));
     }
-    
-    void write(streambuf *out, int v) { write(out, static_cast<unsigned int>(v)); }
-    void write(streambuf *out, float v) { write(out, static_cast<unsigned int>(v)); }
-    void write(streambuf *out, double v) { write(out, static_cast<unsigned int>(v)); }
+
+    void write(std::streambuf *out, int v) { write(out, static_cast<unsigned int>(v)); }
+    void write(std::streambuf *out, float v) { write(out, static_cast<unsigned int>(v)); }
+    void write(std::streambuf *out, double v) { write(out, static_cast<unsigned int>(v)); }
 };
 
 class PLYValueFloat32 : public PLYValue
 {
   private:
-  
+
     float value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       char *p=reinterpret_cast<char *>(&value);
       p[0]=static_cast<char>(in->sbumpc());
@@ -512,13 +498,13 @@ class PLYValueFloat32 : public PLYValue
       p[2]=static_cast<char>(in->sbumpc());
       p[3]=static_cast<char>(in->sbumpc());
     }
-    
+
     int getInt(int i=0) const { return static_cast<int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, float v)
+
+    void write(std::streambuf *out, float v)
     {
       char *p=reinterpret_cast<char *>(&v);
       out->sputc(p[0]);
@@ -526,21 +512,21 @@ class PLYValueFloat32 : public PLYValue
       out->sputc(p[2]);
       out->sputc(p[3]);
     }
-    
-    void write(streambuf *out, unsigned int v) { write(out, static_cast<float>(v)); }
-    void write(streambuf *out, int v) { write(out, static_cast<float>(v)); }
-    void write(streambuf *out, double v) { write(out, static_cast<float>(v)); }
+
+    void write(std::streambuf *out, unsigned int v) { write(out, static_cast<float>(v)); }
+    void write(std::streambuf *out, int v) { write(out, static_cast<float>(v)); }
+    void write(std::streambuf *out, double v) { write(out, static_cast<float>(v)); }
 };
 
 class PLYValueFloat64 : public PLYValue
 {
   private:
-  
+
     double value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       char *p=reinterpret_cast<char *>(&value);
       p[0]=static_cast<char>(in->sbumpc());
@@ -552,13 +538,13 @@ class PLYValueFloat64 : public PLYValue
       p[6]=static_cast<char>(in->sbumpc());
       p[7]=static_cast<char>(in->sbumpc());
     }
-    
+
     int getInt(int i=0) const { return static_cast<int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
     float getFloat(int i=0) const { return static_cast<float>(value); }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, double v)
+
+    void write(std::streambuf *out, double v)
     {
       char *p=reinterpret_cast<char *>(&v);
       out->sputc(p[0]);
@@ -570,21 +556,21 @@ class PLYValueFloat64 : public PLYValue
       out->sputc(p[6]);
       out->sputc(p[7]);
     }
-    
-    void write(streambuf *out, unsigned int v) { write(out, static_cast<double>(v)); }
-    void write(streambuf *out, int v) { write(out, static_cast<double>(v)); }
-    void write(streambuf *out, float v) { write(out, static_cast<double>(v)); }
+
+    void write(std::streambuf *out, unsigned int v) { write(out, static_cast<double>(v)); }
+    void write(std::streambuf *out, int v) { write(out, static_cast<double>(v)); }
+    void write(std::streambuf *out, float v) { write(out, static_cast<double>(v)); }
 };
 
 class PLYValueSwapFloat32 : public PLYValue
 {
   private:
-  
+
     float value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       char *p=reinterpret_cast<char *>(&value);
       p[3]=static_cast<char>(in->sbumpc());
@@ -592,13 +578,13 @@ class PLYValueSwapFloat32 : public PLYValue
       p[1]=static_cast<char>(in->sbumpc());
       p[0]=static_cast<char>(in->sbumpc());
     }
-    
+
     int getInt(int i=0) const { return static_cast<int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
     float getFloat(int i=0) const { return value; }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, float v)
+
+    void write(std::streambuf *out, float v)
     {
       char *p=reinterpret_cast<char *>(&v);
       out->sputc(p[3]);
@@ -606,22 +592,22 @@ class PLYValueSwapFloat32 : public PLYValue
       out->sputc(p[1]);
       out->sputc(p[0]);
     }
-    
-    void write(streambuf *out, unsigned int v) { write(out, static_cast<float>(v)); }
-    void write(streambuf *out, int v) { write(out, static_cast<float>(v)); }
-    void write(streambuf *out, double v) { write(out, static_cast<float>(v)); }
+
+    void write(std::streambuf *out, unsigned int v) { write(out, static_cast<float>(v)); }
+    void write(std::streambuf *out, int v) { write(out, static_cast<float>(v)); }
+    void write(std::streambuf *out, double v) { write(out, static_cast<float>(v)); }
 };
 
 
 class PLYValueSwapFloat64 : public PLYValue
 {
   private:
-  
+
     double value;
-  
+
   public:
-  
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       char *p=reinterpret_cast<char *>(&value);
       p[7]=static_cast<char>(in->sbumpc());
@@ -633,13 +619,13 @@ class PLYValueSwapFloat64 : public PLYValue
       p[1]=static_cast<char>(in->sbumpc());
       p[0]=static_cast<char>(in->sbumpc());
     }
-    
+
     int getInt(int i=0) const { return static_cast<int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
     float getFloat(int i=0) const { return static_cast<float>(value); }
     double getDouble(int i=0) const { return value; }
-    
-    void write(streambuf *out, double v)
+
+    void write(std::streambuf *out, double v)
     {
       char *p=reinterpret_cast<char *>(&v);
       out->sputc(p[7]);
@@ -651,10 +637,10 @@ class PLYValueSwapFloat64 : public PLYValue
       out->sputc(p[1]);
       out->sputc(p[0]);
     }
-    
-    void write(streambuf *out, unsigned int v) { write(out, static_cast<double>(v)); }
-    void write(streambuf *out, int v) { write(out, static_cast<double>(v)); }
-    void write(streambuf *out, float v) { write(out, static_cast<double>(v)); }
+
+    void write(std::streambuf *out, unsigned int v) { write(out, static_cast<double>(v)); }
+    void write(std::streambuf *out, int v) { write(out, static_cast<double>(v)); }
+    void write(std::streambuf *out, float v) { write(out, static_cast<double>(v)); }
 };
 
 /*
@@ -671,16 +657,16 @@ PLYValue *createValue(ply_type type, ply_encoding encoding)
         case ply_int16:
         case ply_int32:
             return new PLYValueASCIIInt();
-        
+
         case ply_uint8:
         case ply_uint16:
         case ply_uint32:
             return new PLYValueASCIIUInt();
-        
+
         case ply_float32:
         case ply_float64:
             return new PLYValueASCIIDouble();
-        
+
         default:
             break;
       }
@@ -691,34 +677,34 @@ PLYValue *createValue(ply_type type, ply_encoding encoding)
       {
         case ply_int8:
             return new PLYValueInt8();
-        
+
         case ply_uint8:
             return new PLYValueUInt8();
-        
+
         case ply_int16:
             return new PLYValueBigInt16();
-        
+
         case ply_uint16:
             return new PLYValueBigUInt16();
-        
+
         case ply_int32:
             return new PLYValueBigInt32();
-        
+
         case ply_uint32:
             return new PLYValueBigUInt32();
-        
+
         case ply_float32:
-            if (isMSBFirst())
+            if (gutil::isMSBFirst())
               return new PLYValueFloat32();
             else
               return new PLYValueSwapFloat32();
-        
+
         case ply_float64:
-            if (isMSBFirst())
+            if (gutil::isMSBFirst())
               return new PLYValueFloat64();
             else
               return new PLYValueSwapFloat64();
-        
+
         default:
             break;
       }
@@ -729,41 +715,41 @@ PLYValue *createValue(ply_type type, ply_encoding encoding)
       {
         case ply_int8:
             return new PLYValueInt8();
-        
+
         case ply_uint8:
             return new PLYValueUInt8();
-        
+
         case ply_int16:
             return new PLYValueLittleInt16();
-        
+
         case ply_uint16:
             return new PLYValueLittleUInt16();
-        
+
         case ply_int32:
             return new PLYValueLittleInt32();
-        
+
         case ply_uint32:
             return new PLYValueLittleUInt32();
-        
+
         case ply_float32:
-            if (isMSBFirst())
+            if (gutil::isMSBFirst())
               return new PLYValueSwapFloat32();
             else
               return new PLYValueFloat32();
-        
+
         case ply_float64:
-            if (isMSBFirst())
+            if (gutil::isMSBFirst())
               return new PLYValueSwapFloat64();
             else
               return new PLYValueFloat64();
-        
+
         default:
             break;
       }
     }
-    
+
     assert(false);
-    
+
     return 0;
 }
 
@@ -775,17 +761,17 @@ PLYValue *createValue(ply_type type, ply_encoding encoding)
 class PLYValueList : public PLYValue
 {
   private:
-  
+
     ply_encoding       enc;
-    
+
     PLYValue           *size;
-    
+
     ply_type           tvalue;
     size_t             used;
-    vector<PLYValue *> list;
-  
+    std::vector<PLYValue *> list;
+
   public:
-    
+
     PLYValueList(ply_type t_size, ply_type t_value, ply_encoding encoding)
     {
       enc=encoding;
@@ -795,44 +781,44 @@ class PLYValueList : public PLYValue
       list.resize(1);
       list[0]=createValue(t_value, encoding);
     }
-    
+
     ~PLYValueList()
     {
       delete size;
-      
+
       for (size_t i=0; i<list.size(); i++)
         delete list[i];
     }
-    
-    void read(streambuf *in)
+
+    void read(std::streambuf *in)
     {
       size->read(in);
-      
+
       if (size->getUnsignedInt() > list.size())
       {
         used=list.size();
         list.resize(size->getUnsignedInt());
-        
+
         for (size_t i=used; i<list.size(); i++)
           list[i]=createValue(tvalue, enc);
       }
-      
+
       used=size->getUnsignedInt();
       for (size_t i=0; i<used; i++)
         list[i]->read(in);
     }
-    
+
     int getListSize() const { return used; }
     int getInt(int i=0) const { return list[i]->getInt(); }
     unsigned int getUnsignedInt(int i=0) const { return list[i]->getUnsignedInt(); }
     float getFloat(int i=0) const { return list[i]->getFloat(); }
     double getDouble(int i=0) const { return list[i]->getDouble(); }
-    
-    void writeListSize(streambuf *out, int v) { size->write(out, v); }
-    void write(streambuf *out, int v) { list[0]->write(out, v); }
-    void write(streambuf *out, unsigned int v) { list[0]->write(out, v); }
-    void write(streambuf *out, float v) { list[0]->write(out, v); }
-    void write(streambuf *out, double v) { list[0]->write(out, v); }
+
+    void writeListSize(std::streambuf *out, int v) { size->write(out, v); }
+    void write(std::streambuf *out, int v) { list[0]->write(out, v); }
+    void write(std::streambuf *out, unsigned int v) { list[0]->write(out, v); }
+    void write(std::streambuf *out, float v) { list[0]->write(out, v); }
+    void write(std::streambuf *out, double v) { list[0]->write(out, v); }
 };
 
 /*
@@ -843,90 +829,90 @@ class PLYValueList : public PLYValue
 class PLYProperty
 {
   private:
-  
+
     ply_encoding enc;
-    string       name;
+    std::string       name;
     ply_type     tsize;
     ply_type     tvalue;
     PLYValue     *value;
     PLYReceiver  *receiver;
-    
-    static string type2Name(ply_type type);
-    static ply_type name2Type(const string &name);
-    
+
+    static std::string type2Name(ply_type type);
+    static ply_type name2Type(const std::string &name);
+
   public:
-  
+
       // construction of a scalar or list property
-    
+
     PLYProperty();
-    PLYProperty(const string &propname, ply_type type, ply_encoding encoding);
-    PLYProperty(const string &propname, ply_type t_size, ply_type t_value, ply_encoding encoding);
+    PLYProperty(const std::string &propname, ply_type type, ply_encoding encoding);
+    PLYProperty(const std::string &propname, ply_type t_size, ply_type t_value, ply_encoding encoding);
     PLYProperty(const PLYProperty &p);
     ~PLYProperty();
-    
+
     PLYProperty &operator=(const PLYProperty &p);
-    
-    static PLYProperty fromString(const string &s, ply_encoding encoding);
-    
+
+    static PLYProperty fromString(const std::string &s, ply_encoding encoding);
+
       // returns the specification as in the ply header
-    
-    string toString() const;
-    
+
+    std::string toString() const;
+
       // returns name and the type of property (tsize is ply_none, if the
       // property is not a list)
-    
-    const string &getName() const { return name; }
+
+    const std::string &getName() const { return name; }
     ply_type getSizeType() const { return tsize; }
     ply_type getValueType() const { return tvalue; }
     PLYValue &getValue() { return *value; }
-    
+
       // sets a receiver object
-    
+
     void setReceiver(PLYReceiver *r) { receiver=r; }
-    
+
       // reads one value and calls the receiver object if specified
-    
-    void readData(streambuf *in, int instance);
+
+    void readData(std::streambuf *in, int instance);
 };
 
-string PLYProperty::type2Name(ply_type type)
+std::string PLYProperty::type2Name(ply_type type)
 {
     switch (type)
     {
       case ply_int8:
           return "int8";
-      
+
       case ply_uint8:
           return "uint8";
-      
+
       case ply_int16:
           return "int16";
-      
+
       case ply_uint16:
           return "uint16";
-      
+
       case ply_int32:
           return "int32";
-      
+
       case ply_uint32:
           return "uint32";
-      
+
       case ply_float32:
           return "float32";
-      
+
       case ply_float64:
           return "float64";
-      
+
       default:
           break;
     }
-    
+
     assert(false);
-    
+
     return "none";
 }
 
-ply_type PLYProperty::name2Type(const string &name)
+ply_type PLYProperty::name2Type(const std::string &name)
 {
     if (name == "int8" || name == "char")
       return ply_int8;
@@ -944,9 +930,9 @@ ply_type PLYProperty::name2Type(const string &name)
       return ply_float32;
     else if (name == "float64" || name == "double")
       return ply_float64;
-    
+
     assert(false);
-    
+
     return ply_none;
 }
 
@@ -960,7 +946,7 @@ PLYProperty::PLYProperty()
     receiver=0;
 }
 
-PLYProperty::PLYProperty(const string &propname, ply_type type, ply_encoding encoding)
+PLYProperty::PLYProperty(const std::string &propname, ply_type type, ply_encoding encoding)
 {
     enc=encoding;
     name=propname;
@@ -970,7 +956,7 @@ PLYProperty::PLYProperty(const string &propname, ply_type type, ply_encoding enc
     receiver=0;
 }
 
-PLYProperty::PLYProperty(const string &propname, ply_type t_size, ply_type t_value, ply_encoding encoding)
+PLYProperty::PLYProperty(const std::string &propname, ply_type t_size, ply_type t_value, ply_encoding encoding)
 {
     enc=encoding;
     name=propname;
@@ -986,12 +972,12 @@ PLYProperty::PLYProperty(const PLYProperty &p)
     name=p.name;
     tsize=p.tsize;
     tvalue=p.tvalue;
-    
+
     if (tsize == ply_none)
       value=createValue(tvalue, enc);
     else
       value=new PLYValueList(tsize, tvalue, enc);
-    
+
     receiver=0;
 }
 
@@ -1006,28 +992,28 @@ PLYProperty &PLYProperty::operator=(const PLYProperty &p)
     name=p.name;
     tsize=p.tsize;
     tvalue=p.tvalue;
-    
+
     delete value;
-    
+
     if (tsize == ply_none)
       value=createValue(tvalue, enc);
     else
       value=new PLYValueList(tsize, tvalue, enc);
-    
+
     receiver=p.receiver;
-    
+
     return *this;
 }
 
-PLYProperty PLYProperty::fromString(const string &s, ply_encoding encoding)
+PLYProperty PLYProperty::fromString(const std::string &s, ply_encoding encoding)
 {
-    vector<string> list;
-    
-    split(list, s);
-    
+    std::vector<std::string> list;
+
+    gutil::split(list, s);
+
     if (list[0].compare("property") != 0)
-      throw IOException("Invalid PLY property definition: "+s);
-    
+      throw gutil::IOException("Invalid PLY property definition: "+s);
+
     if (list.size() == 3)
     {
       return PLYProperty(list[2], name2Type(list[1]), encoding);
@@ -1037,10 +1023,10 @@ PLYProperty PLYProperty::fromString(const string &s, ply_encoding encoding)
       return PLYProperty(list[4], name2Type(list[2]), name2Type(list[3]), encoding);
     }
     else
-      throw IOException("Invalid PLY property definition: "+s);
+      throw gutil::IOException("Invalid PLY property definition: "+s);
 }
 
-string PLYProperty::toString() const
+std::string PLYProperty::toString() const
 {
     if (tsize == ply_none)
       return "property "+type2Name(tvalue)+" "+name;
@@ -1048,10 +1034,10 @@ string PLYProperty::toString() const
       return "property list "+type2Name(tsize)+" "+type2Name(tvalue)+" "+name;
 }
 
-void PLYProperty::readData(streambuf *in, int instance)
+void PLYProperty::readData(std::streambuf *in, int instance)
 {
     value->read(in);
-    
+
     if (receiver != 0)
       receiver->setValue(instance, *value);
 }
@@ -1065,63 +1051,63 @@ void PLYProperty::readData(streambuf *in, int instance)
 class PLYElement
 {
   private:
-  
-    string              name;
+
+    std::string              name;
     long                size;
-    vector<PLYProperty> list;
-    
+    std::vector<PLYProperty> list;
+
   public:
-    
+
       // construction of an element
-    
-    PLYElement(const string &elem_name, long elem_size);
-    
-    static PLYElement *fromString(const string &s);
-    
+
+    PLYElement(const std::string &elem_name, long elem_size);
+
+    static PLYElement *fromString(const std::string &s);
+
       // returns the specification as in the ply header
-    
-    string toString() const;
-    
+
+    std::string toString() const;
+
       // returns the element name and number of instances (if the number of
       // instances is < 0, then this is a comment)
-    
-    const string &getName() const { return name; }
+
+    const std::string &getName() const { return name; }
     long getInstances() const { return size; }
-    
+
       // adds a property to the element
-    
+
     void addProperty(const PLYProperty &p) { list.push_back(p); }
-    
+
       // returns the associated properties
-    
+
     int getPropertyCount() { return list.size(); }
     PLYProperty &getProperty(int i) { return list[i]; }
-    PLYProperty *findProperty(const string s);
-    
+    PLYProperty *findProperty(const std::string s);
+
       // reading all data (i.e. all instances) of this element and calls the
       // receiver objects if specified
-    
-    void readData(streambuf *in);
+
+    void readData(std::streambuf *in);
 };
 
-PLYElement::PLYElement(const string &elem_name, long elem_size)
+PLYElement::PLYElement(const std::string &elem_name, long elem_size)
 {
     name=elem_name;
     size=elem_size;
 }
 
-PLYElement *PLYElement::fromString(const string &s)
+PLYElement *PLYElement::fromString(const std::string &s)
 {
-    vector<string> list;
-    
-    split(list, s);
-    
+    std::vector<std::string> list;
+
+    gutil::split(list, s);
+
     if (list[0].compare("element") == 0)
     {
       long n;
-      istringstream in(list[2]);
+      std::istringstream in(list[2]);
       in >> n;
-      
+
       return new PLYElement(list[1], n);
     }
     else if (list[0].compare("comment") == 0)
@@ -1129,35 +1115,35 @@ PLYElement *PLYElement::fromString(const string &s)
       return new PLYElement(s.substr(8), -1);
     }
     else
-      throw IOException("Invalid PLY element definition: "+s);
+      throw gutil::IOException("Invalid PLY element definition: "+s);
 }
 
-string PLYElement::toString() const
+std::string PLYElement::toString() const
 {
-    ostringstream s;
-    
+    std::ostringstream s;
+
     if (size >= 0)
       s << "element " << name << " " << size;
     else
       s << "comment " << name;
-    
+
     return s.str();
 }
 
-PLYProperty *PLYElement::findProperty(const string s)
+PLYProperty *PLYElement::findProperty(const std::string s)
 {
     PLYProperty *ret=0;
-    
+
     for (size_t i=0; i<list.size() && ret == 0; i++)
     {
       if (list[i].getName().compare(s) == 0)
         ret=&list[i];
     }
-    
+
     return ret;
 }
 
-void PLYElement::readData(streambuf *in)
+void PLYElement::readData(std::streambuf *in)
 {
     for (long i=0; i<size; i++)
     {
@@ -1166,16 +1152,16 @@ void PLYElement::readData(streambuf *in)
     }
 }
 
-PLYElement *PLYReader::findElement(const string &name) const
+PLYElement *PLYReader::findElement(const std::string &name) const
 {
     PLYElement *ret=0;
-    
+
     for (size_t i=0; i<list.size() && ret == 0; i++)
     {
       if (list[i]->getName().compare(name) == 0)
         ret=list[i];
     }
-    
+
     return ret;
 }
 
@@ -1187,54 +1173,54 @@ PLYReader::~PLYReader()
 
 bool PLYReader::open(const char *name)
 {
-    string         line;
-    vector<string> format;
+    std::string         line;
+    std::vector<std::string> format;
     ply_encoding   encoding;
     PLYElement     *element;
-    
+
     filename=name;
-    
+
       // empty list, close file (if necessary) and open new file
-    
+
     for (size_t i=0; i<list.size(); i++)
       delete list[i];
-    
+
     list.clear();
-    
+
     if (in.is_open())
       in.close();
-    
-    in.exceptions(ios_base::failbit | ios_base::badbit | ios_base::eofbit);
-    in.open(name, ios_base::binary);
-    
+
+    in.exceptions(std::ios_base::failbit | std::ios_base::badbit | std::ios_base::eofbit);
+    in.open(name, std::ios_base::binary);
+
       // check magic code
-    
+
     char id[3];
     id[0]=static_cast<char>(in.get());
     id[1]=static_cast<char>(in.get());
     id[2]=static_cast<char>(in.get());
-    
+
     if (id[0] != 'p' || id[1] != 'l' || id[2] != 'y')
     {
       in.close();
       return false;
     }
-    
+
       // skip rest of the line
-    
+
     getline(in, line);
-    
+
       // read format
-    
+
     getline(in, line);
-    trim(line);
-    
-    split(format, line);
-    
+    gutil::trim(line);
+
+    gutil::split(format, line);
+
     if (format.size() != 3 || format[0].compare("format") != 0 ||
       format[2].compare("1.0") != 0)
-      throw IOException("Unknown ply format or version: "+line);
-    
+      throw gutil::IOException("Unknown ply format or version: "+line);
+
     if (format[1].compare("ascii") == 0)
       encoding=ply_ascii;
     else if (format[1].compare("binary_big_endian") == 0)
@@ -1242,13 +1228,13 @@ bool PLYReader::open(const char *name)
     else if (format[1].compare("binary_little_endian") == 0)
       encoding=ply_little_endian;
     else
-      throw IOException("Unknown ply encoding: "+format[1]);
-    
+      throw gutil::IOException("Unknown ply encoding: "+format[1]);
+
       // read all elements and properties of header
-    
+
     getline(in, line);
-    trim(line);
-    
+    gutil::trim(line);
+
     while (line.compare("end_header") != 0)
     {
       if (line.compare(0, 7, "element") == 0)
@@ -1263,15 +1249,15 @@ bool PLYReader::open(const char *name)
       else if (line.compare(0, 8, "property") == 0)
       {
         if (element == 0)
-          throw IOException("Property without an parent element: "+line);
-        
+          throw gutil::IOException("Property without an parent element: "+line);
+
         element->addProperty(PLYProperty::fromString(line, encoding));
       }
-      
+
       getline(in, line);
-      trim(line);
+      gutil::trim(line);
     }
-    
+
     return true;
 }
 
@@ -1280,23 +1266,23 @@ void PLYReader::printHeader()
     for (size_t i=0; i<list.size(); i++)
     {
       PLYElement *element=list[i];
-      
-      cout << element->toString() << endl;
-      
+
+      std::cout << element->toString() << std::endl;
+
       if (element->getInstances() > 0)
       {
           // write properties
-        
+
         for (int k=0; k<element->getPropertyCount(); k++)
-          cout << element->getProperty(k).toString() << endl;
+          std::cout << element->getProperty(k).toString() << std::endl;
       }
     }
 }
 
-void PLYReader::getComments(vector<string> &clist) const
+void PLYReader::getComments(std::vector<std::string> &clist) const
 {
     clist.clear();
-    
+
     for (size_t i=0; i<list.size(); i++)
     {
       if (list[i]->getInstances() < 0)
@@ -1304,58 +1290,58 @@ void PLYReader::getComments(vector<string> &clist) const
     }
 }
 
-long PLYReader::instancesOfElement(const string &elem_name) const
+long PLYReader::instancesOfElement(const std::string &elem_name) const
 {
     PLYElement *elem=findElement(elem_name);
-    
+
     if (elem != 0)
       return elem->getInstances();
-    
+
     return -1;
 }
 
-ply_type PLYReader::getTypeOfProperty(const string &elem_name, const string &prop_name) const
+ply_type PLYReader::getTypeOfProperty(const std::string &elem_name, const std::string &prop_name) const
 {
     PLYElement *elem=findElement(elem_name);
-    
+
     if (elem != 0)
     {
       PLYProperty *prop=elem->findProperty(prop_name);
-      
+
       if (prop != 0)
         return prop->getValueType();
     }
-    
+
     return ply_none;
 }
-    
-bool PLYReader::setReceiver(const string &elem_name, const string &prop_name, PLYReceiver *receiver)
+
+bool PLYReader::setReceiver(const std::string &elem_name, const std::string &prop_name, PLYReceiver *receiver)
 {
     PLYElement *elem=findElement(elem_name);
-    
+
     if (elem != 0)
     {
       PLYProperty *prop=elem->findProperty(prop_name);
-      
+
       if (prop != 0)
       {
         prop->setReceiver(receiver);
         return true;
       }
     }
-    
+
     return false;
 }
-    
+
 void PLYReader::readData()
 {
     if (in.is_open())
     {
-      streambuf *sb=in.rdbuf();
-      
+      std::streambuf *sb=in.rdbuf();
+
       for (size_t i=0; i<list.size(); i++)
         list[i]->readData(sb);
-      
+
       in.close();
     }
 }
@@ -1365,68 +1351,68 @@ void PLYWriter::writeHeader()
     if (!header_complete)
     {
         // write magic code
-      
-      out << "ply" << endl;
-      
+
+      out << "ply" << std::endl;
+
         // write encoding and version
-      
+
       out << "format ";
-      
+
       switch (enc)
       {
         case ply_ascii:
             out << "ascii ";
             break;
-        
+
         case ply_big_endian:
             out << "binary_big_endian ";
             break;
-        
+
         case ply_little_endian:
             out << "binary_little_endian ";
             break;
-        
+
         default:
             break;
       }
-      
-      out << "1.0" << endl;
-      
+
+      out << "1.0" << std::endl;
+
         // write all comments and elements
-      
+
       for (size_t i=0; i<list.size(); i++)
       {
         element=list[i];
-        
-        out << element->toString() << endl;
-        
+
+        out << element->toString() << std::endl;
+
         if (element->getInstances() > 0)
         {
             // write properties
-          
+
           for (int k=0; k<element->getPropertyCount(); k++)
-            out << element->getProperty(k).toString() << endl;
+            out << element->getProperty(k).toString() << std::endl;
         }
       }
-      
+
       out << "end_header" << "\n";
-      
+
       header_complete=true;
-      
+
         // set element pointer to first element with one or more properties and
         // one or more instances
-      
+
       element=0;
-      
+
       pelem=0;
       while (pelem < list.size() && (list[pelem]->getInstances() <= 0 ||
         list[pelem]->getPropertyCount() == 0))
         pelem++;
-      
+
       pinst=1;
       pprop=1;
       plist=0;
-      
+
       if (pelem < list.size())
       {
         element=list[pelem];
@@ -1440,7 +1426,7 @@ PLYValue &PLYWriter::nextValue()
 {
       // increment internal pointers to the next (list) value, instance or
       // element, according to the specified header
-    
+
     plist--;
     if (plist < 0)
     {
@@ -1451,31 +1437,31 @@ PLYValue &PLYWriter::nextValue()
         if (pinst <= 0)
         {
           element=0;
-          
+
           pelem++;
           while (pelem < list.size() && (list[pelem]->getInstances() <= 0 ||
             list[pelem]->getPropertyCount() == 0))
             pelem++;
-          
+
           if (pelem >= list.size())
           {
             out.flush();
-            throw IOException("Attempt to write more data than specified in the PLY header");
+            throw gutil::IOException("Attempt to write more data than specified in the PLY header");
           }
-          
+
           element=list[pelem];
           pinst=element->getInstances();
         }
-        
+
         pprop=element->getPropertyCount();
-        
+
         if (enc == ply_ascii)
-          out << endl;
+          out << std::endl;
       }
-      
+
       plist=0;
     }
-    
+
     return element->getProperty(element->getPropertyCount()-pprop).getValue();
 }
 
@@ -1488,73 +1474,73 @@ PLYWriter::~PLYWriter()
 void PLYWriter::open(const char *name, ply_encoding encoding)
 {
       // set encoding
-    
+
     if (encoding == ply_binary)
     {
-      if (isMSBFirst())
+      if (gutil::isMSBFirst())
         encoding=ply_big_endian;
       else
         encoding=ply_little_endian;
     }
-    
+
     enc=encoding;
-    
+
       // empty list, close file (if necessary) and open new file
-    
+
     for (size_t i=0; i<list.size(); i++)
       delete list[i];
-    
+
     list.clear();
     element=0;
-    
+
     header_complete=false;
-    
+
     if (out.is_open())
       out.close();
-    
-    out.exceptions(ios_base::failbit | ios_base::badbit);
-    out.open(name, ios_base::binary);
+
+    out.exceptions(std::ios_base::failbit | std::ios_base::badbit);
+    out.open(name, std::ios_base::binary);
 }
 
-void PLYWriter::addComment(const string &s)
+void PLYWriter::addComment(const std::string &s)
 {
     if (header_complete)
-      throw IOException("Creation of ply header has been completed");
-    
+      throw gutil::IOException("Creation of ply header has been completed");
+
     PLYElement *comment=new PLYElement(s, -1);
-    
+
     list.push_back(comment);
 }
 
-void PLYWriter::addElement(const string &name, long instances)
+void PLYWriter::addElement(const std::string &name, long instances)
 {
     if (header_complete)
-      throw IOException("Creation of ply header has been completed");
-    
+      throw gutil::IOException("Creation of ply header has been completed");
+
     element=new PLYElement(name, instances);
-    
+
     list.push_back(element);
 }
 
-void PLYWriter::addProperty(const string &name, ply_type tvalue)
+void PLYWriter::addProperty(const std::string &name, ply_type tvalue)
 {
     if (header_complete)
-      throw IOException("Creation of ply header has been completed");
-    
+      throw gutil::IOException("Creation of ply header has been completed");
+
     if (element == 0)
-      throw IOException("PLYWriter: Adding a property without an element");
-    
+      throw gutil::IOException("PLYWriter: Adding a property without an element");
+
     element->addProperty(PLYProperty(name, tvalue, enc));
 }
 
-void PLYWriter::addProperty(const string &name, ply_type tsize, ply_type tvalue)
+void PLYWriter::addProperty(const std::string &name, ply_type tsize, ply_type tvalue)
 {
     if (header_complete)
-      throw IOException("Creation of ply header has been completed");
-    
+      throw gutil::IOException("Creation of ply header has been completed");
+
     if (element == 0)
-      throw IOException("PLYWriter: Adding a property without an element");
-    
+      throw gutil::IOException("PLYWriter: Adding a property without an element");
+
     element->addProperty(PLYProperty(name, tsize, tvalue, enc));
 }
 
@@ -1562,9 +1548,9 @@ void PLYWriter::writeListSize(int v)
 {
     if (!header_complete)
       writeHeader();
-    
+
     nextValue().writeListSize(out.rdbuf(), v);
-    
+
     plist=v;
 }
 
@@ -1572,7 +1558,7 @@ void PLYWriter::write(int v)
 {
     if (!header_complete)
       writeHeader();
-    
+
     nextValue().write(out.rdbuf(), v);
 }
 
@@ -1580,7 +1566,7 @@ void PLYWriter::write(unsigned int v)
 {
     if (!header_complete)
       writeHeader();
-    
+
     nextValue().write(out.rdbuf(), v);
 }
 
@@ -1588,7 +1574,7 @@ void PLYWriter::write(float v)
 {
     if (!header_complete)
       writeHeader();
-    
+
     nextValue().write(out.rdbuf(), v);
 }
 
@@ -1596,7 +1582,7 @@ void PLYWriter::write(double v)
 {
     if (!header_complete)
       writeHeader();
-    
+
     nextValue().write(out.rdbuf(), v);
 }
 
@@ -1604,18 +1590,18 @@ void PLYWriter::close()
 {
     if (!header_complete)
       writeHeader();
-    
+
     if (out.is_open())
     {
       out.close();
-      
+
       pelem++;
       while (pelem < list.size() && (list[pelem]->getInstances() <= 0 ||
         list[pelem]->getPropertyCount() == 0))
         pelem++;
-      
+
       if (!(plist == 0 && pprop == 1 && pinst == 1 && pelem >= list.size()))
-        throw IOException("All data as specified in the header must be written. The ply file is corrupted!");
+        throw gutil::IOException("All data as specified in the header must be written. The ply file is corrupted!");
     }
 }
 

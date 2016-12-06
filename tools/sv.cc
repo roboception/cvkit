@@ -43,25 +43,6 @@
 #include <set>
 #include <fstream>
 
-using std::cout;
-using std::endl;
-using std::string;
-using std::vector;
-using std::set;
-using std::ifstream;
-using std::numeric_limits;
-
-using gutil::Parameter;
-using gutil::showError;
-using gutil::getFileList;
-using gutil::Exception;
-
-using bgui::FileImageWindow;
-using bgui::mapping;
-using bgui::map_raw;
-using bgui::map_jet;
-using bgui::map_rainbow;
-
 int main(int argc, char *argv[])
 {
     try
@@ -72,15 +53,15 @@ int main(int argc, char *argv[])
       double scale=0;
       double imin=0;
       double imax=0;
-      double vmin=-numeric_limits<float>::max();
-      double vmax=numeric_limits<float>::max();
-      FileImageWindow::keep kp=FileImageWindow::keep_none;
-      mapping map=map_raw;
+      double vmin=-std::numeric_limits<float>::max();
+      double vmax=std::numeric_limits<float>::max();
+      bgui::FileImageWindow::keep kp=bgui::FileImageWindow::keep_none;
+      bgui::mapping map=bgui::map_raw;
       int channel=-1;
       bool watch=false;
-      vector<string> list;
+      std::vector<std::string> list;
       int first=0;
-      
+
       const char *def[]=
       {
         "# sv [<options>] <image file> ...",
@@ -111,68 +92,68 @@ int main(int argc, char *argv[])
         "-map # Mapping for greyscale images: raw (default), jet, rainbow.",
         0
       };
-      
-      Parameter param(argc, argv, def);
-      
+
+      gutil::Parameter param(argc, argv, def);
+
         // handle options
-      
+
       while (param.isNextParameter())
       {
-        string p;
-        
+        std::string p;
+
         param.nextParameter(p);
-        
+
         if (p == "-help")
         {
-          param.printHelp(cout);
+          param.printHelp(std::cout);
           return 0;
         }
-        
+
         if (p == "-version")
         {
-          cout << "This program is part of cvkit version " << VERSION << endl;
+          std::cout << "This program is part of cvkit version " << VERSION << std::endl;
           return 0;
         }
-        
+
         if (p == "-pos")
         {
           param.nextValue(x);
           param.nextValue(y);
         }
-        
+
         if (p == "-size")
         {
           param.nextValue(w);
           param.nextValue(h);
           size_max=false;
         }
-        
+
         if (p == "-maxsize")
         {
           param.nextValue(w);
           param.nextValue(h);
           size_max=true;
         }
-        
+
         if (p == "-scale")
         {
           param.nextValue(scale);
-          
+
           if (scale > 0)
           {
-            if (kp == FileImageWindow::keep_none)
-              kp=FileImageWindow::keep_most;
+            if (kp == bgui::FileImageWindow::keep_none)
+              kp=bgui::FileImageWindow::keep_most;
           }
           else
             scale=0;
         }
-        
+
         if (p == "-select")
         {
-          string s;
-          
+          std::string s;
+
           param.nextString(s, "R|G|B");
-          
+
           if (s == "R")
             channel=0;
           else if (s == "G")
@@ -180,100 +161,100 @@ int main(int argc, char *argv[])
           else if (s == "B")
             channel=2;
         }
-        
+
         if (p == "-imin")
         {
           param.nextValue(imin);
-          kp=FileImageWindow::keep_all;
+          kp=bgui::FileImageWindow::keep_all;
         }
-        
+
         if (p == "-imax")
         {
           param.nextValue(imax);
-          kp=FileImageWindow::keep_all;
+          kp=bgui::FileImageWindow::keep_all;
         }
-        
+
         if (p == "-vmin")
           param.nextValue(vmin);
-        
+
         if (p == "-vmax")
           param.nextValue(vmax);
-        
+
         if (p == "-keep")
-          kp=FileImageWindow::keep_most;
-        
+          kp=bgui::FileImageWindow::keep_most;
+
         if (p == "-keepall")
-          kp=FileImageWindow::keep_all;
-        
+          kp=bgui::FileImageWindow::keep_all;
+
         if (p == "-watch")
           watch=true;
-        
+
         if (p == "-map")
         {
-          string s;
-          
+          std::string s;
+
           param.nextString(s, "raw|jet|rainbow");
-          
+
           if (s == "jet")
-            map=map_jet;
-          
+            map=bgui::map_jet;
+
           if (s == "rainbow")
-            map=map_rainbow;
+            map=bgui::map_rainbow;
         }
       }
-      
+
         // collect files
-      
+
       if (param.remaining() < 1)
       {
-        showError("No image files give");
-        param.printHelp(cout);
+        gutil::showError("No image files give");
+        param.printHelp(std::cout);
         return 10;
       }
-      
+
       while (param.remaining() > 0)
       {
-        string file;
+        std::string file;
         param.nextString(file);
         list.push_back(file);
       }
-      
+
         // if exactly one file is given, get all files of that directory for
         // convenience
-      
+
       if (list.size() == 1)
       {
-        ifstream in;
-        in.open(list[0].c_str(), ifstream::in);
+        std::ifstream in;
+        in.open(list[0].c_str(), std::ifstream::in);
         in.close();
-        
+
         if (!in.fail())
         {
-          string name=list[0];
-          string dir="";
-          
+          std::string name=list[0];
+          std::string dir="";
+
           size_t i=name.find_last_of("\\/");
           if (i != name.npos)
             dir=name.substr(0, i+1);
-          
+
           try
           {
-            set<string> content;
-            getFileList(content, dir, "");
-            
+            std::set<std::string> content;
+            gutil::getFileList(content, dir, "");
+
             list.clear();
-            for (set<string>::iterator it=content.begin(); it != content.end(); it++)
+            for (std::set<std::string>::iterator it=content.begin(); it != content.end(); it++)
               list.push_back(*it);
-            
+
             sort(list.begin(), list.end());
-          
+
             first=-1;
             for (size_t k=0; k<list.size(); k++)
             {
               if (list[k] == name)
                 first=k;
             }
-            
+
             if (first == -1)
             {
               list.insert(list.begin(), name);
@@ -284,36 +265,36 @@ int main(int argc, char *argv[])
           { }
         }
       }
-     
+
         // open windows and show first image
-      
-      string viewcmd=argv[0];
-      
+
+      std::string viewcmd=argv[0];
+
       size_t pos=viewcmd.find_last_of("/\\");
-      
+
       if (pos != viewcmd.npos)
         viewcmd=viewcmd.substr(0, pos+1);
       else
         viewcmd.clear();
-      
+
 #ifdef WIN32
       viewcmd=viewcmd+"plyv.exe";
 #else
       viewcmd=viewcmd+"plyv";
 #endif
-      
-      FileImageWindow win(list, first, watch, x, y, w, h, size_max, scale,
+
+      bgui::FileImageWindow win(list, first, watch, x, y, w, h, size_max, scale,
         imin, imax, vmin, vmax, kp, map, channel, viewcmd.c_str());
-      
+
       win.waitForClose();
     }
-    catch (Exception &ex)
+    catch (gutil::Exception &ex)
     {
       ex.print();
     }
     catch (...)
     {
-      showError("An unknown exception occured");
+      gutil::showError("An unknown exception occured");
     }
 
     return 0;

@@ -47,9 +47,6 @@
 
 #include <assert.h>
 
-using std::cerr;
-using std::endl;
-
 namespace gutil
 {
 
@@ -195,7 +192,7 @@ int Thread::getProcessingUnits()
 
       if (procunits <= 0)
       {
-        cerr << "Cannot determine number of CPUs, assuming one!" << endl;
+        std::cerr << "Cannot determine number of CPUs, assuming one!" << std::endl;
         procunits=1;
       }
 

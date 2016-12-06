@@ -38,18 +38,14 @@
 #include <mutex>
 #include <condition_variable>
 
-using std::mutex;
-using std::condition_variable;
-using std::unique_lock;
-
 namespace gutil
 {
 
 struct SemaphoreData
 {
-    mutex              mtx;
-    condition_variable cv;
-    int                count;
+    std::mutex              mtx;
+    std::condition_variable cv;
+    int                     count;
 };
 
 Semaphore::Semaphore(int c)
@@ -65,20 +61,20 @@ Semaphore::~Semaphore()
 
 void Semaphore::increment()
 {
-    unique_lock<mutex> lck(p->mtx);
-    
+    std::unique_lock<std::mutex> lck(p->mtx);
+
     p->count++;
-    
+
     p->cv.notify_one();
 }
 
 void Semaphore::decrement()
 {
-    unique_lock<mutex> lck(p->mtx);
-    
+    std::unique_lock<std::mutex> lck(p->mtx);
+
     while (p->count == 0)
       p->cv.wait(lck);
-    
+
     p->count--;
 }
 

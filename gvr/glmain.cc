@@ -46,8 +46,6 @@
 
 #include <cstdlib>
 
-using gutil::Exception;
-
 namespace gvr
 {
 
@@ -59,25 +57,25 @@ void GLInit(int &argc, char **argv)
 void GLInitWindow(int x, int y, int w, int h, const char *title)
 {
       // create GLUT window
-    
+
     glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
     glutInitWindowSize(w, h);
     glutInitWindowPosition(x, y);
     glutCreateWindow(title);
-    
+
     glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
-    
+
       // initialize extensions
-    
+
     GLenum res=glewInit();
     if (res != GLEW_OK)
       throw GLException(reinterpret_cast<const char *>(glewGetErrorString(res)));
-    
+
       // settings for drawing
-    
+
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_DEPTH_TEST);
-    
+
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
@@ -94,7 +92,7 @@ void onRedraw()
     {
       listener->onRedraw();
     }
-    catch (const Exception &ex)
+    catch (const gutil::Exception &ex)
     {
       ex.print();
       exit(10);
@@ -107,7 +105,7 @@ void onReshape(int w, int h)
     {
       listener->onReshape(w, h);
     }
-    catch (const Exception &ex)
+    catch (const gutil::Exception &ex)
     {
       ex.print();
       exit(10);
@@ -120,7 +118,7 @@ void onSpecialKey(int key, int x, int y)
     {
       listener->onSpecialKey(key, x, y);
     }
-    catch (const Exception &ex)
+    catch (const gutil::Exception &ex)
     {
       ex.print();
       exit(10);
@@ -133,7 +131,7 @@ void onKey(unsigned char key, int x, int y)
     {
       listener->onKey(key, x, y);
     }
-    catch (const Exception &ex)
+    catch (const gutil::Exception &ex)
     {
       ex.print();
       exit(10);
@@ -146,7 +144,7 @@ void onMouseMove(int x, int y)
     {
       listener->onMouseMove(x, y);
     }
-    catch (const Exception &ex)
+    catch (const gutil::Exception &ex)
     {
       ex.print();
       exit(10);
@@ -159,7 +157,7 @@ void onMouseButton(int button, int state, int x, int y)
     {
       listener->onMouseButton(button, state, x, y);
     }
-    catch (const Exception &ex)
+    catch (const gutil::Exception &ex)
     {
       ex.print();
       exit(10);
@@ -171,18 +169,18 @@ void onMouseButton(int button, int state, int x, int y)
 void GLMainLoop(GLListener &l)
 {
     listener=&l;
-    
+
       // register callbacks
-    
+
     glutDisplayFunc(onRedraw);
     glutReshapeFunc(onReshape);
     glutSpecialFunc(onSpecialKey);
     glutKeyboardFunc(onKey);
     glutMouseFunc(onMouseButton);
     glutMotionFunc(onMouseMove);
-    
+
       // enter event loop
-    
+
     glutMainLoop();
 }
 

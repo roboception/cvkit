@@ -43,11 +43,6 @@
 #include <dirent.h>
 #endif
 
-using std::string;
-using std::vector;
-using std::set;
-using std::stringstream;
-
 bool gutil::isMSBFirst()
 {
     int p=1;
@@ -59,7 +54,7 @@ bool gutil::isMSBFirst()
     return true;
 }
 
-void gutil::trim(string &s)
+void gutil::trim(std::string &s)
 {
     size_t pos;
 
@@ -78,10 +73,10 @@ void gutil::trim(string &s)
       s=s.substr(0, pos);
 }
 
-void gutil::split(vector<string> &list, const string &s, char delim, bool skip_empty)
+void gutil::split(std::vector<std::string> &list, const std::string &s, char delim, bool skip_empty)
 {
-    stringstream in(s);
-    string elem;
+    std::stringstream in(s);
+    std::string elem;
 
     while (getline(in, elem, delim))
     {
@@ -90,11 +85,11 @@ void gutil::split(vector<string> &list, const string &s, char delim, bool skip_e
     }
 }
 
-void gutil::getFileList(set<string> &list, const string &prefix,
-  const string &suffix)
+void gutil::getFileList(std::set<std::string> &list, const std::string &prefix,
+  const std::string &suffix)
 {
 #ifdef __GNUC__
-    string dir="", pref=prefix;
+    std::string dir="", pref=prefix;
     size_t pos=pref.find_last_of("/\\");
 
     if (pos < pref.size())
@@ -117,7 +112,7 @@ void gutil::getFileList(set<string> &list, const string &prefix,
     struct dirent *entry=readdir(p);
     while (entry != 0)
     {
-      string name=entry->d_name;
+      std::string name=entry->d_name;
 
       if (name.size() >= pref.size()+suffix.size() &&
         name.find(pref) ==  0 && (suffix.size() == 0 ||

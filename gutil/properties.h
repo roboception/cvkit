@@ -51,7 +51,7 @@ namespace gutil
 {
 
 /**
- * The properties class stores key/value pairs. The keys are always strings,
+ * The properties class stores key/value pairs. The keys are always std::strings,
  * while the values can be native types or objects for which the istream >> or
  * ostream << operators are overloaded.
  */

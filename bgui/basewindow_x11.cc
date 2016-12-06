@@ -55,19 +55,6 @@
 
 #include <gutil/proctime.h>
 
-using std::string;
-using std::vector;
-using std::max;
-using std::min;
-
-using gutil::Exception;
-using gutil::split;
-using gutil::isMSBFirst;
-using gutil::ParallelFunction;
-using gutil::runParallel;
-
-using gimage::ImageU8;
-
 namespace bgui
 {
 
@@ -90,7 +77,7 @@ struct BaseWindowData
     int     inotify_fd;
 #endif
 
-    string info, text;
+    std::string info, text;
     bool   top, left;
 
     pthread_mutex_t mutex;
@@ -101,12 +88,12 @@ struct BaseWindowData
 namespace
 {
 
-class X11Exception : public Exception
+class X11Exception : public gutil::Exception
 {
   public:
 
-    X11Exception(const string &message) :
-      Exception("X11", message) { }
+    X11Exception(const std::string &message) :
+      gutil::Exception("X11", message) { }
 };
 
 bool initx=false;
@@ -165,11 +152,11 @@ void drawInfoText(BaseWindowData *p)
 {
     if (p->text.size() > 0)
     {
-      vector<string> list;
+      std::vector<std::string> list;
 
         // get total size of text and calculate position
 
-      split(list, p->text, '\n', false);
+      gutil::split(list, p->text, '\n', false);
 
       int x=0, y=0;
       int w=0, h=0;
@@ -177,7 +164,7 @@ void drawInfoText(BaseWindowData *p)
       for (size_t i=0; i<list.size(); i++)
       {
         if (list[i].size() > 0)
-          w=max(w, XTextWidth(p->font, list[i].c_str(), list[i].size()));
+          w=std::max(w, XTextWidth(p->font, list[i].c_str(), list[i].size()));
 
         h+=p->font->ascent+p->font->descent;
       }
@@ -394,7 +381,7 @@ void *eventLoop(void *arg)
         FD_SET(x11_fd, &fds);
         FD_SET(p->inotify_fd, &fds);
 
-        select(max(x11_fd, p->inotify_fd)+1, &fds, 0, 0, 0);
+        select(std::max(x11_fd, p->inotify_fd)+1, &fds, 0, 0, 0);
 
           // handle inotify events
 
@@ -475,8 +462,8 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
     int maxw=DisplayWidth(p->display, p->screen);
     int maxh=DisplayHeight(p->display, p->screen);
 
-    p->w=w=min(w, maxw);
-    p->h=h=min(h, maxh);
+    p->w=w=std::min(w, maxw);
+    p->h=h=std::min(h, maxh);
 
       // create window
 
@@ -566,7 +553,7 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
       p->image=XCreateImage(p->display, wattr.visual, wattr.depth, ZPixmap, 0,
         0, maxw, maxh, 8, 0);
 
-      if (isMSBFirst())
+      if (gutil::isMSBFirst())
         p->image->byte_order=MSBFirst;
       else
         p->image->byte_order=LSBFirst;
@@ -735,8 +722,8 @@ void BaseWindow::setSize(int w, int h)
 {
     pthread_mutex_lock(&(p->mutex));
 
-    w=min(w, DisplayWidth(p->display, p->screen));
-    h=min(h, DisplayHeight(p->display, p->screen));
+    w=std::min(w, DisplayWidth(p->display, p->screen));
+    h=std::min(h, DisplayHeight(p->display, p->screen));
 
     XResizeWindow(p->display, p->window, w, h);
 
@@ -747,11 +734,11 @@ void BaseWindow::setPosition(int x, int y)
 {
     pthread_mutex_lock(&(p->mutex));
 
-    x=max(x, 0);
-    y=max(y, 0);
+    x=std::max(x, 0);
+    y=std::max(y, 0);
 
-    x=min(x, DisplayWidth(p->display, p->screen)-p->w);
-    y=min(y, DisplayHeight(p->display, p->screen)-p->h);
+    x=std::min(x, DisplayWidth(p->display, p->screen)-p->w);
+    y=std::min(y, DisplayHeight(p->display, p->screen)-p->h);
 
     XMoveWindow(p->display, p->window, x, y);
 
@@ -780,7 +767,7 @@ void BaseWindow::setInfoLine(const char *text, bool top, bool left)
       h=p->font->ascent+p->font->descent;
     }
 
-      // clear old string completely, if position has changed
+      // clear old std::string completely, if position has changed
 
     if (p->info.size() > 0 && (top != p->top || left != p->left))
     {
@@ -926,7 +913,7 @@ inline unsigned char inverseShiftAndMaskValue(uint32_t v, int left_shift,
 
 }
 
-void BaseWindow::getContent(ImageU8 &image)
+void BaseWindow::getContent(gimage::ImageU8 &image)
 {
     int rls, rrs;
     int gls, grs;
@@ -974,7 +961,7 @@ void BaseWindow::getContent(ImageU8 &image)
     pthread_mutex_unlock(&(p->mutex));
 }
 
-class PaintBufferFct : public ParallelFunction
+class PaintBufferFct : public gutil::ParallelFunction
 {
   public:
 
@@ -987,12 +974,12 @@ class PaintBufferFct : public ParallelFunction
       getShiftFromMask(p->image->green_mask, gls, grs);
       getShiftFromMask(p->image->blue_mask, bls, brs);
 
-      w=min(static_cast<long>(p->image->width), x+im.getWidth());
+      w=std::min(static_cast<long>(p->image->width), x+im.getWidth());
     }
 
     void run(long start, long end, long step)
     {
-      ImageU8 buffer(w, 1, 3);
+      gimage::ImageU8 buffer(w, 1, 3);
 
       for (long k=start; k<=end; k+=step)
       {
@@ -1000,7 +987,7 @@ class PaintBufferFct : public ParallelFunction
 
         char *line=p->image->data+k*p->image->bytes_per_line;
 
-        for (int i=max(0, x); i<w; i++)
+        for (int i=std::max(0, x); i<w; i++)
         {
           uint32_t v;
 
@@ -1044,8 +1031,8 @@ void BaseWindow::paintBuffer(const ImageAdapterBase &im, int x, int y)
 
     PaintBufferFct fct(p, im, x, y);
 
-    int h=min(static_cast<long>(p->image->height), y+im.getHeight());
-    runParallel(fct, max(0, y), h-1, 1);
+    int h=std::min(static_cast<long>(p->image->height), y+im.getHeight());
+    gutil::runParallel(fct, std::max(0, y), h-1, 1);
 
     pthread_mutex_unlock(&(p->mutex));
 }

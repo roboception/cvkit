@@ -141,7 +141,7 @@ ImageIO& getImageIO();
  * splitting the existing name (which may include a directory) into a prefix
  * and suffix and putting an increasing integer number in between. If the name
  * does not include a suffix, then the full name is taken as prefix and a
- * suffix is internally created. This function returns an empty string, if a
+ * suffix is internally created. This function returns an empty std::string, if a
  * new name cannot be generated.
  */
 

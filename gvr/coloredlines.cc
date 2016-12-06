@@ -41,9 +41,6 @@
 
 #include <gutil/exception.h>
 
-using std::vector;
-using std::min;
-
 namespace gvr
 {
 
@@ -66,17 +63,17 @@ void ColoredLines::resizeVertexList(int vn, bool with_scanprop, bool with_scanpo
 void ColoredLines::resizeLineList(int ln)
 {
     unsigned int *p=new unsigned int [(ln<<1)];
-    
-    for (int i=2*min(n, ln)-1; i>=0; i--)
+
+    for (int i=2*std::min(n, ln)-1; i>=0; i--)
       p[i]=line[i];
-    
+
     delete [] line;
-    
+
     line=p;
     n=ln;
 }
 
-void ColoredLines::addGLObjects(vector<GLObject*> &list)
+void ColoredLines::addGLObjects(std::vector<GLObject*> &list)
 {
 #ifdef INCLUDE_GL
     list.push_back(new GLColoredLines(*this));

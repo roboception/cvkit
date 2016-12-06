@@ -60,30 +60,18 @@
 #include <png.h>
 #endif
 
-using std::string;
-using std::ostringstream;
-using std::numeric_limits;
-using std::max;
-using std::abs;
-
-using gmath::Vector3d;
-
-using gimage::ImageU8;
-using gimage::getNewImageName;
-using gimage::getImageIO;
-
 namespace gvr
 {
 
 GLWorld::GLWorld(int w, int h)
 {
-    extmin[0]=numeric_limits<float>::max();
-    extmin[1]=numeric_limits<float>::max();
-    extmin[2]=numeric_limits<float>::max();
+    extmin[0]=std::numeric_limits<float>::max();
+    extmin[1]=std::numeric_limits<float>::max();
+    extmin[2]=std::numeric_limits<float>::max();
 
-    extmax[0]=-numeric_limits<float>::max();
-    extmax[1]=-numeric_limits<float>::max();
-    extmax[2]=-numeric_limits<float>::max();
+    extmax[0]=-std::numeric_limits<float>::max();
+    extmax[1]=-std::numeric_limits<float>::max();
+    extmax[2]=-std::numeric_limits<float>::max();
 
     showid.resize(ID_MODEL_START+10);
 
@@ -147,15 +135,15 @@ void GLWorld::showCameras(bool show)
 
 void GLWorld::resetCamera()
 {
-    Vector3d center=(extmin+extmax)/2.0;
+    gmath::Vector3d center=(extmin+extmax)/2.0;
 
     double size=extmax[0]-extmin[0];
-    size=max(size, extmax[1]-extmin[1]);
-    size=max(size, extmax[2]-extmin[2]);
+    size=std::max(size, extmax[1]-extmin[1]);
+    size=std::max(size, extmax[2]-extmin[2]);
 
     camera.init(center, size);
 
-    if (abs(det(defRc)-1) < 1e-6)
+    if (std::abs(det(defRc)-1) < 1e-6)
       camera.setPose(defRc, defTc);
 }
 
@@ -214,7 +202,7 @@ void GLWorld::onKey(unsigned char key, int x, int y)
       case 'h':
           if (infotext.size() == 0)
           {
-            ostringstream out;
+            std::ostringstream out;
 
             out << "Usage and Keycodes:\n";
             out << "\n";
@@ -261,7 +249,7 @@ void GLWorld::onKey(unsigned char key, int x, int y)
       case 'v':
           if (infotext.size() == 0)
           {
-            ostringstream out;
+            std::ostringstream out;
 
             out << "This program is based on cvkit version " << VERSION << "\n";
             out << "Copyright (C) 2016 Roboception GmbH\n";
@@ -298,7 +286,7 @@ void GLWorld::onKey(unsigned char key, int x, int y)
               tn+=list[i]->getTriangleCount();
             }
 
-            ostringstream out;
+            std::ostringstream out;
             out << "Vertices: " << vn << ", Triangles: " << tn;
             infoline=out.str();
             redisplay=true;
@@ -357,7 +345,7 @@ void GLWorld::onKey(unsigned char key, int x, int y)
             int w=camera.getWidth();
             int h=camera.getHeight();
 
-            ImageU8 image(w, h, 3);
+            gimage::ImageU8 image(w, h, 3);
             unsigned char *pixel=new unsigned char [w*h];
 
               // capture image
@@ -390,11 +378,11 @@ void GLWorld::onKey(unsigned char key, int x, int y)
 
               // store image
 
-            string name=getNewImageName(prefix);
+            std::string name=gimage::getNewImageName(prefix);
 
             if (name.size() > 0)
             {
-              getImageIO().save(image, name.c_str());
+              gimage::getImageIO().save(image, name.c_str());
               infoline="Saved as "+name;
             }
             else
@@ -495,7 +483,7 @@ void GLWorld::onMouseButton(int button, int state, int x, int y)
 
       mt.stop();
       if (mt.elapsed() < 0.5 && mod == 0 && mb == button &&
-        abs(static_cast<double>(x-mx)) <= 1 && abs(static_cast<double>(y-my)) <= 1)
+        std::abs(static_cast<double>(x-mx)) <= 1 && std::abs(static_cast<double>(y-my)) <= 1)
         mod=GLUT_ACTIVE_CTRL;
 
       mt.clear();
@@ -515,8 +503,8 @@ void GLWorld::onMouseButton(int button, int state, int x, int y)
 
         if (d < 1)
         {
-          Vector3d P=camera.pixel2World(x, y, d);
-          ostringstream out;
+          gmath::Vector3d P=camera.pixel2World(x, y, d);
+          std::ostringstream out;
 
           if (mod == GLUT_ACTIVE_CTRL)
           {
@@ -560,8 +548,8 @@ void GLWorld::onMouseMove(int x, int y)
 
       if (d < 1)
       {
-        Vector3d P=offset+camera.pixel2World(x, y, d);
-        ostringstream out;
+        gmath::Vector3d P=offset+camera.pixel2World(x, y, d);
+        std::ostringstream out;
 
         out << P;
 

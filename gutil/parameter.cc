@@ -42,83 +42,76 @@
 
 #include <assert.h>
 
-using std::endl;
-using std::string;
-using std::ostream;
-using std::ifstream;
-using std::ios_base;
-using std::max;
-
 namespace gutil
 {
 
 namespace
 {
 
-string getValue(const string &s)
+std::string getValue(const std::string &s)
 {
-    string ret=s;
+    std::string ret=s;
     size_t pos=ret.find('#');
-    
+
     if (pos < ret.size())
       ret=ret.substr(0, pos);
-    
+
     trim(ret);
-    
+
     return ret;
 }
 
-string getDescription(const string &s)
+std::string getDescription(const std::string &s)
 {
-    string ret;
+    std::string ret;
     size_t pos=s.find('#');
-    
+
     if (pos < s.size())
       ret=s.substr(pos+1);
-    
+
     trim(ret);
-    
+
     return ret;
 }
 
-void printDescription(ostream &out, string descr, size_t col, size_t n)
+void printDescription(std::ostream &out, std::string descr, size_t col, size_t n)
 {
     size_t i=0;
     size_t c=col;
-    
+
     while (i < descr.size())
     {
       while (i<descr.size() && isspace(descr[i]))
         i++;
-      
+
       size_t k=i;
       while (k < descr.size() && !isspace(descr[k]))
         k++;
-      
+
       if (c+1+k-i > n && c > col)
       {
-        out << endl;
+        out << std::endl;
         for (c=0; c<col; c++)
           out << ' ';
       }
-      
+
       if (c+1+k-i > n)
         k=i+n-c-1;
-      
+
       if (c > 0)
       {
         out << ' ';
         c++;
       }
-      
+
       while (i < k)
       {
         out << descr[i++];
         c++;
       }
     }
-    
-    out << endl;
+
+    out << std::endl;
 }
 
 }
@@ -130,43 +123,43 @@ Parameter::Parameter(int argc, char *argv[], const char *pdef[],
     {
       if (argv[i][0] == '@')
       {
-        ifstream in;
-        string s;
-        
-        in.exceptions(ios_base::badbit);
+        std::ifstream in;
+        std::string s;
+
+        in.exceptions(std::ios_base::badbit);
         in.open(argv[i]+1);
-        
+
         if (!in.good())
           throw IOException(argv[i]+1);
-        
+
         while (in.good())
         {
           getline(in, s);
-          
+
           trim(s);
           if (s.size() > 0)
             list.push_back(s);
         }
-        
+
         in.close();
       }
       else
-        list.push_back(string(argv[i]));
+        list.push_back(std::string(argv[i]));
     }
-    
+
     for (int i=0; pdef[i] != 0; i++)
     {
-      string s=pdef[i];
+      std::string s=pdef[i];
       def.push_back(s);
-      
+
       s=getValue(s);
       if (s.size() > 0 && s[0] == '-')
         allparam.insert(s);
     }
-    
+
     if (creator != 0)
       creat=creator;
-    
+
     cparam=-1;
     pos=0;
 }
@@ -175,44 +168,44 @@ void Parameter::addParamDef(const char *pdef[])
 {
     for (int i=0; pdef[i] != 0; i++)
     {
-      string s=pdef[i];
+      std::string s=pdef[i];
       def.push_back(s);
-      
+
       s=getValue(s);
       if (s.size() > 0 && s[0] == '-')
         allparam.insert(s);
     }
 }
 
-void Parameter::printHelp(ostream &out, size_t columns)
+void Parameter::printHelp(std::ostream &out, size_t columns)
   const
 {
     size_t col1=0;
-    
+
     if (creat.size() > 0)
-      out << creat << endl;
-    
+      out << creat << std::endl;
+
     for (size_t i=0; i<def.size(); i++)
     {
-      string val=getValue(def[i]);
+      std::string val=getValue(def[i]);
       size_t n=val.size();
-      
+
       if (n > 0 && val[0] == '<' && def[i][0] == ' ')
         n++;
-      
-      col1=max(col1, n);
+
+      col1=std::max(col1, n);
     }
-    
+
     col1++;
-    
+
     if (col1 > columns/2)
       col1=columns/2;
-    
+
     for (size_t i=0; i<def.size(); i++)
     {
-      string val=getValue(def[i]);
-      string descr=getDescription(def[i]);
-      
+      std::string val=getValue(def[i]);
+      std::string descr=getDescription(def[i]);
+
       if (val.size() > 0)
       {
         size_t n=0;
@@ -221,22 +214,22 @@ void Parameter::printHelp(ostream &out, size_t columns)
           out << "  ";
           n+=2;
         }
-        
+
         out << val;
         n+=val.length();
-        
+
         while (n < col1)
         {
           out << ' ';
-          n++; 
+          n++;
         }
-        
+
         if (n > col1)
         {
-          out << endl;
+          out << std::endl;
           n=0;
         }
-        
+
         printDescription(out, descr, col1, columns);
       }
       else
@@ -251,11 +244,11 @@ bool Parameter::isNextParameter()
       if (list[pos][0] == '-')
         if (allparam.find(list[pos]) != allparam.end())
           ret=true;
-    
+
     return ret;
 }
 
-void Parameter::nextParameter(string &p)
+void Parameter::nextParameter(std::string &p)
 {
     if (pos < list.size())
     {
@@ -277,36 +270,36 @@ void Parameter::nextParameter(string &p)
       throw IOException("There are no more parameters!");
 }
 
-bool Parameter::findParameter(const string &p)
+bool Parameter::findParameter(const std::string &p)
 {
     assert(allparam.find(p) != allparam.end());
-    
+
     for (size_t i=0; i<list.size(); i++)
     {
       if (list[i] == p)
       {
         cparam=i;
         pos=i+1;
-        
+
         return true;
       }
     }
-    
+
     return false;
 }
 
-void Parameter::nextString(string &s, const char *opt)
+void Parameter::nextString(std::string &s, const char *opt)
 {
     if (pos < list.size())
     {
       if (opt != 0)
       {
-        string p='|'+string(opt)+'|';
-        
+        std::string p='|'+std::string(opt)+'|';
+
         if (p.find('|'+list[pos]+'|') >= p.size())
           throw IOException("Argument '"+list[pos]+"' must be one of: "+opt);
       }
-      
+
       s=list[pos++];
     }
     else

@@ -199,8 +199,8 @@ template<class T> class Polynomial
     {
       Polynomial<T> ret;
       
-      ret.increase(max(used, p.getDegree()+1));
-      ret.used=max(used, p.getDegree()+1);
+      ret.increase(std::max(used, p.getDegree()+1));
+      ret.used=std::max(used, p.getDegree()+1);
       
       for (int i=0; i<used; i++)
         ret.c[i]=c[i]+p[i];
@@ -232,8 +232,8 @@ template<class T> class Polynomial
     {
       Polynomial<T> ret;
       
-      ret.increase(max(used, p.getDegree()+1));
-      ret.used=max(used, p.getDegree()+1);
+      ret.increase(std::max(used, p.getDegree()+1));
+      ret.used=std::max(used, p.getDegree()+1);
       
       for (int i=0; i<used; i++)
         ret.c[i]=c[i]-p[i];

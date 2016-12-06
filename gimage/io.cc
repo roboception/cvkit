@@ -64,34 +64,18 @@
 #include <cstdlib>
 #include <valarray>
 
-using std::string;
-using std::vector;
-using std::set;
-using std::ostringstream;
-using std::istringstream;
-using std::ifstream;
-using std::exception;
-using std::min;
-using std::max;
-using std::right;
-using std::valarray;
-
-using gutil::IOException;
-using gutil::Properties;
-using gutil::getFileList;
-
 namespace gimage
 {
 
 void BasicImageIO::loadHeader(const char *name, long &width, long &height,
   int &depth) const
 {
-    throw IOException("Loading the header of this image type is not implemented!"+string(name)+")");
+    throw gutil::IOException("Loading the header of this image type is not implemented!"+std::string(name)+")");
 }
 
-void BasicImageIO::loadProperties(Properties &prop, const char *name) const
+void BasicImageIO::loadProperties(gutil::Properties &prop, const char *name) const
 {
-    string s=name;
+    std::string s=name;
     size_t pos;
 
     pos=s.rfind(':');
@@ -106,9 +90,9 @@ void BasicImageIO::loadProperties(Properties &prop, const char *name) const
     else
       s.append(".hdr");
 
-    ifstream in;
+    std::ifstream in;
 
-    in.open(s.c_str(), ifstream::in);
+    in.open(s.c_str(), std::ifstream::in);
     in.close();
 
     if (!in.fail())
@@ -118,7 +102,7 @@ void BasicImageIO::loadProperties(Properties &prop, const char *name) const
 void BasicImageIO::load(ImageU8 &image, const char *name, int ds, long x,
   long y, long w, long h) const
 {
-    throw IOException("Loading this image type is not implemented! ("+string(name)+")");
+    throw gutil::IOException("Loading this image type is not implemented! ("+std::string(name)+")");
 }
 
 void BasicImageIO::load(ImageU16 &image, const char *name, int ds, long x,
@@ -139,11 +123,11 @@ void BasicImageIO::load(ImageFloat &image, const char *name, int ds, long x,
     image.setImageLimited(imageu16);
 }
 
-void BasicImageIO::saveProperties(const Properties &prop, const char *name) const
+void BasicImageIO::saveProperties(const gutil::Properties &prop, const char *name) const
 {
     if (!prop.isEmpty())
     {
-      string s=name;
+      std::string s=name;
       size_t pos;
 
       pos=s.find(':');
@@ -158,23 +142,23 @@ void BasicImageIO::saveProperties(const Properties &prop, const char *name) cons
       else
         s.append(".hdr");
 
-      prop.save(s.c_str(), ("Properties of image "+string(name)).c_str());
+      prop.save(s.c_str(), ("Properties of image "+std::string(name)).c_str());
     }
 }
 
 void BasicImageIO::save(const ImageU8 &image, const char *name) const
 {
-    throw IOException("Saving this image type is not implemented! ("+string(name)+")");
+    throw gutil::IOException("Saving this image type is not implemented! ("+std::string(name)+")");
 }
 
 void BasicImageIO::save(const ImageU16 &image, const char *name) const
 {
-    throw IOException("Saving this image type is not implemented! ("+string(name)+")");
+    throw gutil::IOException("Saving this image type is not implemented! ("+std::string(name)+")");
 }
 
 void BasicImageIO::save(const ImageFloat &image, const char *name) const
 {
-    throw IOException("Saving this image type is not implemented! ("+string(name)+")");
+    throw gutil::IOException("Saving this image type is not implemented! ("+std::string(name)+")");
 }
 
 ImageIO::ImageIO()
@@ -209,7 +193,7 @@ bool ImageIO::handlesFile(const char *name, bool reading) const
       getBasicImageIO(name, reading);
       ret=true;
     }
-    catch (exception)
+    catch (std::exception)
     {
       ret=false;
     }
@@ -220,12 +204,12 @@ bool ImageIO::handlesFile(const char *name, bool reading) const
 namespace
 {
 
-string getTileName(const string &prefix, int trow, int tcol, const string &suffix)
+std::string getTileName(const std::string &prefix, int trow, int tcol, const std::string &suffix)
 {
-    ostringstream ret;
+    std::ostringstream ret;
 
     ret.fill('0');
-    ret << right;
+    ret << std::right;
 
     ret << prefix << '_';
 
@@ -242,8 +226,8 @@ string getTileName(const string &prefix, int trow, int tcol, const string &suffi
     return ret.str();
 }
 
-void loadTiledHeader(const BasicImageIO &io, set<string> &list,
-  const string &prefix, const string &suffix, long &twidth, long &theight,
+void loadTiledHeader(const BasicImageIO &io, std::set<std::string> &list,
+  const std::string &prefix, const std::string &suffix, long &twidth, long &theight,
   long &tborder, long &width, long &height, int &depth)
 {
       // initialise return parameters
@@ -258,29 +242,29 @@ void loadTiledHeader(const BasicImageIO &io, set<string> &list,
 
       // get optional border size
 
-    Properties prop;
+    gutil::Properties prop;
 
     try
     {
       prop.load((prefix+".hdr").c_str());
     }
-    catch (exception)
+    catch (std::exception)
     { }
 
     try
     {
       prop.load((prefix+"_param.txt").c_str());
     }
-    catch (exception)
+    catch (std::exception)
     { }
 
     prop.getValue("border", tborder, "0");
 
       // get list of all tiles
 
-    getFileList(list, prefix, suffix);
+    gutil::getFileList(list, prefix, suffix);
     if (list.size() == 0)
-      throw IOException("There are no tiles: "+prefix+':'+suffix);
+      throw gutil::IOException("There are no tiles: "+prefix+':'+suffix);
 
       // load header information of first tile
 
@@ -290,18 +274,18 @@ void loadTiledHeader(const BasicImageIO &io, set<string> &list,
 
     int rows=0;
     int cols=0;
-    for (set<string>::iterator it=list.begin(); it!=list.end(); it++)
+    for (std::set<std::string>::iterator it=list.begin(); it!=list.end(); it++)
     {
       int i, k;
       char sep1, sep2, sep3;
-      istringstream in(it->substr(prefix.size(), it->size()-prefix.size()-suffix.size()));
+      std::istringstream in(it->substr(prefix.size(), it->size()-prefix.size()-suffix.size()));
 
       in >> sep1 >> k >> sep2 >> i >> sep3;
 
       if (in.good() && sep1 == '_' && sep2 == '_' && sep3 == '_')
       {
-        cols=max(cols, i+1);
-        rows=max(rows, k+1);
+        cols=std::max(cols, i+1);
+        rows=std::max(rows, k+1);
       }
     }
 
@@ -316,7 +300,7 @@ void loadTiledHeader(const BasicImageIO &io, set<string> &list,
 void ImageIO::loadHeader(const char *name, long &width, long &height,
   int &depth) const
 {
-    string s=name;
+    std::string s=name;
     size_t pos=s.rfind(':');
 
     if (pos != s.npos && s.compare(pos, 2, ":\\") == 0)
@@ -326,12 +310,12 @@ void ImageIO::loadHeader(const char *name, long &width, long &height,
     {
         // extract prefix and suffix from file name
 
-      string prefix=s.substr(0, pos);
-      string suffix=s.substr(pos+1);
+      std::string prefix=s.substr(0, pos);
+      std::string suffix=s.substr(pos+1);
 
         // get header information
 
-      set<string> list;
+      std::set<std::string> list;
       long twidth;
       long theight;
       long tborder;
@@ -349,7 +333,7 @@ namespace
 template<class T> void loadTiled(const BasicImageIO &io, Image<T> &image,
   const char *name, int ds, long x, long y, long w, long h)
 {
-    string s=name;
+    std::string s=name;
     size_t pos=s.rfind(':');
 
     if (pos != s.npos && s.compare(pos, 2, ":\\") == 0)
@@ -357,12 +341,12 @@ template<class T> void loadTiled(const BasicImageIO &io, Image<T> &image,
 
       // extract prefix and suffix from file name
 
-    string prefix=s.substr(0, pos);
-    string suffix=s.substr(pos+1);
+    std::string prefix=s.substr(0, pos);
+    std::string suffix=s.substr(pos+1);
 
       // get information about the tiled image
 
-    set<string> list;
+    std::set<std::string> list;
     long twidth, cwidth;
     long theight, cheight;
     long tborder;
@@ -386,8 +370,8 @@ template<class T> void loadTiled(const BasicImageIO &io, Image<T> &image,
     {
         // determine block of tiles that is involved
 
-      int tx1=max(0l, x)/cwidth;
-      int ty1=max(0l, y)/cheight;
+      int tx1=std::max(0l, x)/cwidth;
+      int ty1=std::max(0l, y)/cheight;
       int tx2=(x+w-1)/cwidth;
       int ty2=(y+h-1)/cheight;
 
@@ -402,12 +386,12 @@ template<class T> void loadTiled(const BasicImageIO &io, Image<T> &image,
         {
             // load part of tile
 
-          long px=max(0l, x-tx*cwidth);
-          long py=max(0l, y-ty*cheight);
-          long pw=min(twidth-px, x+w-px-tx*cwidth);
-          long ph=min(theight-py, y+h-py-ty*cheight);
+          long px=std::max(0l, x-tx*cwidth);
+          long py=std::max(0l, y-ty*cheight);
+          long pw=std::min(twidth-px, x+w-px-tx*cwidth);
+          long ph=std::min(theight-py, y+h-py-ty*cheight);
 
-          string   tname=getTileName(prefix, ty, tx, suffix);
+          std::string   tname=getTileName(prefix, ty, tx, suffix);
           Image<T> timage(pw, ph, depth);
 
           if (list.find(tname) != list.end())
@@ -436,15 +420,15 @@ template<class T> void loadTiled(const BasicImageIO &io, Image<T> &image,
     {
         // determine block of tiles that is involved
 
-      int tx1=max(0l, x*ds-tborder)/cwidth;
-      int ty1=max(0l, y*ds-tborder)/cheight;
+      int tx1=std::max(0l, x*ds-tborder)/cwidth;
+      int ty1=std::max(0l, y*ds-tborder)/cheight;
       int tx2=((x+w-1)*ds+tborder)/cwidth;
       int ty2=((y+h-1)*ds+tborder)/cheight;
 
         // go through all tiles
 
-      valarray<float> value(w*h*depth);
-      valarray<float> count(w*h);
+      std::valarray<float> value(w*h*depth);
+      std::valarray<float> count(w*h);
 
       for (int ty=ty1; ty<=ty2; ty++)
       {
@@ -452,12 +436,12 @@ template<class T> void loadTiled(const BasicImageIO &io, Image<T> &image,
         {
             // load part of tile
 
-          long px=max(0l, x*ds-(tx*cwidth-tborder));
-          long py=max(0l, y*ds-(ty*cheight-tborder));
-          long pw=min(twidth-px, (x+w)*ds-px-(tx*cwidth-tborder));
-          long ph=min(theight-py, (y+h)*ds-py-(ty*cheight-tborder));
+          long px=std::max(0l, x*ds-(tx*cwidth-tborder));
+          long py=std::max(0l, y*ds-(ty*cheight-tborder));
+          long pw=std::min(twidth-px, (x+w)*ds-px-(tx*cwidth-tborder));
+          long ph=std::min(theight-py, (y+h)*ds-py-(ty*cheight-tborder));
 
-          string   tname=getTileName(prefix, ty, tx, suffix);
+          std::string   tname=getTileName(prefix, ty, tx, suffix);
           Image<T> timage(pw, ph, depth);
 
           if (list.find(tname) != list.end())
@@ -477,11 +461,11 @@ template<class T> void loadTiled(const BasicImageIO &io, Image<T> &image,
 
                   if (tborder > 0)
                   {
-                    float cx=min((px+i)/(2.0f*tborder), (twidth-px-i)/(2.0f*tborder));
-                    float cy=min((py+k)/(2.0f*tborder), (theight-py-k)/(2.0f*tborder));
+                    float cx=std::min((px+i)/(2.0f*tborder), (twidth-px-i)/(2.0f*tborder));
+                    float cy=std::min((py+k)/(2.0f*tborder), (theight-py-k)/(2.0f*tborder));
 
-                    cx=max(1e-6f, min(1.0f, cx));
-                    cy=max(1e-6f, min(1.0f, cy));
+                    cx=std::max(1e-6f, std::min(1.0f, cx));
+                    cy=std::max(1e-6f, std::min(1.0f, cy));
 
                     float c=cx*cy;
 
@@ -526,7 +510,7 @@ template<class T> void loadTiled(const BasicImageIO &io, Image<T> &image,
 
 }
 
-void ImageIO::loadProperties(Properties &prop, const char *name) const
+void ImageIO::loadProperties(gutil::Properties &prop, const char *name) const
 {
     getBasicImageIO(name, true).loadProperties(prop, name);
 }
@@ -534,7 +518,7 @@ void ImageIO::loadProperties(Properties &prop, const char *name) const
 void ImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
   long w, long h) const
 {
-    string s=name;
+    std::string s=name;
     size_t pos=s.rfind(':');
 
     if (pos != s.npos && s.compare(pos, 2, ":\\") == 0)
@@ -549,7 +533,7 @@ void ImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
 void ImageIO::load(ImageU16 &image, const char *name, int ds, long x, long y,
   long w, long h) const
 {
-    string s=name;
+    std::string s=name;
     size_t pos=s.rfind(':');
 
     if (pos != s.npos && s.compare(pos, 2, ":\\") == 0)
@@ -564,7 +548,7 @@ void ImageIO::load(ImageU16 &image, const char *name, int ds, long x, long y,
 void ImageIO::load(ImageFloat &image, const char *name, int ds, long x, long y,
   long w, long h) const
 {
-    string s=name;
+    std::string s=name;
     size_t pos=s.rfind(':');
 
     if (pos != s.npos && s.compare(pos, 2, ":\\") == 0)
@@ -576,7 +560,7 @@ void ImageIO::load(ImageFloat &image, const char *name, int ds, long x, long y,
       loadTiled(getBasicImageIO(name, true), image, name, ds, x, y, w, h);
 }
 
-void ImageIO::saveProperties(const Properties &prop, const char *name) const
+void ImageIO::saveProperties(const gutil::Properties &prop, const char *name) const
 {
     getBasicImageIO(name, false).saveProperties(prop, name);
 }
@@ -598,13 +582,13 @@ void ImageIO::save(const ImageFloat &image, const char *name) const
 
 const BasicImageIO &ImageIO::getBasicImageIO(const char *name, bool reading) const
 {
-    for (vector<BasicImageIO *>::const_iterator it=list.begin(); it<list.end(); it++)
+    for (std::vector<BasicImageIO *>::const_iterator it=list.begin(); it<list.end(); it++)
     {
       if ((*it)->handlesFile(name, reading))
         return **it;
     }
 
-    throw IOException("Unknown image type ("+string(name)+")");
+    throw gutil::IOException("Unknown image type ("+std::string(name)+")");
 }
 
 ImageIO& getImageIO()
@@ -613,11 +597,11 @@ ImageIO& getImageIO()
     return *io;
 }
 
-string getNewImageName(string prefix)
+std::string getNewImageName(std::string prefix)
 {
       // try getting existing suffix
 
-    string suffix;
+    std::string suffix;
 
     size_t i=prefix.rfind('.');
     if (i != prefix.npos && prefix.size()-i <= 4)
@@ -640,11 +624,11 @@ string getNewImageName(string prefix)
       // find file name that is not used
 
     int c=0;
-    string name;
+    std::string name;
 
     while (name.size() == 0 && c < 1000)
     {
-      ostringstream out;
+      std::ostringstream out;
       out << prefix << "_";
 
       if (c < 100)
@@ -655,7 +639,7 @@ string getNewImageName(string prefix)
 
       out << c++ << suffix;
 
-      ifstream file(out.str().c_str());
+      std::ifstream file(out.str().c_str());
 
       if (!file.is_open())
         name=out.str();

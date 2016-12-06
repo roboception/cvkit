@@ -35,8 +35,6 @@
 
 #include "analysis.h"
 
-using std::max;
-
 namespace gimage
 {
 
@@ -46,31 +44,31 @@ void Histogram::setSize(int width, int height, int binsize)
     {
       delete [] val;
       delete [] row;
-      
+
       w=width;
       h=height;
       val=0;
       row=0;
-      
+
       if (w > 0 && h > 0)
       {
         val=new unsigned long [w*h];
         row=new unsigned long * [h];
-        
+
         row[0]=val;
         for (int k=1; k<h; k++)
           row[k]=row[k-1]+w;
       }
     }
-    
+
     bs=binsize;
 }
-    
+
 void Histogram::sumRows(Histogram &colhist) const
 {
     colhist.setSize(w, 1, bs);
     colhist.clear();
-    
+
     for (int k=0; k<h; k++)
     {
       for (int i=0; i<w; i++)
@@ -82,7 +80,7 @@ void Histogram::sumCols(Histogram &rowhist) const
 {
     rowhist.setSize(h, 1, bs);
     rowhist.clear();
-    
+
     for (int k=0; k<h; k++)
     {
       for (int i=0; i<w; i++)
@@ -93,28 +91,28 @@ void Histogram::sumCols(Histogram &rowhist) const
 unsigned long Histogram::sumAll() const
 {
     unsigned long ret=0;
-    
+
     for (int k=0; k<h; k++)
     {
       for (int i=0; i<w; i++)
         ret+=row[k][i];
     }
-    
+
     return ret;
 }
 
 void Histogram::visualize(ImageU8 &image) const
 {
     unsigned long maxval=1;
-    
+
     for (int k=0; k<h; k++)
       for (int i=0; i<w; i++)
-        maxval=max(maxval, row[k][i]);
-    
+        maxval=std::max(maxval, row[k][i]);
+
     if (h > 1)
     {
       image.setSize(w, h, 1);
-      
+
       for (int k=0; k<h; k++)
         for (int i=0; i<w; i++)
           image.set(i, k, 0, static_cast<unsigned char>(255-255*row[k][i]/maxval));
@@ -123,11 +121,11 @@ void Histogram::visualize(ImageU8 &image) const
     {
       image.setSize(w, 256, 1);
       image.clear();
-      
+
       for (int i=0; i<w; i++)
       {
         int k=255-255*val[i]/maxval;
-        
+
         while (k >= 0)
           image.set(i, k--, 0, 255);
       }
@@ -137,9 +135,9 @@ void Histogram::visualize(ImageU8 &image) const
 void Histogram::convertToImage(ImageFloat &image) const
 {
     float total=sumAll();
-    
+
     image.setSize(w, h, 1);
-    
+
     if (total > 0)
       for (int k=0; k<h; k++)
         for (int i=0; i<w; i++)

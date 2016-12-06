@@ -38,45 +38,39 @@
 
 #include <iostream>
 
-using std::string;
-
-using gmath::Vector3d;
-using gmath::Matrix33d;
-using gmath::SMatrix;
-
 namespace gvr
 {
 
-GLTextItem::GLTextItem(const string &t, const Matrix33d &R, const Vector3d &T,
+GLTextItem::GLTextItem(const std::string &t, const gmath::Matrix33d &R, const gmath::Vector3d &T,
   double s, bool center)
 {
     text=t;
-    
+
     s/=119.05;
-    SMatrix<double, 4, 4> RT;
+    gmath::SMatrix<double, 4, 4> RT;
     RT(0, 0)=R(0, 0); RT(0, 1)=R(0, 1); RT(0, 2)=R(0, 2); RT(0, 3)=T[0];
     RT(1, 0)=R(1, 0); RT(1, 1)=R(1, 1); RT(1, 2)=R(1, 2); RT(1, 3)=T[1];
     RT(2, 0)=R(2, 0); RT(2, 1)=R(2, 1); RT(2, 2)=R(2, 2); RT(2, 3)=T[2];
-    
-    SMatrix<double, 4, 4> ms;
+
+    gmath::SMatrix<double, 4, 4> ms;
     ms(0, 0)=s;
     ms(1, 1)=-s;
     ms(2, 2)=-s;
     ms(3, 3)=1;
-    
+
     if (center)
     {
       double len=0;
       for (size_t i=0; i<text.size(); i++)
         len+=glutStrokeWidth(GLUT_STROKE_ROMAN, text[i]);
-      
+
       ms(0, 3)=-s*len/2;
     }
-    
+
     ms(1, 3)=-s*33.3;
-    
+
     RT=RT*ms;
-    
+
     int j=0;
     for (int k=0; k<4; k++)
     {
@@ -85,7 +79,7 @@ GLTextItem::GLTextItem(const string &t, const Matrix33d &R, const Vector3d &T,
     }
 }
 
-void GLText::addText(const string &text, const Matrix33d &R, const Vector3d &T,
+void GLText::addText(const std::string &text, const gmath::Matrix33d &R, const gmath::Vector3d &T,
   double scale, bool center)
 {
     list.push_back(GLTextItem(text, R, T, scale, center));
@@ -95,19 +89,19 @@ void GLText::draw(const GLCamera &cam)
 {
     glPushMatrix();
     glLoadIdentity();
-    
+
     glColor3f(1.0, 1.0, 1.0);
-    
+
     for (size_t i=0; i<list.size(); i++)
     {
       glLoadMatrixf(cam.getGLTransformation());
       glMultMatrixf(list[i].getGLTransformation());
-      
+
       const char *p=list[i].getText().c_str();
       while (*p != '\0')
         glutStrokeCharacter(GLUT_STROKE_ROMAN, *p++);
     }
-    
+
     glPopMatrix();
 }
 

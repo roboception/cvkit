@@ -49,59 +49,37 @@
 
 #include <set>
 
-using std::string;
-using std::vector;
-using std::set;
-using std::ostringstream;
-using std::istringstream;
-using std::numeric_limits;
-using std::min;
-using std::max;
-using std::abs;
-
-using gutil::Exception;
-using gutil::getFileList;
-using gutil::split;
-
-using gmath::Vector3d;
-using gmath::Vector2d;
-
-using gimage::ImageU8;
-using gimage::ImageFloat;
-using gimage::getImageIO;
-using gimage::View;
-
 namespace gvr
 {
 
 void Model::setOriginFromPLY(PLYReader &ply)
 {
-    vector<string> comment;
-    
+    std::vector<std::string> comment;
+
     ply.getComments(comment);
-    
+
     for (size_t i=0; i<comment.size(); i++)
     {
-      istringstream in(comment[i]);
-      string s;
-      
+      std::istringstream in(comment[i]);
+      std::string s;
+
       in >> s;
-      
+
       if (s.compare("Origin") == 0 || s.compare("origin") == 0)
       {
         in >> origin[0] >> origin[1] >> origin[2];
-        
+
         if (in.fail())
           origin[0]=origin[1]=origin[2]=0;
       }
-      
+
       if (s.compare("Camera") == 0 || s.compare("camera") == 0)
       {
         try
         {
           in >> Rc >> Tc;
         }
-        catch (const Exception &ex)
+        catch (const gutil::Exception &ex)
         {
           Rc=0;
           Tc=0;
@@ -112,16 +90,16 @@ void Model::setOriginFromPLY(PLYReader &ply)
 
 void Model::setOriginToPLY(PLYWriter &ply) const
 {
-    ostringstream out;
-    
+    std::ostringstream out;
+
     out.precision(16);
     out << "Origin " << origin[0] << " " << origin[1] << " " << origin[2];
     ply.addComment(out.str());
-    
-    if (abs(det(Rc)-1) < 1e-6)
+
+    if (std::abs(det(Rc)-1) < 1e-6)
     {
-      ostringstream out2;
-      
+      std::ostringstream out2;
+
       out2 << "Camera " << Rc << " " << Tc;
       ply.addComment(out2.str());
     }
@@ -153,43 +131,43 @@ void UInt8Receiver::setValue(int instance, const PLYValue &value)
 
 Model *loadModel(const char *name, const char *spath, bool verbose)
 {
-    string s=name;
-    
+    std::string s=name;
+
     if (s.rfind(".ply") == s.size()-4 || s.rfind(".PLY") == s.size()-4)
       return loadPLY(name);
-    
+
     return loadDepth(name, spath, verbose);
 }
 
 Model *loadPLY(const char *name)
 {
     PLYReader ply;
-    
+
     ply.open(name);
-    
+
       // determine data type
-    
+
     int vn=static_cast<int>(ply.instancesOfElement("vertex"));
     int tn=static_cast<int>(ply.instancesOfElement("face"));
-    
+
     bool pervertexcolor=ply.getTypeOfProperty("vertex", "diffuse_red") != ply_none ||
       ply.getTypeOfProperty("vertex", "red") != ply_none;
-    
+
     bool texture=(ply.getTypeOfProperty("vertex", "u") != ply_none &&
       ply.getTypeOfProperty("vertex", "v") != ply_none) ||
       (ply.getTypeOfProperty("vertex", "texture_u") != ply_none &&
       ply.getTypeOfProperty("vertex", "texture_v") != ply_none) ||
       (ply.getTypeOfProperty("vertex", "s") != ply_none &&
       ply.getTypeOfProperty("vertex", "t") != ply_none);
-    
+
     bool multitexture=ply.getTypeOfProperty("face", "texcoord") != ply_none &&
       ply.getTypeOfProperty("face", "texnumber") != ply_none;
-    
+
       // create best data type
-    
+
     Model *model=0;
     TexturedMesh *tm=0;
-    
+
     if (vn > 0)
     {
       if (tn > 0)
@@ -212,35 +190,35 @@ Model *loadPLY(const char *name)
           model=new PointCloud();
         }
       }
-      
+
         // load from PLY into the allocated data set
-      
+
       model->loadPLY(ply);
     }
-    
+
       // optionally try to guess the name of the texture from the file name
-    
+
     if (tm != 0 && tm->getTextureName().size() == 0)
     {
-      string s=name;
+      std::string s=name;
       size_t i=s.rfind('.');
-      
+
       if (i < s.size())
       {
-        set<string> list;
-        getFileList(list, s.substr(0, i+1), "");
-        
-        for (set<string>::iterator it=list.begin(); it!=list.end(); it++)
+        std::set<std::string> list;
+        gutil::getFileList(list, s.substr(0, i+1), "");
+
+        for (std::set<std::string>::iterator it=list.begin(); it!=list.end(); it++)
         {
-          if (s.compare(*it) != 0  && getImageIO().handlesFile(it->c_str(), true))
+          if (s.compare(*it) != 0  && gimage::getImageIO().handlesFile(it->c_str(), true))
           {
             s=*it;
-            
+
             i=s.rfind('/');
-            
+
             if (i == s.npos)
               i=s.rfind('\\');
-            
+
             if (i != s.npos)
             {
               tm->setBasePath(s.substr(0, i+1));
@@ -251,40 +229,40 @@ Model *loadPLY(const char *name)
               tm->setBasePath("");
               tm->setTextureName(s);
             }
-            
+
             break;
           }
         }
       }
     }
-    
+
     return model;
 }
 
 Model *loadDepth(const char *name, const char *spath, bool verbose)
 {
       // read optional maximum step size parameter
-    
+
     float dstep=1.0f;
-    
-    vector<string> list;
-    split(list, name, ',');
-    
+
+    std::vector<std::string> list;
+    gutil::split(list, name, ',');
+
     for (size_t i=1; i<list.size(); i++)
     {
       if (list[i].compare(0, 2, "s=") == 0)
         dstep=atof(list[i].substr(2).c_str());
     }
-    
+
       // load view
-    
-    View view;
+
+    gimage::View view;
     loadView(view, name, spath, verbose);
-    
+
       // determine the number of valid points
-    
-    const ImageFloat &depth=view.getDepthImage();
-    
+
+    const gimage::ImageFloat &depth=view.getDepthImage();
+
     int n=0;
     for (long k=0; k<depth.getHeight(); k++)
     {
@@ -294,19 +272,19 @@ Model *loadDepth(const char *name, const char *spath, bool verbose)
           n++;
       }
     }
-    
+
       // create mesh
-    
+
     Mesh *mesh=0;
-    const ImageU8 &image=view.getImage();
-    
+    const gimage::ImageU8 &image=view.getImage();
+
     if (image.getWidth() > 0 && image.getHeight() > 0)
     {
       ColoredMesh *cmesh=new ColoredMesh();
       cmesh->resizeVertexList(n, true, true);
-      
+
         // store colors
-      
+
       n=0;
       for (long k=0; k<image.getHeight(); k++)
       {
@@ -326,12 +304,12 @@ Model *loadDepth(const char *name, const char *spath, bool verbose)
               cmesh->setColorComp(n, 1, image.get(i, k, 0));
               cmesh->setColorComp(n, 2, image.get(i, k, 0));
             }
-            
+
             n++;
           }
         }
       }
-      
+
       mesh=cmesh;
     }
     else
@@ -339,16 +317,16 @@ Model *loadDepth(const char *name, const char *spath, bool verbose)
       mesh=new Mesh();
       mesh->resizeVertexList(n, true, true);
     }
-    
+
       // reconstruct and store vertices
-    
+
     const gmath::Camera *cam=view.getCamera();
-    
+
     mesh->setOrigin(cam->getT());
-    
+
     if (cam->isPerspective())
-      mesh->setDefCameraRT(cam->getR(), Vector3d());
-    
+      mesh->setDefCameraRT(cam->getR(), gmath::Vector3d());
+
     n=0;
     for (long k=0; k<depth.getHeight(); k++)
     {
@@ -356,142 +334,142 @@ Model *loadDepth(const char *name, const char *spath, bool verbose)
       {
         if (depth.isValid(i, k))
         {
-          Vector2d p(i+0.5, k+0.5);
+          gmath::Vector2d p(i+0.5, k+0.5);
           double   d=depth.get(i, k);
-          Vector3d P, P2;
-          
+          gmath::Vector3d P, P2;
+
           cam->reconstructPoint(P, p, d);
-          
+
           mesh->setVertexComp(n, 0, static_cast<float>(P[0]-cam->getT()[0]));
           mesh->setVertexComp(n, 1, static_cast<float>(P[1]-cam->getT()[1]));
           mesh->setVertexComp(n, 2, static_cast<float>(P[2]-cam->getT()[2]));
-          
+
           p[0]+=0.5;
           p[1]+=0.5;
-          
+
           cam->reconstructPoint(P2, p, d);
           mesh->setScanSize(n, static_cast<float>(2*norm(P2-P)));
-          
+
           p[0]-=0.5;
           p[1]-=0.5;
           d+=0.5;
-          
+
           cam->reconstructPoint(P2, p, d);
           mesh->setScanError(n, static_cast<float>(norm(P2-P)));
           mesh->setScanConf(n, 1.0f);
-          
+
           mesh->setScanPosComp(n, 0, 0.0f);
           mesh->setScanPosComp(n, 1, 0.0f);
           mesh->setScanPosComp(n, 2, 0.0f);
-          
+
           n++;
         }
       }
     }
-    
+
       // count number of triangles
-    
+
     int tn=0;
     for (long k=1; k<depth.getHeight(); k++)
     {
       for (long i=1; i<depth.getWidth(); i++)
       {
-        float dmin=numeric_limits<float>::max();
-        float dmax=-numeric_limits<float>::max();
+        float dmin=std::numeric_limits<float>::max();
+        float dmax=-std::numeric_limits<float>::max();
         int   valid=0;
-        
+
         for (int kk=0; kk<2; kk++)
         {
           for (int ii=0; ii<2; ii++)
           {
             if (depth.isValid(i-ii, k-kk))
             {
-              dmin=min(dmin, depth.get(i-ii, k-kk));
-              dmax=max(dmax, depth.get(i-ii, k-kk));
+              dmin=std::min(dmin, depth.get(i-ii, k-kk));
+              dmax=std::max(dmax, depth.get(i-ii, k-kk));
               valid++;
             }
           }
         }
-        
+
         if (valid >= 3 && dmax-dmin <= dstep)
           tn+=valid-2;
       }
     }
-    
+
     mesh->resizeTriangleList(tn);
-    
+
       // create triangles
-    
-    vector<int> line0(depth.getWidth());
-    vector<int> line1(depth.getWidth());
-    vector<int> *l0=&line0;
-    vector<int> *l1=&line1;
-    
+
+    std::vector<int> line0(depth.getWidth());
+    std::vector<int> line1(depth.getWidth());
+    std::vector<int> *l0=&line0;
+    std::vector<int> *l1=&line1;
+
     n=0;
     tn=0;
-    
+
     for (long i=0; i<depth.getWidth(); i++)
     {
       l1->at(i)=-1;
       if (depth.isValid(i, 0))
         l1->at(i)=n++;
     }
-    
+
     for (long k=1; k<depth.getHeight(); k++)
     {
-      vector<int> *t=l0;
+      std::vector<int> *t=l0;
       l0=l1;
       l1=t;
-      
+
       l1->at(0)=-1;
       if (depth.isValid(0, k))
         l1->at(0)=n++;
-      
+
       for (long i=1; i<depth.getWidth(); i++)
       {
-        float dmin=numeric_limits<float>::max();
-        float dmax=-numeric_limits<float>::max();
+        float dmin=std::numeric_limits<float>::max();
+        float dmax=-std::numeric_limits<float>::max();
         int   valid=0;
-        
+
         l1->at(i)=-1;
         if (depth.isValid(i, k))
           l1->at(i)=n++;
-        
+
         for (int kk=0; kk<2; kk++)
         {
           for (int ii=0; ii<2; ii++)
           {
             if (depth.isValid(i-ii, k-kk))
             {
-              dmin=min(dmin, depth.get(i-ii, k-kk));
-              dmax=max(dmax, depth.get(i-ii, k-kk));
+              dmin=std::min(dmin, depth.get(i-ii, k-kk));
+              dmax=std::max(dmax, depth.get(i-ii, k-kk));
               valid++;
             }
           }
         }
-        
+
         if (valid >= 3 && dmax-dmin <= dstep)
         {
           int j=0;
           int f[4];
-          
+
           if (l0->at(i-1) >= 0)
             f[j++]=l0->at(i-1);
-          
+
           if (l1->at(i-1) >= 0)
             f[j++]=l1->at(i-1);
-          
+
           if (l1->at(i) >= 0)
             f[j++]=l1->at(i);
-          
+
           if (l0->at(i) >= 0)
             f[j++]=l0->at(i);
-          
+
           mesh->setTriangleIndex(tn, 0, f[0]);
           mesh->setTriangleIndex(tn, 1, f[1]);
           mesh->setTriangleIndex(tn, 2, f[2]);
           tn++;
-          
+
           if (j == 4)
           {
             mesh->setTriangleIndex(tn, 0, f[2]);
@@ -502,11 +480,11 @@ Model *loadDepth(const char *name, const char *spath, bool verbose)
         }
       }
     }
-    
+
       // compute normals
-    
+
     mesh->recalculateNormals();
-    
+
     return mesh;
 }
 

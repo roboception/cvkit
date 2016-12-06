@@ -52,9 +52,9 @@ namespace gvr
 class GLException : public gutil::Exception
 {
   public:
-  
+
     GLException(const std::string &message) :
-      Exception("OpenGL", message) { }
+      gutil::Exception("OpenGL", message) { }
 };
 
 void checkGLError();

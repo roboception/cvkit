@@ -41,21 +41,12 @@
 #include <limits>
 #include <cstring>
 
-using std::string;
-using std::ostringstream;
-using std::isfinite;
-using std::numeric_limits;
-
-using gutil::Properties;
-using gutil::IOException;
-using gutil::InvalidArgumentException;
-
 namespace gmath
 {
 
-string Camera::getCameraKey(const char *key, int id) const
+std::string Camera::getCameraKey(const char *key, int id) const
 {
-    ostringstream os;
+    std::ostringstream os;
 
     os << "camera.";
     if (id >= 0)
@@ -66,7 +57,7 @@ string Camera::getCameraKey(const char *key, int id) const
     return os.str();
 }
 
-Camera::Camera(const Properties &prop, int id)
+Camera::Camera(const gutil::Properties &prop, int id)
 {
     prop.getValue(getCameraKey("R", id).c_str(), R, "[1 0 0; 0 1 0; 0 0 1]");
     prop.getValue(getCameraKey("T", id).c_str(), T, "[0 0 0]");
@@ -90,7 +81,7 @@ bool Camera::isInside(const Vector2d &p) const
 bool Camera::isInside(const Vector3d &p) const
 {
     return p[0] >= 0 && p[0] < width && p[1] >= 0 && p[1] < height &&
-      !isfinite(p[2]);
+      !std::isfinite(p[2]);
 }
 
 void Camera::setDownscaled(int ds)
@@ -108,7 +99,7 @@ void Camera::setPart(long x, long y, long w, long h)
     height=h;
 }
 
-void Camera::getProperties(Properties &prop, int id) const
+void Camera::getProperties(gutil::Properties &prop, int id) const
 {
     prop.putValue(getCameraKey("R", id).c_str(), R);
     prop.putValue(getCameraKey("T", id).c_str(), T);
@@ -145,13 +136,13 @@ PinholeCamera::PinholeCamera(const PinholeCamera &pc) : Camera(pc)
       dist=pc.dist->clone();
 }
 
-PinholeCamera::PinholeCamera(const Properties &prop, int id)
+PinholeCamera::PinholeCamera(const gutil::Properties &prop, int id)
   : Camera(prop, id)
 {
     Matrix33d P;
     prop.getValue(getCameraKey("A", id).c_str(), P);
 
-    string origin;
+    std::string origin;
     prop.getValue("origin", origin, "corner");
     if (origin == "center")
     {
@@ -210,9 +201,9 @@ void PinholeCamera::setA(const Matrix33d &AA)
 
     if (A(1, 0) != 0 || A(2, 0) != 0 || A(2, 1) != 0 || A(2, 2) != 1)
     {
-      ostringstream out;
+      std::ostringstream out;
       out << "Invalid camera matrix: " << A;
-      throw IOException(out.str().c_str());
+      throw gutil::IOException(out.str().c_str());
     }
 }
 
@@ -236,7 +227,7 @@ void PinholeCamera::setPart(long x, long y, long w, long h)
     A(1, 2)-=y;
 }
 
-void PinholeCamera::getProperties(Properties &prop, int id) const
+void PinholeCamera::getProperties(gutil::Properties &prop, int id) const
 {
     Camera::getProperties(prop, id);
 
@@ -256,7 +247,7 @@ double PinholeCamera::projectPoint(Vector2d &p, const Vector3d &Pw) const
       // if rho is given, then compute disparity and determine if the point
       // is behind the camera
 
-    double d=numeric_limits<double>::infinity();
+    double d=std::numeric_limits<double>::infinity();
 
     if (rho != 0)
       d=rho/Pc[2];
@@ -287,9 +278,9 @@ void PinholeCamera::reconstructPoint(Vector3d &Pw, const Vector2d &p, double d)
   const
 {
     if (rho == 0)
-      throw IOException("Cannot reconstruct point with unknown rho");
+      throw gutil::IOException("Cannot reconstruct point with unknown rho");
 
-    assert(isfinite(d));
+    assert(std::isfinite(d));
 
     Vector3d Pc;
     reconstructLocal(Pc, p);
@@ -347,7 +338,7 @@ void PinholeCamera::reconstructLocal(Vector3d &q, const Vector2d &p) const
     }
 }
 
-OrthoCamera::OrthoCamera(const Properties &prop)
+OrthoCamera::OrthoCamera(const gutil::Properties &prop)
   : Camera(prop, -1)
 {
     prop.getValue("resolution", res);
@@ -358,7 +349,7 @@ OrthoCamera::OrthoCamera(const Properties &prop)
       Vector3d T;
       prop.getValue("origin.T", T);
 
-      string origin;
+      std::string origin;
       prop.getValue("origin", origin, "corner");
       if (origin == "center")
       {
@@ -402,7 +393,7 @@ void OrthoCamera::setPart(long x, long y, long w, long h)
     setT(T);
 }
 
-void OrthoCamera::getProperties(Properties &prop, int id) const
+void OrthoCamera::getProperties(gutil::Properties &prop, int id) const
 {
     Camera::getProperties(prop, -1);
 
@@ -423,8 +414,8 @@ double OrthoCamera::projectPoint(Vector2d &p, const Vector3d &Pw) const
 void OrthoCamera::reconstructPoint(Vector3d &Pw, const Vector2d &p, double d)
   const
 {
-    if (!isfinite(d))
-      throw InvalidArgumentException("Cannot reconstruct invalid point");
+    if (!std::isfinite(d))
+      throw gutil::InvalidArgumentException("Cannot reconstruct invalid point");
 
     Vector3d Pc;
 

@@ -44,17 +44,6 @@
 #include <valarray>
 #include <set>
 
-using std::string;
-using std::ostringstream;
-using std::valarray;
-using std::numeric_limits;
-using std::max;
-using std::set;
-
-using gutil::IOException;
-using gutil::Properties;
-using gutil::getFileList;
-
 namespace gimage
 {
 
@@ -94,7 +83,7 @@ double getMaxValue(GDALDataType type)
       case GDT_UInt32:
       case GDT_Int32:
       case GDT_Float32:
-          ret=numeric_limits<float>::max();
+          ret=std::numeric_limits<float>::max();
           break;
 
       default:
@@ -123,7 +112,7 @@ int getMaxBand(GDALDatasetH gd, double &mm)
 
       if (m > 0)
       {
-        mm=max(m, mm);
+        mm=std::max(m, mm);
         ret++;
       }
     }
@@ -151,13 +140,13 @@ BasicImageIO *GDALImageIO::create() const
 
 bool GDALImageIO::handlesFile(const char *name, bool reading) const
 {
-    string s=name;
+    std::string s=name;
 
     if (reading)
     {
       // check if name refers to a tiled image
 
-      set<string> list;
+      std::set<std::string> list;
       size_t pos=s.rfind(':');
 
       if (pos != s.npos && s.compare(pos, 2, ":\\") == 0)
@@ -165,12 +154,12 @@ bool GDALImageIO::handlesFile(const char *name, bool reading) const
 
       if (pos != s.npos)
       {
-        string prefix=s.substr(0, pos);
-        string suffix=s.substr(pos+1);
+        std::string prefix=s.substr(0, pos);
+        std::string suffix=s.substr(pos+1);
 
         // get name of one tile
 
-        getFileList(list, prefix, suffix);
+        gutil::getFileList(list, prefix, suffix);
         if (list.size() > 0)
         {
           name=list.begin()->c_str();
@@ -202,7 +191,7 @@ void GDALImageIO::loadHeader(const char *name, long &width, long &height,
     double       m;
 
     if (gd == 0)
-      throw IOException("File is not supported by GDAL ("+string(name)+")");
+      throw gutil::IOException("File is not supported by GDAL ("+std::string(name)+")");
 
     width=GDALGetRasterXSize(gd);
     height=GDALGetRasterYSize(gd);
@@ -211,7 +200,7 @@ void GDALImageIO::loadHeader(const char *name, long &width, long &height,
     GDALClose(gd);
 }
 
-void GDALImageIO::loadProperties(Properties &prop, const char *name) const
+void GDALImageIO::loadProperties(gutil::Properties &prop, const char *name) const
 {
       // read tags
 
@@ -225,7 +214,7 @@ void GDALImageIO::loadProperties(Properties &prop, const char *name) const
       {
         while (*meta != 0)
         {
-          string s=*meta;
+          std::string s=*meta;
           size_t pos=s.find('=');
 
           if (pos != s.npos)
@@ -308,7 +297,7 @@ void GDALImageIO::loadProperties(Properties &prop, const char *name) const
 namespace
 {
 
-int convertColorTable(GDALColorTableH gct, valarray<short> &rgba)
+int convertColorTable(GDALColorTableH gct, std::valarray<short> &rgba)
 {
     int n=GDALGetColorEntryCount(gct);
     GDALColorEntry v;
@@ -333,14 +322,14 @@ template<class T> void loadInternal(Image<T> &image, GDALDataType gt,
     GDALDatasetH gd=GDALOpen(name, GA_ReadOnly);
 
     if (gd == 0)
-      throw IOException("File is not supported by GDAL ("+string(name)+")");
+      throw gutil::IOException("File is not supported by GDAL ("+std::string(name)+")");
 
     try
     {
       double m;
       int depth=getMaxBand(gd, m);
       int rgba_count=-1;
-      valarray<short> rgba;
+      std::valarray<short> rgba;
 
         // check for and read color table
 
@@ -362,9 +351,9 @@ template<class T> void loadInternal(Image<T> &image, GDALDataType gt,
 
       if (m == 0 || m > image.absMaxValue())
       {
-        ostringstream s;
+        std::ostringstream s;
         s << "The image data type is too big: " << m << ">" << image.absMaxValue() << " (" << name << ")";
-        throw IOException(s.str());
+        throw gutil::IOException(s.str());
       }
 
         // determine size in file
@@ -448,9 +437,9 @@ template<class T> void loadInternal(Image<T> &image, GDALDataType gt,
             {
               delete [] p;
 
-              ostringstream s;
+              std::ostringstream s;
               s << "Cannot read raster band " << j << " of image (" << name << ")";
-              throw IOException(s.str());
+              throw gutil::IOException(s.str());
             }
 
             d++;
@@ -487,9 +476,9 @@ template<class T> void loadInternal(Image<T> &image, GDALDataType gt,
         {
           delete [] p;
 
-          ostringstream s;
+          std::ostringstream s;
           s << "Cannot read raster band 1 of image (" << name << ") with color table";
-          throw IOException(s.str());
+          throw gutil::IOException(s.str());
         }
 
         delete [] p;
@@ -530,7 +519,7 @@ namespace
 template <class T> void saveInternal(const Image<T> &image, const char *name,
   GDALDataType gt)
 {
-    string s=name;
+    std::string s=name;
     GDALDriverH gdriver=0;
 
       // find driver according to suffix
@@ -539,7 +528,7 @@ template <class T> void saveInternal(const Image<T> &image, const char *name,
       gdriver=GDALGetDriverByName("GTiff");
 
     if (gdriver == 0)
-      throw IOException("Saving is only supported as TIF ("+string(name)+")");
+      throw gutil::IOException("Saving is only supported as TIF ("+std::string(name)+")");
 
       // create new data set
 
@@ -555,7 +544,7 @@ template <class T> void saveInternal(const Image<T> &image, const char *name,
       image.getHeight(), image.getDepth(), gt, gp);
 
     if (gd == 0)
-      throw IOException("Cannot save image ("+string(name)+")");
+      throw gutil::IOException("Cannot save image ("+std::string(name)+")");
 
     try
     {
@@ -579,7 +568,7 @@ template <class T> void saveInternal(const Image<T> &image, const char *name,
         {
           delete [] p;
 
-          throw IOException("Cannot save image ("+string(name)+")");
+          throw gutil::IOException("Cannot save image ("+std::string(name)+")");
         }
       }
 

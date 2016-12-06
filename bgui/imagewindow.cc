@@ -42,30 +42,15 @@
 #include <png.h>
 #endif
 
-using std::string;
-using std::ostringstream;
-using std::min;
-using std::max;
-using std::isfinite;
-
-using gutil::uint8;
-using gutil::uint16;
-
-using gmath::SVector;
-
-using gimage::ImageU8;
-using gimage::ImageU16;
-using gimage::ImageFloat;
-
 namespace bgui
 {
 
 namespace
 {
 
-string createHelpText()
+std::string createHelpText()
 {
-    ostringstream out;
+    std::ostringstream out;
 
     out << "Usage and Keycodes:\n";
     out << "\n";
@@ -108,17 +93,17 @@ void ImageWindow::updateInfo()
     {
       int           w, h;
       double        scale=adapt->getScale();
-      ostringstream os;
+      std::ostringstream os;
 
       getSize(w, h);
 
       os << "rotation=" << adapt->getRotation()*90;
       os << "; flip=" << adapt->getFlip();
       os << "; scale=" << scale;
-      os << "; x=" << static_cast<long>(max(imx, 0)/scale);
-      os << ", y=" << static_cast<long>(max(imy, 0)/scale);
-      os << ", w=" << static_cast<long>(min(static_cast<long>(w), adapt->getWidth())/scale);
-      os << ", h=" << static_cast<long>(min(static_cast<long>(h), adapt->getHeight())/scale);
+      os << "; x=" << static_cast<long>(std::max(imx, 0)/scale);
+      os << ", y=" << static_cast<long>(std::max(imy, 0)/scale);
+      os << ", w=" << static_cast<long>(std::min(static_cast<long>(w), adapt->getWidth())/scale);
+      os << ", h=" << static_cast<long>(std::min(static_cast<long>(h), adapt->getHeight())/scale);
       os << "; range=[" << adapt->getMinIntensity();
       os << ":" << adapt->getMaxIntensity();
       os << "]; smooth=" << adapt->getSmoothing();
@@ -130,7 +115,7 @@ void ImageWindow::updateInfo()
       setInfoLine("");
 }
 
-void ImageWindow::addHelpText(const string &text)
+void ImageWindow::addHelpText(const std::string &text)
 {
     helptext.append(text);
 }
@@ -146,10 +131,10 @@ ImageWindow::ImageWindow() : BaseWindow("Image", 100, 100)
     addHelpText(createHelpText());
 };
 
-ImageWindow::ImageWindow(const ImageU8 &image, int x, int y, int w, int h,
+ImageWindow::ImageWindow(const gimage::ImageU8 &image, int x, int y, int w, int h,
   double vmin, double vmax) : BaseWindow("Image", 100, 100)
 {
-    ImageAdapterBase *p=new ImageAdapter<uint8>(&image, vmin, vmax);
+    ImageAdapterBase *p=new ImageAdapter<gutil::uint8>(&image, vmin, vmax);
 
     adapt=0;
     del=false;
@@ -159,7 +144,7 @@ ImageWindow::ImageWindow(const ImageU8 &image, int x, int y, int w, int h,
 
     addHelpText(createHelpText());
 
-    ostringstream os;
+    std::ostringstream os;
 
     os << "Image - " << image.getWidth() << "x" << image.getHeight() << "x" <<
       image.getDepth() << " " << image.getTypeDescription();
@@ -179,10 +164,10 @@ ImageWindow::ImageWindow(const ImageU8 &image, int x, int y, int w, int h,
       setPosition(x, y);
 }
 
-ImageWindow::ImageWindow(const ImageU16 &image, int x, int y, int w, int h,
+ImageWindow::ImageWindow(const gimage::ImageU16 &image, int x, int y, int w, int h,
   double vmin, double vmax) : BaseWindow("Image", 100, 100)
 {
-    ImageAdapterBase *p=new ImageAdapter<uint16>(&image, vmin, vmax);
+    ImageAdapterBase *p=new ImageAdapter<gutil::uint16>(&image, vmin, vmax);
 
     adapt=0;
     del=false;
@@ -192,7 +177,7 @@ ImageWindow::ImageWindow(const ImageU16 &image, int x, int y, int w, int h,
 
     addHelpText(createHelpText());
 
-    ostringstream os;
+    std::ostringstream os;
 
     os << "Image - " << image.getWidth() << "x" << image.getHeight() << "x" <<
       image.getDepth() << " " << image.getTypeDescription();
@@ -212,7 +197,7 @@ ImageWindow::ImageWindow(const ImageU16 &image, int x, int y, int w, int h,
       setPosition(x, y);
 }
 
-ImageWindow::ImageWindow(const ImageFloat &image, int x, int y, int w, int h,
+ImageWindow::ImageWindow(const gimage::ImageFloat &image, int x, int y, int w, int h,
   double vmin, double vmax) : BaseWindow("Image", 100, 100)
 {
     ImageAdapterBase *p=new ImageAdapter<float>(&image, vmin, vmax);
@@ -225,7 +210,7 @@ ImageWindow::ImageWindow(const ImageFloat &image, int x, int y, int w, int h,
 
     addHelpText(createHelpText());
 
-    ostringstream os;
+    std::ostringstream os;
 
     os << "Image - " << image.getWidth() << "x" << image.getHeight() << "x" <<
       image.getDepth() << " " << image.getTypeDescription();
@@ -301,8 +286,8 @@ void ImageWindow::setAdapter(ImageAdapterBase *adapter, bool delete_on_close,
 
         getDisplaySize(dw, dh);
 
-        w=min(w, dw);
-        h=min(h, dh);
+        w=std::min(w, dw);
+        h=std::min(h, dh);
 
           // define scale for viewing
 
@@ -371,7 +356,7 @@ void ImageWindow::redrawImage(bool force)
 
       if (adapt->getWidth() >= w)
       {
-        x=max(x, 0);
+        x=std::max(x, 0);
 
         if (adapt->getWidth()-x < w)
           x=adapt->getWidth()-w;
@@ -381,7 +366,7 @@ void ImageWindow::redrawImage(bool force)
 
       if (adapt->getHeight() >= h)
       {
-        y=max(y, 0);
+        y=std::max(y, 0);
 
         if (adapt->getHeight()-y < h)
           y=adapt->getHeight()-h;
@@ -412,23 +397,23 @@ void ImageWindow::visibleImagePart(long &x, long &y, long &w, long &h)
 
       double scale=adapt->getScale();
 
-      SVector<long, 3> q1, q2;
+      gmath::SVector<long, 3> q1, q2;
 
-      q1[0]=static_cast<long>(max(imx, 0)/scale);
-      q1[1]=static_cast<long>(max(imy, 0)/scale);
+      q1[0]=static_cast<long>(std::max(imx, 0)/scale);
+      q1[1]=static_cast<long>(std::max(imy, 0)/scale);
       q1[2]=1;
 
-      q2[0]=q1[0]+static_cast<long>(min(static_cast<long>(ww), adapt->getWidth())/scale);
-      q2[1]=q1[1]+static_cast<long>(min(static_cast<long>(hh), adapt->getHeight())/scale);
+      q2[0]=q1[0]+static_cast<long>(std::min(static_cast<long>(ww), adapt->getWidth())/scale);
+      q2[1]=q1[1]+static_cast<long>(std::min(static_cast<long>(hh), adapt->getHeight())/scale);
       q2[2]=1;
 
-      const SVector<long, 2> p1=adapt->getRotationMatrix()*q1;
-      const SVector<long, 2> p2=adapt->getRotationMatrix()*q2;
+      const gmath::SVector<long, 2> p1=adapt->getRotationMatrix()*q1;
+      const gmath::SVector<long, 2> p2=adapt->getRotationMatrix()*q2;
 
-      x=min(p1[0], p2[0]);
-      y=min(p1[1], p2[1]);
-      w=max(p1[0], p2[0])-x;
-      h=max(p1[1], p2[1])-y;
+      x=std::min(p1[0], p2[0]);
+      y=std::min(p1[1], p2[1]);
+      w=std::max(p1[0], p2[0])-x;
+      h=std::max(p1[1], p2[1])-y;
     }
     else
     {
@@ -674,7 +659,7 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
               && y+imy >= 0 && y+imy < adapt->getHeight() && y >= 0 && y < h)
             {
               double v=adapt->getIntensityOfPixel(x+imx, y+imy);
-              if (isfinite(v))
+              if (std::isfinite(v))
               {
                 adapt->setMinIntensity(v);
                 redrawImage();
@@ -695,7 +680,7 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
               && y+imy >= 0 && y+imy < adapt->getHeight() && y >= 0 && y < h)
             {
               double v=adapt->getIntensityOfPixel(x+imx, y+imy);
-              if (isfinite(v))
+              if (std::isfinite(v))
               {
                 adapt->setMaxIntensity(v);
                 redrawImage();
@@ -742,7 +727,7 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
       case 'v':
           if (!hasInfoText())
           {
-            ostringstream out;
+            std::ostringstream out;
 
             out << "This program is based on cvkit version " << VERSION << "\n";
             out << "Copyright (C) 2016 Roboception GmbH\n";

@@ -43,11 +43,6 @@
 #include <assert.h>
 #include <cstdlib>
 
-using std::cerr;
-using std::endl;
-using std::ref;
-using std::thread;
-
 namespace
 {
 int procunits=0;
@@ -73,7 +68,7 @@ void Thread::create(ThreadFunction &fct)
 {
     assert(p == 0);
 
-    p=reinterpret_cast<ThreadData *>(new thread(&ThreadFunction::run, &fct));
+    p=reinterpret_cast<ThreadData *>(new std::thread(&ThreadFunction::run, &fct));
 }
 
 void Thread::create(ParallelFunction &fct, long start, long end, long step,
@@ -81,7 +76,7 @@ void Thread::create(ParallelFunction &fct, long start, long end, long step,
 {
     assert(p == 0);
 
-    p=reinterpret_cast<ThreadData *>(new thread(&ThreadFunction::run, &fct,
+    p=reinterpret_cast<ThreadData *>(new std::thread(&ThreadFunction::run, &fct,
       start, end, step));
 }
 
@@ -102,7 +97,7 @@ int Thread::getProcessingUnits()
 
       if (procunits <= 0)
       {
-        cerr << "Cannot determine number of CPUs, assuming one!" << endl;
+        std::cerr << "Cannot determine number of CPUs, assuming one!" << std::endl;
         procunits=1;
       }
 

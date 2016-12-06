@@ -40,19 +40,12 @@
 
 #include <iostream>
 
-using std::min;
-
-using gmath::Vector3d;
-using gmath::Matrix33d;
-using gmath::SMatrix;
-using gmath::createR;
-
 namespace gvr
 {
 
 /*
   OpenGL transformation to screen coordinates:
-  
+
   | 2*f/w     0           0               0          |
   |   0    -2*f/h         0               0          |   | R^T  -R^T*T |   | Pw |
   |   0       0    (fz+nz)/(fz-nz)  -2*fz*nz/(fz-nz) | * |  0      1   | * |  1 |
@@ -61,40 +54,40 @@ namespace gvr
 
 void GLCamera::computeTransformation()
 {
-    SMatrix<double, 4, 4> P;
-    
+    gmath::SMatrix<double, 4, 4> P;
+
     P(0, 0)=2*f/width;
     P(1, 1)=-2*f/height;
     P(2, 2)=(fz+nz)/(fz-nz);
     P(2, 3)=-2*fz*nz/(fz-nz);
     P(3, 2)=1;
     P(3, 3)=0;
-    
-    SMatrix<double, 4, 4> RT;
-    Vector3d V=-(transpose(R)*T);
-    
+
+    gmath::SMatrix<double, 4, 4> RT;
+    gmath::Vector3d V=-(transpose(R)*T);
+
     RT(0, 0)=R(0, 0); RT(0, 1)=R(1, 0); RT(0, 2)=R(2, 0); RT(0, 3)=V[0];
     RT(1, 0)=R(0, 1); RT(1, 1)=R(1, 1); RT(1, 2)=R(2, 1); RT(1, 3)=V[1];
     RT(2, 0)=R(0, 2); RT(2, 1)=R(1, 2); RT(2, 2)=R(2, 2); RT(2, 3)=V[2];
-    
+
     P=P*RT;
-    
+
       // convert to OpenGL
-    
+
     int j=0;
     for (int k=0; k<4; k++)
     {
       for (int i=0; i<4; i++)
         trans[j++]=static_cast<GLfloat>(P(k, i));
     }
-    
+
     gltrans[0]=trans[0]; gltrans[1]=trans[4]; gltrans[2]=trans[8]; gltrans[3]=trans[12];
     gltrans[4]=trans[1]; gltrans[5]=trans[5]; gltrans[6]=trans[9]; gltrans[7]=trans[13];
     gltrans[8]=trans[2]; gltrans[9]=trans[6]; gltrans[10]=trans[10]; gltrans[11]=trans[14];
     gltrans[12]=trans[3]; gltrans[13]=trans[7]; gltrans[14]=trans[11]; gltrans[15]=trans[15];
-    
+
       // compute direction from which light is comming, e.g. viewpoint
-    
+
     light[0]=static_cast<GLfloat>(-R(0, 2));
     light[1]=static_cast<GLfloat>(-R(1, 2));
     light[2]=static_cast<GLfloat>(-R(2, 2));
@@ -103,41 +96,41 @@ void GLCamera::computeTransformation()
 GLCamera::GLCamera()
 {
     fov=50.0/180*M_PI;
-    
+
     width=1;
     height=1;
-    
+
     nz=0.1;
     fz=1;
-    
+
     scale=0;
     texture=true;
     specialcolor=false;
     pointsonly=false;
     f=1;
-    
+
     computeTransformation();
 }
 
-void GLCamera::init(const Vector3d &c, double size)
+void GLCamera::init(const gmath::Vector3d &c, double size)
 {
     R=0;
-    
+
     R(0, 0)=1;
     R(1, 1)=-1;
     R(2, 2)=-1;
-    
+
     T=c;
     T[2]+=size/(2*tan(fov/2));
-    
+
     fz=10*size;
     if (fz <= 0)
       fz=1;
-    
+
     nz=size/1000;
-    
+
     computeTransformation();
-    
+
     center=c;
 }
 
@@ -145,55 +138,55 @@ void GLCamera::setSize(int w, int h)
 {
     width=w;
     height=h;
-    
+
     f=static_cast<float>(width/(2*tan(fov/2)));
-    
+
     computeTransformation();
 }
 
-void GLCamera::setPose(const Matrix33d &_R, const Vector3d &_T)
+void GLCamera::setPose(const gmath::Matrix33d &_R, const gmath::Vector3d &_T)
 {
     R=_R;
     T=_T;
-    
+
     computeTransformation();
 }
 
-Vector3d GLCamera::pixel2World(int x, int y, float d)
+gmath::Vector3d GLCamera::pixel2World(int x, int y, float d)
 {
-    Vector3d P;
-    
+    gmath::Vector3d P;
+
     P[2]=-2*fz*nz/(fz-nz)/(2*d-1-(fz+nz)/(fz-nz));
     P[0]=(x-width/2.0)/f*P[2];
     P[1]=(y-height/2.0)/f*P[2];
-    
+
     return R*P+T;
 }
 
 bool GLCamera::onKey(unsigned char key, int x, int y)
 {
     bool ret=false;
-    
+
     switch (key)
     {
       case '+':
           if (scale == 0)
             scale=1.0;
-          
+
           scale=1.5*scale;
-          
+
           ret=true;
           break;
-      
+
       case '-':
           if (scale == 0)
             scale=1.0;
-          
+
           scale=scale/1.5;
-          
+
           ret=true;
           break;
-      
+
       case 't':
           if (!texture)
           {
@@ -202,10 +195,10 @@ bool GLCamera::onKey(unsigned char key, int x, int y)
           }
           else
             texture=false;
-          
+
           ret=true;
           break;
-      
+
       case 's':
           if (!specialcolor)
           {
@@ -214,19 +207,19 @@ bool GLCamera::onKey(unsigned char key, int x, int y)
           }
           else
             specialcolor=false;
-          
+
           ret=true;
           break;
-      
+
       case 'p':
           pointsonly=!pointsonly;
           ret=true;
           break;
-      
+
       default:
           break;
     }
-    
+
     return ret;
 }
 
@@ -234,20 +227,20 @@ bool GLCamera::onKey(unsigned char key, int x, int y)
 bool GLCamera::onMouseButton(int button, int state, int x, int y)
 {
     bool ret=false;
-    
+
     if (state == GLUT_DOWN)
     {
       mbutton=button;
       msx=x;
       msy=y;
-      
+
         /* ensure pure rotation matrix and copy as start transformation */
-      
+
       double ax, ay, az;
       recoverEuler(R, ax, ay, az, true);
-      Rs=createR(ax, ay, az);
+      Rs=gmath::createR(ax, ay, az);
       Ts=T;
-      
+
       if (button == 3)
       {
         mbutton=GLUT_RIGHT_BUTTON;
@@ -258,76 +251,76 @@ bool GLCamera::onMouseButton(int button, int state, int x, int y)
         mbutton=GLUT_RIGHT_BUTTON;
         ret=onMouseMove(x, y-40);
       }
-      
+
         /* adapt step width */
-      
+
       step=norm(T-center)/width;
     }
-    
+
     return ret;
 }
 
 bool GLCamera::onMouseMove(int x, int y)
 {
     bool ret=false;
-    
+
     switch (mbutton)
     {
       case GLUT_LEFT_BUTTON:
           {
-            Vector3d P1, P2;
-            
+            gmath::Vector3d P1, P2;
+
             P1[0]=1.0-2.0*msx/width;
             P1[1]=1.0-2.0*msy/height;
-            P1[2]=sqrt(1.0-min(1.0, P1[0]*P1[0]+P1[1]*P1[1]));
+            P1[2]=sqrt(1.0-std::min(1.0, P1[0]*P1[0]+P1[1]*P1[1]));
             P1/=norm(P1);
-            
+
             P2[0]=1.0-2.0*x/width;
             P2[1]=1.0-2.0*y/height;
-            P2[2]=sqrt(1.0-min(1.0, P2[0]*P2[0]+P2[1]*P2[1]));
+            P2[2]=sqrt(1.0-std::min(1.0, P2[0]*P2[0]+P2[1]*P2[1]));
             P2/=norm(P2);
-            
-            Matrix33d RR=createR(cross(P2, P1), 2.0*acos(min(1.0, P1*P2)));
-            
+
+            gmath::Matrix33d RR=gmath::createR(cross(P2, P1), 2.0*acos(std::min(1.0, P1*P2)));
+
             R=Rs*RR;
             T=center-Rs*RR*transpose(Rs)*(center-Ts);
-            
+
             computeTransformation();
             ret=true;
           }
           break;
-      
+
       case GLUT_MIDDLE_BUTTON:
           {
-            Vector3d TT;
-            
+            gmath::Vector3d TT;
+
             TT[0]=-step*(x-msx);
             TT[1]=-step*(y-msy);
             TT[2]=0;
-            
+
             T=Rs*TT+Ts;
-            
+
             computeTransformation();
             ret=true;
           }
           break;
-      
+
       case GLUT_RIGHT_BUTTON:
           {
-            Vector3d TT;
-            
+            gmath::Vector3d TT;
+
             TT[0]=0;
             TT[1]=0;
             TT[2]=4*step*(y-msy);
-            
+
             T=Rs*TT+Ts;
-            
+
             computeTransformation();
             ret=true;
           }
           break;
     }
-    
+
     return ret;
 }
 

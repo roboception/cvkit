@@ -50,7 +50,7 @@ namespace gutil
 class Parameter
 {
   public:
-  
+
     /**
      * argc/argv are given in the same format as used for main(), e.g. argv[0]
      * is the program name. If the special parameter @<f> is encountered, it is
@@ -69,93 +69,93 @@ class Parameter
      * Everything after the first '#' character in each line is used as
      * description.
      */
-    
+
     Parameter(int argc, char *argv[], const char *pdef[], const char *creator=0);
-    
+
     /**
      * Add parameter definitions and help.
      */
-    
+
     void addParamDef(const char *pdef[]);
-    
+
     /**
      * Print help to output stream.
      */
-    
+
     void printHelp(std::ostream &out, size_t columns=80) const;
-    
+
     /**
      * Returns the number of remaining values (i.e. parameters or argument).
      */
-    
+
     int remaining() const
     {
       return list.size()-pos;
     }
-    
+
     /**
      * Reduces the pointer to the current value so that it points to the
      * previous value.
      */
-    
+
     void previous()
     {
       pos=std::max(static_cast<size_t>(0), pos-1);
     }
-    
+
     /**
      * Returns true, if there is another value and this value is a valid
      * parameter.
      */
-    
+
     bool isNextParameter();
-    
+
     /**
      * Returns the next parameter. Throws an exception if the next value does
      * not start with '-' or if it is not in the definition list 'pdef'.
      */
-    
+
     void nextParameter(std::string &p);
-    
+
     /**
      * Searches the given parameter and sets the read position to the value
-     * behind, for reading the arguments. If an empty string is given, then the
+     * behind, for reading the arguments. If an empty std::string is given, then the
      * read position is set to the beginning. Returns false, if the parameter is
      * not given. The parameter must be in the definition list 'pdef'.
      */
-    
+
     bool findParameter(const std::string &p);
-    
+
     /**
-     * Returns the next argument as string. If opt is not empty, it is
+     * Returns the next argument as std::string. If opt is not empty, it is
      * interpreted as a list of possible values, separated by '|'. An exception
      * is thrown if the next value is a parameter (i.e. start with '-') or if
      * the value is not in the list of possible values.
      */
-    
+
     void nextString(std::string &s, const char *opt=0);
-    
+
     /**
      * Returns the next argument in the provided variable. An exception is
      * thrown if the next value is a parameter (i.e. starts with '-') or if the
      * value cannot be converted.
      */
-    
+
     template <class T> void nextValue(T &v)
     {
       std::string s;
-      
+
       nextString(s);
-      
+
       std::istringstream in(s);
       in >> v;
-      
+
       if (in.fail())
         throw IOException("Format error of argument: "+s);
     }
-    
+
   private:
-    
+
     std::vector<std::string> list;
     std::vector<std::string> def;
     std::string              creat;

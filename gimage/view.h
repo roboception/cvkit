@@ -55,27 +55,27 @@ namespace gimage
 class View
 {
   private:
-  
+
     ImageU8       image;
     ImageFloat    depth;
     gmath::Camera *camera;
-    
+
   public:
-  
+
     View();
     View(const View &v);
     ~View();
-    
+
     const View &operator=(const View &v);
-    
+
     void clear();
-    
+
     void setCamera(const gmath::Camera *c);
     const gmath::Camera *getCamera() const { return camera; }
-    
+
     void setImage(const ImageU8 &img);
     const ImageU8 &getImage() const { return image; }
-    
+
     void setDepthImage(const ImageFloat &d);
     const ImageFloat &getDepthImage() const { return depth; }
 };
@@ -84,9 +84,9 @@ class View
 /*
   Loads a view by the depth image name and optional appending specifications
   of the form:
-  
+
   <depth file>[,p=<parameter file>][,i=<image file>][,ds=<s>][,x=<x>][,y=<y>][,w=<w>][,h=<h>]
-  
+
   The parameter option can be given multiple times. If not given, then the
   method will try to find the parameters in the same directory or in the
   directories that are given in spath. If the image option is not given, then
@@ -118,7 +118,7 @@ void loadViewProperties(gutil::Properties &prop, const char *name, const char *s
 
 void getViewImageName(std::string &image, const char *name, const char *spath=0,
   bool verbose=false);
-    
+
 }
 
 #endif

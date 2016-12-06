@@ -1,13 +1,20 @@
+Version 1.8.3 (2016-12-06)
+--------------------------
 
-Version 1.8.2 (7th November 2016)
----------------------------------
+- Removed using declarations to avoid confusion
+- New helper class for computing a plane from sample points
+- New helper function for skipping known std::strings in input streams
+- Extended gimage::getNewImageName() so that it uses a given suffix
+
+Version 1.8.2 (2016-11-07)
+--------------------------
 
 - Added helper class MsgQueue for inter-thread communication
 - Added method to initialize all pixels of an image to a given value
 - Changed cmake file for adding debian package number before distro codename
 
-Version 1.8.0 (2nd November 2016)
----------------------------------
+Version 1.8.0 (2016-11-02)
+--------------------------
 
 - Fixed several bugs when loading tiled images
 - Added method for checking if an image contains valid pixels
@@ -30,8 +37,8 @@ Version 1.8.0 (2nd November 2016)
 - Compiles as C++11 by default
 - Some changes in cmake files
 
-Version 1.7.0 (26th October 2015)
----------------------------------
+Version 1.7.0 (2015-10-26)
+--------------------------
 
 - Reduced requirement for OpenGL from 3.0 to 2.1 (i.e. GLSL 1.3 to 1.2).
   This permits successful compilation on Mac.
@@ -47,26 +54,26 @@ Version 1.7.0 (26th October 2015)
 - Fixed bug when storing pgm, ppm or pfm under Windows.
 - Some minor bugfixes.
 
-Version 1.6.6 (8th June 2015)
------------------------------
+Version 1.6.6 (2015-06-08)
+--------------------------
 
 - cmake config files will be installed together with libs for further
   development.
 
-Version 1.6.2 - 1.6.5 (18th May 2015)
--------------------------------------
+Version 1.6.2 - 1.6.5 (2015-05-18)
+----------------------------------
 
 - Removed "using namespace" declarations
 - Minor changes and bugfixes
 
-Version 1.6.1 (16th February 2015)
-----------------------------------
+Version 1.6.1 (2015-02-16)
+--------------------------
 
 sv:
 - Bugfix for 0.5 pixel shift error.
 
-Version 1.6.0 (19th December 2014)
-----------------------------------
+Version 1.6.0 (2014-12-19)
+--------------------------
 
 sv:
 - If GDAL is compiled in, then the EXIF_Orientation tag that is given in jpeg
@@ -76,13 +83,13 @@ sv:
 - 't' shows smoothed images that are computed by trilinear interpolation.
 - Some internal changes.
 
-Version 1.5.1 (14th November 2014)
-----------------------------------
+Version 1.5.1 (2014-11-14)
+--------------------------
 
 - Internal cleanup.
 
-Version 1.5.0 (16th September 2014)
------------------------------------
+Version 1.5.0 (2014-09-16)
+--------------------------
 
 - sv can now show individual color channels (see help).
 - Header files and libs can optionally be installed for further development.
@@ -90,13 +97,13 @@ Version 1.5.0 (16th September 2014)
   all other images in that directory. An error is shown now.
 - Internal cleanup.
 
-Version 1.4.1 (11th July 2014)
-------------------------------
+Version 1.4.1 (2014-07-11)
+--------------------------
 
 - Minor bug fixes.
 
-Version 1.4.0 (16th June 2014)
-------------------------------
+Version 1.4.0 (2014-06-16)
+--------------------------
 
 plyv:
 - 's' toggles between shading in grey and special colors. Each object gets an
@@ -109,21 +116,21 @@ plyv:
 - Reduced requirement for OpenGL from 3.3 to 3.0 (i.e. GLSL 3.3 to 1.3).
 - Some bugs fixed.
 
-Version 1.3.0 (6th June 2014)
------------------------------
+Version 1.3.0 (2014-06-06)
+--------------------------
 
 - Reduced requirement for cmake from 2.8.10 to 2.8.9.
 - Documentation improved.
 - Some bugs fixed.
 
-Version 1.2.0 (6th June 2014)
------------------------------
+Version 1.2.0 (2014-06-06)
+--------------------------
 
 - Reduced requirement for cmake from 2.8.12 to 2.8.10.
 - Added -sub and -div options to imgcmd.
 
-Version 1.1.0 (5th June 2014)
------------------------------
+Version 1.1.0 (2014-06-05)
+--------------------------
 
 all:
 - Added an installer for Windows.
@@ -150,7 +157,7 @@ sv:
 - Increased speed of zooming and panning using OpenMP.
 - Captured images are saved as PNG by default, as in plyv (see above).
 
-Version 1.0.0 (5th May 2014)
-----------------------------
+Version 1.0.0 (2014-05-05)
+--------------------------
 
 - First public release.

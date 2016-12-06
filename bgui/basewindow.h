@@ -110,12 +110,12 @@ class BaseWindow
     int  getTextHeight();
     
       // sets or resets one line of text, which is immediately shown
-      // (set an empty string for removing the info text)
+      // (set an empty std::string for removing the info text)
     
     void setInfoLine(const char *text, bool top=true, bool left=true);
     
       // sets or resets a multi line text, which is immediately shown
-      // (set an empty string for removing the info text)
+      // (set an empty std::string for removing the info text)
     
     void setInfoText(const char *text);
     bool hasInfoText();

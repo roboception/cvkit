@@ -47,18 +47,18 @@ void showError(const char *text);
 class Exception : public std::exception
 {
   private:
-  
+
     std::string s;
 #if defined(DEBUG) && defined(__GNUC__)
     std::string bt;
 #endif
-  
+
   public:
-  
+
     Exception(const std::string &type, const std::string &message);
-    
+
     virtual ~Exception() throw() { }
-    
+
     virtual const char* what() const throw()
     {
       return s.c_str();
@@ -72,14 +72,14 @@ class Exception : public std::exception
       return "";
 #endif
     }
-    
+
     void print() const;
 };
 
 class InvalidArgumentException : public Exception
 {
   public:
-  
+
     InvalidArgumentException(const std::string &message) :
       Exception("Invalid argument", message) { }
 };
@@ -87,7 +87,7 @@ class InvalidArgumentException : public Exception
 class IOException : public Exception
 {
   public:
-  
+
     IOException(const std::string &message) :
       Exception("IO exception", message) { }
 };

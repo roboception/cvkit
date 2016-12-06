@@ -38,22 +38,15 @@
 
 #include <gutil/exception.h>
 
-using std::string;
-using std::ostringstream;
-
-using gimage::ImageU8;
-using gimage::ImageU16;
-using gimage::ImageFloat;
-
 namespace bgui
 {
 
 namespace
 {
 
-string createHelpText()
+std::string createHelpText()
 {
-    ostringstream out;
+    std::ostringstream out;
 
     out << "\n";
     out << "List:\n";
@@ -107,7 +100,7 @@ void ListImageWindow::updateTitle()
 
     if (adapt != 0)
     {
-      ostringstream os;
+      std::ostringstream os;
 
       os << name[current] << " - " << adapt->getOriginalWidth() << "x" <<
         adapt->getOriginalHeight() << "x" << adapt->getOriginalDepth() <<
@@ -159,12 +152,12 @@ ListImageWindow::~ListImageWindow()
       delete list[i];
 }
 
-void ListImageWindow::add(const ImageU8 &image, const string &s, bool copy)
+void ListImageWindow::add(const gimage::ImageU8 &image, const std::string &s, bool copy)
 {
-    const ImageU8 *im=&image;
+    const gimage::ImageU8 *im=&image;
 
     if (copy)
-      im=new ImageU8(image);
+      im=new gimage::ImageU8(image);
 
     ImageAdapterBase *adapt=new ImageAdapter<unsigned char>(im, vmin, vmax, copy);
 
@@ -172,7 +165,7 @@ void ListImageWindow::add(const ImageU8 &image, const string &s, bool copy)
 
     if (s.size() == 0)
     {
-      ostringstream out;
+      std::ostringstream out;
 
       out << "Image " << name.size();
 
@@ -194,12 +187,12 @@ void ListImageWindow::add(const ImageU8 &image, const string &s, bool copy)
     }
 }
 
-void ListImageWindow::add(const ImageU16 &image, const string &s, bool copy)
+void ListImageWindow::add(const gimage::ImageU16 &image, const std::string &s, bool copy)
 {
-    const ImageU16 *im=&image;
+    const gimage::ImageU16 *im=&image;
 
     if (copy)
-      im=new ImageU16(image);
+      im=new gimage::ImageU16(image);
 
     ImageAdapterBase *adapt=new ImageAdapter<unsigned short>(im, vmin, vmax, copy);
 
@@ -207,7 +200,7 @@ void ListImageWindow::add(const ImageU16 &image, const string &s, bool copy)
 
     if (s.size() == 0)
     {
-      ostringstream out;
+      std::ostringstream out;
 
       out << "Image " << name.size();
 
@@ -229,12 +222,12 @@ void ListImageWindow::add(const ImageU16 &image, const string &s, bool copy)
     }
 }
 
-void ListImageWindow::add(const ImageFloat &image, const string &s, bool copy)
+void ListImageWindow::add(const gimage::ImageFloat &image, const std::string &s, bool copy)
 {
-    const ImageFloat *im=&image;
+    const gimage::ImageFloat *im=&image;
 
     if (copy)
-      im=new ImageFloat(image);
+      im=new gimage::ImageFloat(image);
 
     ImageAdapterBase *adapt=new ImageAdapter<float>(im, vmin, vmax, copy);
 
@@ -242,7 +235,7 @@ void ListImageWindow::add(const ImageFloat &image, const string &s, bool copy)
 
     if (s.size() == 0)
     {
-      ostringstream out;
+      std::ostringstream out;
 
       out << "Image " << name.size();
 

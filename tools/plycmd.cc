@@ -41,19 +41,6 @@
 
 #include <cstdlib>
 
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::string;
-
-using gutil::Parameter;
-
-using gvr::PLYReader;
-using gvr::ply_ascii;
-using gvr::ply_binary;
-using gvr::Model;
-using gvr::loadModel;
-
 int main(int argc, char *argv[])
 {
     const char *def[]=
@@ -82,86 +69,86 @@ int main(int argc, char *argv[])
       " <file> # Output file.",
       0
     };
-    
-    Parameter param(argc, argv, def);
-    
+
+    gutil::Parameter param(argc, argv, def);
+
     if (param.remaining() < 1)
     {
-      param.printHelp(cout);
+      param.printHelp(std::cout);
       return 10;
     }
-    
+
       // handle options
-    
-    string name;
-    string spath;
+
+    std::string name;
+    std::string spath;
     bool   all=true;
-    string aout;
-    string bout;
-    
+    std::string aout;
+    std::string bout;
+
     if (getenv("CVKIT_SPATH") != 0)
       spath=getenv("CVKIT_SPATH");
-    
+
     if (!param.isNextParameter())
       param.nextString(name);
-    
+
     while (param.remaining() > 0)
     {
-      string p;
-      
+      std::string p;
+
       param.nextParameter(p);
-      
+
       if (p == "-help")
       {
-        param.printHelp(cout);
+        param.printHelp(std::cout);
         return 0;
       }
-      
+
       if (p == "-version")
       {
-        cout << "This program is part of cvkit version " << VERSION << endl;
+        std::cout << "This program is part of cvkit version " << VERSION << std::endl;
         return 0;
       }
-      
+
       if (p == "-spath")
         param.nextString(spath);
-      
+
       if (p == "-header")
       {
-        PLYReader ply;
+        gvr::PLYReader ply;
         if (ply.open(name.c_str()))
           ply.printHeader();
         else
-          cerr << "Not a ply file: " << name << endl;
+          std::cerr << "Not a ply file: " << name << std::endl;
       }
-      
+
       if (p == "-reduce")
         all=false;
-      
+
       if (p == "-ascii")
         param.nextString(aout);
-      
+
       if (p == "-out")
         param.nextString(bout);
     }
-    
+
     if (aout.size() > 0 || bout.size() > 0)
     {
       if (name.size() > 0)
       {
-        Model *model=loadModel(name.c_str(), spath.c_str(), true);
-        
+        gvr::Model *model=gvr::loadModel(name.c_str(), spath.c_str(), true);
+
         if (aout.size() > 0)
-          model->savePLY(aout.c_str(), all, ply_ascii);
-        
+          model->savePLY(aout.c_str(), all, gvr::ply_ascii);
+
         if (bout.size() > 0)
-          model->savePLY(bout.c_str(), all, ply_binary);
-        
+          model->savePLY(bout.c_str(), all, gvr::ply_binary);
+
         delete model;
       }
       else
       {
-        cerr << "No input file given!" << endl;
+        std::cerr << "No input file given!" << std::endl;
         return 10;
       }
     }

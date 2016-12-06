@@ -48,44 +48,26 @@
 #include <cstdlib>
 #include <valarray>
 
-using std::string;
-using std::ostringstream;
-using std::istream;
-using std::ifstream;
-using std::ofstream;
-using std::ios_base;
-using std::ios;
-using std::endl;
-using std::valarray;
-using std::max;
-using std::streamoff;
-using std::streambuf;
-using std::exception;
-
-using gutil::IOException;
-using gutil::isMSBFirst;
-using gutil::Properties;
-
 namespace gimage
 {
 
 namespace
 {
 
-string readPNMToken(istream &in)
+std::string readPNMToken(std::istream &in)
 {
     char c;
-    ostringstream s;
-    
+    std::ostringstream s;
+
       // read the first character of the token (ignoring white spaces and
       // comments in front the token)
-    
+
     in.get(c);
     while (!in.eof())
     {
       while (!in.eof() && isspace(c))
         in.get(c);
-      
+
       if (c == '#')
       {
         while (!in.eof() && c != '\n' && c != '\r')
@@ -94,70 +76,70 @@ string readPNMToken(istream &in)
       else
         break;
     }
-    
+
       // reading a token until white space or start of comment
-    
+
     while (!in.eof() && !isspace(c) && c != '#')
     {
       s << c;
       in.get(c);
     }
-    
+
       // put last character back if it was the start of a comment
-    
+
     if (!in.eof() && c == '#')
       in.unget();
-    
+
     return s.str();
 }
 
-istream::pos_type readPNMHeader(const char *name, int &ncomp, long &maxval,
+std::istream::pos_type readPNMHeader(const char *name, int &ncomp, long &maxval,
   float &scale, long &width, long &height)
 {
-    string            s;
-    istream::pos_type ret=0;
-    
+    std::string            s;
+    std::istream::pos_type ret=0;
+
     try
     {
-      ifstream in;
-      in.exceptions(ios_base::failbit | ios_base::badbit | ios_base::eofbit);
-      in.open(name, ios::binary);
-      
+      std::ifstream in;
+      in.exceptions(std::ios_base::failbit | std::ios_base::badbit | std::ios_base::eofbit);
+      in.open(name, std::ios::binary);
+
       s=readPNMToken(in);
-      
+
       if (s == "P5" || s == "Pf")
         ncomp=1;
       else if (s == "P6" || s == "PF")
         ncomp=3;
       else
-        throw IOException("Unknown PNM image type '"+s+"' of image "+name);
-      
+        throw gutil::IOException("Unknown PNM image type '"+s+"' of image "+name);
+
       width=atol(readPNMToken(in).c_str());
       height=atol(readPNMToken(in).c_str());
-      
+
       maxval=0;
       scale=0;
       if (s == "Pf" || s == "PF")
         scale=atof(readPNMToken(in).c_str());
       else
         maxval=atol(readPNMToken(in).c_str());
-      
+
       if (width == 0 || height == 0 || (maxval == 0 && scale== 0))
       {
-        ostringstream ss;
+        std::ostringstream ss;
         ss << "Invalid PNM image (" << width << " " << height << " " << maxval;
         ss << " " << scale << ") of image " << name;
-        throw IOException(ss.str());
+        throw gutil::IOException(ss.str());
       }
-      
+
       ret=in.tellg();
       in.close();
     }
-    catch (ios_base::failure ex)
+    catch (std::ios_base::failure ex)
     {
-      throw IOException(ex.what());
+      throw gutil::IOException(ex.what());
     }
-    
+
     return ret;
 }
 
@@ -166,23 +148,23 @@ void writePNMHeader(const char *name, const char *type, long width,
 {
     try
     {
-      ofstream out;
-      out.exceptions(ios_base::failbit | ios_base::badbit);
-      
-      out.open(name, ios::binary);
-      out << type << endl;
-      out << width << " " << height << endl;
-      
+      std::ofstream out;
+      out.exceptions(std::ios_base::failbit | std::ios_base::badbit);
+
+      out.open(name, std::ios::binary);
+      out << type << std::endl;
+      out << width << " " << height << std::endl;
+
       if (strcmp(type, "Pf") == 0 || strcmp(type, "PF") == 0)
         out << scale << "\n";
       else
         out << maxval << "\n";
-      
+
       out.close();
     }
-    catch (ios_base::failure ex)
+    catch (std::ios_base::failure ex)
     {
-      throw IOException(ex.what());
+      throw gutil::IOException(ex.what());
     }
 }
 
@@ -195,16 +177,16 @@ BasicImageIO *PNMImageIO::create() const
 
 bool PNMImageIO::handlesFile(const char *name, bool reading) const
 {
-    string s=name;
-    
+    std::string s=name;
+
     if (s.size() <= 4)
       return false;
-    
+
     if (s.rfind(".pgm") == s.size()-4 || s.rfind(".PGM") == s.size()-4 ||
       s.rfind(".ppm") == s.size()-4 || s.rfind(".PPM") == s.size()-4 ||
       s.rfind(".pfm") == s.size()-4 || s.rfind(".PFM") == s.size()-4)
       return true;
-    
+
     return false;
 }
 
@@ -213,10 +195,10 @@ void PNMImageIO::loadHeader(const char *name, long &width, long &height,
 {
     long  maxval;
     float scale;
-    
+
     if (!handlesFile(name, true))
-      throw IOException("Can only load PNM image ("+string(name)+")");
-    
+      throw gutil::IOException("Can only load PNM image ("+std::string(name)+")");
+
     readPNMHeader(name, depth, maxval, scale, width, height);
 }
 
@@ -226,66 +208,66 @@ void PNMImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
     long  width, height, maxval;
     float scale;
     int   depth;
-    istream::pos_type pos;
-    
+    std::istream::pos_type pos;
+
     if (!handlesFile(name, true))
-      throw IOException("Can only load PNM image ("+string(name)+")");
-    
+      throw gutil::IOException("Can only load PNM image ("+std::string(name)+")");
+
     pos=readPNMHeader(name, depth, maxval, scale, width, height);
-    
+
     if (scale != 0)
-      throw IOException("A float image cannot be loaded as 8 bit image ("+string(name)+")");
-    
+      throw gutil::IOException("A float image cannot be loaded as 8 bit image ("+std::string(name)+")");
+
     if (maxval > 255)
-      throw IOException("A 16 bit image cannot be loaded as 8 bit image ("+string(name)+")");
-    
-    ds=max(1, ds);
-    
+      throw gutil::IOException("A 16 bit image cannot be loaded as 8 bit image ("+std::string(name)+")");
+
+    ds=std::max(1, ds);
+
     if (w < 0)
       w=(width+ds-1)/ds;
-    
+
     if (h < 0)
       h=(height+ds-1)/ds;
-    
+
     image.setSize(w, h, depth);
     image.clear();
-    
+
     try
     {
-      ifstream in;
-      in.exceptions(ios_base::failbit | ios_base::badbit | ios_base::eofbit);
-      in.open(name, ios::binary);
-      
+      std::ifstream in;
+      in.exceptions(std::ios_base::failbit | std::ios_base::badbit | std::ios_base::eofbit);
+      in.open(name, std::ios::binary);
+
         // load downscaled part?
-      
+
       if (ds > 1 || x != 0 || y != 0 || w != width || h != height)
       {
-        valarray<ImageU8::work_t> vline(0, w*depth);
-        valarray<int> nline(0, w*depth);
-        
-        for (long k=max(0l, -y); k<h && (y+k)*ds<height; k++)
+        std::valarray<ImageU8::work_t> vline(0, w*depth);
+        std::valarray<int> nline(0, w*depth);
+
+        for (long k=std::max(0l, -y); k<h && (y+k)*ds<height; k++)
         {
             // load downscaled line
-          
+
           vline=0;
           nline=0;
-          
+
           for (long kk=0; kk<ds && kk+(y+k)*ds<height; kk++)
           {
-            in.seekg(pos+static_cast<streamoff>((y+k)*ds+kk)*width*depth+
-              static_cast<streamoff>(max(0l, x))*ds*depth);
-            
-            streambuf *sb=in.rdbuf();
-            
-            long j=max(0l, -x)*depth;
-            for (long i=max(0l, -x); i<w && (x+i)*ds<width; i++)
+            in.seekg(pos+static_cast<std::streamoff>((y+k)*ds+kk)*width*depth+
+              static_cast<std::streamoff>(std::max(0l, x))*ds*depth);
+
+            std::streambuf *sb=in.rdbuf();
+
+            long j=std::max(0l, -x)*depth;
+            for (long i=std::max(0l, -x); i<w && (x+i)*ds<width; i++)
             {
               for (int ii=0; ii<ds && (x+i)*ds+ii<width; ii++)
               {
                 for (int d=0; d<depth; d++)
                 {
                   ImageU8::store_t v=static_cast<ImageU8::store_t>(sb->sbumpc());
-                  
+
                   if (image.isValidS(v))
                   {
                     vline[j+d]+=v;
@@ -293,21 +275,21 @@ void PNMImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
                   }
                 }
               }
-              
+
               j+=depth;
             }
           }
-          
+
             // store line into image
-          
-          long j=max(0l, -x)*depth;
-          for (long i=max(0l, -x); i<w && (x+i)*ds<width; i++)
+
+          long j=std::max(0l, -x)*depth;
+          for (long i=std::max(0l, -x); i<w && (x+i)*ds<width; i++)
           {
             for (int d=0; d<depth; d++)
             {
               if (nline[j] > 0)
                 image.set(i, k, d, static_cast<ImageU8::store_t>(vline[j]/nline[j]));
-              
+
               j++;
             }
           }
@@ -316,8 +298,8 @@ void PNMImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
       else // load whole image
       {
         in.seekg(pos);
-        streambuf *sb=in.rdbuf();
-        
+        std::streambuf *sb=in.rdbuf();
+
         for (long k=0; k<height; k++)
         {
           for (long i=0; i<width; i++)
@@ -327,12 +309,12 @@ void PNMImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
           }
         }
       }
-      
+
       in.close();
     }
-    catch (ios_base::failure ex)
+    catch (std::ios_base::failure ex)
     {
-      throw IOException(ex.what());
+      throw gutil::IOException(ex.what());
     }
 }
 
@@ -342,68 +324,68 @@ void PNMImageIO::load(ImageU16 &image, const char *name, int ds, long x,
     long  width, height, maxval;
     float scale;
     int   depth;
-    istream::pos_type pos;
-    
+    std::istream::pos_type pos;
+
     if (!handlesFile(name, true))
-      throw IOException("Can only load PNM image ("+string(name)+")");
-    
+      throw gutil::IOException("Can only load PNM image ("+std::string(name)+")");
+
     pos=readPNMHeader(name, depth, maxval, scale, width, height);
-    
+
     if (scale != 0)
-      throw IOException("A float image cannot be loaded as 16 bit image ("+string(name)+")");
-    
+      throw gutil::IOException("A float image cannot be loaded as 16 bit image ("+std::string(name)+")");
+
     if (maxval > 255)
     {
-      ds=max(1, ds);
-      
+      ds=std::max(1, ds);
+
       if (w < 0)
         w=(width+ds-1)/ds;
-      
+
       if (h < 0)
         h=(height+ds-1)/ds;
-      
+
       image.setSize(w, h, depth);
       image.clear();
-      
+
       try
       {
-        ifstream in;
-        in.exceptions(ios_base::failbit | ios_base::badbit | ios_base::eofbit);
-        in.open(name, ios::binary);
-        
+        std::ifstream in;
+        in.exceptions(std::ios_base::failbit | std::ios_base::badbit | std::ios_base::eofbit);
+        in.open(name, std::ios::binary);
+
           // load downscaled part?
-        
+
         if (ds > 1 || x != 0 || y != 0 || w != width || h != height)
         {
-          valarray<ImageU16::work_t> vline(0, w*depth);
-          valarray<int> nline(0, w*depth);
-          
-          for (long k=max(0l, -y); k<h && (y+k)*ds<height; k++)
+          std::valarray<ImageU16::work_t> vline(0, w*depth);
+          std::valarray<int> nline(0, w*depth);
+
+          for (long k=std::max(0l, -y); k<h && (y+k)*ds<height; k++)
           {
               // load downscaled line
-            
+
             vline=0;
             nline=0;
-            
+
             for (long kk=0; kk<ds && kk+(y+k)*ds<height; kk++)
             {
-              in.seekg(pos+static_cast<streamoff>((y+k)*ds+kk)*width*depth*2+
-                static_cast<streamoff>(max(0l, x))*ds*depth*2);
-              
-              streambuf *sb=in.rdbuf();
-              
-              long j=max(0l, -x)*depth;
-              for (long i=max(0l, -x); i<w && (x+i)*ds<width; i++)
+              in.seekg(pos+static_cast<std::streamoff>((y+k)*ds+kk)*width*depth*2+
+                static_cast<std::streamoff>(std::max(0l, x))*ds*depth*2);
+
+              std::streambuf *sb=in.rdbuf();
+
+              long j=std::max(0l, -x)*depth;
+              for (long i=std::max(0l, -x); i<w && (x+i)*ds<width; i++)
               {
                 for (int ii=0; ii<ds && (x+i)*ds+ii<width; ii++)
                 {
                   for (int d=0; d<depth; d++)
                   {
                     ImageU16::store_t v;
-                    
+
                     v=(static_cast<ImageU16::store_t>(sb->sbumpc())&0xff);
                     v=(v<<8)|(static_cast<ImageU16::store_t>(sb->sbumpc())&0xff);
-                    
+
                     if (image.isValidS(v))
                     {
                       vline[j+d]+=v;
@@ -411,21 +393,21 @@ void PNMImageIO::load(ImageU16 &image, const char *name, int ds, long x,
                     }
                   }
                 }
-                
+
                 j+=depth;
               }
             }
-            
+
               // store line into image
-            
-            long j=max(0l, -x)*depth;
-            for (long i=max(0l, -x); i<w && (x+i)*ds<width; i++)
+
+            long j=std::max(0l, -x)*depth;
+            for (long i=std::max(0l, -x); i<w && (x+i)*ds<width; i++)
             {
               for (int d=0; d<depth; d++)
               {
                 if (nline[j] > 0)
                   image.set(i, k, d, static_cast<ImageU16::store_t>(vline[j]/nline[j]));
-                
+
                 j++;
               }
             }
@@ -434,8 +416,8 @@ void PNMImageIO::load(ImageU16 &image, const char *name, int ds, long x,
         else // load whole image
         {
           in.seekg(pos);
-          streambuf *sb=in.rdbuf();
-          
+          std::streambuf *sb=in.rdbuf();
+
           for (long k=0; k<height; k++)
           {
             for (long i=0; i<width; i++)
@@ -443,21 +425,21 @@ void PNMImageIO::load(ImageU16 &image, const char *name, int ds, long x,
               for (int d=0; d<depth; d++)
               {
                 ImageU16::store_t v;
-                
+
                 v=(static_cast<ImageU16::store_t>(sb->sbumpc())&0xff);
                 v=(v<<8)|(static_cast<ImageU16::store_t>(sb->sbumpc())&0xff);
-                
+
                 image.set(i, k, d, v);
               }
             }
           }
         }
-        
+
         in.close();
       }
-      catch (ios_base::failure ex)
+      catch (std::ios_base::failure ex)
       {
-        throw IOException(ex.what());
+        throw gutil::IOException(ex.what());
       }
     }
     else
@@ -474,58 +456,58 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
     long  width, height, maxval;
     float scale;
     int   depth;
-    istream::pos_type pos;
+    std::istream::pos_type pos;
     float p;
     char *c=reinterpret_cast<char *>(&p);
-    bool msbfirst=isMSBFirst();
-    
+    bool msbfirst=gutil::isMSBFirst();
+
     if (!handlesFile(name, true))
-      throw IOException("Can only load PNM image ("+string(name)+")");
-    
+      throw gutil::IOException("Can only load PNM image ("+std::string(name)+")");
+
     pos=readPNMHeader(name, depth, maxval, scale, width, height);
-    
+
     if (scale != 0)
     {
-      ds=max(1, ds);
-      
+      ds=std::max(1, ds);
+
       if (w < 0)
         w=(width+ds-1)/ds;
-      
+
       if (h < 0)
         h=(height+ds-1)/ds;
-      
+
       image.setSize(w, h, depth);
       image.clear();
-      
+
       try
       {
-        ifstream in;
-        in.exceptions(ios_base::failbit | ios_base::badbit | ios_base::eofbit);
-        in.open(name, ios::binary);
-        
+        std::ifstream in;
+        in.exceptions(std::ios_base::failbit | std::ios_base::badbit | std::ios_base::eofbit);
+        in.open(name, std::ios::binary);
+
           // load downscaled part?
-        
+
         if (ds > 1 || x != 0 || y != 0 || w != width || h != height)
         {
-          valarray<float> vline(0.0f, w*depth);
-          valarray<int> nline(0, w*depth);
-          
-          for (long k=max(0l, -y); k<h && (y+k)*ds<height; k++)
+          std::valarray<float> vline(0.0f, w*depth);
+          std::valarray<int> nline(0, w*depth);
+
+          for (long k=std::max(0l, -y); k<h && (y+k)*ds<height; k++)
           {
               // load downscaled line
-            
+
             vline=0;
             nline=0;
-            
+
             for (long kk=0; kk<ds && kk+(y+k)*ds<height; kk++)
             {
-              in.seekg(pos+static_cast<streamoff>(height-1-(y+k)*ds-kk)*width*depth*4+
-                static_cast<streamoff>(max(0l, x))*ds*depth*4);
-              
-              streambuf *sb=in.rdbuf();
-              
-              long j=max(0l, -x)*depth;
-              for (long i=max(0l, -x); i<w && (x+i)*ds<width; i++)
+              in.seekg(pos+static_cast<std::streamoff>(height-1-(y+k)*ds-kk)*width*depth*4+
+                static_cast<std::streamoff>(std::max(0l, x))*ds*depth*4);
+
+              std::streambuf *sb=in.rdbuf();
+
+              long j=std::max(0l, -x)*depth;
+              for (long i=std::max(0l, -x); i<w && (x+i)*ds<width; i++)
               {
                 for (int ii=0; ii<ds && (x+i)*ds+ii<width; ii++)
                 {
@@ -533,7 +515,7 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
                   {
                       // we assume that the plattform uses IEEE 32 bit floating
                       // point format, otherwise this will not work
-                    
+
                     if ((scale > 0 && msbfirst) || (scale < 0 && !msbfirst))
                     {
                       c[0]=sb->sbumpc();
@@ -548,7 +530,7 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
                       c[1]=sb->sbumpc();
                       c[0]=sb->sbumpc();
                     }
-                    
+
                     if (image.isValidS(p))
                     {
                       vline[j+d]+=p;
@@ -556,21 +538,21 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
                     }
                   }
                 }
-                
+
                 j+=depth;
               }
             }
-            
+
               // store line into image
-            
-            long j=max(0l, -x)*depth;
-            for (long i=max(0l, -x); i<w && (x+i)*ds<width; i++)
+
+            long j=std::max(0l, -x)*depth;
+            for (long i=std::max(0l, -x); i<w && (x+i)*ds<width; i++)
             {
               for (int d=0; d<depth; d++)
               {
                 if (nline[j] > 0)
                   image.set(i, k, d, vline[j]/nline[j]);
-                
+
                 j++;
               }
             }
@@ -579,8 +561,8 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
         else // load whole image
         {
           in.seekg(pos);
-          streambuf *sb=in.rdbuf();
-          
+          std::streambuf *sb=in.rdbuf();
+
           for (long k=height-1; k>=0; k--)
           {
             for (long i=0; i<width; i++)
@@ -589,7 +571,7 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
               {
                   // we assume that the plattform uses IEEE 32 bit floating
                   // point format, otherwise this will not work
-                
+
                 if ((scale > 0 && msbfirst) || (scale < 0 && !msbfirst))
                 {
                   c[0]=sb->sbumpc();
@@ -604,18 +586,18 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
                   c[1]=sb->sbumpc();
                   c[0]=sb->sbumpc();
                 }
-                
+
                 image.set(i, k, d, p);
               }
             }
           }
         }
-        
+
         in.close();
       }
-      catch (ios_base::failure ex)
+      catch (std::ios_base::failure ex)
       {
-        throw IOException(ex.what());
+        throw gutil::IOException(ex.what());
       }
     }
     else if (maxval > 255)
@@ -623,45 +605,45 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
       ImageU16 imageu16;
       load(imageu16, name, ds, x, y, w, h);
       image.setImageLimited(imageu16);
-      
+
         // support for reading legacy disparity images in fixed point format
-      
-      string s=name;
+
+      std::string s=name;
       if (s.rfind("_disp.pgm") == s.size()-9)
         s=s.substr(0, s.rfind("_disp.pgm"));
       else if (s.rfind("_height.pgm") == s.size()-11)
         s=s.substr(0, s.rfind("_height.pgm"));
       else
         s="";
-      
+
       if (s.size() > 0)
       {
-        Properties prop;
-        
+        gutil::Properties prop;
+
         try
         {
           size_t pos=s.rfind('_');
-          
+
           if (pos != s.npos)
             pos=s.rfind('_', pos-1);
-          
+
           if (pos != s.npos)
             prop.load((s.substr(0, pos)+"_param.txt").c_str());
         }
-        catch (exception)
+        catch (std::exception)
         { }
-        
+
         try
         {
           prop.load((s+"_param.txt").c_str());
         }
-        catch (exception)
+        catch (std::exception)
         { }
-        
+
         if (prop.contains("subbit"))
         {
             // invalid disparities in legacy disparity images have a value > 32767
-          
+
           for (long k=0; k<image.getHeight(); k++)
           {
             for (long i=0; i<image.getWidth(); i++)
@@ -670,23 +652,23 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
                 image.setInvalid(i, k, 0);
             }
           }
-          
+
             // consider sub-pixel setting
-          
+
           int subbit;
           prop.getValue("subbit", subbit);
-          
+
           if (subbit > 0)
             image/=1<<subbit;
         }
-        
+
           // consider offset
-        
+
         if (prop.contains("origin.d"))
         {
           double offset;
           prop.getValue("origin.d", offset);
-          
+
           if (offset != 0)
             image+=offset;
         }
@@ -703,23 +685,23 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
 void PNMImageIO::save(const ImageU8 &image, const char *name) const
 {
     if (!handlesFile(name, false) || (image.getDepth() != 1 && image.getDepth() != 3))
-      throw IOException("Can only save PNM images with depth 1 or 3 ("+string(name)+")");
-    
-    string type="P5";
+      throw gutil::IOException("Can only save PNM images with depth 1 or 3 ("+std::string(name)+")");
+
+    std::string type="P5";
     if (image.getDepth() == 3)
       type="P6";
-    
+
     writePNMHeader(name, type.c_str(), image.getWidth(), image.getHeight(),
       255, 0);
-    
+
     try
     {
-      ofstream out;
-      out.exceptions(ios_base::failbit | ios_base::badbit);
-      out.open(name, ios::binary|ios::app);
-      
-      streambuf *sb=out.rdbuf();
-      
+      std::ofstream out;
+      out.exceptions(std::ios_base::failbit | std::ios_base::badbit);
+      out.open(name, std::ios::binary|std::ios::app);
+
+      std::streambuf *sb=out.rdbuf();
+
       for (long k=0; k<image.getHeight() && out.good(); k++)
       {
         for (long i=0; i<image.getWidth(); i++)
@@ -728,35 +710,35 @@ void PNMImageIO::save(const ImageU8 &image, const char *name) const
             sb->sputc(static_cast<char>(image.get(i, k, j)));
         }
       }
-      
+
       out.close();
     }
-    catch (ios_base::failure ex)
+    catch (std::ios_base::failure ex)
     {
-      throw IOException(ex.what());
+      throw gutil::IOException(ex.what());
     }
 }
 
 void PNMImageIO::save(const ImageU16 &image, const char *name) const
 {
     if (!handlesFile(name, false) || (image.getDepth() != 1 && image.getDepth() != 3))
-      throw IOException("Can only save PNM images with depth 1 or 3 ("+string(name)+")");
-    
-    string type="P5";
+      throw gutil::IOException("Can only save PNM images with depth 1 or 3 ("+std::string(name)+")");
+
+    std::string type="P5";
     if (image.getDepth() == 3)
       type="P6";
-    
+
     writePNMHeader(name, type.c_str(), image.getWidth(), image.getHeight(),
       65535, 0);
-    
+
     try
     {
-      ofstream out;
-      out.exceptions(ios_base::failbit | ios_base::badbit);
-      out.open(name, ios::binary|ios::app);
-      
-      streambuf *sb=out.rdbuf();
-      
+      std::ofstream out;
+      out.exceptions(std::ios_base::failbit | std::ios_base::badbit);
+      out.open(name, std::ios::binary|std::ios::app);
+
+      std::streambuf *sb=out.rdbuf();
+
       for (long k=0; k<image.getHeight() && out.good(); k++)
       {
         for (long i=0; i<image.getWidth(); i++)
@@ -764,18 +746,18 @@ void PNMImageIO::save(const ImageU16 &image, const char *name) const
           for (int j=0; j<image.getDepth(); j++)
           {
             ImageU16::store_t p=image.get(i, k, j);
-            
+
             sb->sputc(static_cast<char>((p>>8)&0xff));
             sb->sputc(static_cast<char>(p&0xff));
           }
         }
       }
-      
+
       out.close();
     }
-    catch (ios_base::failure ex)
+    catch (std::ios_base::failure ex)
     {
-      throw IOException(ex.what());
+      throw gutil::IOException(ex.what());
     }
 }
 
@@ -783,33 +765,33 @@ void PNMImageIO::save(const ImageFloat &image, const char *name) const
 {
     float p, s;
     char *c=reinterpret_cast<char *>(&p);
-    bool msbfirst=isMSBFirst();
-    
+    bool msbfirst=gutil::isMSBFirst();
+
     if (!handlesFile(name, false) || (image.getDepth() != 1 && image.getDepth() != 3))
-      throw IOException("Can only save PNM images with depth 1 or 3 ("+string(name)+")");
-    
-    string type="Pf";
+      throw gutil::IOException("Can only save PNM images with depth 1 or 3 ("+std::string(name)+")");
+
+    std::string type="Pf";
     if (image.getDepth() == 3)
       type="PF";
-    
+
     s=image.maxValue();
-    
+
     if (s > 0)
       s=1/s;
     else
       s=1;
-    
+
     writePNMHeader(name, type.c_str(), image.getWidth(), image.getHeight(),
       0, s);
-    
+
     try
     {
-      ofstream out;
-      out.exceptions(ios_base::failbit | ios_base::badbit);
-      out.open(name, ios::binary|ios::app);
-      
-      streambuf *sb=out.rdbuf();
-      
+      std::ofstream out;
+      out.exceptions(std::ios_base::failbit | std::ios_base::badbit);
+      out.open(name, std::ios::binary|std::ios::app);
+
+      std::streambuf *sb=out.rdbuf();
+
       for (long k=image.getHeight()-1; k>=0 && out.good(); k--)
       {
         for (long i=0; i<image.getWidth(); i++)
@@ -818,9 +800,9 @@ void PNMImageIO::save(const ImageFloat &image, const char *name) const
           {
               // we assume that the plattform uses IEEE 32 bit floating
               // point format, otherwise this will not work
-            
+
             p=static_cast<float>(image.get(i, k, j));
-            
+
             if (msbfirst)
             {
               sb->sputc(c[0]);
@@ -838,12 +820,12 @@ void PNMImageIO::save(const ImageFloat &image, const char *name) const
           }
         }
       }
-      
+
       out.close();
     }
-    catch (ios_base::failure ex)
+    catch (std::ios_base::failure ex)
     {
-      throw IOException(ex.what());
+      throw gutil::IOException(ex.what());
     }
 }
 
