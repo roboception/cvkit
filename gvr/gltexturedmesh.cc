@@ -174,204 +174,227 @@ GLint GLTexturedMesh::pf;
 
 GLTexturedMesh::GLTexturedMesh(TexturedMesh &p) : GLMesh(p)
 {
-      // create shader programs, but only once per class
+  // create shader programs, but only once per class
 
-    if (init == 0)
-    {
-      prg=createProgram(vshader, fshader);
+  if (init == 0)
+  {
+    prg=createProgram(vshader, fshader);
 
-      pvertex=getAttributeLocation(prg, "vertex");
-      pvtex=getAttributeLocation(prg, "vtex");
+    pvertex=getAttributeLocation(prg, "vertex");
+    pvtex=getAttributeLocation(prg, "vtex");
 
-      ptrans=getUniformLocation(prg, "trans");
-      pgrey=getUniformLocation(prg, "grey");
-      pid=getUniformLocation(prg, "id");
+    ptrans=getUniformLocation(prg, "trans");
+    pgrey=getUniformLocation(prg, "grey");
+    pid=getUniformLocation(prg, "id");
 
 #ifndef __APPLE__
-      psize=getAttributeLocation(prg, "size");
-      pf=getUniformLocation(prg, "f");
+    psize=getAttributeLocation(prg, "size");
+    pf=getUniformLocation(prg, "f");
 #endif
+  }
+
+  init++;
+
+  // create buffer objects for data
+
+  glGenBuffers(1, &buv);
+  glBindBuffer(GL_ARRAY_BUFFER, buv);
+  glBufferData(GL_ARRAY_BUFFER, p.getVertexCount()*2*sizeof(float),
+               p.getTextureCoordArray(), GL_STATIC_DRAW);
+
+  GLint maxsize;
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxsize);
+
+  grey=0;
+  btext=0;
+
+  try
+  {
+    long w, h;
+    int  d, ds;
+
+    // determine if image needs to be loaded smaller
+
+    gimage::getImageIO().loadHeader((p.getBasePath()+p.getTextureName()).c_str(), w, h, d);
+
+    ds=1;
+
+    while ((w+ds-1)/ds > maxsize || (h+ds-1)/ds > maxsize)
+    {
+      ds++;
     }
 
-    init++;
+    gimage::ImageU8 image;
 
-      // create buffer objects for data
+    gimage::getImageIO().load(image, (p.getBasePath()+p.getTextureName()).c_str(), ds);
 
-    glGenBuffers(1, &buv);
-    glBindBuffer(GL_ARRAY_BUFFER, buv);
-    glBufferData(GL_ARRAY_BUFFER, p.getVertexCount()*2*sizeof(float),
-      p.getTextureCoordArray(), GL_STATIC_DRAW);
-
-    GLint maxsize;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxsize);
-
-    grey=0;
-    btext=0;
-
-    try
+    if (image.getDepth() == 3) // convert color texture
     {
-      long w, h;
-      int  d, ds;
+      grey=0;
 
-        // determine if image needs to be loaded smaller
-
-      gimage::getImageIO().loadHeader((p.getBasePath()+p.getTextureName()).c_str(), w, h, d);
-
-      ds=1;
-      while ((w+ds-1)/ds > maxsize || (h+ds-1)/ds > maxsize)
-        ds++;
-
-      gimage::ImageU8 image;
-
-      gimage::getImageIO().load(image, (p.getBasePath()+p.getTextureName()).c_str(), ds);
-
-      if (image.getDepth() == 3) // convert color texture
+      if (((3*image.getWidth()) & 0x3) != 0)
       {
-        grey=0;
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      }
 
-        if (((3*image.getWidth()) & 0x3) != 0)
-          glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      glGenTextures(1, &btext);
+      glBindTexture(GL_TEXTURE_2D, btext);
 
-        glGenTextures(1, &btext);
-        glBindTexture(GL_TEXTURE_2D, btext);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      GLubyte *pixel=new GLubyte [3*image.getWidth()*image.getHeight()];
 
-        GLubyte *pixel=new GLubyte [3*image.getWidth()*image.getHeight()];
+      size_t j=0;
 
-        size_t j=0;
-        for (long k=0; k<image.getHeight(); k++)
+      for (long k=0; k<image.getHeight(); k++)
+      {
+        for (long i=0; i<image.getWidth(); i++)
         {
-          for (long i=0; i<image.getWidth(); i++)
-          {
-            pixel[j++]=image.get(i, k, 0);
-            pixel[j++]=image.get(i, k, 1);
-            pixel[j++]=image.get(i, k, 2);
-          }
+          pixel[j++]=image.get(i, k, 0);
+          pixel[j++]=image.get(i, k, 1);
+          pixel[j++]=image.get(i, k, 2);
+        }
+      }
+
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.getWidth(),
+                   image.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+
+      delete [] pixel;
+    }
+    else // convert greyscale texture
+    {
+      grey=1;
+
+      if ((image.getWidth() & 0x3) != 0)
+      {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      }
+
+      glGenTextures(1, &btext);
+      glBindTexture(GL_TEXTURE_2D, btext);
+
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+      GLubyte *pixel=new GLubyte [image.getWidth()*image.getHeight()];
+
+      size_t j=0;
+
+      for (long k=0; k<image.getHeight(); k++)
+        for (long i=0; i<image.getWidth(); i++)
+        {
+          pixel[j++]=image.get(i, k);
         }
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.getWidth(),
-          image.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, pixel);
-
-        delete [] pixel;
-      }
-      else // convert greyscale texture
-      {
-        grey=1;
-
-        if ((image.getWidth() & 0x3) != 0)
-          glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-        glGenTextures(1, &btext);
-        glBindTexture(GL_TEXTURE_2D, btext);
-
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        GLubyte *pixel=new GLubyte [image.getWidth()*image.getHeight()];
-
-        size_t j=0;
-        for (long k=0; k<image.getHeight(); k++)
-          for (long i=0; i<image.getWidth(); i++)
-            pixel[j++]=image.get(i, k);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, image.getWidth(),
-          image.getHeight(), 0, GL_RED, GL_UNSIGNED_BYTE, pixel);
-      }
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, image.getWidth(),
+                   image.getHeight(), 0, GL_RED, GL_UNSIGNED_BYTE, pixel);
     }
-    catch (gutil::Exception &ex)
-    {
-      std::cerr << ex.what() << std::endl;
-    }
+  }
+  catch (gutil::Exception &ex)
+  {
+    std::cerr << ex.what() << std::endl;
+  }
 
-    checkGLError();
+  checkGLError();
 }
 
 GLTexturedMesh::~GLTexturedMesh()
 {
-      // clean up buffer objects
+  // clean up buffer objects
 
-    glDeleteTextures(1, &btext);
-    glDeleteBuffers(1, &buv);
+  glDeleteTextures(1, &btext);
+  glDeleteBuffers(1, &buv);
 
-      // clean up program, but only once per class
+  // clean up program, but only once per class
 
-    init--;
+  init--;
 
-    if (init == 0)
-    {
-      glDeleteProgram(prg);
-      prg=0;
-    }
+  if (init == 0)
+  {
+    glDeleteProgram(prg);
+    prg=0;
+  }
 }
 
 void GLTexturedMesh::draw(const GLCamera &cam)
 {
-    if (!cam.getRenderTexture() || btext == 0)
-    {
-      GLMesh::draw(cam);
-      return;
-    }
+  if (!cam.getRenderTexture() || btext == 0)
+  {
+    GLMesh::draw(cam);
+    return;
+  }
 
-    GLint defprg=0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &defprg);
+  GLint defprg=0;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &defprg);
 
-    glUseProgram(prg);
+  glUseProgram(prg);
 
-    glUniformMatrix4fv(ptrans, 1, GL_TRUE, cam.getTransformation());
+  glUniformMatrix4fv(ptrans, 1, GL_TRUE, cam.getTransformation());
 
-    double ps=cam.getPointScale();
+  double ps=cam.getPointScale();
 
-    if (bsize != 0 && ps == 0)
-      ps=1;
-
-#ifndef __APPLE__
-    glUniform1f(pf, static_cast<GLfloat>(cam.getFocalLength()*ps));
-#endif
-
-    glUniform1i(pid, 0);
-    glUniform1i(pgrey, grey);
-
-    glEnableVertexAttribArray(pvertex);
-    glBindBuffer(GL_ARRAY_BUFFER, bvertex);
-    glVertexAttribPointer(pvertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-    glEnableVertexAttribArray(pvtex);
-    glBindBuffer(GL_ARRAY_BUFFER, buv);
-    glVertexAttribPointer(pvtex, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, btext);
+  if (bsize != 0 && ps == 0)
+  {
+    ps=1;
+  }
 
 #ifndef __APPLE__
-    if (bsize != 0 && cam.getRenderPointsOnly())
-    {
-      glEnableVertexAttribArray(psize);
-      glBindBuffer(GL_ARRAY_BUFFER, bsize);
-      glVertexAttribPointer(psize, 1, GL_FLOAT, GL_FALSE, 0, 0);
-    }
-    else
-      glVertexAttrib1f(psize, 1);
+  glUniform1f(pf, static_cast<GLfloat>(cam.getFocalLength()*ps));
 #endif
 
-    if (!cam.getRenderPointsOnly())
-    {
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, btriangle);
-      glDrawElements(GL_TRIANGLES, 3*tn, GL_UNSIGNED_INT, 0);
-    }
-    else
-      glDrawArrays(GL_POINTS, 0, vn);
+  glUniform1i(pid, 0);
+  glUniform1i(pgrey, grey);
+
+  glEnableVertexAttribArray(pvertex);
+  glBindBuffer(GL_ARRAY_BUFFER, bvertex);
+  glVertexAttribPointer(pvertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  glEnableVertexAttribArray(pvtex);
+  glBindBuffer(GL_ARRAY_BUFFER, buv);
+  glVertexAttribPointer(pvtex, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, btext);
 
 #ifndef __APPLE__
-    if (bsize != 0 && cam.getRenderPointsOnly())
-      glDisableVertexAttribArray(psize);
+
+  if (bsize != 0 && cam.getRenderPointsOnly())
+  {
+    glEnableVertexAttribArray(psize);
+    glBindBuffer(GL_ARRAY_BUFFER, bsize);
+    glVertexAttribPointer(psize, 1, GL_FLOAT, GL_FALSE, 0, 0);
+  }
+  else
+  {
+    glVertexAttrib1f(psize, 1);
+  }
+
 #endif
 
-    glDisableVertexAttribArray(pvtex);
-    glDisableVertexAttribArray(pvertex);
+  if (!cam.getRenderPointsOnly())
+  {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, btriangle);
+    glDrawElements(GL_TRIANGLES, 3*tn, GL_UNSIGNED_INT, 0);
+  }
+  else
+  {
+    glDrawArrays(GL_POINTS, 0, vn);
+  }
 
-    glUseProgram(defprg);
+#ifndef __APPLE__
+
+  if (bsize != 0 && cam.getRenderPointsOnly())
+  {
+    glDisableVertexAttribArray(psize);
+  }
+
+#endif
+
+  glDisableVertexAttribArray(pvtex);
+  glDisableVertexAttribArray(pvertex);
+
+  glUseProgram(defprg);
 }
 
 }

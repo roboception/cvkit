@@ -47,35 +47,35 @@ namespace gutil
 
 struct SemaphoreData
 {
-    sem_t sem;
+  sem_t sem;
 };
 
 Semaphore::Semaphore(int c)
 {
-    p=new SemaphoreData();
-    
+  p=new SemaphoreData();
+
 #ifndef NDEBUG
-    int err=
+  int err=
 #endif
     sem_init(&(p->sem), 0, c);
-    
-    assert(!err);
+
+  assert(!err);
 }
 
 Semaphore::~Semaphore()
 {
-    sem_destroy(&(p->sem));
-    delete p;
+  sem_destroy(&(p->sem));
+  delete p;
 }
 
 void Semaphore::increment()
 {
-    sem_post(&(p->sem));
+  sem_post(&(p->sem));
 }
 
 void Semaphore::decrement()
 {
-    sem_wait(&(p->sem));
+  sem_wait(&(p->sem));
 }
 
 }

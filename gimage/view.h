@@ -95,7 +95,7 @@ class View
 */
 
 void loadView(View &view, const char *name, const char *spath=0,
-  bool verbose=false);
+              bool verbose=false);
 
 /*
   Fills the list with all possible alternatives for prefixes, derived from the
@@ -103,21 +103,21 @@ void loadView(View &view, const char *name, const char *spath=0,
 */
 
 void getPrefixAlternatives(std::vector<std::string> &list, const std::string &depthname,
-  const char *spath=0);
+                           const char *spath=0);
 
 /*
   Loads properties from files that are specified in name or by searching.
 */
 
 void loadViewProperties(gutil::Properties &prop, const char *name, const char *spath=0,
-  bool verbose=false);
+                        bool verbose=false);
 
 /*
   Extracts the image name from the given name or searches a suitable image.
 */
 
 void getViewImageName(std::string &image, const char *name, const char *spath=0,
-  bool verbose=false);
+                      bool verbose=false);
 
 }
 

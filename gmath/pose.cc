@@ -49,27 +49,27 @@ namespace
 inline Vector6d diff(const Vector6d &p0, const Vector6d &p1)
 {
   Vector6d ret;
-  
+
   // difference of rotation parameters
-  
+
   ret[3]=p0[3]-p1[3];
   ret[4]=p0[4]-p1[4];
   ret[5]=p0[5]-p1[5];
-  
+
   // if the vectors point into different directions, try subtracting 2*pi
-  
+
   if (p0[3]*p1[3]+p0[4]*p1[4]+p0[5]*p1[5] < 0)
   {
     double phi=sqrt(p0[3]*p0[3]+p0[4]*p0[4]+p0[5]*p0[5]);
-    
+
     double a=p0[3]*(phi-2*pi)/phi;
     double b=p0[4]*(phi-2*pi)/phi;
     double c=p0[5]*(phi-2*pi)/phi;
-    
+
     a-=p1[3];
     b-=p1[4];
     c-=p1[5];
-    
+
     if (a*a+b*b+c*c < ret[3]*ret[3]+ret[4]*ret[4]+ret[5]*ret[5])
     {
       ret[3]=a;
@@ -77,13 +77,13 @@ inline Vector6d diff(const Vector6d &p0, const Vector6d &p1)
       ret[5]=c;
     }
   }
-  
+
   // difference of translation parameters
-  
+
   ret[0]=p0[0]-p1[0];
   ret[1]=p0[1]-p1[1];
   ret[2]=p0[2]-p1[2];
-  
+
   return ret;
 }
 
@@ -94,32 +94,38 @@ Vector6d combineError(const Vector6d &pose0, const Vector6d &pose1,
 {
   Vector6d pose=combine(pose0, pose1);
   Vector6d perr;
-  
+
   for (int i=0; i<6; i++)
   {
     Vector6d p=pose0;
     p[i]+=pose0_err[i];
-    
+
     p=diff(combine(p, pose1), pose);
-    
+
     for (int k=0; k<6; k++)
+    {
       perr[k]+=p[k]*p[k];
+    }
   }
-  
+
   for (int i=0; i<6; i++)
   {
     Vector6d p=pose1;
     p[i]+=pose1_err[i];
-    
+
     p=diff(combine(pose0, p), pose);
-    
+
     for (int k=0; k<6; k++)
+    {
       perr[k]+=p[k]*p[k];
+    }
   }
-  
+
   for (int i=0; i<6; i++)
+  {
     perr[i]=sqrt(perr[i]);
-    
+  }
+
   return perr;
 }
 

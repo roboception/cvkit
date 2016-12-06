@@ -76,9 +76,12 @@ class BasicImageIO
     virtual void loadHeader(const char *name, long &width, long &height, int &depth) const;
 
     virtual void loadProperties(gutil::Properties &prop, const char *name) const ;
-    virtual void load(ImageU8 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
-    virtual void load(ImageU16 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
-    virtual void load(ImageFloat &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
+    virtual void load(ImageU8 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1,
+                      long h=-1) const;
+    virtual void load(ImageU16 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1,
+                      long h=-1) const;
+    virtual void load(ImageFloat &image, const char *name, int ds=1, long x=0, long y=0, long w=-1,
+                      long h=-1) const;
 
     virtual void saveProperties(const gutil::Properties &prop, const char *name) const;
     virtual void save(const ImageU8 &image, const char *name) const;
@@ -114,9 +117,12 @@ class ImageIO
     void loadHeader(const char *name, long &width, long &height, int &depth) const;
 
     void loadProperties(gutil::Properties &prop, const char *name) const;
-    void load(ImageU8 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
-    void load(ImageU16 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
-    void load(ImageFloat &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
+    void load(ImageU8 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1,
+              long h=-1) const;
+    void load(ImageU16 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1,
+              long h=-1) const;
+    void load(ImageFloat &image, const char *name, int ds=1, long x=0, long y=0, long w=-1,
+              long h=-1) const;
 
     void saveProperties(const gutil::Properties &prop, const char *name) const;
     void save(const ImageU8 &image, const char *name) const;
@@ -134,7 +140,7 @@ class ImageIO
  * Returns the global ImageIO object for loading and saving images.
  */
 
-ImageIO& getImageIO();
+ImageIO &getImageIO();
 
 /**
  * Returns an unused filename for storing an image. The name is derived by

@@ -48,14 +48,15 @@ namespace gimage
 class JPEGImageIO : public BasicImageIO
 {
   public:
-    
+
     BasicImageIO *create() const;
-    
+
     bool handlesFile(const char *name, bool reading) const;
-    
+
     void loadHeader(const char *name, long &width, long &height, int &depth) const;
-    
-    void load(ImageU8 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
+
+    void load(ImageU8 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1,
+              long h=-1) const;
     void save(const ImageU8 &image, const char *name) const;
 };
 

@@ -49,284 +49,326 @@ namespace gimage
 
 BasicImageIO *JPEGImageIO::create() const
 {
-    return new JPEGImageIO();
+  return new JPEGImageIO();
 }
 
 bool JPEGImageIO::handlesFile(const char *name, bool reading) const
 {
-    std::string s=name;
+  std::string s=name;
 
-    if (s.size() <= 4)
-      return false;
-
-    if (s.rfind(".jpg") == s.size()-4 || s.rfind(".JPG") == s.size()-4)
-      return true;
-
+  if (s.size() <= 4)
+  {
     return false;
+  }
+
+  if (s.rfind(".jpg") == s.size()-4 || s.rfind(".JPG") == s.size()-4)
+  {
+    return true;
+  }
+
+  return false;
 }
 
 void JPEGImageIO::loadHeader(const char *name, long &width, long &height,
-  int &depth) const
+                             int &depth) const
 {
-    struct jpeg_decompress_struct cinfo;
-    struct jpeg_error_mgr jerr;
-    FILE   *in=0;
+  struct jpeg_decompress_struct cinfo;
+  struct jpeg_error_mgr jerr;
+  FILE   *in=0;
 
-    if (!handlesFile(name, true))
-      throw gutil::IOException("Can only load JPG image ("+std::string(name)+")");
+  if (!handlesFile(name, true))
+  {
+    throw gutil::IOException("Can only load JPG image ("+std::string(name)+")");
+  }
 
-      // open output file using C methods
+  // open output file using C methods
 
-    in=fopen(name, "rb");
-    if (in == 0)
-      throw gutil::IOException("Cannot open file for reading ("+std::string(name)+")");
+  in=fopen(name, "rb");
 
-      // installing standard error handler, create compression object and set output file
+  if (in == 0)
+  {
+    throw gutil::IOException("Cannot open file for reading ("+std::string(name)+")");
+  }
 
-    cinfo.err=jpeg_std_error(&jerr);
-    jpeg_create_decompress(&cinfo);
-    jpeg_stdio_src(&cinfo, in);
+  // installing standard error handler, create compression object and set output file
 
-      // read header information
+  cinfo.err=jpeg_std_error(&jerr);
+  jpeg_create_decompress(&cinfo);
+  jpeg_stdio_src(&cinfo, in);
 
-    jpeg_read_header(&cinfo, TRUE);
+  // read header information
 
-    width=static_cast<long>(cinfo.image_width);
-    height=static_cast<long>(cinfo.image_height);
-    depth=cinfo.num_components;
+  jpeg_read_header(&cinfo, TRUE);
 
-      // close object and input stream
+  width=static_cast<long>(cinfo.image_width);
+  height=static_cast<long>(cinfo.image_height);
+  depth=cinfo.num_components;
 
-    jpeg_destroy_decompress(&cinfo);
-    fclose(in);
+  // close object and input stream
+
+  jpeg_destroy_decompress(&cinfo);
+  fclose(in);
 }
 
 void JPEGImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
-  long w, long h) const
+                       long w, long h) const
 {
-    long  width, height;
-    int   depth;
-    struct jpeg_decompress_struct cinfo;
-    struct jpeg_error_mgr jerr;
-    JSAMPROW row=0;
-    FILE   *in=0;
+  long  width, height;
+  int   depth;
+  struct jpeg_decompress_struct cinfo;
+  struct jpeg_error_mgr jerr;
+  JSAMPROW row=0;
+  FILE   *in=0;
 
-    if (!handlesFile(name, true))
-      throw gutil::IOException("Can only load JPG image ("+std::string(name)+")");
+  if (!handlesFile(name, true))
+  {
+    throw gutil::IOException("Can only load JPG image ("+std::string(name)+")");
+  }
 
-      // open output file using C methods
+  // open output file using C methods
 
-    in=fopen(name, "rb");
-    if (in == 0)
-      throw gutil::IOException("Cannot open file for reading ("+std::string(name)+")");
+  in=fopen(name, "rb");
 
-      // installing standard error handler, create compression object and set output file
+  if (in == 0)
+  {
+    throw gutil::IOException("Cannot open file for reading ("+std::string(name)+")");
+  }
 
-    cinfo.err=jpeg_std_error(&jerr);
-    jpeg_create_decompress(&cinfo);
-    jpeg_stdio_src(&cinfo, in);
+  // installing standard error handler, create compression object and set output file
 
-      // read header information
+  cinfo.err=jpeg_std_error(&jerr);
+  jpeg_create_decompress(&cinfo);
+  jpeg_stdio_src(&cinfo, in);
 
-    jpeg_read_header(&cinfo, TRUE);
+  // read header information
 
-      // use scaling possibility of JPEG library for increasing speed
+  jpeg_read_header(&cinfo, TRUE);
 
-    ds=std::max(1, ds);
+  // use scaling possibility of JPEG library for increasing speed
 
-    if (ds > 1)
+  ds=std::max(1, ds);
+
+  if (ds > 1)
+  {
+    if (ds%8 == 0)
     {
-      if (ds%8 == 0)
-      {
-        cinfo.scale_denom=8;
-        ds/=8;
-      }
-      else if (ds%4 == 0)
-      {
-        cinfo.scale_denom=4;
-        ds/=4;
-      }
-      else if (ds%2 == 0)
-      {
-        cinfo.scale_denom=2;
-        ds/=2;
-      }
+      cinfo.scale_denom=8;
+      ds/=8;
+    }
+    else if (ds%4 == 0)
+    {
+      cinfo.scale_denom=4;
+      ds/=4;
+    }
+    else if (ds%2 == 0)
+    {
+      cinfo.scale_denom=2;
+      ds/=2;
+    }
+  }
+
+  // start decompression
+
+  jpeg_start_decompress(&cinfo);
+
+  // get size and depth
+
+  width=static_cast<long>(cinfo.output_width);
+  height=static_cast<long>(cinfo.output_height);
+  depth=cinfo.output_components;
+
+  if (w < 0)
+  {
+    w=(width+ds-1)/ds;
+  }
+
+  if (h < 0)
+  {
+    h=(height+ds-1)/ds;
+  }
+
+  image.setSize(w, h, depth);
+  image.clear();
+
+  // allocate image row buffer
+
+  row=new JSAMPLE [width*depth];
+
+  // load downscaled part?
+
+  if (ds > 1 || x != 0 || y != 0 || w != width || h != height)
+  {
+    std::valarray<ImageU8::work_t> vline(0, w*depth);
+    std::valarray<int> nline(0, w*depth);
+
+    // skip the first y*ds image rows
+
+    for (long k=0; k<y*ds && k<height; k++)
+    {
+      jpeg_read_scanlines(&cinfo, &row, 1);
     }
 
-      // start decompression
-
-    jpeg_start_decompress(&cinfo);
-
-      // get size and depth
-
-    width=static_cast<long>(cinfo.output_width);
-    height=static_cast<long>(cinfo.output_height);
-    depth=cinfo.output_components;
-
-    if (w < 0)
-      w=(width+ds-1)/ds;
-
-    if (h < 0)
-      h=(height+ds-1)/ds;
-
-    image.setSize(w, h, depth);
-    image.clear();
-
-      // allocate image row buffer
-
-    row=new JSAMPLE [width*depth];
-
-      // load downscaled part?
-
-    if (ds > 1 || x != 0 || y != 0 || w != width || h != height)
+    for (long k=std::max(0l, -y); k<h && (y+k)*ds<height; k++)
     {
-      std::valarray<ImageU8::work_t> vline(0, w*depth);
-      std::valarray<int> nline(0, w*depth);
+      // load downscaled line
 
-        // skip the first y*ds image rows
+      vline=0;
+      nline=0;
 
-      for (long k=0; k<y*ds && k<height; k++)
+      for (long kk=0; kk<ds && kk+(y+k)*ds<height; kk++)
+      {
         jpeg_read_scanlines(&cinfo, &row, 1);
 
-      for (long k=std::max(0l, -y); k<h && (y+k)*ds<height; k++)
-      {
-          // load downscaled line
-
-        vline=0;
-        nline=0;
-
-        for (long kk=0; kk<ds && kk+(y+k)*ds<height; kk++)
-        {
-          jpeg_read_scanlines(&cinfo, &row, 1);
-
-          int  jj=std::max(0l, x)*ds*depth;
-          long j=std::max(0l, -x)*depth;
-          for (long i=std::max(0l, -x); i<w && (x+i)*ds<width; i++)
-          {
-            for (int ii=0; ii<ds && (x+i)*ds+ii<width; ii++)
-            {
-              for (int d=0; d<depth; d++)
-              {
-                ImageU8::store_t v=static_cast<ImageU8::store_t>(row[jj++]);
-
-                if (image.isValidS(v))
-                {
-                  vline[j+d]+=v;
-                  nline[j+d]++;
-                }
-              }
-            }
-
-            j+=depth;
-          }
-        }
-
-          // store line into image
-
+        int  jj=std::max(0l, x)*ds*depth;
         long j=std::max(0l, -x)*depth;
+
         for (long i=std::max(0l, -x); i<w && (x+i)*ds<width; i++)
         {
-          for (int d=0; d<depth; d++)
+          for (int ii=0; ii<ds && (x+i)*ds+ii<width; ii++)
           {
-            if (nline[j] > 0)
-              image.set(i, k, d, static_cast<ImageU8::store_t>(vline[j]/nline[j]));
+            for (int d=0; d<depth; d++)
+            {
+              ImageU8::store_t v=static_cast<ImageU8::store_t>(row[jj++]);
 
-            j++;
+              if (image.isValidS(v))
+              {
+                vline[j+d]+=v;
+                nline[j+d]++;
+              }
+            }
           }
+
+          j+=depth;
         }
       }
 
-      if (cinfo.output_scanline < cinfo.output_height)
-        jpeg_abort_decompress(&cinfo);
-      else
-        jpeg_finish_decompress(&cinfo);
-    }
-    else // load whole image
-    {
-      for (long k=0; k<height; k++)
+      // store line into image
+
+      long j=std::max(0l, -x)*depth;
+
+      for (long i=std::max(0l, -x); i<w && (x+i)*ds<width; i++)
       {
-        jpeg_read_scanlines(&cinfo, &row, 1);
-
-        int j=0;
-        for (long i=0; i<width; i++)
+        for (int d=0; d<depth; d++)
         {
-          for (int d=0; d<depth; d++)
-            image.set(i, k, d, static_cast<ImageU8::store_t>(row[j++]));
+          if (nline[j] > 0)
+          {
+            image.set(i, k, d, static_cast<ImageU8::store_t>(vline[j]/nline[j]));
+          }
+
+          j++;
         }
       }
+    }
 
+    if (cinfo.output_scanline < cinfo.output_height)
+    {
+      jpeg_abort_decompress(&cinfo);
+    }
+    else
+    {
       jpeg_finish_decompress(&cinfo);
     }
+  }
+  else // load whole image
+  {
+    for (long k=0; k<height; k++)
+    {
+      jpeg_read_scanlines(&cinfo, &row, 1);
 
-      // close object and input stream
+      int j=0;
 
-    jpeg_destroy_decompress(&cinfo);
-    fclose(in);
-    delete [] row;
+      for (long i=0; i<width; i++)
+      {
+        for (int d=0; d<depth; d++)
+        {
+          image.set(i, k, d, static_cast<ImageU8::store_t>(row[j++]));
+        }
+      }
+    }
+
+    jpeg_finish_decompress(&cinfo);
+  }
+
+  // close object and input stream
+
+  jpeg_destroy_decompress(&cinfo);
+  fclose(in);
+  delete [] row;
 }
 
 void JPEGImageIO::save(const ImageU8 &image, const char *name) const
 {
-    struct jpeg_compress_struct cinfo;
-    struct jpeg_error_mgr jerr;
-    JSAMPROW row=0;
-    FILE   *out=0;
+  struct jpeg_compress_struct cinfo;
+  struct jpeg_error_mgr jerr;
+  JSAMPROW row=0;
+  FILE   *out=0;
 
-    if (!handlesFile(name, false) || (image.getDepth() != 1 && image.getDepth() != 3))
-      throw gutil::IOException("Can only save JPG images with depth 1 or 3 ("+std::string(name)+")");
+  if (!handlesFile(name, false) || (image.getDepth() != 1 && image.getDepth() != 3))
+  {
+    throw gutil::IOException("Can only save JPG images with depth 1 or 3 ("+std::string(name)+")");
+  }
 
-      // open output file using C methods
+  // open output file using C methods
 
-    out=fopen(name, "wb");
-    if (out == 0)
-      throw gutil::IOException("Cannot open file for writing ("+std::string(name)+")");
+  out=fopen(name, "wb");
 
-      // installing standard error handler, create compression object and set output file
+  if (out == 0)
+  {
+    throw gutil::IOException("Cannot open file for writing ("+std::string(name)+")");
+  }
 
-    cinfo.err=jpeg_std_error(&jerr);
-    jpeg_create_compress(&cinfo);
-    jpeg_stdio_dest(&cinfo, out);
+  // installing standard error handler, create compression object and set output file
 
-      // set image size, color space and quality
+  cinfo.err=jpeg_std_error(&jerr);
+  jpeg_create_compress(&cinfo);
+  jpeg_stdio_dest(&cinfo, out);
 
-    cinfo.image_width=static_cast<JDIMENSION>(image.getWidth());
-    cinfo.image_height=static_cast<JDIMENSION>(image.getHeight());
-    cinfo.input_components=image.getDepth();
+  // set image size, color space and quality
 
-    cinfo.in_color_space=JCS_GRAYSCALE;
-    if (image.getDepth() == 3)
-      cinfo.in_color_space=JCS_RGB;
+  cinfo.image_width=static_cast<JDIMENSION>(image.getWidth());
+  cinfo.image_height=static_cast<JDIMENSION>(image.getHeight());
+  cinfo.input_components=image.getDepth();
 
-    jpeg_set_defaults(&cinfo);
-    jpeg_set_quality(&cinfo, 90, TRUE);
+  cinfo.in_color_space=JCS_GRAYSCALE;
 
-      // start compression
+  if (image.getDepth() == 3)
+  {
+    cinfo.in_color_space=JCS_RGB;
+  }
 
-    jpeg_start_compress(&cinfo, TRUE);
-    row=new JSAMPLE [image.getWidth()*image.getDepth()];
+  jpeg_set_defaults(&cinfo);
+  jpeg_set_quality(&cinfo, 90, TRUE);
 
-      // write image content line by line
+  // start compression
 
-    for (long k=0; k<image.getHeight(); k++)
+  jpeg_start_compress(&cinfo, TRUE);
+  row=new JSAMPLE [image.getWidth()*image.getDepth()];
+
+  // write image content line by line
+
+  for (long k=0; k<image.getHeight(); k++)
+  {
+    JSAMPROW rp=row;
+
+    for (long i=0; i<image.getWidth(); i++)
     {
-      JSAMPROW rp=row;
-      for (long i=0; i<image.getWidth(); i++)
+      for (int j=0; j<image.getDepth(); j++)
       {
-        for (int j=0; j<image.getDepth(); j++)
-          *rp++=static_cast<JSAMPLE>(image.get(i, k, j));
+        *rp++=static_cast<JSAMPLE>(image.get(i, k, j));
       }
-
-      jpeg_write_scanlines(&cinfo, &row, 1);
     }
 
-      // finish compression and close stream
+    jpeg_write_scanlines(&cinfo, &row, 1);
+  }
 
-    jpeg_finish_compress(&cinfo);
-    delete [] row;
+  // finish compression and close stream
 
-    fclose(out);
+  jpeg_finish_compress(&cinfo);
+  delete [] row;
 
-    jpeg_destroy_compress(&cinfo);
+  fclose(out);
+
+  jpeg_destroy_compress(&cinfo);
 }
 
 }

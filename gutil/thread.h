@@ -100,7 +100,7 @@ class Thread
      */
 
     void create(ParallelFunction &fct, long start=0, long end=0, long step=1,
-      int affinity=-1);
+                int affinity=-1);
 
     /*
      * Wait until the thread has finished.
@@ -126,7 +126,7 @@ class Thread
   private:
 
     Thread(const Thread &);
-    Thread& operator=(const Thread &);
+    Thread &operator=(const Thread &);
 
     ThreadData *p;
 };
@@ -139,23 +139,29 @@ class Thread
 
 inline void runParallel(ParallelFunction &fct, long start, long end, long step)
 {
-    int n=Thread::getMaxThreads();
-    n=std::min(n, static_cast<int>((end-start+1+step-1)/step));
+  int n=Thread::getMaxThreads();
+  n=std::min(n, static_cast<int>((end-start+1+step-1)/step));
 
-    if (n > 1)
+  if (n > 1)
+  {
+    Thread *thread=new Thread [n];
+
+    for (int i=0; i<n; i++)
     {
-      Thread *thread=new Thread [n];
-
-      for (int i=0; i<n; i++)
-        thread[i].create(fct, start+i*step, end, n*step, -1);
-
-      for (int i=0; i<n; i++)
-        thread[i].join();
-
-      delete [] thread;
+      thread[i].create(fct, start+i*step, end, n*step, -1);
     }
-    else
-      fct.run(start, end, step);
+
+    for (int i=0; i<n; i++)
+    {
+      thread[i].join();
+    }
+
+    delete [] thread;
+  }
+  else
+  {
+    fct.run(start, end, step);
+  }
 }
 
 }

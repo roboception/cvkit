@@ -46,55 +46,55 @@ namespace gvr
 
 /**
   This class implements a mesh with multiple texture images with texture
-  coordinates for each corner of each triangle. See TexturedMesh for 
+  coordinates for each corner of each triangle. See TexturedMesh for
   a mesh with texture coordinates for each vertex.
 */
 
 class MultiTexturedMesh : public Mesh
 {
   private:
-    
+
     std::string basepath;
     std::vector<std::string> name;
-    
+
     struct UVT
     {
       float uv[6];
       int   t;
     } *uvt;
-    
+
     MultiTexturedMesh(const MultiTexturedMesh &);
-    MultiTexturedMesh& operator=(const MultiTexturedMesh &);
-    
+    MultiTexturedMesh &operator=(const MultiTexturedMesh &);
+
   public:
-    
+
     MultiTexturedMesh();
     virtual ~MultiTexturedMesh();
-    
+
     virtual void resizeTextureList(int n);
     virtual void resizeTriangleList(int tn);
-    
+
     const std::string &getBasePath() const { return basepath; }
     void setBasePath(std::string s) { basepath=s; }
-    
+
     int getTextureCount() const { return name.size(); }
     const std::string &getTextureName(int i) const { return name[i]; }
     void setTextureName(int i, std::string s) { name[i]=s; }
-    
-      // components k (i.e. 0 or 1) of texture coordinates for corner c (i.e.
-      // 0, 1 or 2) of each triangle i
-    
+
+    // components k (i.e. 0 or 1) of texture coordinates for corner c (i.e.
+    // 0, 1 or 2) of each triangle i
+
     float getTextureCoordComp(int i, int c, int k) const { return uvt[i].uv[2*c+k]; }
     void setTextureCoordComp(int i, int c, int k, float v) { uvt[i].uv[2*c+k]=v; }
-    
-      // index of texture that belongs to triangle i
-    
+
+    // index of texture that belongs to triangle i
+
     int getTextureIndex(int i) const { return uvt[i].t; }
     void setTextureIndex(int i, int t) const { uvt[i].t=t; }
-    
+
     bool getUsedByTexture(int t, std::vector<bool> &vused, std::vector<bool> &tused);
-    virtual void addGLObjects(std::vector<GLObject*> &list);
-    
+    virtual void addGLObjects(std::vector<GLObject *> &list);
+
     virtual void loadPLY(PLYReader &ply);
     virtual void savePLY(const char *name, bool all=true, ply_encoding enc=ply_binary) const;
 };
@@ -102,13 +102,13 @@ class MultiTexturedMesh : public Mesh
 class MultiTextureCoordReceiver : public PLYReceiver
 {
   private:
-    
+
     MultiTexturedMesh &p;
-  
+
   public:
-  
+
     MultiTextureCoordReceiver(MultiTexturedMesh &pc) : p(pc) { }
-    
+
     void setValue(int instance, const PLYValue &value)
     {
       p.setTextureCoordComp(instance, 0, 0, value.getFloat(0));
@@ -123,13 +123,13 @@ class MultiTextureCoordReceiver : public PLYReceiver
 class MultiTextureIndexReceiver : public PLYReceiver
 {
   private:
-    
+
     MultiTexturedMesh &p;
-  
+
   public:
-  
+
     MultiTextureIndexReceiver(MultiTexturedMesh &pc) : p(pc) { }
-    
+
     void setValue(int instance, const PLYValue &value)
     {
       p.setTextureIndex(instance, value.getInt());

@@ -44,49 +44,49 @@ namespace gutil
 class ProcTime
 {
   private:
-    
+
     struct timeval tstart;
     double total;
-    
+
   public:
-    
+
     ProcTime()
     {
       tstart.tv_sec=0;
       tstart.tv_usec=0;
       total=0;
     }
-    
+
     void start()
     {
       gettimeofday(&tstart, 0);
     }
-    
+
     void stop()
     {
       struct timeval tend;
-      
+
       gettimeofday(&tend, 0);
-      
+
       total+=tend.tv_sec-tstart.tv_sec+(tend.tv_usec-tstart.tv_usec)/1000000.0;
     }
-    
+
     void clear()
     {
       total=0;
     }
-    
+
     double elapsed()
     {
       return total;
     }
-    
+
     static double current()
     {
       struct timeval t;
-      
+
       gettimeofday(&t, 0);
-      
+
       return t.tv_sec+t.tv_usec/1000000.0;
     }
 };

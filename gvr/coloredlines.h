@@ -44,34 +44,34 @@ namespace gvr
 class ColoredLines : public ColoredPointCloud
 {
   private:
-  
+
     int n;
     unsigned int *line;
-    
+
     ColoredLines(const ColoredLines &);
-    ColoredLines& operator=(const ColoredLines &);
-    
+    ColoredLines &operator=(const ColoredLines &);
+
   public:
-    
+
     ColoredLines();
     virtual ~ColoredLines();
-    
+
     virtual void resizeVertexList(int vn, bool with_scanprop, bool with_scanpos);
     virtual void resizeLineList(int ln);
-    
+
     int getLineCount() const { return n; }
-    
+
     unsigned int *getLineArray() { return line; }
     unsigned int getLineIndex(int i, int c) const { return line[(i<<1)+c]; }
-    
+
     void setLineIndex(int i, unsigned int a, unsigned int b)
     {
       line[(i<<1)]=a;
       line[(i<<1)+1]=b;
     }
-    
-    virtual void addGLObjects(std::vector<GLObject*> &list);
-    
+
+    virtual void addGLObjects(std::vector<GLObject *> &list);
+
     virtual void loadPLY(PLYReader &ply);
     virtual void savePLY(const char *name, bool all=true, ply_encoding enc=ply_binary) const;
 };

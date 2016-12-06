@@ -44,45 +44,45 @@ namespace gimage
 class Histogram
 {
   private:
-  
+
     int           w, h, bs;
     unsigned long *val;
     unsigned long **row;
-    
+
   public:
-    
+
     explicit Histogram(int width=0, int height=1, int binsize=1)
     {
       w=h=bs=0;
       val=0;
       row=0;
-      
+
       setSize(width, height, binsize);
       clear();
     }
-    
+
     Histogram(const Histogram &hist)
     {
       w=h=bs=0;
       val=0;
       row=0;
-      
+
       setSize(hist.getWidth(), hist.getHeight(), hist.getBinSize());
       memcpy(val, hist.val, w*h*sizeof(unsigned long));
     }
-    
-      // computes a histogram of intensities from the given image
-    
+
+    // computes a histogram of intensities from the given image
+
     template<class T> Histogram(const Image<T> &image, int binsize=1)
     {
       w=h=bs=0;
       val=0;
       row=0;
-      
+
       int width=std::max(256, std::min(65536, static_cast<int>(image.maxValue())))/binsize;
       setSize(width, 1, binsize);
       clear();
-      
+
       for (int k=0; k<image.getHeight(); k++)
       {
         for (int i=0; i<image.getWidth(); i++)
@@ -92,28 +92,30 @@ class Histogram
             for (int d=0; d<image.getDepth(); d++)
             {
               T v=image.get(i, k, d);
-              
+
               if (v < w*binsize+binsize-1)
+              {
                 val[static_cast<int>(v)/binsize]++;
+              }
             }
           }
         }
       }
     }
-    
-      // computes a correspondence histogram of intensities from the given images
-    
+
+    // computes a correspondence histogram of intensities from the given images
+
     template<class T> Histogram(const Image<T> &image1, const Image<T> &image2, int binsize=1)
     {
       w=h=bs=0;
       val=0;
       row=0;
-      
+
       int width=std::max(256, std::min(65536, static_cast<int>(image1.maxValue())))/binsize;
       int height=std::max(256, std::min(65536, static_cast<int>(image2.maxValue())))/binsize;
       setSize(width, height, binsize);
       clear();
-      
+
       for (int k=0; k<image1.getHeight() && k < image2.getHeight(); k++)
       {
         for (int i=0; i<image1.getWidth() && i < image2.getWidth(); i++)
@@ -124,74 +126,78 @@ class Histogram
             {
               T v1=image1.get(i, k, d);
               T v2=image2.get(i, k, d);
-              
+
               if (v1 < w*binsize+binsize-1 && v2 < h*binsize+binsize-1)
+              {
                 row[static_cast<int>(v2)/binsize][static_cast<int>(v1)/binsize]++;
+              }
             }
           }
         }
       }
     }
-    
+
     ~Histogram()
     {
       delete [] val;
       delete [] row;
     }
-    
-    Histogram& operator=(const Histogram &hist)
+
+    Histogram &operator=(const Histogram &hist)
     {
       setSize(hist.getWidth(), hist.getHeight(), hist.getBinSize());
       memcpy(val, hist.val, w*h*sizeof(unsigned long));
-      
+
       return *this;
     }
 
     void setSize(int width, int height, int binsize);
-    
+
     void clear()
     {
       if (w*h > 0)
+      {
         memset(val, 0, w*h*sizeof(unsigned long));
+      }
     }
-    
+
     int getWidth() const
     {
       return w;
     }
-    
+
     int getHeight() const
     {
       return h;
     }
-    
+
     int getBinSize() const
     {
       return bs;
     }
-    
-    unsigned long& operator()(int i, int k=0)
+
+    unsigned long &operator()(int i, int k=0)
     {
       return row[k][i];
     }
-    
+
     unsigned long operator()(int i, int k=0) const
     {
       return row[k][i];
     }
-    
-      // sums all rows or columns of a 2D histogram and stores the resulting 1D histogram
-    
+
+    // sums all rows or columns of a 2D histogram and stores the resulting 1D histogram
+
     void sumRows(Histogram &colhist) const;
     void sumCols(Histogram &rowhist) const;
     unsigned long sumAll() const;
-    
-      // stores a visualization of the 1D or 2D histogram into the given image
-    
+
+    // stores a visualization of the 1D or 2D histogram into the given image
+
     void visualize(ImageU8 &image) const;
-    
-      // stores the normalized 1D or 2D histogram into the given float image
-    
+
+    // stores the normalized 1D or 2D histogram into the given float image
+
     void convertToImage(ImageFloat &image) const;
 };
 

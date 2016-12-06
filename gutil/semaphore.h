@@ -59,7 +59,7 @@ class Semaphore
   private:
 
     Semaphore(const Semaphore &);
-    Semaphore& operator=(const Semaphore &);
+    Semaphore &operator=(const Semaphore &);
 
     SemaphoreData *p;
 };

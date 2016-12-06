@@ -46,495 +46,672 @@ namespace gimage
 
 View::View()
 {
-    camera=0;
+  camera=0;
 }
 
 View::View(const View &v)
 {
-    image=v.image;
-    depth=v.depth;
-    camera=v.getCamera()->clone();
+  image=v.image;
+  depth=v.depth;
+  camera=v.getCamera()->clone();
 }
 
 View::~View()
 {
-    delete camera;
+  delete camera;
 }
 
 const View &View::operator=(const View &v)
 {
-    delete camera;
+  delete camera;
 
-    image=v.image;
-    depth=v.depth;
-    camera=v.getCamera()->clone();
+  image=v.image;
+  depth=v.depth;
+  camera=v.getCamera()->clone();
 
-    return *this;
+  return *this;
 }
 
 void View::clear()
 {
-    delete camera;
+  delete camera;
 
-    image.setSize(0, 0, 0);
-    depth.setSize(0, 0, 0);
-    camera=0;
+  image.setSize(0, 0, 0);
+  depth.setSize(0, 0, 0);
+  camera=0;
 }
 
 void View::setCamera(const gmath::Camera *c)
 {
-    if (c == 0)
+  if (c == 0)
+  {
+    camera=0;
+    return;
+  }
+
+  if (c->getWidth() > 0 && c->getHeight() > 0)
+  {
+    // make sure that the size of the camera is the same as the size of the
+    // images
+
+    if (image.getWidth() > 0 && image.getHeight() > 0)
     {
-      camera=0;
-      return;
-    }
-
-    if (c->getWidth() > 0 && c->getHeight() > 0)
-    {
-        // make sure that the size of the camera is the same as the size of the
-        // images
-
-      if (image.getWidth() > 0 && image.getHeight() > 0)
-      {
-        assert(c->getWidth() == image.getWidth());
-        assert(c->getHeight() == image.getHeight());
-      }
-
-      if (depth.getWidth() > 0 && depth.getHeight() > 0)
-      {
-        assert(c->getWidth() == depth.getWidth());
-        assert(c->getHeight() == depth.getHeight());
-      }
-
-      camera=c->clone();
-    }
-    else
-    {
-      camera=c->clone();
-
-        // set size of camera from images if neccessary
-
-      if (image.getWidth() > 0 && image.getHeight() > 0)
-        camera->setSize(image.getWidth(), image.getHeight());
-
-      if (depth.getWidth() > 0 && depth.getHeight() > 0)
-        camera->setSize(depth.getWidth(), depth.getHeight());
-    }
-}
-
-void View::setImage(const ImageU8 &img)
-{
-      // make sure that the size of the camera is the same as the size of the
-      // images
-
-    if (camera != 0 && camera->getWidth() > 0 && camera->getHeight() > 0)
-    {
-      assert(camera->getWidth() == img.getWidth());
-      assert(camera->getHeight() == img.getHeight());
+      assert(c->getWidth() == image.getWidth());
+      assert(c->getHeight() == image.getHeight());
     }
 
     if (depth.getWidth() > 0 && depth.getHeight() > 0)
     {
-      assert(img.getWidth() == depth.getWidth());
-      assert(img.getHeight() == depth.getHeight());
+      assert(c->getWidth() == depth.getWidth());
+      assert(c->getHeight() == depth.getHeight());
     }
 
-    image=img;
+    camera=c->clone();
+  }
+  else
+  {
+    camera=c->clone();
 
-      // set size of camera from images if neccessary
+    // set size of camera from images if neccessary
 
-    if (camera != 0 && camera->getWidth() == 0 && camera->getHeight() == 0)
+    if (image.getWidth() > 0 && image.getHeight() > 0)
+    {
       camera->setSize(image.getWidth(), image.getHeight());
+    }
+
+    if (depth.getWidth() > 0 && depth.getHeight() > 0)
+    {
+      camera->setSize(depth.getWidth(), depth.getHeight());
+    }
+  }
+}
+
+void View::setImage(const ImageU8 &img)
+{
+  // make sure that the size of the camera is the same as the size of the
+  // images
+
+  if (camera != 0 && camera->getWidth() > 0 && camera->getHeight() > 0)
+  {
+    assert(camera->getWidth() == img.getWidth());
+    assert(camera->getHeight() == img.getHeight());
+  }
+
+  if (depth.getWidth() > 0 && depth.getHeight() > 0)
+  {
+    assert(img.getWidth() == depth.getWidth());
+    assert(img.getHeight() == depth.getHeight());
+  }
+
+  image=img;
+
+  // set size of camera from images if neccessary
+
+  if (camera != 0 && camera->getWidth() == 0 && camera->getHeight() == 0)
+  {
+    camera->setSize(image.getWidth(), image.getHeight());
+  }
 }
 
 void View::setDepthImage(const ImageFloat &d)
 {
-      // make sure that the size of the camera is the same as the size of the
-      // images
+  // make sure that the size of the camera is the same as the size of the
+  // images
 
-    if (camera != 0 && camera->getWidth() > 0 && camera->getHeight() > 0)
-    {
-      assert(camera->getWidth() == d.getWidth());
-      assert(camera->getHeight() == d.getHeight());
-    }
+  if (camera != 0 && camera->getWidth() > 0 && camera->getHeight() > 0)
+  {
+    assert(camera->getWidth() == d.getWidth());
+    assert(camera->getHeight() == d.getHeight());
+  }
 
-    if (image.getWidth() > 0 && image.getHeight() > 0)
-    {
-      assert(d.getWidth() == image.getWidth());
-      assert(d.getHeight() == image.getHeight());
-    }
+  if (image.getWidth() > 0 && image.getHeight() > 0)
+  {
+    assert(d.getWidth() == image.getWidth());
+    assert(d.getHeight() == image.getHeight());
+  }
 
-    depth=d;
+  depth=d;
 
-      // set size of camera from images if neccessary
+  // set size of camera from images if neccessary
 
-    if (camera != 0 && camera->getWidth() == 0 && camera->getHeight() == 0)
-      camera->setSize(depth.getWidth(), depth.getHeight());
+  if (camera != 0 && camera->getWidth() == 0 && camera->getHeight() == 0)
+  {
+    camera->setSize(depth.getWidth(), depth.getHeight());
+  }
 }
 
 void loadView(View &view, const char *name, const char *spath, bool verbose)
 {
-    view.clear();
+  view.clear();
 
-      // get optionally specified downscale factor and image part
+  // get optionally specified downscale factor and image part
 
-    int  ds=1;
-    long x=0, y=0, w=-1, h=-1;
-    std::vector<std::string> list;
+  int  ds=1;
+  long x=0, y=0, w=-1, h=-1;
+  std::vector<std::string> list;
 
-    gutil::split(list, name, ',');
+  gutil::split(list, name, ',');
 
-    for (size_t i=1; i<list.size(); i++)
+  for (size_t i=1; i<list.size(); i++)
+  {
+    if (list[i].compare(0, 3, "ds=") == 0)
     {
-      if (list[i].compare(0, 3, "ds=") == 0)
-        ds=atol(list[i].substr(3).c_str());
-
-      if (list[i].compare(0, 2, "x=") == 0)
-        x=atol(list[i].substr(2).c_str());
-
-      if (list[i].compare(0, 2, "y=") == 0)
-        y=atol(list[i].substr(2).c_str());
-
-      if (list[i].compare(0, 2, "w=") == 0)
-        w=atol(list[i].substr(2).c_str());
-
-      if (list[i].compare(0, 2, "h=") == 0)
-        h=atol(list[i].substr(2).c_str());
+      ds=atol(list[i].substr(3).c_str());
     }
 
-      // load camera
+    if (list[i].compare(0, 2, "x=") == 0)
+    {
+      x=atol(list[i].substr(2).c_str());
+    }
 
-    gmath::Camera *camera=0;
-    gutil::Properties prop;
+    if (list[i].compare(0, 2, "y=") == 0)
+    {
+      y=atol(list[i].substr(2).c_str());
+    }
 
-    loadViewProperties(prop, name, spath, verbose);
+    if (list[i].compare(0, 2, "w=") == 0)
+    {
+      w=atol(list[i].substr(2).c_str());
+    }
+
+    if (list[i].compare(0, 2, "h=") == 0)
+    {
+      h=atol(list[i].substr(2).c_str());
+    }
+  }
+
+  // load camera
+
+  gmath::Camera *camera=0;
+  gutil::Properties prop;
+
+  loadViewProperties(prop, name, spath, verbose);
+
+  try
+  {
+    camera=new gmath::PinholeCamera(prop);
+  }
+  catch (gutil::Exception &ex)
+  {
+    try
+    {
+      camera=new gmath::OrthoCamera(prop);
+    }
+    catch (gutil::Exception &ex2)
+    {
+      if (verbose)
+      {
+        std::cout << "Cannot create pinhole camera from properties because: " << ex.what() << std::endl;
+        std::cout << "Cannot create ortho camera from properties because: " << ex2.what() << std::endl;
+      }
+
+      throw gutil::IOException("Cannot create camera object from properties");
+    }
+  }
+
+  // set downscale factor and select part
+
+  camera->setDownscaled(ds);
+
+  if (w <= 0 && camera->getWidth() > 0)
+  {
+    w-=x;
+  }
+
+  if (h <= 0 && camera->getHeight() > 0)
+  {
+    h-=y;
+  }
+
+  camera->setPart(x, y, w, h);
+
+  view.setCamera(camera);
+
+  delete camera;
+  camera=0;
+
+  // load disparity
+
+  ImageFloat depth;
+  getImageIO().load(depth, list[0].c_str(), ds, x, y, w, h);
+
+  // consider optional offset
+
+  float doffs;
+  prop.getValue("doffs", doffs, "0");
+
+  if (doffs != 0)
+  {
+    depth+=doffs;
+  }
+
+  // optionally downscale and set depth image
+
+  if (ds > 1)
+  {
+    depth/=ds;
+  }
+
+  view.setDepthImage(depth);
+  depth.setSize(0, 0, 0);
+
+  // load image
+
+  std::string imagename;
+  getViewImageName(imagename, name, spath, verbose);
+
+  if (imagename.size() > 0)
+  {
+    ImageU8 image;
 
     try
     {
-      camera=new gmath::PinholeCamera(prop);
+      getImageIO().load(image, imagename.c_str(), ds, x, y, w, h);
+      view.setImage(image);
     }
     catch (gutil::Exception &ex)
     {
+      // load 16 bit image and convert to 8 bit
+
       try
       {
-        camera=new gmath::OrthoCamera(prop);
-      }
-      catch (gutil::Exception &ex2)
-      {
-        if (verbose)
+        ImageU16 image2;
+        getImageIO().load(image2, imagename.c_str(), ds, x, y, w, h);
+
+        double s=image2.maxValue()/255.0;
+
+        if (s != 0)
         {
-          std::cout << "Cannot create pinhole camera from properties because: " << ex.what() << std::endl;
-          std::cout << "Cannot create ortho camera from properties because: " << ex2.what() << std::endl;
+          image2/=s;
         }
 
-        throw gutil::IOException("Cannot create camera object from properties");
-      }
-    }
+        image.setImageLimited(image2);
+        image2.setSize(0, 0, 0);
 
-      // set downscale factor and select part
-
-    camera->setDownscaled(ds);
-
-    if (w <= 0 && camera->getWidth() > 0)
-      w-=x;
-
-    if (h <= 0 && camera->getHeight() > 0)
-      h-=y;
-
-    camera->setPart(x, y, w, h);
-
-    view.setCamera(camera);
-
-    delete camera;
-    camera=0;
-
-      // load disparity
-
-    ImageFloat depth;
-    getImageIO().load(depth, list[0].c_str(), ds, x, y, w, h);
-
-      // consider optional offset
-
-    float doffs;
-    prop.getValue("doffs", doffs, "0");
-
-    if (doffs != 0)
-      depth+=doffs;
-
-      // optionally downscale and set depth image
-
-    if (ds > 1)
-      depth/=ds;
-
-    view.setDepthImage(depth);
-    depth.setSize(0, 0, 0);
-
-      // load image
-
-    std::string imagename;
-    getViewImageName(imagename, name, spath, verbose);
-
-    if (imagename.size() > 0)
-    {
-      ImageU8 image;
-
-      try
-      {
-        getImageIO().load(image, imagename.c_str(), ds, x, y, w, h);
         view.setImage(image);
       }
       catch (gutil::Exception &ex)
       {
-          // load 16 bit image and convert to 8 bit
-
-        try
+        if (verbose)
         {
-          ImageU16 image2;
-          getImageIO().load(image2, imagename.c_str(), ds, x, y, w, h);
-
-          double s=image2.maxValue()/255.0;
-
-          if (s != 0)
-            image2/=s;
-
-          image.setImageLimited(image2);
-          image2.setSize(0, 0, 0);
-
-          view.setImage(image);
-        }
-        catch (gutil::Exception &ex)
-        {
-          if (verbose)
-            std::cout << "Cannot load image: " << imagename << " (" << ex.what() << ")" << std::endl;
+          std::cout << "Cannot load image: " << imagename << " (" << ex.what() << ")" << std::endl;
         }
       }
     }
+  }
 }
 
 void getPrefixAlternatives(std::vector<std::string> &list, const std::string &depthname,
-  const char *spath)
+                           const char *spath)
 {
-      // determine possible prefixes
+  // determine possible prefixes
 
-    size_t spos, pos;
+  size_t spos, pos;
 
-    spos=depthname.find_last_of("/\\");
+  spos=depthname.find_last_of("/\\");
 
-    if (spos == depthname.npos)
-      spos=0;
-    else
-      spos++;
+  if (spos == depthname.npos)
+  {
+    spos=0;
+  }
+  else
+  {
+    spos++;
+  }
 
-    pos=depthname.rfind(':');
-    if (pos != depthname.npos && depthname.compare(pos, 2, ":\\") == 0)
-      pos=depthname.npos;
+  pos=depthname.rfind(':');
 
-    if (pos == depthname.npos)
+  if (pos != depthname.npos && depthname.compare(pos, 2, ":\\") == 0)
+  {
+    pos=depthname.npos;
+  }
+
+  if (pos == depthname.npos)
+  {
+    pos=depthname.rfind('.');
+
+    if (pos == depthname.npos || pos < spos)
     {
-      pos=depthname.rfind('.');
-
-      if (pos == depthname.npos || pos < spos)
-        return;
+      return;
     }
+  }
 
+  list.push_back(depthname.substr(0, pos));
+
+  pos=depthname.rfind('_', pos-1);
+
+  while (pos != depthname.npos && pos > spos)
+  {
     list.push_back(depthname.substr(0, pos));
-
     pos=depthname.rfind('_', pos-1);
-    while (pos != depthname.npos && pos > spos)
-    {
-      list.push_back(depthname.substr(0, pos));
-      pos=depthname.rfind('_', pos-1);
-    }
+  }
 
-    int n=list.size();
+  int n=list.size();
 
-      // combine possible prefixes with all directories of the optional search
-      // path
+  // combine possible prefixes with all directories of the optional search
+  // path
 
-    if (spath != 0 && spath[0] != '\0')
-    {
-      std::vector<std::string> dir;
+  if (spath != 0 && spath[0] != '\0')
+  {
+    std::vector<std::string> dir;
 
 #ifdef WIN32
-      gutil::split(dir, spath, ';');
+    gutil::split(dir, spath, ';');
 #else
-      gutil::split(dir, spath, ':');
+    gutil::split(dir, spath, ':');
 #endif
 
-      for (size_t i=0; i<dir.size(); i++)
+    for (size_t i=0; i<dir.size(); i++)
+    {
+#ifdef WIN32
+
+      if (dir[i][dir[i].size()-1] != '\\')
       {
-#ifdef WIN32
-        if (dir[i][dir[i].size()-1] != '\\')
-          dir[i].push_back('\\');
+        dir[i].push_back('\\');
+      }
+
 #else
-        if (dir[i][dir[i].size()-1] != '/')
-          dir[i].push_back('/');
+
+      if (dir[i][dir[i].size()-1] != '/')
+      {
+        dir[i].push_back('/');
+      }
+
 #endif
-        for (int k=0; k<n; k++)
-          list.push_back(dir[i]+list[k].substr(spos));
+
+      for (int k=0; k<n; k++)
+      {
+        list.push_back(dir[i]+list[k].substr(spos));
       }
     }
+  }
 }
 
 void loadViewProperties(gutil::Properties &prop, const char *name, const char *spath,
-  bool verbose)
+                        bool verbose)
 {
-    std::vector<std::string> list;
+  std::vector<std::string> list;
 
-      // load parameter files as specified in name
+  // load parameter files as specified in name
 
-    gutil::split(list, name, ',');
+  gutil::split(list, name, ',');
 
-    bool expl=false;
-    for (size_t i=1; i<list.size(); i++)
+  bool expl=false;
+
+  for (size_t i=1; i<list.size(); i++)
+  {
+    if (list[i].compare(0, 2, "p=") == 0)
     {
-      if (list[i].compare(0, 2, "p=") == 0)
-      {
-        prop.load(list[i].substr(2).c_str());
-        expl=true;
-      }
+      prop.load(list[i].substr(2).c_str());
+      expl=true;
     }
+  }
 
-      // alternatively, search for parameter files
+  // alternatively, search for parameter files
 
-    if (!expl)
+  if (!expl)
+  {
+    std::string depthname=list[0];
+    const char *suffix[]= {".txt", ".TXT", "_param.txt", "_PARAM.TXT"};
+
+    list.clear();
+    getPrefixAlternatives(list, depthname, spath);
+
+    for (int i=list.size()-1; i>=0; i--)
     {
-      std::string depthname=list[0];
-      const char *suffix[]={".txt", ".TXT", "_param.txt", "_PARAM.TXT"};
-
-      list.clear();
-      getPrefixAlternatives(list, depthname, spath);
-      for (int i=list.size()-1; i>=0; i--)
+      for (int k=0; k<4; k++)
       {
-        for (int k=0; k<4; k++)
-        {
-            // try all possibilities and add parameters
+        // try all possibilities and add parameters
 
-          try
-          {
-            prop.load((list[i]+suffix[k]).c_str());
-
-            if (verbose)
-              std::cout << "Using parameter file: " << list[i]+suffix[k] << std::endl;
-          }
-          catch (const gutil::Exception &ex)
-          { }
-        }
-      }
-
-        // support format of Middlebury stereo benchmark data sets
-
-      size_t pos;
-
-      pos=depthname.find_last_of("/\\");
-
-      if (pos == depthname.npos)
-        pos=0;
-      else
-        pos++;
-
-      if (depthname.size()-pos >= 9 && depthname.substr(pos, 4) == "disp")
-      {
         try
         {
-          std::string s=depthname.substr(0, pos)+"calib.txt";
-          gutil::Properties mprop;
-          mprop.load(s.c_str());
+          prop.load((list[i]+suffix[k]).c_str());
 
           if (verbose)
-            std::cout << "Using Middlebury calibration file: " << s << std::endl;
-
-          mprop.getString("width", s, "0");
-          prop.putString("camera.width", s);
-          mprop.getString("height", s, "0");
-          prop.putString("camera.height", s);
-
-          gmath::Matrix33d A;
-          mprop.getValue((std::string("cam")+depthname[pos+4]).c_str(), A);
-          prop.putValue("camera.A", A);
-
-          prop.putValue("f", A(0, 0));
-
-          double t;
-          mprop.getValue("baseline", t);
-          prop.putValue("t", t);
-
-          mprop.getString("doffs", s, "0");
-          prop.putString("doffs", s);
-
-          prop.putString("camera.R", "[1 0 0; 0 1 0; 0 0 1]");
-
-          gmath::Vector3d T;
-          T[0]=t*(depthname[pos+4]-'0');
-          prop.putValue("camera.T", T);
+          {
+            std::cout << "Using parameter file: " << list[i]+suffix[k] << std::endl;
+          }
         }
-        catch (const gutil::IOException &ex)
-        { }
         catch (const gutil::Exception &ex)
-        {
-          std::cerr << ex.what() << std::endl;
-        }
+        { }
       }
     }
+
+    // support format of Middlebury stereo benchmark data sets
+
+    size_t pos;
+
+    pos=depthname.find_last_of("/\\");
+
+    if (pos == depthname.npos)
+    {
+      pos=0;
+    }
+    else
+    {
+      pos++;
+    }
+
+    if (depthname.size()-pos >= 9 && depthname.substr(pos, 4) == "disp")
+    {
+      try
+      {
+        std::string s=depthname.substr(0, pos)+"calib.txt";
+        gutil::Properties mprop;
+        mprop.load(s.c_str());
+
+        if (verbose)
+        {
+          std::cout << "Using Middlebury calibration file: " << s << std::endl;
+        }
+
+        mprop.getString("width", s, "0");
+        prop.putString("camera.width", s);
+        mprop.getString("height", s, "0");
+        prop.putString("camera.height", s);
+
+        gmath::Matrix33d A;
+        mprop.getValue((std::string("cam")+depthname[pos+4]).c_str(), A);
+        prop.putValue("camera.A", A);
+
+        prop.putValue("f", A(0, 0));
+
+        double t;
+        mprop.getValue("baseline", t);
+        prop.putValue("t", t);
+
+        mprop.getString("doffs", s, "0");
+        prop.putString("doffs", s);
+
+        prop.putString("camera.R", "[1 0 0; 0 1 0; 0 0 1]");
+
+        gmath::Vector3d T;
+        T[0]=t*(depthname[pos+4]-'0');
+        prop.putValue("camera.T", T);
+      }
+      catch (const gutil::IOException &ex)
+      { }
+      catch (const gutil::Exception &ex)
+      {
+        std::cerr << ex.what() << std::endl;
+      }
+    }
+  }
 }
 
 void getViewImageName(std::string &image, const char *name, const char *spath,
-  bool verbose)
+                      bool verbose)
 {
-    std::vector<std::string> list;
+  std::vector<std::string> list;
 
-      // get image name from specification
+  // get image name from specification
 
-    gutil::split(list, name, ',');
+  gutil::split(list, name, ',');
 
-    image.clear();
-    for (size_t i=1; i<list.size(); i++)
+  image.clear();
+
+  for (size_t i=1; i<list.size(); i++)
+  {
+    if (list[i].compare(0, 2, "i=") == 0)
     {
-      if (list[i].compare(0, 2, "i=") == 0)
-        image=list[i].substr(2);
+      image=list[i].substr(2);
+    }
+  }
+
+  // support format of Middlebury stereo benchmark data sets
+
+  if (image.size() == 0)
+  {
+    std::string depthname=list[0];
+    size_t pos;
+
+    pos=depthname.find_last_of("/\\");
+
+    if (pos == depthname.npos)
+    {
+      pos=0;
+    }
+    else
+    {
+      pos++;
     }
 
-      // support format of Middlebury stereo benchmark data sets
-
-    if (image.size() == 0)
+    if (depthname.size()-pos >= 9 && depthname.substr(pos, 4) == "disp")
     {
-      std::string depthname=list[0];
-      size_t pos;
+      long dw, dh;
+      int  dd;
 
-      pos=depthname.find_last_of("/\\");
+      getImageIO().loadHeader(depthname.c_str(), dw, dh, dd);
+      dd=0;
 
-      if (pos == depthname.npos)
-        pos=0;
-      else
-        pos++;
+      // get list of all files with that prefix
 
-      if (depthname.size()-pos >= 9 && depthname.substr(pos, 4) == "disp")
+      std::set<std::string> flist;
+
+      try
       {
-        long dw, dh;
-        int  dd;
+        gutil::getFileList(flist, depthname.substr(0, pos)+"im"+depthname[pos+4]+".", "");
+      }
+      catch (gutil::IOException &ex)
+      { }
 
-        getImageIO().loadHeader(depthname.c_str(), dw, dh, dd);
-        dd=0;
+      // check list of files for images with the same size as the depth
+      // image and prefer color images
 
-          // get list of all files with that prefix
+      for (std::set<std::string>::iterator it=flist.begin(); it!=flist.end(); it++)
+      {
+        std::string s=*it;
 
-        std::set<std::string> flist;
+        // try to load image header and compare size to depth image
 
         try
         {
-          gutil::getFileList(flist, depthname.substr(0, pos)+"im"+depthname[pos+4]+".", "");
+          long w, h;
+          int  d;
+
+          getImageIO().loadHeader(s.c_str(), w, h, d);
+
+          if (w == dw && h == dh)
+          {
+            if (verbose)
+            {
+              std::cout << "Found suitable image: " << s << std::endl;
+            }
+
+            if (dd != 3)
+            {
+              image=s;
+              dd=d;
+            }
+          }
         }
-        catch (gutil::IOException &ex)
+        catch (gutil::Exception ex)
         { }
+      }
+    }
+  }
 
-          // check list of files for images with the same size as the depth
-          // image and prefer color images
+  // alternatively, search for image name
 
-        for (std::set<std::string>::iterator it=flist.begin(); it!=flist.end(); it++)
+  if (image.size() == 0)
+  {
+    std::string depthname=list[0];
+    bool tiled=false;
+
+    size_t pos=depthname.rfind(':');
+
+    if (pos != depthname.npos && depthname.compare(pos, 2, ":\\") != 0)
+    {
+      tiled=true;
+    }
+
+    long dw, dh;
+    int  dd;
+
+    getImageIO().loadHeader(depthname.c_str(), dw, dh, dd);
+
+    dd=0;
+
+    // go through list of prefixes
+
+    list.clear();
+    getPrefixAlternatives(list, depthname, spath);
+
+    for (size_t i=0; i<list.size(); i++)
+    {
+      // get list of all files with that prefix
+
+      std::set<std::string> flist;
+
+      try
+      {
+        gutil::getFileList(flist, list[i], "");
+      }
+      catch (gutil::IOException &ex)
+      { }
+
+      // check list of files for images with the same size as the depth
+      // image and prefer color images
+
+      std::set<std::string> checked;
+      checked.insert(depthname);
+
+      for (std::set<std::string>::iterator it=flist.begin(); it!=flist.end(); it++)
+      {
+        std::string s=*it;
+
+        // if the depth image is a tiled image, then try to detect the
+        // corresponding image as tiled
+
+        if (tiled)
         {
-          std::string s=*it;
+          size_t pos=s.find_last_of("/\\");
 
-            // try to load image header and compare size to depth image
+          if (pos == s.npos)
+          {
+            pos=0;
+          }
+
+          pos=s.find('_', pos);
+
+          if (pos != s.npos)
+          {
+            size_t pos2=s.rfind('_');
+
+            if (pos2 > pos)
+            {
+              s=s.substr(0, pos)+":"+s.substr(pos2+1);
+            }
+          }
+        }
+
+        // try to load image header and compare size to depth image
+
+        if (checked.find(s) == checked.end() &&
+            s.compare(s.size()-4, 4, ".txt") != 0 &&
+            s.compare(s.size()-4, 4, ".TXT") != 0)
+        {
+          checked.insert(s);
 
           try
           {
@@ -546,7 +723,9 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
             if (w == dw && h == dh)
             {
               if (verbose)
+              {
                 std::cout << "Found suitable image: " << s << std::endl;
+              }
 
               if (dd != 3)
               {
@@ -560,116 +739,19 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
         }
       }
     }
+  }
 
-      // alternatively, search for image name
-
-    if (image.size() == 0)
+  if (verbose)
+  {
+    if (image.size() > 0)
     {
-      std::string depthname=list[0];
-      bool tiled=false;
-
-      size_t pos=depthname.rfind(':');
-      if (pos != depthname.npos && depthname.compare(pos, 2, ":\\") != 0)
-        tiled=true;
-
-      long dw, dh;
-      int  dd;
-
-      getImageIO().loadHeader(depthname.c_str(), dw, dh, dd);
-
-      dd=0;
-
-        // go through list of prefixes
-
-      list.clear();
-      getPrefixAlternatives(list, depthname, spath);
-      for (size_t i=0; i<list.size(); i++)
-      {
-          // get list of all files with that prefix
-
-        std::set<std::string> flist;
-
-        try
-        {
-          gutil::getFileList(flist, list[i], "");
-        }
-        catch (gutil::IOException &ex)
-        { }
-
-          // check list of files for images with the same size as the depth
-          // image and prefer color images
-
-        std::set<std::string> checked;
-        checked.insert(depthname);
-
-        for (std::set<std::string>::iterator it=flist.begin(); it!=flist.end(); it++)
-        {
-          std::string s=*it;
-
-            // if the depth image is a tiled image, then try to detect the
-            // corresponding image as tiled
-
-          if (tiled)
-          {
-            size_t pos=s.find_last_of("/\\");
-
-            if (pos == s.npos)
-              pos=0;
-
-            pos=s.find('_', pos);
-
-            if (pos != s.npos)
-            {
-              size_t pos2=s.rfind('_');
-
-              if (pos2 > pos)
-              {
-                s=s.substr(0, pos)+":"+s.substr(pos2+1);
-              }
-            }
-          }
-
-            // try to load image header and compare size to depth image
-
-          if (checked.find(s) == checked.end() &&
-            s.compare(s.size()-4, 4, ".txt") != 0 &&
-            s.compare(s.size()-4, 4, ".TXT") != 0)
-          {
-            checked.insert(s);
-
-            try
-            {
-              long w, h;
-              int  d;
-
-              getImageIO().loadHeader(s.c_str(), w, h, d);
-
-              if (w == dw && h == dh)
-              {
-                if (verbose)
-                  std::cout << "Found suitable image: " << s << std::endl;
-
-                if (dd != 3)
-                {
-                  image=s;
-                  dd=d;
-                }
-              }
-            }
-            catch (gutil::Exception ex)
-            { }
-          }
-        }
-      }
+      std::cout << "Using texture image: " << image << std::endl;
     }
-
-    if (verbose)
+    else
     {
-      if (image.size() > 0)
-        std::cout << "Using texture image: " << image << std::endl;
-      else
-        std::cout << "No texture image found" << std::endl;
+      std::cout << "No texture image found" << std::endl;
     }
+  }
 }
 
 }

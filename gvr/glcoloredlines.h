@@ -46,28 +46,28 @@ class ColoredLines;
 class GLColoredLines : public GLColoredPointCloud
 {
   private:
-  
+
     static int   init;
     static GLint prg;
     static GLint ptrans;
     static GLint pvertex;
     static GLint pvcolor;
-    
+
     GLColoredLines(const GLColoredLines &);
-    GLColoredLines& operator=(const GLColoredLines &);
-    
+    GLColoredLines &operator=(const GLColoredLines &);
+
   protected:
-  
+
     int ln;
     GLuint bline;
-  
+
   public:
-  
+
     GLColoredLines(ColoredLines &p);
     virtual ~GLColoredLines();
-    
+
     virtual int getLineCount() { return ln; }
-    
+
     virtual void draw(const GLCamera &cam);
 };
 

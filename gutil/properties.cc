@@ -44,157 +44,178 @@ namespace gutil
 
 bool Properties::operator == (const Properties &p) const
 {
-    bool ret=true;
+  bool ret=true;
 
-    if (data.size() == p.data.size())
+  if (data.size() == p.data.size())
+  {
+    for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); it++)
     {
-      for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); it++)
-      {
-        std::map<std::string, std::string>::const_iterator pit=p.data.find(it->first);
+      std::map<std::string, std::string>::const_iterator pit=p.data.find(it->first);
 
-        if (pit == data.end() || it->second != pit->second)
-        {
-          ret=false;
-          break;
-        }
+      if (pit == data.end() || it->second != pit->second)
+      {
+        ret=false;
+        break;
       }
     }
-    else
-      ret=false;
+  }
+  else
+  {
+    ret=false;
+  }
 
-    return ret;
+  return ret;
 }
 
 void Properties::getString(const char *key, std::string &value,
-  const char *defvalue) const
+                           const char *defvalue) const
 {
-    std::map<std::string, std::string>::const_iterator it=data.find(key);
+  std::map<std::string, std::string>::const_iterator it=data.find(key);
 
-    if (it != data.end())
-    {
-      value=it->second;
-    }
-    else if (defvalue != 0)
-    {
-      value=defvalue;
-    }
-    else
-      throw IOException("Key not found: "+std::string(key));
+  if (it != data.end())
+  {
+    value=it->second;
+  }
+  else if (defvalue != 0)
+  {
+    value=defvalue;
+  }
+  else
+  {
+    throw IOException("Key not found: "+std::string(key));
+  }
 }
 
 void Properties::getStringVector(const char *key, std::vector<std::string> &value,
-  const char *defvalue, const char sep) const
+                                 const char *defvalue, const char sep) const
 {
-    std::string s;
-    size_t start, end;
+  std::string s;
+  size_t start, end;
 
-    getString(key, s, defvalue);
+  getString(key, s, defvalue);
 
-    value.clear();
+  value.clear();
 
-    start=0;
-    end=s.find(sep);
-    while (start < s.size())
+  start=0;
+  end=s.find(sep);
+
+  while (start < s.size())
+  {
+    value.push_back(s.substr(start, end-start));
+
+    start=s.size();
+
+    if (end < s.size())
     {
-      value.push_back(s.substr(start, end-start));
-
-      start=s.size();
-      if (end < s.size())
-      {
-        start=end+1;
-        end=s.find(sep, start);
-      }
+      start=end+1;
+      end=s.find(sep, start);
     }
+  }
 }
 
 void Properties::putString(const char *key, const std::string &value)
 {
-    std::map<std::string, std::string>::iterator it=data.find(key);
+  std::map<std::string, std::string>::iterator it=data.find(key);
 
-    if (it != data.end())
-      data.erase(key);
+  if (it != data.end())
+  {
+    data.erase(key);
+  }
 
-    data.insert(std::pair<std::string, std::string>(key, value));
+  data.insert(std::pair<std::string, std::string>(key, value));
 }
 
 void Properties::load(const char *name)
 {
-    std::ifstream in;
-    std::string   line;
-    size_t   pos;
+  std::ifstream in;
+  std::string   line;
+  size_t   pos;
 
-    try
+  try
+  {
+    in.exceptions(std::ios_base::badbit);
+    in.open(name);
+
+    if (!in.good())
     {
-      in.exceptions(std::ios_base::badbit);
-      in.open(name);
+      throw IOException(name);
+    }
 
-      if (!in.good())
-        throw IOException(name);
+    while (in.good())
+    {
+      getline(in, line);
 
-      while (in.good())
+      trim(line);
+
+      pos=line.find('#');
+
+      if (pos != line.npos)
       {
-        getline(in, line);
-
-        trim(line);
-
-        pos=line.find('#');
-        if (pos != line.npos)
-          line=line.substr(0, pos);
-
-        if (line.size() > 0)
-        {
-          pos=line.find('=');
-
-          if (pos != line.npos)
-          {
-            std::string key=line.substr(0, pos);
-            std::string value=line.substr(pos+1);
-
-            trim(key);
-            trim(value);
-
-            data.insert(std::pair<std::string,std::string>(key, value));
-          }
-          else
-            throw IOException("Format <key>=<value> expected: "+line);
-        }
+        line=line.substr(0, pos);
       }
 
-      in.close();
+      if (line.size() > 0)
+      {
+        pos=line.find('=');
+
+        if (pos != line.npos)
+        {
+          std::string key=line.substr(0, pos);
+          std::string value=line.substr(pos+1);
+
+          trim(key);
+          trim(value);
+
+          data.insert(std::pair<std::string,std::string>(key, value));
+        }
+        else
+        {
+          throw IOException("Format <key>=<value> expected: "+line);
+        }
+      }
     }
-    catch (std::ios_base::failure ex)
-    {
-      throw IOException(ex.what());
-    }
+
+    in.close();
+  }
+  catch (std::ios_base::failure ex)
+  {
+    throw IOException(ex.what());
+  }
 }
 
 void Properties::save(const char *name, const char *comment) const
 {
-    std::ofstream out;
+  std::ofstream out;
 
-    try
+  try
+  {
+    out.exceptions(std::ios_base::failbit | std::ios_base::badbit | std::ios_base::eofbit);
+    out.open(name);
+
+    if (comment != 0)
     {
-      out.exceptions(std::ios_base::failbit | std::ios_base::badbit | std::ios_base::eofbit);
-      out.open(name);
-
-      if (comment != 0)
-         out << "# " << comment << std::endl;
-
-      for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); it++)
-        out << it->first << "=" << it->second << std::endl;
-
-      out.close();
+      out << "# " << comment << std::endl;
     }
-    catch (std::ios_base::failure ex)
+
+    for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); it++)
     {
-      throw IOException(ex.what());
+      out << it->first << "=" << it->second << std::endl;
     }
+
+    out.close();
+  }
+  catch (std::ios_base::failure ex)
+  {
+    throw IOException(ex.what());
+  }
 }
 
 void Properties::print()
 {
-    for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); it++)
-      std::cout << it->first << "=" << it->second << std::endl;
+  for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); it++)
+  {
+    std::cout << it->first << "=" << it->second << std::endl;
+  }
 }
 
 }

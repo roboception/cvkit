@@ -53,59 +53,59 @@ const int ID_CAMERA_BODY=0;
 const int ID_CAMERA_RANGE=1;
 const int ID_CAMERA_LINK=2;
 const int ID_MODEL_START=3;
-    
+
 class GLObject;
 
 class Model
 {
   private:
-  
+
     int              id;
     gmath::Vector3d  origin;
-    
+
     gmath::Matrix33d Rc;
     gmath::Vector3d  Tc;
-    
+
   protected:
-  
+
     void setOriginFromPLY(PLYReader &ply);
     void setOriginToPLY(PLYWriter &ply) const;
-  
+
   public:
-    
+
     Model()
     {
       id=0;
       Rc=0;
     }
-    
+
     Model(const Model &p)
     {
       id=p.getID();
       origin=p.getOrigin();
     }
-    
+
     virtual ~Model() {};
-    
+
     int getID() const { return id; }
     void setID(int i) { id=i; }
-    
+
     const gmath::Vector3d &getOrigin() const { return origin; }
     void setOrigin(const gmath::Vector3d &v) { origin=v; }
-    
+
     virtual void translate(const gmath::Vector3d &v)
     {
       origin+=v;
       setDefCameraRT(getDefCameraR(), getDefCameraT()+v);
     }
-    
+
     const gmath::Matrix33d &getDefCameraR() const { return Rc; }
     const gmath::Vector3d &getDefCameraT() const { return Tc; }
     void setDefCameraRT(const gmath::Matrix33d &R, const gmath::Vector3d &T) { Rc=R; Tc=T; }
-    
+
     virtual void addExtend(gmath::Vector3d &min, gmath::Vector3d &max) const=0;
-    
-    virtual void addGLObjects(std::vector<GLObject*> &list)=0;
+
+    virtual void addGLObjects(std::vector<GLObject *> &list)=0;
 
     virtual void loadPLY(PLYReader &ply)=0;
     virtual void savePLY(const char *name, bool all=true, ply_encoding enc=ply_binary) const=0;
@@ -114,13 +114,13 @@ class Model
 class FloatArrayReceiver : public PLYReceiver
 {
   private:
-    
+
     float  *array;
     size_t size;
     size_t offset;
-  
+
   public:
-  
+
     FloatArrayReceiver(float *_array, size_t _size, size_t _offset);
     void setValue(int instance, const PLYValue &value);
 };
@@ -128,13 +128,13 @@ class FloatArrayReceiver : public PLYReceiver
 class UInt8Receiver : public PLYReceiver
 {
   private:
-    
+
     unsigned char *array;
     size_t        offset;
     float         scale;
-  
+
   public:
-  
+
     UInt8Receiver(unsigned char *_array, int _offset, float _scale);
     void setValue(int instance, const PLYValue &value);
 };

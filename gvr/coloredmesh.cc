@@ -50,270 +50,294 @@ namespace gvr
 
 ColoredMesh::ColoredMesh()
 {
-    rgb=0;
+  rgb=0;
 }
 
 ColoredMesh::ColoredMesh(const ColoredMesh &p, const std::vector<bool> &vused,
-  const std::vector<bool> &tused) : Mesh(p, vused, tused)
+                         const std::vector<bool> &tused) : Mesh(p, vused, tused)
 {
-    rgb=new unsigned char [3*getVertexCount()];
+  rgb=new unsigned char [3*getVertexCount()];
 
-    int k=0;
-    for (int i=0; i<p.getVertexCount(); i++)
+  int k=0;
+
+  for (int i=0; i<p.getVertexCount(); i++)
+  {
+    if (vused[i])
     {
-      if (vused[i])
-      {
-        rgb[k++]=p.getColorComp(i, 0);
-        rgb[k++]=p.getColorComp(i, 1);
-        rgb[k++]=p.getColorComp(i, 2);
-      }
+      rgb[k++]=p.getColorComp(i, 0);
+      rgb[k++]=p.getColorComp(i, 1);
+      rgb[k++]=p.getColorComp(i, 2);
     }
+  }
 }
 
 ColoredMesh::~ColoredMesh()
 {
-    delete [] rgb;
+  delete [] rgb;
 }
 
 void ColoredMesh::resizeVertexList(int vn, bool with_scanprop, bool with_scanpos)
 {
-    unsigned char *p=new unsigned char [3*vn];
+  unsigned char *p=new unsigned char [3*vn];
 
-    for (int i=3*std::min(getVertexCount(), vn)-1; i>=0; i--)
-      p[i]=rgb[i];
+  for (int i=3*std::min(getVertexCount(), vn)-1; i>=0; i--)
+  {
+    p[i]=rgb[i];
+  }
 
-    for (int i=3*std::min(getVertexCount(), vn); i<3*vn; i++)
-      p[i]=0;
+  for (int i=3*std::min(getVertexCount(), vn); i<3*vn; i++)
+  {
+    p[i]=0;
+  }
 
-    delete [] rgb;
+  delete [] rgb;
 
-    rgb=p;
+  rgb=p;
 
-    Mesh::resizeVertexList(vn, with_scanprop, with_scanpos);
+  Mesh::resizeVertexList(vn, with_scanprop, with_scanpos);
 }
 
-void ColoredMesh::addGLObjects(std::vector<GLObject*> &list)
+void ColoredMesh::addGLObjects(std::vector<GLObject *> &list)
 {
 #ifdef INCLUDE_GL
-      // check if there are unused vertices
+  // check if there are unused vertices
 
-    std::vector<bool> vused;
-    int n=getUsedVertices(vused);
+  std::vector<bool> vused;
+  int n=getUsedVertices(vused);
 
-      // split into point cloud and mesh
+  // split into point cloud and mesh
 
-    if (getVertexCount() == n)
+  if (getVertexCount() == n)
+  {
+    list.push_back(new GLColoredMesh(*this));
+  }
+  else
+  {
+    if (n > 0)
     {
-      list.push_back(new GLColoredMesh(*this));
+      std::vector<bool> tused(getTriangleCount(), true);
+      ColoredMesh m(*this, vused, tused);
+      list.push_back(new GLColoredMesh(m));
     }
-    else
+
+    if (getVertexCount()-n > 0)
     {
-      if (n > 0)
+      for (int i=0; i<getVertexCount(); i++)
       {
-        std::vector<bool> tused(getTriangleCount(), true);
-        ColoredMesh m(*this, vused, tused);
-        list.push_back(new GLColoredMesh(m));
+        vused[i]=!vused[i];
       }
 
-      if (getVertexCount()-n > 0)
-      {
-        for (int i=0; i<getVertexCount(); i++)
-          vused[i]=!vused[i];
-
-        ColoredPointCloud p(*this, vused);
-        list.push_back(new GLColoredPointCloud(p));
-      }
+      ColoredPointCloud p(*this, vused);
+      list.push_back(new GLColoredPointCloud(p));
     }
+  }
+
 #else
-    assert(false);
+  assert(false);
 #endif
 }
 
 void ColoredMesh::loadPLY(PLYReader &ply)
 {
-    int vn=static_cast<int>(ply.instancesOfElement("vertex"));
+  int vn=static_cast<int>(ply.instancesOfElement("vertex"));
 
-    setOriginFromPLY(ply);
+  setOriginFromPLY(ply);
 
-      // set receiver for vertices
+  // set receiver for vertices
 
-    resizeVertexList(vn,
-      ply.getTypeOfProperty("vertex", "scan_size") != ply_none ||
-      ply.getTypeOfProperty("vertex", "scan_error") != ply_none ||
-      ply.getTypeOfProperty("vertex", "scan_conf") != ply_none,
-      ply.getTypeOfProperty("vertex", "sx") != ply_none &&
-      ply.getTypeOfProperty("vertex", "sy") != ply_none &&
-      ply.getTypeOfProperty("vertex", "sz") != ply_none);
+  resizeVertexList(vn,
+                   ply.getTypeOfProperty("vertex", "scan_size") != ply_none ||
+                   ply.getTypeOfProperty("vertex", "scan_error") != ply_none ||
+                   ply.getTypeOfProperty("vertex", "scan_conf") != ply_none,
+                   ply.getTypeOfProperty("vertex", "sx") != ply_none &&
+                   ply.getTypeOfProperty("vertex", "sy") != ply_none &&
+                   ply.getTypeOfProperty("vertex", "sz") != ply_none);
 
-    FloatArrayReceiver vx(getVertexArray(), 3, 0), vy(getVertexArray(), 3, 1), vz(getVertexArray(), 3, 2);
+  FloatArrayReceiver vx(getVertexArray(), 3, 0), vy(getVertexArray(), 3, 1), vz(getVertexArray(), 3,
+      2);
 
-    ply.setReceiver("vertex", "x", &vx);
-    ply.setReceiver("vertex", "y", &vy);
-    ply.setReceiver("vertex", "z", &vz);
+  ply.setReceiver("vertex", "x", &vx);
+  ply.setReceiver("vertex", "y", &vy);
+  ply.setReceiver("vertex", "z", &vz);
 
-    FloatArrayReceiver ss(getScanPropArray(), 3, 0), se(getScanPropArray(), 3, 1), sc(getScanPropArray(), 3, 2);
-    if (hasScanProp())
-    {
-      ply.setReceiver("vertex", "scan_size", &ss);
-      ply.setReceiver("vertex", "scan_error", &se);
-      ply.setReceiver("vertex", "scan_conf", &sc);
-    }
+  FloatArrayReceiver ss(getScanPropArray(), 3, 0), se(getScanPropArray(), 3, 1),
+                     sc(getScanPropArray(), 3, 2);
 
-    FloatArrayReceiver sx(getScanPosArray(), 3, 0), sy(getScanPosArray(), 3, 1), sz(getScanPosArray(), 3, 2);
+  if (hasScanProp())
+  {
+    ply.setReceiver("vertex", "scan_size", &ss);
+    ply.setReceiver("vertex", "scan_error", &se);
+    ply.setReceiver("vertex", "scan_conf", &sc);
+  }
 
-    if (hasScanPos())
-    {
-      ply.setReceiver("vertex", "sx", &sx);
-      ply.setReceiver("vertex", "sy", &sy);
-      ply.setReceiver("vertex", "sz", &sz);
-    }
+  FloatArrayReceiver sx(getScanPosArray(), 3, 0), sy(getScanPosArray(), 3, 1), sz(getScanPosArray(),
+      3, 2);
 
-    FloatArrayReceiver nx(getNormalArray(), 3, 0), ny(getNormalArray(), 3, 1), nz(getNormalArray(), 3, 2);
+  if (hasScanPos())
+  {
+    ply.setReceiver("vertex", "sx", &sx);
+    ply.setReceiver("vertex", "sy", &sy);
+    ply.setReceiver("vertex", "sz", &sz);
+  }
 
-    ply.setReceiver("vertex", "nx", &nx);
-    ply.setReceiver("vertex", "ny", &ny);
-    ply.setReceiver("vertex", "nz", &nz);
+  FloatArrayReceiver nx(getNormalArray(), 3, 0), ny(getNormalArray(), 3, 1), nz(getNormalArray(), 3,
+      2);
 
-    float scale=1.0f;
-    ply_type type=ply.getTypeOfProperty("vertex", "diffuse_red");
+  ply.setReceiver("vertex", "nx", &nx);
+  ply.setReceiver("vertex", "ny", &ny);
+  ply.setReceiver("vertex", "nz", &nz);
 
-    if (type == ply_none)
-      type=ply.getTypeOfProperty("vertex", "red");
+  float scale=1.0f;
+  ply_type type=ply.getTypeOfProperty("vertex", "diffuse_red");
 
-    if (type == ply_uint16)
-      scale=1.0f/256;
+  if (type == ply_none)
+  {
+    type=ply.getTypeOfProperty("vertex", "red");
+  }
 
-    if (type == ply_float32 || type == ply_float64)
-      scale=255;
+  if (type == ply_uint16)
+  {
+    scale=1.0f/256;
+  }
 
-    UInt8Receiver cr(getColorArray(), 0, scale), cg(getColorArray(), 1, scale), cb(getColorArray(), 2, scale);
+  if (type == ply_float32 || type == ply_float64)
+  {
+    scale=255;
+  }
 
-    ply.setReceiver("vertex", "diffuse_red", &cr);
-    ply.setReceiver("vertex", "diffuse_green", &cg);
-    ply.setReceiver("vertex", "diffuse_blue", &cb);
+  UInt8Receiver cr(getColorArray(), 0, scale), cg(getColorArray(), 1, scale), cb(getColorArray(), 2,
+      scale);
 
-    ply.setReceiver("vertex", "red", &cr);
-    ply.setReceiver("vertex", "green", &cg);
-    ply.setReceiver("vertex", "blue", &cb);
+  ply.setReceiver("vertex", "diffuse_red", &cr);
+  ply.setReceiver("vertex", "diffuse_green", &cg);
+  ply.setReceiver("vertex", "diffuse_blue", &cb);
 
-      // set receiver for triangles
+  ply.setReceiver("vertex", "red", &cr);
+  ply.setReceiver("vertex", "green", &cg);
+  ply.setReceiver("vertex", "blue", &cb);
 
-    int tn=static_cast<int>(ply.instancesOfElement("face"));
+  // set receiver for triangles
 
-    resizeTriangleList(tn);
+  int tn=static_cast<int>(ply.instancesOfElement("face"));
 
-    TriangleReceiver tr(*this);
+  resizeTriangleList(tn);
 
-    ply.setReceiver("face", "vertex_index", &tr);
-    ply.setReceiver("face", "vertex_indices", &tr);
+  TriangleReceiver tr(*this);
 
-      // read data and calculate normals
+  ply.setReceiver("face", "vertex_index", &tr);
+  ply.setReceiver("face", "vertex_indices", &tr);
 
-    ply.readData();
+  // read data and calculate normals
 
-    if (ply.getTypeOfProperty("vertex", "nx") == ply_none ||
+  ply.readData();
+
+  if (ply.getTypeOfProperty("vertex", "nx") == ply_none ||
       ply.getTypeOfProperty("vertex", "ny") == ply_none ||
       ply.getTypeOfProperty("vertex", "nz") == ply_none)
-      recalculateNormals();
-    else
-      normalizeNormals();
+  {
+    recalculateNormals();
+  }
+  else
+  {
+    normalizeNormals();
+  }
 }
 
 void ColoredMesh::savePLY(const char *name, bool all, ply_encoding enc) const
 {
-    PLYWriter ply;
+  PLYWriter ply;
 
-    ply.open(name, enc);
+  ply.open(name, enc);
 
-      // define data
+  // define data
 
-    setOriginToPLY(ply);
+  setOriginToPLY(ply);
 
-    ply.addElement("vertex", getVertexCount());
+  ply.addElement("vertex", getVertexCount());
 
-    ply.addProperty("x", ply_float32);
-    ply.addProperty("y", ply_float32);
-    ply.addProperty("z", ply_float32);
+  ply.addProperty("x", ply_float32);
+  ply.addProperty("y", ply_float32);
+  ply.addProperty("z", ply_float32);
+
+  if (hasScanProp() != 0)
+  {
+    ply.addProperty("scan_size", ply_float32);
+
+    if (all)
+    {
+      ply.addProperty("scan_error", ply_float32);
+      ply.addProperty("scan_conf", ply_float32);
+    }
+  }
+
+  if (all && hasScanPos() != 0)
+  {
+    ply.addProperty("sx", ply_float32);
+    ply.addProperty("sy", ply_float32);
+    ply.addProperty("sz", ply_float32);
+  }
+
+  if (all)
+  {
+    ply.addProperty("nx", ply_float32);
+    ply.addProperty("ny", ply_float32);
+    ply.addProperty("nz", ply_float32);
+  }
+
+  ply.addProperty("diffuse_red", ply_uint8);
+  ply.addProperty("diffuse_green", ply_uint8);
+  ply.addProperty("diffuse_blue", ply_uint8);
+
+  ply.addElement("face", getTriangleCount());
+  ply.addProperty("vertex_indices", ply_uint8, ply_uint32);
+
+  // write data
+
+  for (int i=0; i<getVertexCount(); i++)
+  {
+    ply.write(getVertexComp(i, 0));
+    ply.write(getVertexComp(i, 1));
+    ply.write(getVertexComp(i, 2));
 
     if (hasScanProp() != 0)
     {
-      ply.addProperty("scan_size", ply_float32);
+      ply.write(getScanSize(i));
 
       if (all)
       {
-        ply.addProperty("scan_error", ply_float32);
-        ply.addProperty("scan_conf", ply_float32);
+        ply.write(getScanError(i));
+        ply.write(getScanConf(i));
       }
     }
 
     if (all && hasScanPos() != 0)
     {
-      ply.addProperty("sx", ply_float32);
-      ply.addProperty("sy", ply_float32);
-      ply.addProperty("sz", ply_float32);
+      ply.write(getScanPosComp(i, 0));
+      ply.write(getScanPosComp(i, 1));
+      ply.write(getScanPosComp(i, 2));
     }
 
     if (all)
     {
-      ply.addProperty("nx", ply_float32);
-      ply.addProperty("ny", ply_float32);
-      ply.addProperty("nz", ply_float32);
+      ply.write(getNormalComp(i, 0));
+      ply.write(getNormalComp(i, 1));
+      ply.write(getNormalComp(i, 2));
     }
 
-    ply.addProperty("diffuse_red", ply_uint8);
-    ply.addProperty("diffuse_green", ply_uint8);
-    ply.addProperty("diffuse_blue", ply_uint8);
+    ply.write(getColorComp(i, 0));
+    ply.write(getColorComp(i, 1));
+    ply.write(getColorComp(i, 2));
+  }
 
-    ply.addElement("face", getTriangleCount());
-    ply.addProperty("vertex_indices", ply_uint8, ply_uint32);
+  for (int i=0; i<getTriangleCount(); i++)
+  {
+    ply.writeListSize(3);
+    ply.write(getTriangleIndex(i, 0));
+    ply.write(getTriangleIndex(i, 1));
+    ply.write(getTriangleIndex(i, 2));
+  }
 
-      // write data
-
-    for (int i=0; i<getVertexCount(); i++)
-    {
-      ply.write(getVertexComp(i, 0));
-      ply.write(getVertexComp(i, 1));
-      ply.write(getVertexComp(i, 2));
-
-      if (hasScanProp() != 0)
-      {
-        ply.write(getScanSize(i));
-
-        if (all)
-        {
-          ply.write(getScanError(i));
-          ply.write(getScanConf(i));
-        }
-      }
-
-      if (all && hasScanPos() != 0)
-      {
-        ply.write(getScanPosComp(i, 0));
-        ply.write(getScanPosComp(i, 1));
-        ply.write(getScanPosComp(i, 2));
-      }
-
-      if (all)
-      {
-        ply.write(getNormalComp(i, 0));
-        ply.write(getNormalComp(i, 1));
-        ply.write(getNormalComp(i, 2));
-      }
-
-      ply.write(getColorComp(i, 0));
-      ply.write(getColorComp(i, 1));
-      ply.write(getColorComp(i, 2));
-    }
-
-    for (int i=0; i<getTriangleCount(); i++)
-    {
-      ply.writeListSize(3);
-      ply.write(getTriangleIndex(i, 0));
-      ply.write(getTriangleIndex(i, 1));
-      ply.write(getTriangleIndex(i, 2));
-    }
-
-    ply.close();
+  ply.close();
 }
 
 }

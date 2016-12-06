@@ -60,9 +60,12 @@ class GDALImageIO : public BasicImageIO
     void loadHeader(const char *name, long &width, long &height, int &depth) const;
 
     void loadProperties(gutil::Properties &prop, const char *name) const;
-    void load(ImageU8 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
-    void load(ImageU16 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
-    void load(ImageFloat &image, const char *name, int ds=1, long x=0, long y=0, long w=-1, long h=-1) const;
+    void load(ImageU8 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1,
+              long h=-1) const;
+    void load(ImageU16 &image, const char *name, int ds=1, long x=0, long y=0, long w=-1,
+              long h=-1) const;
+    void load(ImageFloat &image, const char *name, int ds=1, long x=0, long y=0, long w=-1,
+              long h=-1) const;
 
     void save(const ImageU8 &image, const char *name) const;
     void save(const ImageU16 &image, const char *name) const;

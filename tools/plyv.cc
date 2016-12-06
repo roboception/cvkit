@@ -47,175 +47,183 @@
 
 int main(int argc, char *argv[])
 {
-    try
+  try
+  {
+    gvr::GLInit(argc, argv);
+
+    const char *def[]=
     {
-      gvr::GLInit(argc, argv);
+      "# plyv [<options>] <file> ...",
+      "#",
+      "# The files may be given in ply format or as depth file. In case of a depth file, optional parameters may be appended to the file name, separated by commas. Parameters are:",
+      "#",
+      "# p=<parameter file>",
+      "# i=<image file>",
+      "# ds=<s>",
+      "# x=<x>,y=<y>,w=<w>,h=<h>",
+      "# s=<max step>",
+      "#",
+      "# Options are:",
+      "#",
+      "-help # Print help and exit.",
+      "-version # Print version and exit.",
+      "-spath # Search path for finding parameter files or images that are associated with the depth image. Default is the content of the environment variable CVKIT_SPATH.",
+      " <dir list> # List of directories.",
+      0
+    };
 
-      const char *def[]=
+    gutil::Parameter param(argc, argv, def);
+
+    // handle options
+
+    std::string spath;
+
+    if (getenv("CVKIT_SPATH") != 0)
+    {
+      spath=getenv("CVKIT_SPATH");
+    }
+
+    while (param.isNextParameter())
+    {
+      std::string p;
+
+      param.nextParameter(p);
+
+      if (p == "-help")
       {
-        "# plyv [<options>] <file> ...",
-        "#",
-        "# The files may be given in ply format or as depth file. In case of a depth file, optional parameters may be appended to the file name, separated by commas. Parameters are:",
-        "#",
-        "# p=<parameter file>",
-        "# i=<image file>",
-        "# ds=<s>",
-        "# x=<x>,y=<y>,w=<w>,h=<h>",
-        "# s=<max step>",
-        "#",
-        "# Options are:",
-        "#",
-        "-help # Print help and exit.",
-        "-version # Print version and exit.",
-        "-spath # Search path for finding parameter files or images that are associated with the depth image. Default is the content of the environment variable CVKIT_SPATH.",
-        " <dir list> # List of directories.",
-        0
-      };
-
-      gutil::Parameter param(argc, argv, def);
-
-        // handle options
-
-      std::string spath;
-
-      if (getenv("CVKIT_SPATH") != 0)
-        spath=getenv("CVKIT_SPATH");
-
-      while (param.isNextParameter())
-      {
-        std::string p;
-
-        param.nextParameter(p);
-
-        if (p == "-help")
-        {
-          param.printHelp(std::cout);
-          return 0;
-        }
-
-        if (p == "-version")
-        {
-          std::cout << "This program is part of cvkit version " << VERSION << std::endl;
-          return 0;
-        }
-
-        if (p == "-spath")
-          param.nextString(spath);
-      }
-
-      if (param.remaining() < 1)
-      {
-        gutil::showError("No PLY files given");
         param.printHelp(std::cout);
-        return 10;
+        return 0;
       }
 
-        // initialization
-
-      gvr::GLInitWindow(-1, -1, 800, 600, "plyv");
-
-      gvr::GLWorld          world(800, 600);
-      gvr::CameraCollection camlist;
-
-        // add models
-
-      bool first=true;
-      int id=gvr::ID_MODEL_START;
-      gmath::Vector3d offset;
-
-      while (param.remaining() > 0)
+      if (p == "-version")
       {
-        std::string file;
-        param.nextString(file);
+        std::cout << "This program is part of cvkit version " << VERSION << std::endl;
+        return 0;
+      }
 
-          // splitting filename into directory and name
+      if (p == "-spath")
+      {
+        param.nextString(spath);
+      }
+    }
 
-        size_t i=file.find_last_of("/\\");
+    if (param.remaining() < 1)
+    {
+      gutil::showError("No PLY files given");
+      param.printHelp(std::cout);
+      return 10;
+    }
 
-        std::string dir, name;
+    // initialization
 
-        if (i != file.npos)
-        {
-          dir=file.substr(0, i+1);
-          name=file.substr(i+1);
-        }
-        else
-          name=file;
+    gvr::GLInitWindow(-1, -1, 800, 600, "plyv");
 
-          // derive basepath and offset from first model
+    gvr::GLWorld          world(800, 600);
+    gvr::CameraCollection camlist;
 
-        if (first)
-          world.setCapturePrefix((dir+"capture").c_str());
+    // add models
 
-        if (file.size() > 4 && file.find(',') == std::string::npos &&
+    bool first=true;
+    int id=gvr::ID_MODEL_START;
+    gmath::Vector3d offset;
+
+    while (param.remaining() > 0)
+    {
+      std::string file;
+      param.nextString(file);
+
+      // splitting filename into directory and name
+
+      size_t i=file.find_last_of("/\\");
+
+      std::string dir, name;
+
+      if (i != file.npos)
+      {
+        dir=file.substr(0, i+1);
+        name=file.substr(i+1);
+      }
+      else
+      {
+        name=file;
+      }
+
+      // derive basepath and offset from first model
+
+      if (first)
+      {
+        world.setCapturePrefix((dir+"capture").c_str());
+      }
+
+      if (file.size() > 4 && file.find(',') == std::string::npos &&
           (file.compare(file.size()-4, 4, ".txt") == 0 ||
            file.compare(file.size()-4, 4, ".TXT") == 0))
-        {
-          camlist.loadCamera(file.c_str());
-          world.showCameras(true);
-        }
-        else
-        {
-            // load model
+      {
+        camlist.loadCamera(file.c_str());
+        world.showCameras(true);
+      }
+      else
+      {
+        // load model
 
-          gvr::Model *model=gvr::loadModel(file.c_str(), spath.c_str(), true);
+        gvr::Model *model=gvr::loadModel(file.c_str(), spath.c_str(), true);
 
-          if (model != 0)
+        if (model != 0)
+        {
+          if (first)
           {
-            if (first)
+            world.setOffset(model->getOrigin());
+            first=false;
+          }
+
+          // set model id
+
+          model->setID(id++);
+
+          // add model to world
+
+          model->translate(-world.getOffset());
+          world.addModel(*model);
+
+          delete model;
+
+          // load Middlebury cameras automatically
+
+          if (name.size() >= 9 && name.compare(0, 4, "disp") == 0)
+          {
+            try
             {
-              world.setOffset(model->getOrigin());
-              first=false;
+              camlist.loadCamera((dir+"calib.txt").c_str());
             }
-
-              // set model id
-
-            model->setID(id++);
-
-              // add model to world
-
-            model->translate(-world.getOffset());
-            world.addModel(*model);
-
-            delete model;
-
-              // load Middlebury cameras automatically
-
-            if (name.size() >= 9 && name.compare(0, 4, "disp") == 0)
-            {
-              try
-              {
-                camlist.loadCamera((dir+"calib.txt").c_str());
-              }
-              catch (const gutil::IOException &ex)
-              { }
-            }
+            catch (const gutil::IOException &ex)
+            { }
           }
         }
       }
-
-        // add camera models
-
-      if (camlist.getCameraCount() > 0)
-      {
-        camlist.translate(-world.getOffset());
-        world.addModel(camlist);
-      }
-
-      world.resetCamera();
-
-        // enter main loop
-
-      GLMainLoop(world);
     }
-    catch (gutil::Exception &ex)
+
+    // add camera models
+
+    if (camlist.getCameraCount() > 0)
     {
-      ex.print();
-    }
-    catch (...)
-    {
-      gutil::showError("An unknown exception occured");
+      camlist.translate(-world.getOffset());
+      world.addModel(camlist);
     }
 
-    return 0;
+    world.resetCamera();
+
+    // enter main loop
+
+    GLMainLoop(world);
+  }
+  catch (gutil::Exception &ex)
+  {
+    ex.print();
+  }
+  catch (...)
+  {
+    gutil::showError("An unknown exception occured");
+  }
+
+  return 0;
 }

@@ -80,10 +80,10 @@ class Properties
     }
 
     void getString(const char *key, std::string &value, const char *defvalue=0)
-      const;
+    const;
 
     template <class T> void getValue(const char *key, T &value,
-      const char *defvalue=0) const
+                                     const char *defvalue=0) const
     {
       std::string v;
 
@@ -93,32 +93,37 @@ class Properties
       in >> value;
 
       if (in.fail())
+      {
         throw IOException("Format error: "+std::string(key)+"="+v);
+      }
     }
 
     template <class T> void getValue(const char *key, T &value,
-      const T &defvalue) const
+                                     const T &defvalue) const
     {
       std::string v;
 
       getString(key, v, "");
 
       value=defvalue;
+
       if (v.size() > 0)
       {
         std::istringstream in(v);
         in >> value;
 
         if (in.fail())
+        {
           throw IOException("Format error: "+std::string(key)+"="+v);
+        }
       }
     }
 
     void getStringVector(const char *key, std::vector<std::string> &value,
-      const char *defvalue=0, const char sep='|') const;
+                         const char *defvalue=0, const char sep='|') const;
 
     template <class T> void getValueVector(const char *key, std::vector<T> &value,
-      const char *defvalue=0, const char sep='|') const
+                                           const char *defvalue=0, const char sep='|') const
     {
       std::vector<std::string> vs;
 
@@ -134,7 +139,9 @@ class Properties
         in >> v;
 
         if (in.fail())
+        {
           throw IOException("Format error: "+std::string(key)+"="+vs[i]);
+        }
 
         value.push_back(v);
       }
@@ -150,22 +157,26 @@ class Properties
     }
 
     template <class T> void putValueVector(const char *key,
-      const std::vector<T> &value, const char sep='|')
+                                           const std::vector<T> &value, const char sep='|')
     {
       std::ostringstream out;
       typename std::vector<T>::const_iterator it;
 
       for (it=value.begin(); it+1<value.end(); it++)
+      {
         out << *it << sep;
+      }
 
       if (it < value.end())
-          out << *it;
+      {
+        out << *it;
+      }
 
       putString(key, out.str());
     }
 
     void putStringVector(const char *key, const std::vector<std::string> &value,
-      const char sep='|')
+                         const char sep='|')
     {
       putValueVector(key, value, sep);
     }

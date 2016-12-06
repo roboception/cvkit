@@ -56,8 +56,10 @@ namespace
 
 void customGDALErrorHandler(CPLErr err, int n, const char *msg)
 {
-    if (err == CE_Failure || err == CE_Fatal)
-      CPLDefaultErrorHandler(err, n, msg);
+  if (err == CE_Failure || err == CE_Fatal)
+  {
+    CPLDefaultErrorHandler(err, n, msg);
+  }
 }
 
 /**
@@ -67,31 +69,31 @@ void customGDALErrorHandler(CPLErr err, int n, const char *msg)
 
 double getMaxValue(GDALDataType type)
 {
-    double ret;
+  double ret;
 
-    switch (type)
-    {
-      case GDT_Byte:
-          ret=255;
-          break;
+  switch (type)
+  {
+    case GDT_Byte:
+      ret=255;
+      break;
 
-      case GDT_UInt16:
-          ret=65535;
-          break;
+    case GDT_UInt16:
+      ret=65535;
+      break;
 
-      case GDT_Int16:
-      case GDT_UInt32:
-      case GDT_Int32:
-      case GDT_Float32:
-          ret=std::numeric_limits<float>::max();
-          break;
+    case GDT_Int16:
+    case GDT_UInt32:
+    case GDT_Int32:
+    case GDT_Float32:
+      ret=std::numeric_limits<float>::max();
+      break;
 
-      default:
-          ret=0;
-          break;
-    }
+    default:
+      ret=0;
+      break;
+  }
 
-    return ret;
+  return ret;
 }
 
 /**
@@ -101,197 +103,211 @@ double getMaxValue(GDALDataType type)
 
 int getMaxBand(GDALDatasetH gd, double &mm)
 {
-    int ret=0;
+  int ret=0;
 
-    mm=0;
+  mm=0;
 
-    int n=GDALGetRasterCount(gd);
-    for (int i=0; i<n; i++)
+  int n=GDALGetRasterCount(gd);
+
+  for (int i=0; i<n; i++)
+  {
+    double m=getMaxValue(GDALGetRasterDataType(GDALGetRasterBand(gd, i+1)));
+
+    if (m > 0)
     {
-      double m=getMaxValue(GDALGetRasterDataType(GDALGetRasterBand(gd, i+1)));
-
-      if (m > 0)
-      {
-        mm=std::max(m, mm);
-        ret++;
-      }
+      mm=std::max(m, mm);
+      ret++;
     }
+  }
 
-    return ret;
+  return ret;
 }
 
 }
 
 GDALImageIO::GDALImageIO()
 {
-    GDALAllRegister();
-    CPLSetErrorHandler(customGDALErrorHandler);
+  GDALAllRegister();
+  CPLSetErrorHandler(customGDALErrorHandler);
 }
 
 GDALImageIO::~GDALImageIO()
 {
-    GDALDestroyDriverManager();
+  GDALDestroyDriverManager();
 }
 
 BasicImageIO *GDALImageIO::create() const
 {
-    return new GDALImageIO();
+  return new GDALImageIO();
 }
 
 bool GDALImageIO::handlesFile(const char *name, bool reading) const
 {
-    std::string s=name;
+  std::string s=name;
 
-    if (reading)
+  if (reading)
+  {
+    // check if name refers to a tiled image
+
+    std::set<std::string> list;
+    size_t pos=s.rfind(':');
+
+    if (pos != s.npos && s.compare(pos, 2, ":\\") == 0)
     {
-      // check if name refers to a tiled image
+      pos=s.npos;
+    }
 
-      std::set<std::string> list;
-      size_t pos=s.rfind(':');
+    if (pos != s.npos)
+    {
+      std::string prefix=s.substr(0, pos);
+      std::string suffix=s.substr(pos+1);
 
-      if (pos != s.npos && s.compare(pos, 2, ":\\") == 0)
-        pos=s.npos;
+      // get name of one tile
 
-      if (pos != s.npos)
+      gutil::getFileList(list, prefix, suffix);
+
+      if (list.size() > 0)
       {
-        std::string prefix=s.substr(0, pos);
-        std::string suffix=s.substr(pos+1);
-
-        // get name of one tile
-
-        gutil::getFileList(list, prefix, suffix);
-        if (list.size() > 0)
-        {
-          name=list.begin()->c_str();
-        }
+        name=list.begin()->c_str();
       }
-
-      // use function from GDAL to check if there is an available driver
-
-      if (GDALIdentifyDriver(name, 0) != 0)
-        return true;
     }
-    else if (s.size() > 4 && (s.rfind(".tif") == s.size()-4 ||
-      s.rfind(".TIF") == s.size()-4))
+
+    // use function from GDAL to check if there is an available driver
+
+    if (GDALIdentifyDriver(name, 0) != 0)
     {
-      GDALDriverH gd=GDALGetDriverByName("GTiff");
-      char **meta=GDALGetMetadata(gd, 0);
-
-      if (CSLFetchBoolean(meta, GDAL_DCAP_CREATE, false))
-        return true;
+      return true;
     }
+  }
+  else if (s.size() > 4 && (s.rfind(".tif") == s.size()-4 ||
+                            s.rfind(".TIF") == s.size()-4))
+  {
+    GDALDriverH gd=GDALGetDriverByName("GTiff");
+    char **meta=GDALGetMetadata(gd, 0);
 
-    return false;
+    if (CSLFetchBoolean(meta, GDAL_DCAP_CREATE, false))
+    {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void GDALImageIO::loadHeader(const char *name, long &width, long &height,
-  int &depth) const
+                             int &depth) const
 {
-    GDALDatasetH gd=GDALOpen(name, GA_ReadOnly);
-    double       m;
+  GDALDatasetH gd=GDALOpen(name, GA_ReadOnly);
+  double       m;
 
-    if (gd == 0)
-      throw gutil::IOException("File is not supported by GDAL ("+std::string(name)+")");
+  if (gd == 0)
+  {
+    throw gutil::IOException("File is not supported by GDAL ("+std::string(name)+")");
+  }
 
-    width=GDALGetRasterXSize(gd);
-    height=GDALGetRasterYSize(gd);
-    depth=getMaxBand(gd, m);
+  width=GDALGetRasterXSize(gd);
+  height=GDALGetRasterYSize(gd);
+  depth=getMaxBand(gd, m);
 
-    GDALClose(gd);
+  GDALClose(gd);
 }
 
 void GDALImageIO::loadProperties(gutil::Properties &prop, const char *name) const
 {
-      // read tags
+  // read tags
 
-    GDALDatasetH gd=GDALOpen(name, GA_ReadOnly);
+  GDALDatasetH gd=GDALOpen(name, GA_ReadOnly);
 
-    if (gd != 0)
+  if (gd != 0)
+  {
+    char **meta=GDALGetMetadata(gd, "");
+
+    if (meta != 0)
     {
-      char **meta=GDALGetMetadata(gd, "");
-
-      if (meta != 0)
+      while (*meta != 0)
       {
-        while (*meta != 0)
+        std::string s=*meta;
+        size_t pos=s.find('=');
+
+        if (pos != s.npos)
         {
-          std::string s=*meta;
-          size_t pos=s.find('=');
-
-          if (pos != s.npos)
-            prop.putString(s.substr(0, pos).c_str(), s.substr(pos+1));
-
-          meta++;
+          prop.putString(s.substr(0, pos).c_str(), s.substr(pos+1));
         }
+
+        meta++;
       }
-
-      GDALClose(gd);
     }
 
-      // read and translate orientation from optional EXIF tags
+    GDALClose(gd);
+  }
 
-    int v;
-    prop.getValue("EXIF_Orientation", v, "0");
+  // read and translate orientation from optional EXIF tags
 
-    switch (v)
-    {
-      case 1:
-          prop.putString("rotation", "0");
-          prop.putString("flip", "0");
-          break;
+  int v;
+  prop.getValue("EXIF_Orientation", v, "0");
 
-      case 2:
-          prop.putString("rotation", "0");
-          prop.putString("flip", "1");
-          break;
+  switch (v)
+  {
+    case 1:
+      prop.putString("rotation", "0");
+      prop.putString("flip", "0");
+      break;
 
-      case 3:
-          prop.putString("rotation", "180");
-          prop.putString("flip", "0");
-          break;
+    case 2:
+      prop.putString("rotation", "0");
+      prop.putString("flip", "1");
+      break;
 
-      case 4:
-          prop.putString("rotation", "180");
-          prop.putString("flip", "1");
-          break;
+    case 3:
+      prop.putString("rotation", "180");
+      prop.putString("flip", "0");
+      break;
 
-      case 5:
-          prop.putString("rotation", "90");
-          prop.putString("flip", "1");
-          break;
+    case 4:
+      prop.putString("rotation", "180");
+      prop.putString("flip", "1");
+      break;
 
-      case 6:
-          prop.putString("rotation", "90");
-          prop.putString("flip", "0");
-          break;
+    case 5:
+      prop.putString("rotation", "90");
+      prop.putString("flip", "1");
+      break;
 
-      case 7:
-          prop.putString("rotation", "270");
-          prop.putString("flip", "1");
-          break;
+    case 6:
+      prop.putString("rotation", "90");
+      prop.putString("flip", "0");
+      break;
 
-      case 8:
-          prop.putString("rotation", "270");
-          prop.putString("flip", "0");
-          break;
+    case 7:
+      prop.putString("rotation", "270");
+      prop.putString("flip", "1");
+      break;
 
-      default:
-          break;
-    }
+    case 8:
+      prop.putString("rotation", "270");
+      prop.putString("flip", "0");
+      break;
 
-      // read and translate approximate focal length from optional EXIF tags
+    default:
+      break;
+  }
 
-    double f;
-    int    w;
-    int    h;
+  // read and translate approximate focal length from optional EXIF tags
 
-    prop.getValue("EXIF_FocalLengthIn35mmFilm", f, "0");
-    prop.getValue("EXIF_PixelXDimension", w, "0");
-    prop.getValue("EXIF_PixelYDimension", h, "0");
+  double f;
+  int    w;
+  int    h;
 
-    if (f > 0 && w > 0 && h > 0)
-      prop.putValue("f", f/36*w);
+  prop.getValue("EXIF_FocalLengthIn35mmFilm", f, "0");
+  prop.getValue("EXIF_PixelXDimension", w, "0");
+  prop.getValue("EXIF_PixelYDimension", h, "0");
 
-    BasicImageIO::loadProperties(prop, name);
+  if (f > 0 && w > 0 && h > 0)
+  {
+    prop.putValue("f", f/36*w);
+  }
+
+  BasicImageIO::loadProperties(prop, name);
 }
 
 namespace
@@ -299,305 +315,334 @@ namespace
 
 int convertColorTable(GDALColorTableH gct, std::valarray<short> &rgba)
 {
-    int n=GDALGetColorEntryCount(gct);
-    GDALColorEntry v;
+  int n=GDALGetColorEntryCount(gct);
+  GDALColorEntry v;
 
-    rgba.resize(4*n, 0);
+  rgba.resize(4*n, 0);
 
-    for (int i=0; i<n; i++)
-    {
-      GDALGetColorEntryAsRGB(gct, i, &v);
-      rgba[(i<<2)]=v.c1;
-      rgba[(i<<2)+1]=v.c2;
-      rgba[(i<<2)+2]=v.c3;
-      rgba[(i<<2)+3]=v.c4;
-    }
+  for (int i=0; i<n; i++)
+  {
+    GDALGetColorEntryAsRGB(gct, i, &v);
+    rgba[(i<<2)]=v.c1;
+    rgba[(i<<2)+1]=v.c2;
+    rgba[(i<<2)+2]=v.c3;
+    rgba[(i<<2)+3]=v.c4;
+  }
 
-    return n;
+  return n;
 }
 
 template<class T> void loadInternal(Image<T> &image, GDALDataType gt,
-  const char *name, int ds, long x, long y, long w, long h)
+                                    const char *name, int ds, long x, long y, long w, long h)
 {
-    GDALDatasetH gd=GDALOpen(name, GA_ReadOnly);
+  GDALDatasetH gd=GDALOpen(name, GA_ReadOnly);
 
-    if (gd == 0)
-      throw gutil::IOException("File is not supported by GDAL ("+std::string(name)+")");
+  if (gd == 0)
+  {
+    throw gutil::IOException("File is not supported by GDAL ("+std::string(name)+")");
+  }
 
-    try
+  try
+  {
+    double m;
+    int depth=getMaxBand(gd, m);
+    int rgba_count=-1;
+    std::valarray<short> rgba;
+
+    // check for and read color table
+
+    if (depth == 1)
     {
-      double m;
-      int depth=getMaxBand(gd, m);
-      int rgba_count=-1;
-      std::valarray<short> rgba;
+      GDALRasterBandH gb=GDALGetRasterBand(gd, 1);
+      GDALColorTableH gct=0;
 
-        // check for and read color table
+      gct=GDALGetRasterColorTable(gb);
 
-      if (depth == 1)
+      if (gct != 0)
       {
-        GDALRasterBandH gb=GDALGetRasterBand(gd, 1);
-        GDALColorTableH gct=0;
+        depth=3;
+        rgba_count=convertColorTable(gct, rgba);
+        m=rgba.max();
+      }
+    }
 
-        gct=GDALGetRasterColorTable(gb);
-        if (gct != 0)
+    // check data size
+
+    if (m == 0 || m > image.absMaxValue())
+    {
+      std::ostringstream s;
+      s << "The image data type is too big: " << m << ">" << image.absMaxValue() << " (" << name << ")";
+      throw gutil::IOException(s.str());
+    }
+
+    // determine size in file
+
+    long xf=0;
+    long yf=0;
+    long wf=GDALGetRasterXSize(gd);
+    long hf=GDALGetRasterYSize(gd);
+
+    if (w < 0)
+    {
+      w=(wf-x*ds+ds-1)/ds;
+    }
+
+    if (h < 0)
+    {
+      h=(hf-y*ds+ds-1)/ds;
+    }
+
+    // set image size
+
+    image.setSize(w, h, depth);
+    image.clear();
+
+    // adapt image buffer part and image file part to each other
+
+    if (x < 0)
+    {
+      x=-x;
+      w-=x;
+    }
+    else
+    {
+      xf=x*ds;
+      wf-=xf;
+      x=0;
+    }
+
+    if (y < 0)
+    {
+      y=-y;
+      h-=y;
+    }
+    else
+    {
+      yf=y*ds;
+      hf-=yf;
+      y=0;
+    }
+
+    if (w*ds > wf)
+    {
+      w=(wf+ds-1)/ds;
+    }
+    else
+    {
+      wf=w*ds;
+    }
+
+    if (h*ds > hf)
+    {
+      h=(hf+ds-1)/ds;
+    }
+    else
+    {
+      hf=h*ds;
+    }
+
+    // loading bands directly or via color table
+
+    if (rgba_count < 0)
+    {
+      T *p=new T [w*h];
+      int d=0;
+      int n=GDALGetRasterCount(gd);
+
+      for (int j=0; j<n; j++)
+      {
+        GDALRasterBandH gb=GDALGetRasterBand(gd, j+1);
+
+        if (getMaxValue(GDALGetRasterDataType(gb)) > 0)
         {
-          depth=3;
-          rgba_count=convertColorTable(gct, rgba);
-          m=rgba.max();
+          if (GDALRasterIO(gb, GF_Read, xf, yf, wf, hf, p, w, h, gt,
+                           sizeof(T), w*sizeof(T)) < CE_Failure)
+          {
+            for (int k=0; k<h; k++)
+            {
+              for (int i=0; i<w; i++)
+              {
+                image.set(x+i, y+k, d, p[k*w+i]);
+              }
+            }
+          }
+          else
+          {
+            delete [] p;
+
+            std::ostringstream s;
+            s << "Cannot read raster band " << j << " of image (" << name << ")";
+            throw gutil::IOException(s.str());
+          }
+
+          d++;
         }
       }
 
-        // check data size
+      delete [] p;
+    }
+    else
+    {
+      short *p=new short [w*h];
 
-      if (m == 0 || m > image.absMaxValue())
+      GDALRasterBandH gb=GDALGetRasterBand(gd, 1);
+
+      if (GDALRasterIO(gb, GF_Read, xf, yf, wf, hf, p, w, h, GDT_Int16,
+                       sizeof(short), w*sizeof(short)) < CE_Failure)
       {
+        for (int k=0; k<h; k++)
+        {
+          for (int i=0; i<w; i++)
+          {
+            int j=p[k*w+i];
+
+            if (j >= 0 && j < rgba_count)
+            {
+              j<<=2;
+              image.set(x+i, y+k, 0, static_cast<T>(rgba[j++]));
+              image.set(x+i, y+k, 1, static_cast<T>(rgba[j++]));
+              image.set(x+i, y+k, 2, static_cast<T>(rgba[j++]));
+            }
+          }
+        }
+      }
+      else
+      {
+        delete [] p;
+
         std::ostringstream s;
-        s << "The image data type is too big: " << m << ">" << image.absMaxValue() << " (" << name << ")";
+        s << "Cannot read raster band 1 of image (" << name << ") with color table";
         throw gutil::IOException(s.str());
       }
 
-        // determine size in file
-
-      long xf=0;
-      long yf=0;
-      long wf=GDALGetRasterXSize(gd);
-      long hf=GDALGetRasterYSize(gd);
-
-      if (w < 0)
-        w=(wf-x*ds+ds-1)/ds;
-
-      if (h < 0)
-        h=(hf-y*ds+ds-1)/ds;
-
-        // set image size
-
-      image.setSize(w, h, depth);
-      image.clear();
-
-        // adapt image buffer part and image file part to each other
-
-      if (x < 0)
-      {
-        x=-x;
-        w-=x;
-      }
-      else
-      {
-        xf=x*ds;
-        wf-=xf;
-        x=0;
-      }
-
-      if (y < 0)
-      {
-        y=-y;
-        h-=y;
-      }
-      else
-      {
-        yf=y*ds;
-        hf-=yf;
-        y=0;
-      }
-
-      if (w*ds > wf)
-        w=(wf+ds-1)/ds;
-      else
-        wf=w*ds;
-
-      if (h*ds > hf)
-        h=(hf+ds-1)/ds;
-      else
-        hf=h*ds;
-
-        // loading bands directly or via color table
-
-      if (rgba_count < 0)
-      {
-        T *p=new T [w*h];
-        int d=0;
-        int n=GDALGetRasterCount(gd);
-
-        for (int j=0; j<n; j++)
-        {
-          GDALRasterBandH gb=GDALGetRasterBand(gd, j+1);
-
-          if (getMaxValue(GDALGetRasterDataType(gb)) > 0)
-          {
-            if (GDALRasterIO(gb, GF_Read, xf, yf, wf, hf, p, w, h, gt,
-              sizeof(T), w*sizeof(T)) < CE_Failure)
-            {
-              for (int k=0; k<h; k++)
-              {
-                for (int i=0; i<w; i++)
-                  image.set(x+i, y+k, d, p[k*w+i]);
-              }
-            }
-            else
-            {
-              delete [] p;
-
-              std::ostringstream s;
-              s << "Cannot read raster band " << j << " of image (" << name << ")";
-              throw gutil::IOException(s.str());
-            }
-
-            d++;
-          }
-        }
-
-        delete [] p;
-      }
-      else
-      {
-        short *p=new short [w*h];
-
-        GDALRasterBandH gb=GDALGetRasterBand(gd, 1);
-
-        if (GDALRasterIO(gb, GF_Read, xf, yf, wf, hf, p, w, h, GDT_Int16,
-          sizeof(short), w*sizeof(short)) < CE_Failure)
-        {
-          for (int k=0; k<h; k++)
-          {
-            for (int i=0; i<w; i++)
-            {
-              int j=p[k*w+i];
-              if (j >= 0 && j < rgba_count)
-              {
-                j<<=2;
-                image.set(x+i, y+k, 0, static_cast<T>(rgba[j++]));
-                image.set(x+i, y+k, 1, static_cast<T>(rgba[j++]));
-                image.set(x+i, y+k, 2, static_cast<T>(rgba[j++]));
-              }
-            }
-          }
-        }
-        else
-        {
-          delete [] p;
-
-          std::ostringstream s;
-          s << "Cannot read raster band 1 of image (" << name << ") with color table";
-          throw gutil::IOException(s.str());
-        }
-
-        delete [] p;
-      }
+      delete [] p;
     }
-    catch (...)
-    {
-      GDALClose(gd);
-      throw;
-    }
-
+  }
+  catch (...)
+  {
     GDALClose(gd);
+    throw;
+  }
+
+  GDALClose(gd);
 }
 
 }
 
 void GDALImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
-  long w, long h) const
+                       long w, long h) const
 {
-    loadInternal(image, GDT_Byte, name, ds, x, y, w, h);
+  loadInternal(image, GDT_Byte, name, ds, x, y, w, h);
 }
 
 void GDALImageIO::load(ImageU16 &image, const char *name, int ds, long x,
-  long y, long w, long h) const
+                       long y, long w, long h) const
 {
-    loadInternal(image, GDT_UInt16, name, ds, x, y, w, h);
+  loadInternal(image, GDT_UInt16, name, ds, x, y, w, h);
 }
 
 void GDALImageIO::load(ImageFloat &image, const char *name, int ds, long x,
-  long y, long w, long h) const
+                       long y, long w, long h) const
 {
-    loadInternal(image, GDT_Float32, name, ds, x, y, w, h);
+  loadInternal(image, GDT_Float32, name, ds, x, y, w, h);
 }
 
 namespace
 {
 
 template <class T> void saveInternal(const Image<T> &image, const char *name,
-  GDALDataType gt)
+                                     GDALDataType gt)
 {
-    std::string s=name;
-    GDALDriverH gdriver=0;
+  std::string s=name;
+  GDALDriverH gdriver=0;
 
-      // find driver according to suffix
+  // find driver according to suffix
 
-    if (s.rfind(".tif") == s.size()-4 || s.rfind(".TIF") == s.size()-4)
-      gdriver=GDALGetDriverByName("GTiff");
+  if (s.rfind(".tif") == s.size()-4 || s.rfind(".TIF") == s.size()-4)
+  {
+    gdriver=GDALGetDriverByName("GTiff");
+  }
 
-    if (gdriver == 0)
-      throw gutil::IOException("Saving is only supported as TIF ("+std::string(name)+")");
+  if (gdriver == 0)
+  {
+    throw gutil::IOException("Saving is only supported as TIF ("+std::string(name)+")");
+  }
 
-      // create new data set
+  // create new data set
 
-    char *gp[2];
+  char *gp[2];
 
-    gp[0]=0;
-    if (image.getDepth() >= 3)
-      gp[0]=(char *) "PHOTOMETRIC=RGB";
+  gp[0]=0;
 
-    gp[1]=0;
+  if (image.getDepth() >= 3)
+  {
+    gp[0]=(char *) "PHOTOMETRIC=RGB";
+  }
 
-    GDALDatasetH gd=GDALCreate(gdriver, name, image.getWidth(),
-      image.getHeight(), image.getDepth(), gt, gp);
+  gp[1]=0;
 
-    if (gd == 0)
-      throw gutil::IOException("Cannot save image ("+std::string(name)+")");
+  GDALDatasetH gd=GDALCreate(gdriver, name, image.getWidth(),
+                             image.getHeight(), image.getDepth(), gt, gp);
 
-    try
+  if (gd == 0)
+  {
+    throw gutil::IOException("Cannot save image ("+std::string(name)+")");
+  }
+
+  try
+  {
+    // store image
+
+    T *p=new T [image.getWidth()*image.getHeight()];
+
+    for (int d=0; d<image.getDepth(); d++)
     {
-        // store image
+      GDALRasterBandH gb=GDALGetRasterBand(gd, d+1);
 
-      T *p=new T [image.getWidth()*image.getHeight()];
-
-      for (int d=0; d<image.getDepth(); d++)
+      for (int k=0; k<image.getHeight(); k++)
       {
-        GDALRasterBandH gb=GDALGetRasterBand(gd, d+1);
-
-        for (int k=0; k<image.getHeight(); k++)
+        for (int i=0; i<image.getWidth(); i++)
         {
-          for (int i=0; i<image.getWidth(); i++)
-            p[k*image.getWidth()+i]=image.get(i, k, d);
-        }
-
-        if (GDALRasterIO(gb, GF_Write, 0, 0, image.getWidth(),
-          image.getHeight(), p, image.getWidth(), image.getHeight(), gt,
-          sizeof(T), image.getWidth()*sizeof(T)) >= CE_Failure)
-        {
-          delete [] p;
-
-          throw gutil::IOException("Cannot save image ("+std::string(name)+")");
+          p[k*image.getWidth()+i]=image.get(i, k, d);
         }
       }
 
-      delete [] p;
-    }
-    catch (...)
-    {
-      GDALClose(gd);
-      throw;
+      if (GDALRasterIO(gb, GF_Write, 0, 0, image.getWidth(),
+                       image.getHeight(), p, image.getWidth(), image.getHeight(), gt,
+                       sizeof(T), image.getWidth()*sizeof(T)) >= CE_Failure)
+      {
+        delete [] p;
+
+        throw gutil::IOException("Cannot save image ("+std::string(name)+")");
+      }
     }
 
+    delete [] p;
+  }
+  catch (...)
+  {
     GDALClose(gd);
+    throw;
+  }
+
+  GDALClose(gd);
 }
 
 }
 
 void GDALImageIO::save(const ImageU8 &image, const char *name) const
 {
-    saveInternal(image, name, GDT_Byte);
+  saveInternal(image, name, GDT_Byte);
 }
 
 void GDALImageIO::save(const ImageU16 &image, const char *name) const
 {
-    saveInternal(image, name, GDT_UInt16);
+  saveInternal(image, name, GDT_UInt16);
 }
 
 void GDALImageIO::save(const ImageFloat &image, const char *name) const
 {
-    saveInternal(image, name, GDT_Float32);
+  saveInternal(image, name, GDT_Float32);
 }
 
 }

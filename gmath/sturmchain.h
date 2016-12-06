@@ -63,163 +63,183 @@ template<class T> class SturmChain
   private:
     int n;
     Polynomial<T> *f;
-    
+
   public:
-    
+
     SturmChain(const Polynomial<T> &p)
     {
       Polynomial<T> q, r;
-      
+
       assert(p.getDegree() > 0);
-      
+
       n=0;
       f=new Polynomial<T> [p.getDegree()+1];
-      
+
       f[0]=p;
-      
+
       bool compute=true;
+
       while (compute && f[0].getDegree() > 0)
       {
         compute=false;
-        
+
         f[1]=d(f[0]);
-        
+
         n=2;
+
         while (n < f[0].getDegree()+1 && f[n-1].getDegree() > 0)
         {
           div(f[n-2], f[n-1], q, r);
-          
-            // check for multiple roots
-          
+
+          // check for multiple roots
+
           if (r.getDegree() == 0 && r[0] == 0)
           {
-              // f[n-1] is the common divisor of f[0], divide it out to get
-              // rid of multiple roots and restart computation of Sturm chain
-            
+            // f[n-1] is the common divisor of f[0], divide it out to get
+            // rid of multiple roots and restart computation of Sturm chain
+
             div(f[0], f[n-1], q, r);
             f[0]=q;
             compute=true;
             break;
           }
-          
+
           f[n]=-r;
           n++;
         }
       }
     }
-    
+
     ~SturmChain()
     {
       delete [] f;
     }
-    
+
     int size() const
     {
       return n;
     }
-    
-    const Polynomial<T>& operator[] (int i) const
+
+    const Polynomial<T> &operator[](int i) const
     {
       return f[i];
     }
-    
+
     /**
      * Number of sign changes of Sturm chain at x.
      */
-    
+
     int countSignChanges(T x) const
     {
       T   f1, f2;
       int ret=0;
-      
+
       f1=0;
+
       for (int k=0; k<n; k++)
       {
         f2=f[k](x);
-        
+
         if (f1 != 0)
         {
           if (f2 != 0)
           {
             if (f1*f2 < 0)
+            {
               ret++;
-            
+            }
+
             f1=f2;
           }
         }
         else
+        {
           f1=f2;
+        }
       }
-      
+
       return ret;
     }
-    
+
     /**
      * Number of sign changes at positive infinity
      */
-    
+
     int countSignChangesPosInf() const
     {
       double f1, f2;
       int    ret=0;
-      
-        // the sign of the highest coefficient has the same sign as the
-        // limes at positive infinity
-      
+
+      // the sign of the highest coefficient has the same sign as the
+      // limes at positive infinity
+
       f1=f[0][f[0].getDegree()];
+
       for (int k=1; k<n; k++)
       {
         f2=f[k][f[k].getDegree()];
-        
+
         if ((f1 < 0 && f2 >= 0) || (f1 >= 0 && f2 < 0))
+        {
           ret++;
-        
+        }
+
         f1=f2;
       }
-      
+
       return ret;
     }
-    
+
     /**
      * Number of sign changes at negative infinity
      */
-    
+
     int countSignChangesNegInf() const
     {
       double f1, f2;
       int    ret=0;
-      
-        // the sign of the highest coefficient, multiplied by -1 if the degree
-        // is odd has the same sign as the limes at negative infinity
-      
+
+      // the sign of the highest coefficient, multiplied by -1 if the degree
+      // is odd has the same sign as the limes at negative infinity
+
       f1=f[0][f[0].getDegree()];
+
       if ((f[0].getDegree() & 0x1) != 0)
+      {
         f1*=-1;
-      
+      }
+
       for (int k=1; k<n; k++)
       {
         f2=f[k][f[k].getDegree()];
+
         if ((f[k].getDegree() & 0x1) != 0)
+        {
           f2*=-1;
-        
+        }
+
         if ((f1 < 0 && f2 >= 0) || (f1 >= 0 && f2 < 0))
+        {
           ret++;
-        
+        }
+
         f1=f2;
       }
-      
+
       return ret;
     }
-    
+
     /**
      * Number of roots in (a, b], i.e. a < x <= b. a and b must be a <= b.
      */
-    
+
     int countRoots(T a, T b) const
     {
       if (b < a)
+      {
         swap(a, b);
-      
+      }
+
       return countSignChanges(a)-countSignChanges(b);
     }
 };

@@ -48,29 +48,29 @@ namespace bgui
 class BaseWindow
 {
   private:
-  
+
     struct BaseWindowData *p;
-    
+
   public:
-    
+
     BaseWindow(const char *title, int w, int h);
     virtual ~BaseWindow();
-    
-      // showing and hiding the window (only works as long as it is not closed)
-    
+
+    // showing and hiding the window (only works as long as it is not closed)
+
     void setVisible(bool show=true);
-    
+
     int addFileWatch(const char *path);
     void removeFileWatch(int watchid);
-    
+
     void sendClose();    // sends close event to the window
     void waitForClose(); // waits for the window to be closed
     bool isClosed();
-    
-      // capturing events
-    
+
+    // capturing events
+
     enum Button {button1, button2, button3, button4, button5};
-    
+
     const static int button1mask=1<<0;
     const static int button2mask=1<<1;
     const static int button3mask=1<<2;
@@ -78,50 +78,50 @@ class BaseWindow
     const static int button5mask=1<<4;
     const static int shiftmask=1<<5;
     const static int ctrlmask=1<<6;
-    
+
     virtual void onResize(int w, int h) { };
     virtual void onMousePressed(Button b, int x, int y, int state) { };
     virtual void onMouseReleased(Button b, int x, int y, int state) { };
     virtual void onMouseMove(int x, int y, int state) { };
     virtual void onFileChanged(int watchid) { };
-    
+
     enum SpecialKey {k_none, k_esc, k_left, k_right, k_up, k_down};
-    
+
     virtual void onKey(char c, SpecialKey key, int x, int y) { };
-    
-      // return true for allowing the window to close
-    
+
+    // return true for allowing the window to close
+
     virtual bool onClose() { return true; }
-    
-      // stores the current content of the window into the given image
-    
+
+    // stores the current content of the window into the given image
+
     void getContent(gimage::ImageU8 &image);
-    
+
   protected:
-    
+
     void setTitle(const char *title);
     void getDisplaySize(int &w, int &h);
-    
-      // get and set the window size excluding border
-    
+
+    // get and set the window size excluding border
+
     void getSize(int &w, int &h);
     void setSize(int w, int h);
     void setPosition(int x, int y);
     int  getTextHeight();
-    
-      // sets or resets one line of text, which is immediately shown
-      // (set an empty std::string for removing the info text)
-    
+
+    // sets or resets one line of text, which is immediately shown
+    // (set an empty std::string for removing the info text)
+
     void setInfoLine(const char *text, bool top=true, bool left=true);
-    
-      // sets or resets a multi line text, which is immediately shown
-      // (set an empty std::string for removing the info text)
-    
+
+    // sets or resets a multi line text, which is immediately shown
+    // (set an empty std::string for removing the info text)
+
     void setInfoText(const char *text);
     bool hasInfoText();
-    
-      // clear and paint images into background buffer and visualize it
-    
+
+    // clear and paint images into background buffer and visualize it
+
     void clearBuffer();
     void paintBuffer(const ImageAdapterBase &image, int x=0, int y=0);
     void showBuffer();

@@ -178,10 +178,14 @@ Matrix34d createProjection1(const Matrix33d &E, const std::vector<Vector3d> &p0,
   // to zero singular value
 
   if (det(U) < 0)
+  {
     U.setColumn(2, -U.getColumn(2));
+  }
 
   if (det(V) < 0)
+  {
     V.setColumn(2, -V.getColumn(2));
+  }
 
   // create all four cases of projection matrices
 
@@ -215,14 +219,20 @@ Matrix34d createProjection1(const Matrix33d &E, const std::vector<Vector3d> &p0,
     bool ok=true;
 
     for (size_t k=0; k<p0.size() && ok; k++)
+    {
       ok=reconstructInFront(R1[i], T1[i], p0[k], p1[k]);
+    }
 
     if (ok)
+    {
       j=i;
+    }
   }
 
   if (j < 0)
+  {
     throw gutil::InvalidArgumentException("Cannot recover transformation from essential matrix");
+  }
 
   return createProjection(R1[j], T1[j]);
 }

@@ -65,61 +65,61 @@ template<class T> struct PixelTraits
 template<>
 struct PixelTraits<gutil::uint8>
 {
-    typedef gutil::uint8 store_t;
-    typedef int          work_t;
+  typedef gutil::uint8 store_t;
+  typedef int          work_t;
 
-    static inline const char *description() { return "uint8"; }
-    static inline work_t minValue()         { return 0; }
-    static inline work_t maxValue()         { return 255; }
-    static inline store_t limit(work_t v)   { return static_cast<store_t>(std::max(0, std::min(255, v))); }
-    static inline work_t invalid()          { return -1; }
-    static inline bool isValidW(work_t v)   { return v >= 0 && v <= 255; }
-    static inline bool isValidS(store_t v)  { return true; }
+  static inline const char *description() { return "uint8"; }
+  static inline work_t minValue()         { return 0; }
+  static inline work_t maxValue()         { return 255; }
+  static inline store_t limit(work_t v)   { return static_cast<store_t>(std::max(0, std::min(255, v))); }
+  static inline work_t invalid()          { return -1; }
+  static inline bool isValidW(work_t v)   { return v >= 0 && v <= 255; }
+  static inline bool isValidS(store_t v)  { return true; }
 };
 
 template<>
 struct PixelTraits<gutil::uint16>
 {
-    typedef gutil::uint16 store_t;
-    typedef int           work_t;
+  typedef gutil::uint16 store_t;
+  typedef int           work_t;
 
-    static inline const char *description() { return "uint16"; }
-    static inline work_t minValue()         { return 0; }
-    static inline work_t maxValue()         { return 65535; }
-    static inline store_t limit(work_t v)   { return static_cast<store_t>(std::max(0, std::min(65535, v))); }
-    static inline work_t invalid()          { return -1; }
-    static inline bool isValidW(work_t v)   { return v >= 0 && v <= 65535; }
-    static inline bool isValidS(store_t v)  { return true; }
+  static inline const char *description() { return "uint16"; }
+  static inline work_t minValue()         { return 0; }
+  static inline work_t maxValue()         { return 65535; }
+  static inline store_t limit(work_t v)   { return static_cast<store_t>(std::max(0, std::min(65535, v))); }
+  static inline work_t invalid()          { return -1; }
+  static inline bool isValidW(work_t v)   { return v >= 0 && v <= 65535; }
+  static inline bool isValidS(store_t v)  { return true; }
 };
 
 template<>
 struct PixelTraits<gutil::uint32>
 {
-    typedef gutil::uint32 store_t;
-    typedef gutil::int64  work_t;
+  typedef gutil::uint32 store_t;
+  typedef gutil::int64  work_t;
 
-    static inline const char *description() { return "uint32"; }
-    static inline work_t minValue()         { return 0; }
-    static inline work_t maxValue()         { return std::numeric_limits<store_t>::max(); }
-    static inline store_t limit(work_t v)   { return static_cast<store_t>(std::max(minValue(), std::min(maxValue(), v))); }
-    static inline work_t invalid()          { return -1; }
-    static inline bool isValidW(work_t v)   { return v >= 0 && v <= static_cast<long long>(std::numeric_limits<store_t>::max()); }
-    static inline bool isValidS(store_t v)  { return true; }
+  static inline const char *description() { return "uint32"; }
+  static inline work_t minValue()         { return 0; }
+  static inline work_t maxValue()         { return std::numeric_limits<store_t>::max(); }
+  static inline store_t limit(work_t v)   { return static_cast<store_t>(std::max(minValue(), std::min(maxValue(), v))); }
+  static inline work_t invalid()          { return -1; }
+  static inline bool isValidW(work_t v)   { return v >= 0 && v <= static_cast<long long>(std::numeric_limits<store_t>::max()); }
+  static inline bool isValidS(store_t v)  { return true; }
 };
 
 template<>
 struct PixelTraits<float>
 {
-    typedef float store_t;
-    typedef float work_t;
+  typedef float store_t;
+  typedef float work_t;
 
-    static inline const char *description() { return "float"; }
-    static inline work_t minValue()         { return -std::numeric_limits<float>::max(); }
-    static inline work_t maxValue()         { return std::numeric_limits<float>::max(); }
-    static inline store_t limit(work_t v)   { return v; }
-    static inline work_t invalid()          { return std::numeric_limits<float>::infinity(); }
-    static inline bool isValidW(work_t v)   { return std::isfinite(v); }
-    static inline bool isValidS(store_t v)  { return std::isfinite(v); }
+  static inline const char *description() { return "float"; }
+  static inline work_t minValue()         { return -std::numeric_limits<float>::max(); }
+  static inline work_t maxValue()         { return std::numeric_limits<float>::max(); }
+  static inline store_t limit(work_t v)   { return v; }
+  static inline work_t invalid()          { return std::numeric_limits<float>::infinity(); }
+  static inline bool isValidW(work_t v)   { return std::isfinite(v); }
+  static inline bool isValidS(store_t v)  { return std::isfinite(v); }
 };
 
 /**
@@ -134,7 +134,7 @@ template<class T, class traits=PixelTraits<T> > class Image
     long width, height, n;
     T    *pixel;
     T    **row;
-    T    ***img;
+    T    ** *img;
 
   public:
 
@@ -182,13 +182,19 @@ template<class T, class traits=PixelTraits<T> > class Image
       if (width != w || height != h || depth != d)
       {
         if (pixel != 0)
+        {
           delete [] pixel;
+        }
 
         if (row != 0)
+        {
           delete [] row;
+        }
 
         if (img != 0)
+        {
           delete [] img;
+        }
 
         depth=d;
         width=w;
@@ -205,20 +211,26 @@ template<class T, class traits=PixelTraits<T> > class Image
 
           pixel=new T[n];
           row=new T*[m];
-          img=new T**[depth];
+          img=new T **[depth];
 
           row[0]=pixel;
+
           for (long k=1; k<m; k++)
+          {
             row[k]=row[k-1]+width;
+          }
 
           img[0]=row;
+
           for (int j=1; j<depth; j++)
+          {
             img[j]=img[j-1]+height;
+          }
         }
       }
     }
 
-    Image<T>& operator=(const Image<T> &a)
+    Image<T> &operator=(const Image<T> &a)
     {
       setSize(a.getWidth(), a.getHeight(), a.getDepth());
 
@@ -227,10 +239,12 @@ template<class T, class traits=PixelTraits<T> > class Image
       return *this;
     }
 
-    Image<T>& operator=(store_t v)
+    Image<T> &operator=(store_t v)
     {
       for (long i=0; i<n; i++)
+      {
         pixel[i]=v;
+      }
 
       return *this;
     }
@@ -246,7 +260,9 @@ template<class T, class traits=PixelTraits<T> > class Image
       else
       {
         for (long i=0; i<n; i++)
+        {
           pixel[i]=inv;
+        }
       }
     }
 
@@ -285,7 +301,9 @@ template<class T, class traits=PixelTraits<T> > class Image
       for (int j=0; j<depth; j++)
       {
         if (!isValidS(img[j][k][i]))
+        {
           return false;
+        }
       }
 
       return true;
@@ -298,7 +316,9 @@ template<class T, class traits=PixelTraits<T> > class Image
       for (long i=0; i<n; i++)
       {
         if (pixel[i] != inv)
+        {
           return true;
+        }
       }
 
       return false;
@@ -356,7 +376,9 @@ template<class T, class traits=PixelTraits<T> > class Image
       k=std::min(height-1, k);
 
       for (int j=0; j<depth; j++)
+      {
         p[j]=static_cast<work_t>(img[j][k][i]);
+      }
     }
 
     /**
@@ -369,7 +391,9 @@ template<class T, class traits=PixelTraits<T> > class Image
       work_t ret=ptraits::invalid();
 
       if (j >= 0 && j < depth && i >= 0 && i < width && k >= 0 && k < height)
+      {
         ret=static_cast<work_t>(img[j][k][i]);
+      }
 
       return ret;
     }
@@ -379,12 +403,16 @@ template<class T, class traits=PixelTraits<T> > class Image
       if (i >= 0 && i < width && k >= 0 && k < height)
       {
         for (int j=0; j<depth; j++)
+        {
           p[j]=static_cast<work_t>(img[j][k][i]);
+        }
       }
       else
       {
         for (int j=0; j<depth; j++)
+        {
           p[j]=ptraits::invalid();
+        }
       }
     }
 
@@ -407,16 +435,24 @@ template<class T, class traits=PixelTraits<T> > class Image
       y-=0.5f;
 
       if (x < 0)
+      {
         x=0;
+      }
 
       if (y < 0)
+      {
         y=0;
+      }
 
       if (x >= width-1)
+      {
         x=width-1.001f;
+      }
 
       if (y >= height-1)
+      {
         y=height-1.001f;
+      }
 
       i=static_cast<long>(x);
       k=static_cast<long>(y);
@@ -450,16 +486,24 @@ template<class T, class traits=PixelTraits<T> > class Image
       y-=0.5f;
 
       if (x < 0)
+      {
         x=0;
+      }
 
       if (y < 0)
+      {
         y=0;
+      }
 
       if (x >= width-1)
+      {
         x=width-1.001f;
+      }
 
       if (y >= height-1)
+      {
         y=height-1.001f;
+      }
 
       i=static_cast<long>(x);
       k=static_cast<long>(y);
@@ -485,7 +529,9 @@ template<class T, class traits=PixelTraits<T> > class Image
         p3=img[j][k+1][i+1];
 
         if (isValidS(p0) && isValidS(p1) && isValidS(p2) && isValidS(p3))
+        {
           p[j]=(p0*s0+p1*s1+p2*s2+p3*s3)/16;
+        }
       }
     }
 
@@ -514,12 +560,15 @@ template<class T, class traits=PixelTraits<T> > class Image
         y-=k;
 
         float v[4];
+
         for (int kk=0; kk<4; kk++)
         {
           const T *p=img[j][k-1+kk]+i-1;
 
           if (!isValidS(p[0]) || !isValidS(p[1]) || !isValidS(p[2]) || !isValidS(p[3]))
+          {
             return ptraits::invalid();
+          }
 
           const float p0=static_cast<float>(p[0]);
           const float p1=static_cast<float>(p[1]);
@@ -530,7 +579,7 @@ template<class T, class traits=PixelTraits<T> > class Image
         }
 
         return ptraits::limit(v[1]+0.5f*y*(v[2]-v[0]+y*(2*v[0]-5*v[1]+4*v[2]-v[3]+y*(3*(v[1]-v[2])+
-                                                                                     v[3]-v[0]))));
+                                           v[3]-v[0]))));
       }
 
       return getBilinear(x, y, j);
@@ -572,6 +621,7 @@ template<class T, class traits=PixelTraits<T> > class Image
         for (int j=0; j<depth; j++)
         {
           float res=0;
+
           for (int kk=0; kk<4; kk++)
           {
             const T *v=img[j][k-1+kk]+i-1;
@@ -611,7 +661,9 @@ template<class T, class traits=PixelTraits<T> > class Image
       for (long i=0; i<n; i++)
       {
         if (isValidS(pixel[i]))
+        {
           ret=std::min(ret, static_cast<work_t>(pixel[i]));
+        }
       }
 
       return ret;
@@ -624,7 +676,9 @@ template<class T, class traits=PixelTraits<T> > class Image
       for (long i=0; i<n; i++)
       {
         if (isValidS(pixel[i]))
+        {
           ret=std::max(ret, static_cast<work_t>(pixel[i]));
+        }
       }
 
       return ret;
@@ -647,7 +701,9 @@ template<class T, class traits=PixelTraits<T> > class Image
       for (int j=0; j<depth; j++)
         for (long k=0; k<height; k++)
           for (long i=0; i<width; i++)
+          {
             img[j][k][i]=ptraits::limit(static_cast<work_t>(a.get(i, k, j)));
+          }
     }
 
     template<class S> void setImage(const Image<S> &a)
@@ -657,7 +713,9 @@ template<class T, class traits=PixelTraits<T> > class Image
       for (int j=0; j<depth; j++)
         for (long k=0; k<height; k++)
           for (long i=0; i<width; i++)
+          {
             img[j][k][i]=static_cast<store_t>(a.get(i, k, j));
+          }
     }
 
     void setImage(const Image<T> &a)
@@ -685,10 +743,14 @@ template<class T, class traits=PixelTraits<T> > class Image
         for (long k=0; k<height; k++)
           for (long i=0; i<width; i++)
             for (int j=0; j<depth; j++)
+            {
               img[j][k][i]=*p++;
+            }
       }
       else
+      {
         memcpy(pixel, p, width*height*sizeof(store_t));
+      }
     }
 
     void copyTo(store_t *p) const
@@ -698,10 +760,14 @@ template<class T, class traits=PixelTraits<T> > class Image
         for (long k=0; k<height; k++)
           for (long i=0; i<width; i++)
             for (int j=0; j<depth; j++)
+            {
               *p++=img[j][k][i];
+            }
       }
       else
+      {
         memcpy(p, pixel, width*height*sizeof(store_t));
+      }
     }
 };
 

@@ -54,36 +54,37 @@ class MultiTexturedMesh;
 class TexturedMesh : public Mesh
 {
   private:
-  
+
     std::string basepath;
     std::string name;
     float       *uv;
-  
+
     TexturedMesh(const TexturedMesh &);
-    TexturedMesh& operator=(const TexturedMesh &);
-    
+    TexturedMesh &operator=(const TexturedMesh &);
+
   public:
-    
+
     TexturedMesh();
-    TexturedMesh(const MultiTexturedMesh &p, int t, const std::vector<bool> &vused, const std::vector<bool> &tused);
+    TexturedMesh(const MultiTexturedMesh &p, int t, const std::vector<bool> &vused,
+                 const std::vector<bool> &tused);
     virtual ~TexturedMesh();
-    
+
     virtual void resizeVertexList(int vn, bool with_scanprop, bool with_scanpos);
-    
+
     const std::string &getBasePath() const { return basepath; }
     void setBasePath(std::string s) { basepath=s; }
-    
+
     const std::string &getTextureName() const { return name; }
     void setTextureName(std::string s) { name=s; }
-    
-      // texture coordinates for each vertex
-    
+
+    // texture coordinates for each vertex
+
     float *getTextureCoordArray() { return uv; }
     float getTextureCoordComp(int i, int k) const { return uv[2*i+k]; }
     void setTextureCoordComp(int i, int k, float c) { uv[2*i+k]=c; }
-    
-    virtual void addGLObjects(std::vector<GLObject*> &list);
-    
+
+    virtual void addGLObjects(std::vector<GLObject *> &list);
+
     virtual void loadPLY(PLYReader &ply);
     virtual void savePLY(const char *name, bool all=true, ply_encoding enc=ply_binary) const;
 };

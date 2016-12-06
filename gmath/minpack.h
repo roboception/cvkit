@@ -64,7 +64,7 @@ double rms(int m, double fvec[]);
   @return     >= 0 for continuing the optimization, < 0 to abort.
 */
 
-typedef int (*lmdifFct) (int n, double x[], int m, double fvec[], void *up);
+typedef int (*lmdifFct)(int n, double x[], int m, double fvec[], void *up);
 
 /**
   Prototype for calculating the function fvec or jacobian fjac at x. fvec and
@@ -93,8 +93,8 @@ typedef int (*lmdifFct) (int n, double x[], int m, double fvec[], void *up);
   @return     >= 0 for continuing the optimization, < 0 to abort.
 */
 
-typedef int (*lmderFct) (int n, double x[], int m, double fvec[],
-  double fjac[], void *up);
+typedef int (*lmderFct)(int n, double x[], int m, double fvec[],
+                        double fjac[], void *up);
 
 /**
   Short version of lmdif(), i.e. calls lmdif with some default parameters.
@@ -113,7 +113,7 @@ typedef int (*lmderFct) (int n, double x[], int m, double fvec[],
 */
 
 bool slmdif(lmdifFct fct, int m, int n, double x[], double fvec[],
-  void *up=0, double tol=1e-12, double step=0, long ltmp[]=0, double dtmp[]=0);
+            void *up=0, double tol=1e-12, double step=0, long ltmp[]=0, double dtmp[]=0);
 
 /**
   Short version of lmder(), i.e. calls lmder with some default parameters.
@@ -132,7 +132,7 @@ bool slmdif(lmdifFct fct, int m, int n, double x[], double fvec[],
 */
 
 bool slmder(lmderFct fct, int m, int n, double x[], double fvec[],
-  void *up=0, double tol=1e-12, long ltmp[]=0, double dtmp[]=0);
+            void *up=0, double tol=1e-12, long ltmp[]=0, double dtmp[]=0);
 
 }
 

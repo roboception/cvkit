@@ -60,47 +60,47 @@ class GLObject;
 class GLWorld : public GLListener
 {
   private:
-    
+
     std::string       prefix;
-    
+
     gmath::Vector3d   offset;
-    std::vector<GLObject*> list;
+    std::vector<GLObject *> list;
     gmath::Vector3d   extmin, extmax;
     gmath::Matrix33d  defRc;
     gmath::Vector3d   defTc;
-    
+
     std::vector<bool> showid;
     GLCamera          camera;
     bool              fullscreen;
     int               colorschema;
     long              txt_rgb;
-    
+
     gutil::ProcTime   mt;
     int               mb, mx, my;
     int               mod;
-    
+
     std::string       infotext;
     std::string       infoline;
-    
+
     GLWorld(const GLWorld &);
-    GLWorld& operator=(const GLWorld &);
-    
+    GLWorld &operator=(const GLWorld &);
+
   public:
-    
+
     GLWorld(int w, int h);
     virtual ~GLWorld();
-    
+
     void setCapturePrefix(const char *p) { prefix=std::string(p); }
-    
+
     const gmath::Vector3d &getOffset() const { return offset; }
     void setOffset(const gmath::Vector3d v) { offset=v; }
-    
+
     void addModel(Model &model);
     void removeAllModels(int id);
     void showCameras(bool show);
-    
+
     void resetCamera();
-    
+
     void onRedraw();
     void onReshape(int w, int h);
     void onKey(unsigned char key, int x, int y);

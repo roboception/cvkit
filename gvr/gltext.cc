@@ -42,67 +42,76 @@ namespace gvr
 {
 
 GLTextItem::GLTextItem(const std::string &t, const gmath::Matrix33d &R, const gmath::Vector3d &T,
-  double s, bool center)
+                       double s, bool center)
 {
-    text=t;
+  text=t;
 
-    s/=119.05;
-    gmath::SMatrix<double, 4, 4> RT;
-    RT(0, 0)=R(0, 0); RT(0, 1)=R(0, 1); RT(0, 2)=R(0, 2); RT(0, 3)=T[0];
-    RT(1, 0)=R(1, 0); RT(1, 1)=R(1, 1); RT(1, 2)=R(1, 2); RT(1, 3)=T[1];
-    RT(2, 0)=R(2, 0); RT(2, 1)=R(2, 1); RT(2, 2)=R(2, 2); RT(2, 3)=T[2];
+  s/=119.05;
+  gmath::SMatrix<double, 4, 4> RT;
+  RT(0, 0)=R(0, 0); RT(0, 1)=R(0, 1); RT(0, 2)=R(0, 2); RT(0, 3)=T[0];
+  RT(1, 0)=R(1, 0); RT(1, 1)=R(1, 1); RT(1, 2)=R(1, 2); RT(1, 3)=T[1];
+  RT(2, 0)=R(2, 0); RT(2, 1)=R(2, 1); RT(2, 2)=R(2, 2); RT(2, 3)=T[2];
 
-    gmath::SMatrix<double, 4, 4> ms;
-    ms(0, 0)=s;
-    ms(1, 1)=-s;
-    ms(2, 2)=-s;
-    ms(3, 3)=1;
+  gmath::SMatrix<double, 4, 4> ms;
+  ms(0, 0)=s;
+  ms(1, 1)=-s;
+  ms(2, 2)=-s;
+  ms(3, 3)=1;
 
-    if (center)
+  if (center)
+  {
+    double len=0;
+
+    for (size_t i=0; i<text.size(); i++)
     {
-      double len=0;
-      for (size_t i=0; i<text.size(); i++)
-        len+=glutStrokeWidth(GLUT_STROKE_ROMAN, text[i]);
-
-      ms(0, 3)=-s*len/2;
+      len+=glutStrokeWidth(GLUT_STROKE_ROMAN, text[i]);
     }
 
-    ms(1, 3)=-s*33.3;
+    ms(0, 3)=-s*len/2;
+  }
 
-    RT=RT*ms;
+  ms(1, 3)=-s*33.3;
 
-    int j=0;
-    for (int k=0; k<4; k++)
+  RT=RT*ms;
+
+  int j=0;
+
+  for (int k=0; k<4; k++)
+  {
+    for (int i=0; i<4; i++)
     {
-      for (int i=0; i<4; i++)
-        trans[j++]=static_cast<GLfloat>(RT(i, k));
+      trans[j++]=static_cast<GLfloat>(RT(i, k));
     }
+  }
 }
 
 void GLText::addText(const std::string &text, const gmath::Matrix33d &R, const gmath::Vector3d &T,
-  double scale, bool center)
+                     double scale, bool center)
 {
-    list.push_back(GLTextItem(text, R, T, scale, center));
+  list.push_back(GLTextItem(text, R, T, scale, center));
 }
 
 void GLText::draw(const GLCamera &cam)
 {
-    glPushMatrix();
-    glLoadIdentity();
+  glPushMatrix();
+  glLoadIdentity();
 
-    glColor3f(1.0, 1.0, 1.0);
+  glColor3f(1.0, 1.0, 1.0);
 
-    for (size_t i=0; i<list.size(); i++)
+  for (size_t i=0; i<list.size(); i++)
+  {
+    glLoadMatrixf(cam.getGLTransformation());
+    glMultMatrixf(list[i].getGLTransformation());
+
+    const char *p=list[i].getText().c_str();
+
+    while (*p != '\0')
     {
-      glLoadMatrixf(cam.getGLTransformation());
-      glMultMatrixf(list[i].getGLTransformation());
-
-      const char *p=list[i].getText().c_str();
-      while (*p != '\0')
-        glutStrokeCharacter(GLUT_STROKE_ROMAN, *p++);
+      glutStrokeCharacter(GLUT_STROKE_ROMAN, *p++);
     }
+  }
 
-    glPopMatrix();
+  glPopMatrix();
 }
 
 }

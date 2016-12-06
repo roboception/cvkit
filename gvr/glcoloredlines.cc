@@ -49,14 +49,14 @@ namespace
 const GLchar *vshader[]=
 {
   "#version 130\n",
-  
+
   "in vec3 vertex;",
   "in vec3 vcolor;",
-  
+
   "uniform mat4 trans;",
-  
+
   "out vec3 color;",
-  
+
   "void main()",
   "{",
   "  gl_Position=trans*vec4(vertex, 1.0);",
@@ -69,11 +69,11 @@ const GLchar *vshader[]=
 const GLchar *fshader[]=
 {
   "#version 130\n",
-  
+
   "in vec3 color;",
-  
+
   "out vec4 FragColor;",
-  
+
   "void main()",
   "{",
   "  FragColor=vec4(color, 1.0);",
@@ -85,14 +85,14 @@ const GLchar *fshader[]=
 const GLchar *vshader[]=
 {
   "#version 120\n",
-  
+
   "attribute vec3 vertex;",
   "attribute vec3 vcolor;",
-  
+
   "uniform mat4 trans;",
-  
+
   "varying vec3 color;",
-  
+
   "void main()",
   "{",
   "  gl_Position=trans*vec4(vertex, 1.0);",
@@ -105,9 +105,9 @@ const GLchar *vshader[]=
 const GLchar *fshader[]=
 {
   "#version 120\n",
-  
+
   "varying vec3 color;",
-  
+
   "void main()",
   "{",
   "  gl_FragColor=vec4(color, 1.0);",
@@ -125,73 +125,73 @@ GLint GLColoredLines::ptrans;
 
 GLColoredLines::GLColoredLines(ColoredLines &p) : GLColoredPointCloud(p)
 {
-    ln=p.getLineCount();
-    
-      // create shader programs, but only once per class
-    
-    if (init == 0)
-    {
-      prg=createProgram(vshader, fshader);
-      
-      pvertex=getAttributeLocation(prg, "vertex");
-      pvcolor=getAttributeLocation(prg, "vcolor");
-      
-      ptrans=getUniformLocation(prg, "trans");
-    }
-    
-    init++;
-    
-      // create buffer objects for data
-    
-    glGenBuffers(1, &bline);
-    glBindBuffer(GL_ARRAY_BUFFER, bline);
-    glBufferData(GL_ARRAY_BUFFER, p.getLineCount()*2*sizeof(unsigned int),
-      p.getLineArray(), GL_STATIC_DRAW);
-    
-    checkGLError();
+  ln=p.getLineCount();
+
+  // create shader programs, but only once per class
+
+  if (init == 0)
+  {
+    prg=createProgram(vshader, fshader);
+
+    pvertex=getAttributeLocation(prg, "vertex");
+    pvcolor=getAttributeLocation(prg, "vcolor");
+
+    ptrans=getUniformLocation(prg, "trans");
+  }
+
+  init++;
+
+  // create buffer objects for data
+
+  glGenBuffers(1, &bline);
+  glBindBuffer(GL_ARRAY_BUFFER, bline);
+  glBufferData(GL_ARRAY_BUFFER, p.getLineCount()*2*sizeof(unsigned int),
+               p.getLineArray(), GL_STATIC_DRAW);
+
+  checkGLError();
 }
 
 GLColoredLines::~GLColoredLines()
 {
-      // clean up buffer objects
-    
-    glDeleteBuffers(1, &bline);
-    
-      // clean up program, but only once per class
-    
-    init--;
-    
-    if (init == 0)
-    {
-      glDeleteProgram(prg);
-      prg=0;
-    }
+  // clean up buffer objects
+
+  glDeleteBuffers(1, &bline);
+
+  // clean up program, but only once per class
+
+  init--;
+
+  if (init == 0)
+  {
+    glDeleteProgram(prg);
+    prg=0;
+  }
 }
 
 void GLColoredLines::draw(const GLCamera &cam)
 {
-    GLint defprg=0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &defprg);
-    
-    glUseProgram(prg);
-    
-    glUniformMatrix4fv(ptrans, 1, GL_TRUE, cam.getTransformation());
-    
-    glEnableVertexAttribArray(pvertex);
-    glBindBuffer(GL_ARRAY_BUFFER, bvertex);
-    glVertexAttribPointer(pvertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    
-    glEnableVertexAttribArray(pvcolor);
-    glBindBuffer(GL_ARRAY_BUFFER, bcolor);
-    glVertexAttribPointer(pvcolor, 3, GL_UNSIGNED_BYTE, GL_FALSE, 0, 0);
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bline);
-    glDrawElements(GL_LINES, 2*ln, GL_UNSIGNED_INT, 0);
-    
-    glDisableVertexAttribArray(pvcolor);
-    glDisableVertexAttribArray(pvertex);
-    
-    glUseProgram(defprg);
+  GLint defprg=0;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &defprg);
+
+  glUseProgram(prg);
+
+  glUniformMatrix4fv(ptrans, 1, GL_TRUE, cam.getTransformation());
+
+  glEnableVertexAttribArray(pvertex);
+  glBindBuffer(GL_ARRAY_BUFFER, bvertex);
+  glVertexAttribPointer(pvertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  glEnableVertexAttribArray(pvcolor);
+  glBindBuffer(GL_ARRAY_BUFFER, bcolor);
+  glVertexAttribPointer(pvcolor, 3, GL_UNSIGNED_BYTE, GL_FALSE, 0, 0);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bline);
+  glDrawElements(GL_LINES, 2*ln, GL_UNSIGNED_INT, 0);
+
+  glDisableVertexAttribArray(pvcolor);
+  glDisableVertexAttribArray(pvertex);
+
+  glUseProgram(defprg);
 }
 
 }

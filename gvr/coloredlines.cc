@@ -46,50 +46,52 @@ namespace gvr
 
 ColoredLines::ColoredLines()
 {
-    n=0;
-    line=0;
+  n=0;
+  line=0;
 }
 
 ColoredLines::~ColoredLines()
 {
-    delete [] line;
+  delete [] line;
 }
 
 void ColoredLines::resizeVertexList(int vn, bool with_scanprop, bool with_scanpos)
 {
-    ColoredPointCloud::resizeVertexList(vn, with_scanprop, with_scanpos);
+  ColoredPointCloud::resizeVertexList(vn, with_scanprop, with_scanpos);
 }
 
 void ColoredLines::resizeLineList(int ln)
 {
-    unsigned int *p=new unsigned int [(ln<<1)];
+  unsigned int *p=new unsigned int [(ln<<1)];
 
-    for (int i=2*std::min(n, ln)-1; i>=0; i--)
-      p[i]=line[i];
+  for (int i=2*std::min(n, ln)-1; i>=0; i--)
+  {
+    p[i]=line[i];
+  }
 
-    delete [] line;
+  delete [] line;
 
-    line=p;
-    n=ln;
+  line=p;
+  n=ln;
 }
 
-void ColoredLines::addGLObjects(std::vector<GLObject*> &list)
+void ColoredLines::addGLObjects(std::vector<GLObject *> &list)
 {
 #ifdef INCLUDE_GL
-    list.push_back(new GLColoredLines(*this));
+  list.push_back(new GLColoredLines(*this));
 #else
-    assert(false);
+  assert(false);
 #endif
 }
 
 void ColoredLines::loadPLY(PLYReader &ply)
 {
-    assert(false);
+  assert(false);
 }
 
 void ColoredLines::savePLY(const char *name, bool all, ply_encoding enc) const
 {
-    assert(false);
+  assert(false);
 }
 
 }

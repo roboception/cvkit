@@ -45,86 +45,110 @@
 
 bool gutil::isMSBFirst()
 {
-    int p=1;
-    char *c=reinterpret_cast<char *>(&p);
+  int p=1;
+  char *c=reinterpret_cast<char *>(&p);
 
-    if (c[0] == 1)
-      return false;
+  if (c[0] == 1)
+  {
+    return false;
+  }
 
-    return true;
+  return true;
 }
 
 void gutil::trim(std::string &s)
 {
-    size_t pos;
+  size_t pos;
 
-    pos=0;
-    while (pos < s.size() && isspace(s[pos]))
-      pos++;
+  pos=0;
 
-    if (pos > 0)
-      s=s.substr(pos);
+  while (pos < s.size() && isspace(s[pos]))
+  {
+    pos++;
+  }
 
-    pos=s.size();
-    while (pos > 0 && isspace(s[pos-1]))
-      pos--;
+  if (pos > 0)
+  {
+    s=s.substr(pos);
+  }
 
-    if (pos < s.size())
-      s=s.substr(0, pos);
+  pos=s.size();
+
+  while (pos > 0 && isspace(s[pos-1]))
+  {
+    pos--;
+  }
+
+  if (pos < s.size())
+  {
+    s=s.substr(0, pos);
+  }
 }
 
 void gutil::split(std::vector<std::string> &list, const std::string &s, char delim, bool skip_empty)
 {
-    std::stringstream in(s);
-    std::string elem;
+  std::stringstream in(s);
+  std::string elem;
 
-    while (getline(in, elem, delim))
+  while (getline(in, elem, delim))
+  {
+    if (!skip_empty || elem.size() > 0)
     {
-      if (!skip_empty || elem.size() > 0)
-        list.push_back(elem);
+      list.push_back(elem);
     }
+  }
 }
 
 void gutil::getFileList(std::set<std::string> &list, const std::string &prefix,
-  const std::string &suffix)
+                        const std::string &suffix)
 {
 #ifdef __GNUC__
-    std::string dir="", pref=prefix;
-    size_t pos=pref.find_last_of("/\\");
+  std::string dir="", pref=prefix;
+  size_t pos=pref.find_last_of("/\\");
 
-    if (pos < pref.size())
-    {
-      dir=pref.substr(0, pos+1);
-      pref=pref.substr(pos+1);
-    }
+  if (pos < pref.size())
+  {
+    dir=pref.substr(0, pos+1);
+    pref=pref.substr(pos+1);
+  }
 
-    DIR *p;
-    if (dir.size() > 0)
-      p=opendir(dir.c_str());
-    else
-      p=opendir(".");
+  DIR *p;
 
-    if (p == 0)
-      throw IOException("Cannot open directory: "+dir);
+  if (dir.size() > 0)
+  {
+    p=opendir(dir.c_str());
+  }
+  else
+  {
+    p=opendir(".");
+  }
 
-    list.clear();
+  if (p == 0)
+  {
+    throw IOException("Cannot open directory: "+dir);
+  }
 
-    struct dirent *entry=readdir(p);
-    while (entry != 0)
-    {
-      std::string name=entry->d_name;
+  list.clear();
 
-      if (name.size() >= pref.size()+suffix.size() &&
+  struct dirent *entry=readdir(p);
+
+  while (entry != 0)
+  {
+    std::string name=entry->d_name;
+
+    if (name.size() >= pref.size()+suffix.size() &&
         name.find(pref) ==  0 && (suffix.size() == 0 ||
-        name.rfind(suffix) == name.size()-suffix.size()))
-        list.insert(dir+name);
-
-      entry=readdir(p);
+                                  name.rfind(suffix) == name.size()-suffix.size()))
+    {
+      list.insert(dir+name);
     }
 
-    closedir(p);
+    entry=readdir(p);
+  }
+
+  closedir(p);
 #else
-    assert(false);
+  assert(false);
 #endif
 }
 
@@ -136,7 +160,9 @@ bool gutil::skip(std::istream &in, const char *expected)
     in >> s;
 
     if (s == expected)
+    {
       return true;
+    }
 
 #ifndef NDEBUG
     std::cerr << "gutil::skip() expected '" << expected << "' but got '" << s << "'" << std::endl;

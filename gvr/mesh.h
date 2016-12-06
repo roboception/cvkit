@@ -44,48 +44,48 @@ namespace gvr
 class Mesh : public PointCloud
 {
   private:
-  
+
     float *normal;
-    
+
     int n;
     unsigned int *triangle;
-  
+
     Mesh(const Mesh &);
-    Mesh& operator=(const Mesh &);
-    
+    Mesh &operator=(const Mesh &);
+
   public:
-    
+
     Mesh();
     Mesh(const Mesh &p, const std::vector<bool> &vused, const std::vector<bool> &tused);
     virtual ~Mesh();
-    
+
     virtual void resizeVertexList(int vn, bool with_scanprop, bool with_scanpos);
     virtual void resizeTriangleList(int tn);
-    
+
     int getTriangleCount() const { return n; }
-    
+
     float *getNormalArray() { return normal; }
     float getNormalComp(int i, int k) const { return normal[3*i+k]; }
     void setNormalComp(int i, int k, float x) { normal[3*i+k]=x; }
-    
+
     unsigned int *getTriangleArray() { return triangle; }
     unsigned int getTriangleIndex(int i, int c) const { return triangle[3*i+c]; }
     void setTriangleIndex(int i, int c, unsigned int v) { triangle[3*i+c]=v; }
-    
+
     void setTriangleIndex(int i, unsigned int a, unsigned int b, unsigned int c)
     {
       triangle[3*i]=a;
       triangle[3*i+1]=b;
       triangle[3*i+2]=c;
     }
-    
+
     void normalizeNormals();
     void recalculateNormals();
-    
+
     int getUsedVertices(std::vector<bool> &vused);
-    
-    virtual void addGLObjects(std::vector<GLObject*> &list);
-    
+
+    virtual void addGLObjects(std::vector<GLObject *> &list);
+
     virtual void loadPLY(PLYReader &ply);
     virtual void savePLY(const char *name, bool all=true, ply_encoding enc=ply_binary) const;
 };
@@ -93,13 +93,13 @@ class Mesh : public PointCloud
 class TriangleReceiver : public PLYReceiver
 {
   private:
-    
+
     Mesh &p;
-  
+
   public:
-  
+
     TriangleReceiver(Mesh &pc) : p(pc) { }
-    
+
     void setValue(int instance, const PLYValue &value)
     {
       p.setTriangleIndex(instance, 0, value.getUnsignedInt(0));

@@ -46,28 +46,28 @@ namespace gvr
 class CameraCollection : public Model
 {
   private:
-  
+
     std::vector<gmath::PinholeCamera> cl;
-    
+
     CameraCollection(const CameraCollection &);
-    CameraCollection& operator=(const CameraCollection &);
-    
+    CameraCollection &operator=(const CameraCollection &);
+
   public:
-    
+
     CameraCollection() { };
     CameraCollection(const std::vector<gmath::PinholeCamera> &camlist);
-    
+
     int getCameraCount() const { return cl.size(); }
     const gmath::PinholeCamera &getCamera(int i) const { return cl[i]; }
     void loadCamera(const char *file);
     void addCamera(const gmath::PinholeCamera &cam) { cl.push_back(cam); }
     void removeCamera(int i) { cl.erase(cl.begin()+i); }
-    
+
     virtual void translate(const gmath::Vector3d &v);
     virtual void addExtend(gmath::Vector3d &emin, gmath::Vector3d &emax) const;
-    
-    virtual void addGLObjects(std::vector<GLObject*> &list);
-    
+
+    virtual void addGLObjects(std::vector<GLObject *> &list);
+
     virtual void loadPLY(PLYReader &ply);
     virtual void savePLY(const char *name, bool all=true, ply_encoding enc=ply_binary) const;
 };

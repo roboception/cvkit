@@ -40,108 +40,125 @@ namespace gimage
 
 void Histogram::setSize(int width, int height, int binsize)
 {
-    if (w != width || h != height)
+  if (w != width || h != height)
+  {
+    delete [] val;
+    delete [] row;
+
+    w=width;
+    h=height;
+    val=0;
+    row=0;
+
+    if (w > 0 && h > 0)
     {
-      delete [] val;
-      delete [] row;
+      val=new unsigned long [w*h];
+      row=new unsigned long * [h];
 
-      w=width;
-      h=height;
-      val=0;
-      row=0;
+      row[0]=val;
 
-      if (w > 0 && h > 0)
+      for (int k=1; k<h; k++)
       {
-        val=new unsigned long [w*h];
-        row=new unsigned long * [h];
-
-        row[0]=val;
-        for (int k=1; k<h; k++)
-          row[k]=row[k-1]+w;
+        row[k]=row[k-1]+w;
       }
     }
+  }
 
-    bs=binsize;
+  bs=binsize;
 }
 
 void Histogram::sumRows(Histogram &colhist) const
 {
-    colhist.setSize(w, 1, bs);
-    colhist.clear();
+  colhist.setSize(w, 1, bs);
+  colhist.clear();
 
-    for (int k=0; k<h; k++)
+  for (int k=0; k<h; k++)
+  {
+    for (int i=0; i<w; i++)
     {
-      for (int i=0; i<w; i++)
-        colhist(i, 1)+=row[k][i];
+      colhist(i, 1)+=row[k][i];
     }
+  }
 }
 
 void Histogram::sumCols(Histogram &rowhist) const
 {
-    rowhist.setSize(h, 1, bs);
-    rowhist.clear();
+  rowhist.setSize(h, 1, bs);
+  rowhist.clear();
 
-    for (int k=0; k<h; k++)
+  for (int k=0; k<h; k++)
+  {
+    for (int i=0; i<w; i++)
     {
-      for (int i=0; i<w; i++)
-        rowhist(k, 1)+=row[k][i];
+      rowhist(k, 1)+=row[k][i];
     }
+  }
 }
 
 unsigned long Histogram::sumAll() const
 {
-    unsigned long ret=0;
+  unsigned long ret=0;
 
-    for (int k=0; k<h; k++)
+  for (int k=0; k<h; k++)
+  {
+    for (int i=0; i<w; i++)
     {
-      for (int i=0; i<w; i++)
-        ret+=row[k][i];
+      ret+=row[k][i];
     }
+  }
 
-    return ret;
+  return ret;
 }
 
 void Histogram::visualize(ImageU8 &image) const
 {
-    unsigned long maxval=1;
+  unsigned long maxval=1;
+
+  for (int k=0; k<h; k++)
+    for (int i=0; i<w; i++)
+    {
+      maxval=std::max(maxval, row[k][i]);
+    }
+
+  if (h > 1)
+  {
+    image.setSize(w, h, 1);
 
     for (int k=0; k<h; k++)
       for (int i=0; i<w; i++)
-        maxval=std::max(maxval, row[k][i]);
-
-    if (h > 1)
-    {
-      image.setSize(w, h, 1);
-
-      for (int k=0; k<h; k++)
-        for (int i=0; i<w; i++)
-          image.set(i, k, 0, static_cast<unsigned char>(255-255*row[k][i]/maxval));
-    }
-    else
-    {
-      image.setSize(w, 256, 1);
-      image.clear();
-
-      for (int i=0; i<w; i++)
       {
-        int k=255-255*val[i]/maxval;
+        image.set(i, k, 0, static_cast<unsigned char>(255-255*row[k][i]/maxval));
+      }
+  }
+  else
+  {
+    image.setSize(w, 256, 1);
+    image.clear();
 
-        while (k >= 0)
-          image.set(i, k--, 0, 255);
+    for (int i=0; i<w; i++)
+    {
+      int k=255-255*val[i]/maxval;
+
+      while (k >= 0)
+      {
+        image.set(i, k--, 0, 255);
       }
     }
+  }
 }
 
 void Histogram::convertToImage(ImageFloat &image) const
 {
-    float total=sumAll();
+  float total=sumAll();
 
-    image.setSize(w, h, 1);
+  image.setSize(w, h, 1);
 
-    if (total > 0)
-      for (int k=0; k<h; k++)
-        for (int i=0; i<w; i++)
-          image.set(i, k, 0, row[k][i]/total);
+  if (total > 0)
+    for (int k=0; k<h; k++)
+      for (int i=0; i<w; i++)
+      {
+        image.set(i, k, 0, row[k][i]/total);
+      }
 }
 
 }

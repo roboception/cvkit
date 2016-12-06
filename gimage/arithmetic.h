@@ -44,158 +44,180 @@
 namespace gimage
 {
 
-template<class T> Image<T>& operator+=(Image<T> &image, typename Image<T>::work_t s)
+template<class T> Image<T> &operator+=(Image<T> &image, typename Image<T>::work_t s)
 {
-    for (int d=0; d<image.getDepth(); d++)
-    {
-      for (long k=0; k<image.getHeight(); k++)
-      {
-        for (long i=0; i<image.getWidth(); i++)
-        {
-          T v=0;
-
-          v=image.get(i, k, d);
-          if (image.isValidS(v))
-            image.setLimited(i, k, d, v+s);
-        }
-      }
-    }
-
-    return image;
-}
-
-template<class T> Image<T>& operator-=(Image<T> &image, typename Image<T>::work_t s)
-{
-    for (int d=0; d<image.getDepth(); d++)
-    {
-      for (long k=0; k<image.getHeight(); k++)
-      {
-        for (long i=0; i<image.getWidth(); i++)
-        {
-          T v=0;
-
-          v=image.get(i, k, d);
-          if (image.isValidS(v))
-            image.setLimited(i, k, d, v-s);
-        }
-      }
-    }
-
-    return image;
-}
-
-template<class T> Image<T>& operator*=(Image<T> &image, double s)
-{
-    for (int d=0; d<image.getDepth(); d++)
-    {
-      for (long k=0; k<image.getHeight(); k++)
-      {
-        for (long i=0; i<image.getWidth(); i++)
-        {
-          T v=0;
-
-          v=image.get(i, k, d);
-          if (image.isValidS(v))
-            image.setLimited(i, k, d, static_cast<typename Image<T>::work_t>(v*s));
-        }
-      }
-    }
-
-    return image;
-}
-
-template<class T> Image<T>& operator/=(Image<T> &image, double s)
-{
-    for (int d=0; d<image.getDepth(); d++)
-    {
-      for (long k=0; k<image.getHeight(); k++)
-      {
-        for (long i=0; i<image.getWidth(); i++)
-        {
-          T v=0;
-
-          v=image.get(i, k, d);
-          if (image.isValidS(v))
-            image.setLimited(i, k, d, static_cast<typename Image<T>::work_t>(v/s));
-        }
-      }
-    }
-
-    return image;
-}
-
-template<class T> Image<T> operator+(const Image<T> &image, typename Image<T>::work_t s)
-{
-    Image<T> ret(image);
-
-    ret+=s;
-
-    return ret;
-}
-
-template<class T> Image<T> operator-(const Image<T> &image, typename Image<T>::work_t s)
-{
-    Image<T> ret(image);
-
-    ret-=s;
-
-    return ret;
-}
-
-template<class T> Image<T> operator*(const Image<T> &image, double s)
-{
-    Image<T> ret(image);
-
-    ret*=s;
-
-    return ret;
-}
-
-template<class T> Image<T> operator/(const Image<T> &image, double s)
-{
-    Image<T> ret(image);
-
-    ret/=s;
-
-    return ret;
-}
-
-template<class T> void remapImage(Image<T> &image, const Image<T> &map)
-{
-    assert(map.getWidth() >= image.absMaxValue()+1);
-    assert(map.getDepth() == image.getDepth());
-
+  for (int d=0; d<image.getDepth(); d++)
+  {
     for (long k=0; k<image.getHeight(); k++)
     {
       for (long i=0; i<image.getWidth(); i++)
       {
-        if (image.isValid(i, k))
+        T v=0;
+
+        v=image.get(i, k, d);
+
+        if (image.isValidS(v))
         {
-          for (int d=0; d<image.getDepth(); d++)
-            image.set(i, k, d, map.get(static_cast<int>(image.get(i, k, d)), 0, d));
+          image.setLimited(i, k, d, v+s);
         }
       }
     }
+  }
+
+  return image;
+}
+
+template<class T> Image<T> &operator-=(Image<T> &image, typename Image<T>::work_t s)
+{
+  for (int d=0; d<image.getDepth(); d++)
+  {
+    for (long k=0; k<image.getHeight(); k++)
+    {
+      for (long i=0; i<image.getWidth(); i++)
+      {
+        T v=0;
+
+        v=image.get(i, k, d);
+
+        if (image.isValidS(v))
+        {
+          image.setLimited(i, k, d, v-s);
+        }
+      }
+    }
+  }
+
+  return image;
+}
+
+template<class T> Image<T> &operator*=(Image<T> &image, double s)
+{
+  for (int d=0; d<image.getDepth(); d++)
+  {
+    for (long k=0; k<image.getHeight(); k++)
+    {
+      for (long i=0; i<image.getWidth(); i++)
+      {
+        T v=0;
+
+        v=image.get(i, k, d);
+
+        if (image.isValidS(v))
+        {
+          image.setLimited(i, k, d, static_cast<typename Image<T>::work_t>(v*s));
+        }
+      }
+    }
+  }
+
+  return image;
+}
+
+template<class T> Image<T> &operator/=(Image<T> &image, double s)
+{
+  for (int d=0; d<image.getDepth(); d++)
+  {
+    for (long k=0; k<image.getHeight(); k++)
+    {
+      for (long i=0; i<image.getWidth(); i++)
+      {
+        T v=0;
+
+        v=image.get(i, k, d);
+
+        if (image.isValidS(v))
+        {
+          image.setLimited(i, k, d, static_cast<typename Image<T>::work_t>(v/s));
+        }
+      }
+    }
+  }
+
+  return image;
+}
+
+template<class T> Image<T> operator+(const Image<T> &image, typename Image<T>::work_t s)
+{
+  Image<T> ret(image);
+
+  ret+=s;
+
+  return ret;
+}
+
+template<class T> Image<T> operator-(const Image<T> &image, typename Image<T>::work_t s)
+{
+  Image<T> ret(image);
+
+  ret-=s;
+
+  return ret;
+}
+
+template<class T> Image<T> operator*(const Image<T> &image, double s)
+{
+  Image<T> ret(image);
+
+  ret*=s;
+
+  return ret;
+}
+
+template<class T> Image<T> operator/(const Image<T> &image, double s)
+{
+  Image<T> ret(image);
+
+  ret/=s;
+
+  return ret;
+}
+
+template<class T> void remapImage(Image<T> &image, const Image<T> &map)
+{
+  assert(map.getWidth() >= image.absMaxValue()+1);
+  assert(map.getDepth() == image.getDepth());
+
+  for (long k=0; k<image.getHeight(); k++)
+  {
+    for (long i=0; i<image.getWidth(); i++)
+    {
+      if (image.isValid(i, k))
+      {
+        for (int d=0; d<image.getDepth(); d++)
+        {
+          image.set(i, k, d, map.get(static_cast<int>(image.get(i, k, d)), 0, d));
+        }
+      }
+    }
+  }
 }
 
 template<class T> void fillGammaMap(Image<T> &map, int depth, int from, int to, double g)
 {
-    for (int i=0; i<from && i<map.getWidth(); i++)
-      map.setLimited(i, 0, depth, map.absMinValue());
+  for (int i=0; i<from && i<map.getWidth(); i++)
+  {
+    map.setLimited(i, 0, depth, map.absMinValue());
+  }
 
-    for (int i=0; i<to && i<map.getWidth(); i++)
-      map.setLimited(i, 0, depth, map.absMaxValue()*pow(static_cast<double>(i-from)/(to-from), 1.0/g));
+  for (int i=0; i<to && i<map.getWidth(); i++)
+  {
+    map.setLimited(i, 0, depth, map.absMaxValue()*pow(static_cast<double>(i-from)/(to-from), 1.0/g));
+  }
 
-    for (int i=to; i<map.getWidth(); i++)
-      map.setLimited(i, 0, depth, map.absMaxValue());
+  for (int i=to; i<map.getWidth(); i++)
+  {
+    map.setLimited(i, 0, depth, map.absMaxValue());
+  }
 }
 
 template<class T> void fillGammaMap(Image<T> &map, const Image<T> &image, double g)
 {
-    map.setSize(image.absMaxValue()+1, 1, image.getDepth());
+  map.setSize(image.absMaxValue()+1, 1, image.getDepth());
 
-    for (int d=0; d<image.getDepth(); d++)
-      fillGammaMap(map, d, 0, image.absMaxValue(), g);
+  for (int d=0; d<image.getDepth(); d++)
+  {
+    fillGammaMap(map, d, 0, image.absMaxValue(), g);
+  }
 }
 
 template<class T> void rotate180(Image<T> &image)

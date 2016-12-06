@@ -53,49 +53,63 @@ namespace gimage
 */
 
 template<class T> long cmp(Image<T> &diff, const Image<T> &im1,
-  const Image<T> &im2, const std::vector<T> &tol)
+                           const Image<T> &im2, const std::vector<T> &tol)
 {
-    if (im1.getWidth() != im2.getWidth() || im1.getHeight() != im2.getHeight() ||
+  if (im1.getWidth() != im2.getWidth() || im1.getHeight() != im2.getHeight() ||
       im1.getDepth() != im2.getDepth())
-      return -1;
-    
-    diff.setSize(im1.getWidth(), im1.getHeight(), im1.getDepth());
-    
-    long ret=0;
-    typename Image<T>::work_t t=0;
-    
-    for (int d=0; d<im1.getDepth(); d++)
+  {
+    return -1;
+  }
+
+  diff.setSize(im1.getWidth(), im1.getHeight(), im1.getDepth());
+
+  long ret=0;
+  typename Image<T>::work_t t=0;
+
+  for (int d=0; d<im1.getDepth(); d++)
+  {
+    if (d < static_cast<int>(tol.size()))
     {
-      if (d < static_cast<int>(tol.size()))
-        t=tol[d];
-      
-      for (long k=0; k<im1.getHeight(); k++)
+      t=tol[d];
+    }
+
+    for (long k=0; k<im1.getHeight(); k++)
+    {
+      for (long i=0; i<im1.getWidth(); i++)
       {
-        for (long i=0; i<im1.getWidth(); i++)
+        typename Image<T>::work_t v1=im1.getW(i, k, d);
+        typename Image<T>::work_t v2=im2.getW(i, k, d);
+        typename Image<T>::work_t v;
+
+        if (im1.isValidW(v1) && im2.isValidW(v2))
         {
-          typename Image<T>::work_t v1=im1.getW(i, k, d);
-          typename Image<T>::work_t v2=im2.getW(i, k, d);
-          typename Image<T>::work_t v;
-          
-          if (im1.isValidW(v1) && im2.isValidW(v2))
-            v=v1-v2;
-          else if (!im1.isValidW(v1) && !im2.isValidW(v2))
-            v=0;
-          else
-            v=Image<T>::ptraits::invalid();
-          
-          if (v < 0)
-            v=-v;
-          
-          if (v > t)
-            ret++;
-          
-          diff.setLimited(i, k, d, v);
+          v=v1-v2;
         }
+        else if (!im1.isValidW(v1) && !im2.isValidW(v2))
+        {
+          v=0;
+        }
+        else
+        {
+          v=Image<T>::ptraits::invalid();
+        }
+
+        if (v < 0)
+        {
+          v=-v;
+        }
+
+        if (v > t)
+        {
+          ret++;
+        }
+
+        diff.setLimited(i, k, d, v);
       }
     }
-    
-    return ret;
+  }
+
+  return ret;
 }
 
 }

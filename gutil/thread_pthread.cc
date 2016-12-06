@@ -52,15 +52,15 @@ namespace gutil
 
 struct ThreadData
 {
-    bool running;
-    pthread_t thread;
+  bool running;
+  pthread_t thread;
 
-    ThreadFunction *tfct;
-    ParallelFunction *pfct;
+  ThreadFunction *tfct;
+  ParallelFunction *pfct;
 
-    long start;
-    long end;
-    long step;
+  long start;
+  long end;
+  long step;
 };
 
 namespace
@@ -68,112 +68,118 @@ namespace
 
 void *ptfct(void *fa)
 {
-    ThreadData *p=reinterpret_cast<ThreadData *>(fa);
+  ThreadData *p=reinterpret_cast<ThreadData *>(fa);
 
-    if (p->tfct != 0)
-      p->tfct->run();
+  if (p->tfct != 0)
+  {
+    p->tfct->run();
+  }
 
-    if (p->pfct != 0)
-      p->pfct->run(p->start, p->end, p->step);
+  if (p->pfct != 0)
+  {
+    p->pfct->run(p->start, p->end, p->step);
+  }
 
-    return 0;
+  return 0;
 }
 
 }
 
 Thread::Thread()
 {
-    p=new ThreadData();
-    p->running=false;
+  p=new ThreadData();
+  p->running=false;
 }
 
 Thread::~Thread()
 {
-    if (p->running)
-    {
-      pthread_cancel(p->thread);
-      pthread_join(p->thread, 0);
-    }
+  if (p->running)
+  {
+    pthread_cancel(p->thread);
+    pthread_join(p->thread, 0);
+  }
 
-    delete p;
+  delete p;
 }
 
 void Thread::create(ThreadFunction &fct)
 {
-    assert(!p->running);
+  assert(!p->running);
 
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
+  pthread_attr_t attr;
+  pthread_attr_init(&attr);
 
-    p->tfct=&fct;
-    p->pfct=0;
-    p->start=0;
-    p->end=0;
-    p->step=0;
+  p->tfct=&fct;
+  p->pfct=0;
+  p->start=0;
+  p->end=0;
+  p->step=0;
 
 #ifndef NDEBUG
-    int err=
+  int err=
 #endif
     pthread_create(&(p->thread), &attr, ptfct, p);
 
-    pthread_attr_destroy(&attr);
+  pthread_attr_destroy(&attr);
 
-    assert(err == 0);
+  assert(err == 0);
 
-    p->running=true;
+  p->running=true;
 }
 
 void Thread::create(ParallelFunction &fct, long start, long end, long step,
-  int affinity)
+                    int affinity)
 {
-    assert(!p->running);
+  assert(!p->running);
 
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
+  pthread_attr_t attr;
+  pthread_attr_init(&attr);
 
 #ifdef _GNU_SOURCE
-    if (affinity >= 0 && getMaxThreads() > 1 &&
-      getMaxThreads() == getProcessingUnits())
-    {
-      cpu_set_t cpuset;
-      CPU_ZERO(&cpuset);
-      CPU_SET(affinity, &cpuset);
 
-      pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
-    }
+  if (affinity >= 0 && getMaxThreads() > 1 &&
+      getMaxThreads() == getProcessingUnits())
+  {
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    CPU_SET(affinity, &cpuset);
+
+    pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+  }
+
 #endif
 
-    p->tfct=0;
-    p->pfct=&fct;
-    p->start=start;
-    p->end=end;
-    p->step=step;
+  p->tfct=0;
+  p->pfct=&fct;
+  p->start=start;
+  p->end=end;
+  p->step=step;
 
 #ifndef NDEBUG
-    int err=
+  int err=
 #endif
     pthread_create(&(p->thread), &attr, ptfct, p);
 
-    pthread_attr_destroy(&attr);
+  pthread_attr_destroy(&attr);
 
-    assert(err == 0);
+  assert(err == 0);
 
-    p->running=true;
+  p->running=true;
 }
 
 void Thread::join()
 {
-    if (p->running)
-    {
+  if (p->running)
+  {
 #ifndef NDEBUG
-      int err=
+    int err=
 #endif
       pthread_join(p->thread, 0);
 
-      p->running=false;
+    p->running=false;
 
-      assert(err == 0);
-    }
+    assert(err == 0);
+  }
 }
 
 namespace
@@ -186,44 +192,50 @@ int nthreads=0;
 
 int Thread::getProcessingUnits()
 {
+  if (procunits <= 0)
+  {
+    procunits=sysconf(_SC_NPROCESSORS_CONF);
+
     if (procunits <= 0)
     {
-      procunits=sysconf(_SC_NPROCESSORS_CONF);
-
-      if (procunits <= 0)
-      {
-        std::cerr << "Cannot determine number of CPUs, assuming one!" << std::endl;
-        procunits=1;
-      }
-
-      const char *s=std::getenv("CVKIT_MAX_THREADS");
-
-      if (s != 0)
-      {
-        int n=std::max(1, std::atoi(s));
-
-        if (n < procunits)
-          procunits=n;
-      }
+      std::cerr << "Cannot determine number of CPUs, assuming one!" << std::endl;
+      procunits=1;
     }
 
-    return procunits;
+    const char *s=std::getenv("CVKIT_MAX_THREADS");
+
+    if (s != 0)
+    {
+      int n=std::max(1, std::atoi(s));
+
+      if (n < procunits)
+      {
+        procunits=n;
+      }
+    }
+  }
+
+  return procunits;
 }
 
 int Thread::getMaxThreads()
 {
-    if (nthreads <= 0)
-      nthreads=getProcessingUnits();
+  if (nthreads <= 0)
+  {
+    nthreads=getProcessingUnits();
+  }
 
-    return nthreads;
+  return nthreads;
 }
 
 void Thread::setMaxThreads(int n)
 {
-    if (n <= 0 || n > getProcessingUnits())
-      n=getProcessingUnits();
+  if (n <= 0 || n > getProcessingUnits())
+  {
+    n=getProcessingUnits();
+  }
 
-    nthreads=n;
+  nthreads=n;
 }
 
 }

@@ -46,396 +46,427 @@ namespace gmath
 
 std::string Camera::getCameraKey(const char *key, int id) const
 {
-    std::ostringstream os;
+  std::ostringstream os;
 
-    os << "camera.";
-    if (id >= 0)
-      os << id << '.';
+  os << "camera.";
 
-    os << key;
+  if (id >= 0)
+  {
+    os << id << '.';
+  }
 
-    return os.str();
+  os << key;
+
+  return os.str();
 }
 
 Camera::Camera(const gutil::Properties &prop, int id)
 {
-    prop.getValue(getCameraKey("R", id).c_str(), R, "[1 0 0; 0 1 0; 0 0 1]");
-    prop.getValue(getCameraKey("T", id).c_str(), T, "[0 0 0]");
-    prop.getValue(getCameraKey("width", id).c_str(), width, "0");
-    prop.getValue(getCameraKey("height", id).c_str(), height, "0");
+  prop.getValue(getCameraKey("R", id).c_str(), R, "[1 0 0; 0 1 0; 0 0 1]");
+  prop.getValue(getCameraKey("T", id).c_str(), T, "[0 0 0]");
+  prop.getValue(getCameraKey("width", id).c_str(), width, "0");
+  prop.getValue(getCameraKey("height", id).c_str(), height, "0");
 
-    prop.getValue(getCameraKey("zmin", id).c_str(), zmin, "0");
-    prop.getValue(getCameraKey("zmax", id).c_str(), zmax, "-1");
+  prop.getValue(getCameraKey("zmin", id).c_str(), zmin, "0");
+  prop.getValue(getCameraKey("zmax", id).c_str(), zmax, "-1");
 
-    if (zmax < 0)
-      zmax=std::numeric_limits<double>::max();
+  if (zmax < 0)
+  {
+    zmax=std::numeric_limits<double>::max();
+  }
 
-    prop.getStringVector(getCameraKey("match", id).c_str(), match, "", ',');
+  prop.getStringVector(getCameraKey("match", id).c_str(), match, "", ',');
 }
 
 bool Camera::isInside(const Vector2d &p) const
 {
-    return p[0] >= 0 && p[0] < width && p[1] >= 0 && p[1] < height;
+  return p[0] >= 0 && p[0] < width && p[1] >= 0 && p[1] < height;
 }
 
 bool Camera::isInside(const Vector3d &p) const
 {
-    return p[0] >= 0 && p[0] < width && p[1] >= 0 && p[1] < height &&
-      !std::isfinite(p[2]);
+  return p[0] >= 0 && p[0] < width && p[1] >= 0 && p[1] < height &&
+         !std::isfinite(p[2]);
 }
 
 void Camera::setDownscaled(int ds)
 {
-    if (ds > 1)
-    {
-      width=(width+ds-1)/ds;
-      height=(height+ds-1)/ds;
-    }
+  if (ds > 1)
+  {
+    width=(width+ds-1)/ds;
+    height=(height+ds-1)/ds;
+  }
 }
 
 void Camera::setPart(long x, long y, long w, long h)
 {
-    width=w;
-    height=h;
+  width=w;
+  height=h;
 }
 
 void Camera::getProperties(gutil::Properties &prop, int id) const
 {
-    prop.putValue(getCameraKey("R", id).c_str(), R);
-    prop.putValue(getCameraKey("T", id).c_str(), T);
+  prop.putValue(getCameraKey("R", id).c_str(), R);
+  prop.putValue(getCameraKey("T", id).c_str(), T);
 
-    if (width != 0)
-      prop.putValue(getCameraKey("width", id).c_str(), width);
+  if (width != 0)
+  {
+    prop.putValue(getCameraKey("width", id).c_str(), width);
+  }
 
-    if (height != 0)
-      prop.putValue(getCameraKey("height", id).c_str(), height);
+  if (height != 0)
+  {
+    prop.putValue(getCameraKey("height", id).c_str(), height);
+  }
 
-    if (zmin != 0 || zmax != std::numeric_limits<double>::max())
-    {
-      prop.putValue(getCameraKey("zmin", id).c_str(), zmin);
-      prop.putValue(getCameraKey("zmax", id).c_str(), zmax);
-    }
+  if (zmin != 0 || zmax != std::numeric_limits<double>::max())
+  {
+    prop.putValue(getCameraKey("zmin", id).c_str(), zmin);
+    prop.putValue(getCameraKey("zmax", id).c_str(), zmax);
+  }
 
-    if (match.size() > 0)
-      prop.putStringVector(getCameraKey("match", id).c_str(), match, ',');
+  if (match.size() > 0)
+  {
+    prop.putStringVector(getCameraKey("match", id).c_str(), match, ',');
+  }
 }
 
 PinholeCamera::PinholeCamera()
 {
-    rho=0;
-    dist=0;
+  rho=0;
+  dist=0;
 }
 
 PinholeCamera::PinholeCamera(const PinholeCamera &pc) : Camera(pc)
 {
-    A=pc.A;
-    rho=pc.rho;
+  A=pc.A;
+  rho=pc.rho;
 
-    dist=0;
-    if (pc.dist != 0)
-      dist=pc.dist->clone();
+  dist=0;
+
+  if (pc.dist != 0)
+  {
+    dist=pc.dist->clone();
+  }
 }
 
 PinholeCamera::PinholeCamera(const gutil::Properties &prop, int id)
   : Camera(prop, id)
 {
-    Matrix33d P;
-    prop.getValue(getCameraKey("A", id).c_str(), P);
+  Matrix33d P;
+  prop.getValue(getCameraKey("A", id).c_str(), P);
 
-    std::string origin;
-    prop.getValue("origin", origin, "corner");
-    if (origin == "center")
-    {
-      A(0, 2)+=0.5;
-      A(1, 2)+=0.5;
-    }
+  std::string origin;
+  prop.getValue("origin", origin, "corner");
 
-    double dx, dy;
-    prop.getValue(getCameraKey("dx", id).c_str(), dx, 0.0);
-    prop.getValue(getCameraKey("dy", id).c_str(), dy, 0.0);
+  if (origin == "center")
+  {
+    A(0, 2)+=0.5;
+    A(1, 2)+=0.5;
+  }
 
-    P(0, 2)+=dx;
-    P(1, 2)+=dy;
+  double dx, dy;
+  prop.getValue(getCameraKey("dx", id).c_str(), dx, 0.0);
+  prop.getValue(getCameraKey("dy", id).c_str(), dy, 0.0);
 
-    setA(P);
+  P(0, 2)+=dx;
+  P(1, 2)+=dy;
 
-    prop.getValue(getCameraKey("rho", id).c_str(), rho, "0");
+  setA(P);
 
-    if (rho == 0)
-      prop.getValue("rho", rho, "0");
+  prop.getValue(getCameraKey("rho", id).c_str(), rho, "0");
 
-    if (rho == 0)
-    {
-      double f, t;
-      prop.getValue("f", f, "0");
-      prop.getValue("t", t, "0");
-      rho=f*t;
-    }
+  if (rho == 0)
+  {
+    prop.getValue("rho", rho, "0");
+  }
 
-    dist=Distortion::create(prop, id);
+  if (rho == 0)
+  {
+    double f, t;
+    prop.getValue("f", f, "0");
+    prop.getValue("t", t, "0");
+    rho=f*t;
+  }
+
+  dist=Distortion::create(prop, id);
 }
 
 const PinholeCamera &PinholeCamera::operator = (const PinholeCamera &pc)
 {
-    Camera::operator=(pc);
+  Camera::operator=(pc);
 
-    A=pc.A;
-    rho=pc.rho;
+  A=pc.A;
+  rho=pc.rho;
 
-    delete [] dist;
-    dist=0;
-    if (pc.dist != 0)
-      dist=pc.dist->clone();
+  delete [] dist;
+  dist=0;
 
-    return *this;
+  if (pc.dist != 0)
+  {
+    dist=pc.dist->clone();
+  }
+
+  return *this;
 }
 
 Camera *PinholeCamera::clone() const
 {
-    return new PinholeCamera(*this);
+  return new PinholeCamera(*this);
 }
 
 void PinholeCamera::setA(const Matrix33d &AA)
 {
-    A=AA;
+  A=AA;
 
-    if (A(1, 0) != 0 || A(2, 0) != 0 || A(2, 1) != 0 || A(2, 2) != 1)
-    {
-      std::ostringstream out;
-      out << "Invalid camera matrix: " << A;
-      throw gutil::IOException(out.str().c_str());
-    }
+  if (A(1, 0) != 0 || A(2, 0) != 0 || A(2, 1) != 0 || A(2, 2) != 1)
+  {
+    std::ostringstream out;
+    out << "Invalid camera matrix: " << A;
+    throw gutil::IOException(out.str().c_str());
+  }
 }
 
 void PinholeCamera::setDownscaled(int ds)
 {
-    Camera::setDownscaled(ds);
+  Camera::setDownscaled(ds);
 
-    if (ds > 1)
-    {
-      A/=ds;
-      A(2, 2)=1.0;
-      rho/=ds;
-    }
+  if (ds > 1)
+  {
+    A/=ds;
+    A(2, 2)=1.0;
+    rho/=ds;
+  }
 }
 
 void PinholeCamera::setPart(long x, long y, long w, long h)
 {
-    Camera::setPart(x, y, w, h);
+  Camera::setPart(x, y, w, h);
 
-    A(0, 2)-=x;
-    A(1, 2)-=y;
+  A(0, 2)-=x;
+  A(1, 2)-=y;
 }
 
 void PinholeCamera::getProperties(gutil::Properties &prop, int id) const
 {
-    Camera::getProperties(prop, id);
+  Camera::getProperties(prop, id);
 
-    prop.putValue(getCameraKey("A", id).c_str(), A);
-    prop.putValue(getCameraKey("rho", id).c_str(), rho);
+  prop.putValue(getCameraKey("A", id).c_str(), A);
+  prop.putValue(getCameraKey("rho", id).c_str(), rho);
 
-    if (dist != 0)
-      dist->getProperties(prop, id);
+  if (dist != 0)
+  {
+    dist->getProperties(prop, id);
+  }
 }
 
 double PinholeCamera::projectPoint(Vector2d &p, const Vector3d &Pw) const
 {
-      // transform into camera coordiante system
+  // transform into camera coordiante system
 
-    Vector3d Pc=transpose(getR())*(Pw-getT());
+  Vector3d Pc=transpose(getR())*(Pw-getT());
 
-      // if rho is given, then compute disparity and determine if the point
-      // is behind the camera
+  // if rho is given, then compute disparity and determine if the point
+  // is behind the camera
 
-    double d=std::numeric_limits<double>::infinity();
+  double d=std::numeric_limits<double>::infinity();
 
-    if (rho != 0)
-      d=rho/Pc[2];
+  if (rho != 0)
+  {
+    d=rho/Pc[2];
+  }
 
-    if (Pc[2] <= 0)
-      d=-1;
+  if (Pc[2] <= 0)
+  {
+    d=-1;
+  }
 
-      // apply lens distortion
+  // apply lens distortion
 
-    Pc/=Pc[2];
+  Pc/=Pc[2];
 
-    if (dist != 0)
-    {
-      const double x=Pc[0];
-      const double y=Pc[1];
-      dist->transform(Pc[0], Pc[1], x, y);
-    }
+  if (dist != 0)
+  {
+    const double x=Pc[0];
+    const double y=Pc[1];
+    dist->transform(Pc[0], Pc[1], x, y);
+  }
 
-      // apply camera matrix
+  // apply camera matrix
 
-    p[0]=A(0, 0)*Pc[0]+A(0, 1)*Pc[1]+A(0, 2);
-    p[1]=A(1, 1)*Pc[1]+A(1, 2);
+  p[0]=A(0, 0)*Pc[0]+A(0, 1)*Pc[1]+A(0, 2);
+  p[1]=A(1, 1)*Pc[1]+A(1, 2);
 
-    return d;
+  return d;
 }
 
 void PinholeCamera::reconstructPoint(Vector3d &Pw, const Vector2d &p, double d)
-  const
+const
 {
-    if (rho == 0)
-      throw gutil::IOException("Cannot reconstruct point with unknown rho");
+  if (rho == 0)
+  {
+    throw gutil::IOException("Cannot reconstruct point with unknown rho");
+  }
 
-    assert(std::isfinite(d));
+  assert(std::isfinite(d));
 
-    Vector3d Pc;
-    reconstructLocal(Pc, p);
+  Vector3d Pc;
+  reconstructLocal(Pc, p);
 
-    Pc*=rho/d;
+  Pc*=rho/d;
 
-    Pw=getR()*Pc+getT();
+  Pw=getR()*Pc+getT();
 }
 
 void PinholeCamera::reconstructRay(Vector3d &V, Vector3d &C, const Vector2d &p) const
 {
-    Vector3d Pc;
-    reconstructLocal(Pc, p);
+  Vector3d Pc;
+  reconstructLocal(Pc, p);
 
-    V=getR()*Pc;
-    C=getT();
+  V=getR()*Pc;
+  C=getT();
 }
 
 void PinholeCamera::projectPointLocal(Vector2d &p, const Vector3d &Pc) const
 {
-      // apply lens distortion
+  // apply lens distortion
 
-    Vector3d P=Pc/Pc[2];
+  Vector3d P=Pc/Pc[2];
 
-    if (dist != 0)
-    {
-      const double x=P[0];
-      const double y=P[1];
-      dist->transform(P[0], P[1], x, y);
-    }
+  if (dist != 0)
+  {
+    const double x=P[0];
+    const double y=P[1];
+    dist->transform(P[0], P[1], x, y);
+  }
 
-      // apply camera matrix
+  // apply camera matrix
 
-    p[0]=A(0, 0)*P[0]+A(0, 1)*P[1]+A(0, 2);
-    p[1]=A(1, 1)*P[1]+A(1, 2);
+  p[0]=A(0, 0)*P[0]+A(0, 1)*P[1]+A(0, 2);
+  p[1]=A(1, 1)*P[1]+A(1, 2);
 }
 
 void PinholeCamera::reconstructLocal(Vector3d &q, const Vector2d &p) const
 {
-      // apply inverse camera matrix
+  // apply inverse camera matrix
 
-    q[0]=p[0]/A(0, 0)-p[1]*A(0, 1)/(A(0, 0)*A(1, 1))+
-      (A(0, 1)*A(1, 2)-A(1, 1)*A(0, 2))/
-      (A(0, 0)*A(1, 1)*A(2, 2));
-    q[1]=p[1]/A(1, 1)-A(1, 2)/(A(2, 2)*A(1, 1));
-    q[2]=1;
+  q[0]=p[0]/A(0, 0)-p[1]*A(0, 1)/(A(0, 0)*A(1, 1))+
+       (A(0, 1)*A(1, 2)-A(1, 1)*A(0, 2))/
+       (A(0, 0)*A(1, 1)*A(2, 2));
+  q[1]=p[1]/A(1, 1)-A(1, 2)/(A(2, 2)*A(1, 1));
+  q[2]=1;
 
-      // apply inverse lens distortion
+  // apply inverse lens distortion
 
-    if (dist != 0)
-    {
-      const double x=q[0];
-      const double y=q[1];
-      dist->invTransform(q[0], q[1], x, y);
-    }
+  if (dist != 0)
+  {
+    const double x=q[0];
+    const double y=q[1];
+    dist->invTransform(q[0], q[1], x, y);
+  }
 }
 
 OrthoCamera::OrthoCamera(const gutil::Properties &prop)
   : Camera(prop, -1)
 {
-    prop.getValue("resolution", res);
-    prop.getValue("depth.resolution", dres, "1");
+  prop.getValue("resolution", res);
+  prop.getValue("depth.resolution", dres, "1");
 
-    if (prop.contains("origin.T"))
+  if (prop.contains("origin.T"))
+  {
+    Vector3d T;
+    prop.getValue("origin.T", T);
+
+    std::string origin;
+    prop.getValue("origin", origin, "corner");
+
+    if (origin == "center")
     {
-      Vector3d T;
-      prop.getValue("origin.T", T);
-
-      std::string origin;
-      prop.getValue("origin", origin, "corner");
-      if (origin == "center")
-      {
-        T[0]-=res/2;
-        T[1]+=res/2;
-      }
-
-      setT(T);
+      T[0]-=res/2;
+      T[1]+=res/2;
     }
+
+    setT(T);
+  }
 }
 
 Camera *OrthoCamera::clone() const
 {
-    OrthoCamera *ret=new OrthoCamera();
+  OrthoCamera *ret=new OrthoCamera();
 
-    *ret=*this;
+  *ret=*this;
 
-    return ret;
+  return ret;
 }
 
 void OrthoCamera::setDownscaled(int ds)
 {
-    Camera::setDownscaled(ds);
+  Camera::setDownscaled(ds);
 
-    if (ds > 1)
-    {
-      res*=ds;
-      dres*=ds;
-    }
+  if (ds > 1)
+  {
+    res*=ds;
+    dres*=ds;
+  }
 }
 
 void OrthoCamera::setPart(long x, long y, long w, long h)
 {
-    Camera::setPart(x, y, w, h);
+  Camera::setPart(x, y, w, h);
 
-    Vector3d T=getT();
+  Vector3d T=getT();
 
-    T[0]+=x*res;
-    T[1]-=y*res;
+  T[0]+=x*res;
+  T[1]-=y*res;
 
-    setT(T);
+  setT(T);
 }
 
 void OrthoCamera::getProperties(gutil::Properties &prop, int id) const
 {
-    Camera::getProperties(prop, -1);
+  Camera::getProperties(prop, -1);
 
-    prop.putValue("resolution", res);
-    prop.putValue("depth.resolution", dres);
+  prop.putValue("resolution", res);
+  prop.putValue("depth.resolution", dres);
 }
 
 double OrthoCamera::projectPoint(Vector2d &p, const Vector3d &Pw) const
 {
-    Vector3d Pc=transpose(getR())*(Pw-getT());
+  Vector3d Pc=transpose(getR())*(Pw-getT());
 
-    p[0]=Pc[0]/res;
-    p[1]=-Pc[1]/res;
+  p[0]=Pc[0]/res;
+  p[1]=-Pc[1]/res;
 
-    return Pc[2]/dres;
+  return Pc[2]/dres;
 }
 
 void OrthoCamera::reconstructPoint(Vector3d &Pw, const Vector2d &p, double d)
-  const
+const
 {
-    if (!std::isfinite(d))
-      throw gutil::InvalidArgumentException("Cannot reconstruct invalid point");
+  if (!std::isfinite(d))
+  {
+    throw gutil::InvalidArgumentException("Cannot reconstruct invalid point");
+  }
 
-    Vector3d Pc;
+  Vector3d Pc;
 
-    Pc[0]=p[0]*res;
-    Pc[1]=-p[1]*res;
-    Pc[2]=d*dres;
+  Pc[0]=p[0]*res;
+  Pc[1]=-p[1]*res;
+  Pc[2]=d*dres;
 
-    Pw=getR()*Pc+getT();
+  Pw=getR()*Pc+getT();
 }
 
 void OrthoCamera::reconstructRay(Vector3d &V, Vector3d &C, const Vector2d &p)
-  const
+const
 {
-    V=getR()*Vector3d(0, 0, -1);
+  V=getR()*Vector3d(0, 0, -1);
 
-    C[0]=p[0]*res;
-    C[1]=-p[1]*res;
-    C[2]=0;
+  C[0]=p[0]*res;
+  C[1]=-p[1]*res;
+  C[2]=0;
 
-    C+=getT();
+  C+=getT();
 }
 
 }

@@ -51,34 +51,37 @@ namespace gvr
 
 void GLInit(int &argc, char **argv)
 {
-    glutInit(&argc, argv);
+  glutInit(&argc, argv);
 }
 
 void GLInitWindow(int x, int y, int w, int h, const char *title)
 {
-      // create GLUT window
+  // create GLUT window
 
-    glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
-    glutInitWindowSize(w, h);
-    glutInitWindowPosition(x, y);
-    glutCreateWindow(title);
+  glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
+  glutInitWindowSize(w, h);
+  glutInitWindowPosition(x, y);
+  glutCreateWindow(title);
 
-    glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
+  glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
 
-      // initialize extensions
+  // initialize extensions
 
-    GLenum res=glewInit();
-    if (res != GLEW_OK)
-      throw GLException(reinterpret_cast<const char *>(glewGetErrorString(res)));
+  GLenum res=glewInit();
 
-      // settings for drawing
+  if (res != GLEW_OK)
+  {
+    throw GLException(reinterpret_cast<const char *>(glewGetErrorString(res)));
+  }
 
-    glEnable(GL_PROGRAM_POINT_SIZE);
-    glEnable(GL_DEPTH_TEST);
+  // settings for drawing
 
-    glFrontFace(GL_CCW);
-    glCullFace(GL_BACK);
-    glEnable(GL_CULL_FACE);
+  glEnable(GL_PROGRAM_POINT_SIZE);
+  glEnable(GL_DEPTH_TEST);
+
+  glFrontFace(GL_CCW);
+  glCullFace(GL_BACK);
+  glEnable(GL_CULL_FACE);
 }
 
 namespace
@@ -88,100 +91,100 @@ GLListener *listener=0;
 
 void onRedraw()
 {
-    try
-    {
-      listener->onRedraw();
-    }
-    catch (const gutil::Exception &ex)
-    {
-      ex.print();
-      exit(10);
-    }
+  try
+  {
+    listener->onRedraw();
+  }
+  catch (const gutil::Exception &ex)
+  {
+    ex.print();
+    exit(10);
+  }
 }
 
 void onReshape(int w, int h)
 {
-    try
-    {
-      listener->onReshape(w, h);
-    }
-    catch (const gutil::Exception &ex)
-    {
-      ex.print();
-      exit(10);
-    }
+  try
+  {
+    listener->onReshape(w, h);
+  }
+  catch (const gutil::Exception &ex)
+  {
+    ex.print();
+    exit(10);
+  }
 }
 
 void onSpecialKey(int key, int x, int y)
 {
-    try
-    {
-      listener->onSpecialKey(key, x, y);
-    }
-    catch (const gutil::Exception &ex)
-    {
-      ex.print();
-      exit(10);
-    }
+  try
+  {
+    listener->onSpecialKey(key, x, y);
+  }
+  catch (const gutil::Exception &ex)
+  {
+    ex.print();
+    exit(10);
+  }
 }
 
 void onKey(unsigned char key, int x, int y)
 {
-    try
-    {
-      listener->onKey(key, x, y);
-    }
-    catch (const gutil::Exception &ex)
-    {
-      ex.print();
-      exit(10);
-    }
+  try
+  {
+    listener->onKey(key, x, y);
+  }
+  catch (const gutil::Exception &ex)
+  {
+    ex.print();
+    exit(10);
+  }
 }
 
 void onMouseMove(int x, int y)
 {
-    try
-    {
-      listener->onMouseMove(x, y);
-    }
-    catch (const gutil::Exception &ex)
-    {
-      ex.print();
-      exit(10);
-    }
+  try
+  {
+    listener->onMouseMove(x, y);
+  }
+  catch (const gutil::Exception &ex)
+  {
+    ex.print();
+    exit(10);
+  }
 }
 
 void onMouseButton(int button, int state, int x, int y)
 {
-    try
-    {
-      listener->onMouseButton(button, state, x, y);
-    }
-    catch (const gutil::Exception &ex)
-    {
-      ex.print();
-      exit(10);
-    }
+  try
+  {
+    listener->onMouseButton(button, state, x, y);
+  }
+  catch (const gutil::Exception &ex)
+  {
+    ex.print();
+    exit(10);
+  }
 }
 
 }
 
 void GLMainLoop(GLListener &l)
 {
-    listener=&l;
+  listener=&l;
 
-      // register callbacks
+  // register callbacks
 
-    glutDisplayFunc(onRedraw);
-    glutReshapeFunc(onReshape);
-    glutSpecialFunc(onSpecialKey);
-    glutKeyboardFunc(onKey);
-    glutMouseFunc(onMouseButton);
-    glutMotionFunc(onMouseMove);
+  glutDisplayFunc(onRedraw);
+  glutReshapeFunc(onReshape);
+  glutSpecialFunc(onSpecialKey);
+  glutKeyboardFunc(onKey);
+  glutMouseFunc(onMouseButton);
+  glutMotionFunc(onMouseMove);
 
-      // enter event loop
+  // enter event loop
 
-    glutMainLoop();
+  glutMainLoop();
 }
 
 }

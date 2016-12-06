@@ -53,36 +53,36 @@ namespace bgui
 class ListImageWindow : public ImageWindow
 {
   private:
-  
+
     std::vector<std::string> name;
     std::vector<ImageAdapterBase *> list;
     int current;
-    
+
     double  imin, imax;
     double  vmin, vmax;
     keep    kp;
     mapping map;
     int     channel;
-    
+
     void set(int pos, int w=-1, int h=-1, bool size_max=false);
-    
+
     void updateTitle();
-    
+
   public:
-    
+
     ListImageWindow(double init_min=0, double init_max=0,
-      double valid_min=-std::numeric_limits<float>::max(),
-      double valid_max=std::numeric_limits<float>::max(),
-      keep k=keep_none, mapping m=map_raw, int c=-1);
+                    double valid_min=-std::numeric_limits<float>::max(),
+                    double valid_max=std::numeric_limits<float>::max(),
+                    keep k=keep_none, mapping m=map_raw, int c=-1);
     virtual ~ListImageWindow();
-    
-      // if copy == false, then the given image must be available for the
-      // whole lifetime of the ListImageWindow!
-    
+
+    // if copy == false, then the given image must be available for the
+    // whole lifetime of the ListImageWindow!
+
     void add(const gimage::ImageU8 &image, const std::string &s="", bool copy=true);
     void add(const gimage::ImageU16 &image, const std::string &s="", bool copy=true);
     void add(const gimage::ImageFloat &image, const std::string &s="", bool copy=true);
-    
+
     virtual void onKey(char c, SpecialKey key, int x, int y);
 };
 

@@ -59,12 +59,12 @@ class Exception : public std::exception
 
     virtual ~Exception() throw() { }
 
-    virtual const char* what() const throw()
+    virtual const char *what() const throw()
     {
       return s.c_str();
     }
 
-    virtual const char* where() const
+    virtual const char *where() const
     {
 #if defined(DEBUG) && defined(__GNUC__)
       return bt.c_str();

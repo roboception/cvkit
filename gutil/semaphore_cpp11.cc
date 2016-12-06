@@ -43,39 +43,41 @@ namespace gutil
 
 struct SemaphoreData
 {
-    std::mutex              mtx;
-    std::condition_variable cv;
-    int                     count;
+  std::mutex              mtx;
+  std::condition_variable cv;
+  int                     count;
 };
 
 Semaphore::Semaphore(int c)
 {
-    p=new SemaphoreData();
-    p->count=c;
+  p=new SemaphoreData();
+  p->count=c;
 }
 
 Semaphore::~Semaphore()
 {
-    delete p;
+  delete p;
 }
 
 void Semaphore::increment()
 {
-    std::unique_lock<std::mutex> lck(p->mtx);
+  std::unique_lock<std::mutex> lck(p->mtx);
 
-    p->count++;
+  p->count++;
 
-    p->cv.notify_one();
+  p->cv.notify_one();
 }
 
 void Semaphore::decrement()
 {
-    std::unique_lock<std::mutex> lck(p->mtx);
+  std::unique_lock<std::mutex> lck(p->mtx);
 
-    while (p->count == 0)
-      p->cv.wait(lck);
+  while (p->count == 0)
+  {
+    p->cv.wait(lck);
+  }
 
-    p->count--;
+  p->count--;
 }
 
 }

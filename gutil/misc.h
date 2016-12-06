@@ -64,7 +64,8 @@ void trim(std::string &s);
  * Splits a std::string into an sub components and adds them to the given vector.
  */
 
-void split(std::vector<std::string> &list, const std::string &s, char delim=' ', bool skip_empty=true);
+void split(std::vector<std::string> &list, const std::string &s, char delim=' ',
+           bool skip_empty=true);
 
 /**
  * Returns a list of file names that match the given prefix and suffix.

@@ -46,7 +46,7 @@ class TexturedMesh;
 class GLTexturedMesh : public GLMesh
 {
   private:
-  
+
     static int   init;
     static GLint prg;
     static GLint pvertex;
@@ -56,22 +56,22 @@ class GLTexturedMesh : public GLMesh
     static GLint pf;
     static GLint pgrey;
     static GLint pid;
-  
+
     GLTexturedMesh(const GLTexturedMesh &);
-    GLTexturedMesh& operator=(const GLTexturedMesh &);
-    
+    GLTexturedMesh &operator=(const GLTexturedMesh &);
+
   protected:
-  
+
     GLuint buv;
-    
+
     GLint  grey;
     GLuint btext;
-  
+
   public:
-  
+
     GLTexturedMesh(TexturedMesh &p);
     virtual ~GLTexturedMesh();
-    
+
     virtual void draw(const GLCamera &cam);
 };
 

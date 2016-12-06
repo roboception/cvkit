@@ -46,7 +46,7 @@ class Mesh;
 class GLMesh : public GLPointCloud
 {
   private:
-  
+
     static int   init;
     static GLint prg;
     static GLint pvertex;
@@ -56,24 +56,24 @@ class GLMesh : public GLPointCloud
     static GLint pf;
     static GLint plight;
     static GLint pcolor;
-  
+
     GLMesh(const GLMesh &);
-    GLMesh& operator=(const GLMesh &);
-    
+    GLMesh &operator=(const GLMesh &);
+
   protected:
-  
+
     GLuint bnormal;
-    
+
     int tn;
     GLuint btriangle;
-  
+
   public:
-  
+
     GLMesh(Mesh &p);
     virtual ~GLMesh();
-    
+
     virtual int getTriangleCount() { return tn; }
-    
+
     virtual void draw(const GLCamera &cam);
 };
 

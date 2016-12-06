@@ -77,13 +77,13 @@ double recoverAngleAxis(const Matrix33d &R, Vector3d &n);
 
 inline Matrix33d createSkewSymmetric(const Vector3d &a)
 {
-    Matrix33d S;
+  Matrix33d S;
 
-    S(0, 0)=0;     S(0, 1)=-a[2]; S(0, 2)=a[1];
-    S(1, 0)=a[2];  S(1, 1)=0;     S(1, 2)=-a[0];
-    S(2, 0)=-a[1]; S(2, 1)=a[0];  S(2, 2)=0;
+  S(0, 0)=0;     S(0, 1)=-a[2]; S(0, 2)=a[1];
+  S(1, 0)=a[2];  S(1, 1)=0;     S(1, 2)=-a[0];
+  S(2, 0)=-a[1]; S(2, 1)=a[0];  S(2, 2)=0;
 
-    return S;
+  return S;
 }
 
 /**
@@ -101,13 +101,13 @@ double transformGaussJordan(Matrixd &a);
 
 template<class T> inline T det(const SMatrix<T, 2, 2> &a)
 {
-    return a(0, 0)*a(1, 1)-a(0, 1)*a(1, 0);
+  return a(0, 0)*a(1, 1)-a(0, 1)*a(1, 0);
 }
 
 template<class T> inline T det(const SMatrix<T, 3, 3> &a)
 {
-    return a(0, 0)*a(1, 1)*a(2, 2)+a(1, 0)*a(2, 1)*a(0, 2)+a(2, 0)*a(0, 1)*a(1, 2)-
-      a(0, 2)*a(1, 1)*a(2, 0)-a(1, 2)*a(2, 1)*a(0, 0)-a(2, 2)*a(0, 1)*a(1, 0);
+  return a(0, 0)*a(1, 1)*a(2, 2)+a(1, 0)*a(2, 1)*a(0, 2)+a(2, 0)*a(0, 1)*a(1, 2)-
+         a(0, 2)*a(1, 1)*a(2, 0)-a(1, 2)*a(2, 1)*a(0, 0)-a(2, 2)*a(0, 1)*a(1, 0);
 }
 
 double det(const Matrixd &a);
@@ -137,7 +137,7 @@ Matrix33d inv(const Matrix33d &a);
 */
 
 void svd(const Matrixd &a, Matrixd &u, Vectord &w, Matrixd &v,
-  bool thin=false);
+         bool thin=false);
 
 /**
    Wrapper for using SVD on static matrices.
@@ -153,11 +153,16 @@ template<class T, int m, int n> inline void svd(const SMatrix<T, m, n> &a,
   u=U; v=V;
 
   int nn=std::min(w.size(), W.size());
+
   for (int i=0; i<nn; i++)
+  {
     w[i]=W[i];
+  }
 
   for (int i=nn; i < w.size(); i++)
+  {
     w[i]=0;
+  }
 }
 
 /**
@@ -173,13 +178,17 @@ inline void svToZero(Vectord &w, double t=1e-15)
   double wmax=w[0];
 
   for (int i=1; i<w.size(); i++)
+  {
     wmax=std::max(wmax, w[i]);
+  }
 
   // set all elements below threshold to zero
 
   for (int i=0; i<w.size(); i++)
     if (w[i]/wmax <= t)
+    {
       w[i]=0;
+    }
 }
 
 /**
@@ -191,15 +200,20 @@ inline Matrixd mul(const Matrixd &u, const Vectord &w, const Matrixd &v)
   Matrixd wv(u.cols(), v.rows());
 
   int mm=std::min(v.cols(), std::min(u.cols(), w.size()));
+
   for (int k=0; k<mm; k++)
   {
     for (int i=0; i<v.rows(); i++)
+    {
       wv(k, i)=w[k]*v(i, k);
+    }
   }
 
   for (int k=mm; k<u.cols(); k++)
     for (int i=0; i<v.rows(); i++)
+    {
       wv(k, i)=0;
+    }
 
   return u*wv;
 }
@@ -215,15 +229,20 @@ mul(const SMatrix<T, m, m> &u, const SVector<T, nn> &w,
   SMatrix<T, m, n> wv;
 
   int mm=std::min(v.cols(), std::min(u.cols(), w.size()));
+
   for (int k=0; k<mm; k++)
   {
     for (int i=0; i<v.rows(); i++)
+    {
       wv(k, i)=w[k]*v(i, k);
+    }
   }
 
   for (int k=mm; k<u.cols(); k++)
     for (int i=0; i<v.rows(); i++)
+    {
       wv(k, i)=0;
+    }
 
   return u*wv;
 }
@@ -245,7 +264,9 @@ inline Matrixd inv(const Matrixd &a)
   for (int i=0; i<w.size(); i++)
   {
     if (w[i] == 0)
+    {
       throw gutil::InvalidArgumentException("Matrix cannot be inverted, because it is singular");
+    }
 
     w[i]=1.0/w[i];
   }
@@ -267,7 +288,9 @@ inline Matrixd pinv(const Matrixd &a)
   for (int i=0; i<w.size(); i++)
   {
     if (w[i] != 0)
+    {
       w[i]=1.0/w[i];
+    }
   }
 
   return mul(v, w, u);

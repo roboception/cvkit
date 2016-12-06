@@ -109,11 +109,16 @@ template<class T> class DMatrix
       v=new T[n];
 
       for (int i=0; i<n; i++)
+      {
         v[i]=0;
+      }
 
       int m=std::min(ncols, std::min(nrows, a.size()));
+
       for (int i=0; i<m; i++)
+      {
         v[i*ncols+i]=a[i];
+      }
     }
 
     DMatrix(const DMatrix<T> &a)
@@ -123,12 +128,15 @@ template<class T> class DMatrix
       n=nrows*ncols;
 
       v=0;
+
       if (n > 0)
       {
         v=new T[n];
 
         for (int i=0; i<n; i++)
+        {
           v[i]=a.v[i];
+        }
       }
     }
 
@@ -141,7 +149,9 @@ template<class T> class DMatrix
 
       for (int k=0; k<r; k++)
         for (int i=0; i<c; i++)
+        {
           v[k*c+i]=a(k, i);
+        }
     }
 
     ~DMatrix()
@@ -156,22 +166,29 @@ template<class T> class DMatrix
     void init(int rows=0, int cols=0)
     {
       if (v != 0)
+      {
         delete [] v;
+      }
 
       nrows=rows;
       ncols=cols;
       n=nrows*ncols;
 
       v=0;
+
       if (n > 0)
       {
         v=new T[n];
 
         for (int i=0; i<n; i++)
+        {
           v[i]=0;
+        }
 
         for (int i=0; i<n; i+=cols+1)
+        {
           v[i]=1;
+        }
       }
     }
 
@@ -185,7 +202,7 @@ template<class T> class DMatrix
       return ncols;
     }
 
-    T& operator()(int k, int i)
+    T &operator()(int k, int i)
     {
       return v[k*ncols+i];
     }
@@ -200,7 +217,9 @@ template<class T> class DMatrix
       DVector<T> ret(ncols);
 
       for (int i=0; i<ncols; i++)
+      {
         ret[i]=v[row*ncols+i];
+      }
 
       return ret;
     }
@@ -210,7 +229,9 @@ template<class T> class DMatrix
       DVector<T> ret(nrows);
 
       for (int k=0; k<nrows; k++)
+      {
         ret[k]=v[k*ncols+col];
+      }
 
       return ret;
     }
@@ -220,7 +241,9 @@ template<class T> class DMatrix
       checkDimension(nrows, a.size());
 
       for (int i=0; i<ncols; i++)
+      {
         v[row*ncols+i]=a[i];
+      }
     }
 
     void setColumn(int col, const DVector<T> &a)
@@ -228,34 +251,43 @@ template<class T> class DMatrix
       checkDimension(a.size(), ncols);
 
       for (int k=0; k<nrows; k++)
+      {
         v[k*ncols+col]=a[k];
+      }
     }
 
-    DMatrix<T>& operator=(const DMatrix<T> &a)
+    DMatrix<T> &operator=(const DMatrix<T> &a)
     {
       if (v != 0)
+      {
         delete [] v;
+      }
 
       nrows=a.nrows;
       ncols=a.ncols;
       n=nrows*ncols;
 
       v=0;
+
       if (n > 0)
       {
         v=new T[n];
 
         for (int i=0; i<n; i++)
+        {
           v[i]=a.v[i];
+        }
       }
 
       return *this;
     }
 
-    DMatrix<T>& operator=(T s)
+    DMatrix<T> &operator=(T s)
     {
       for (int i=0; i<n; i++)
+      {
         v[i]=s;
+      }
 
       return *this;
     }
@@ -269,17 +301,21 @@ template<class T> class DMatrix
 
       for (int k=0; k<r; k++)
         for (int i=0; i<c; i++)
+        {
           ret(k, i)=static_cast<S>(v[k*c+i]);
+        }
 
       return ret;
     }
 
-    DMatrix<T>& operator+=(const DMatrix<T> &a)
+    DMatrix<T> &operator+=(const DMatrix<T> &a)
     {
       checkDimension(a.nrows, a.ncols);
 
       for (int i=0; i<n; i++)
+      {
         v[i]+=a.v[i];
+      }
 
       return *this;
     }
@@ -291,17 +327,21 @@ template<class T> class DMatrix
       checkDimension(a.nrows, a.ncols);
 
       for (int i=0; i<n; i++)
+      {
         ret.v[i]=v[i]+a.v[i];
+      }
 
       return ret;
     }
 
-    DMatrix<T>& operator-=(const DMatrix<T> &a)
+    DMatrix<T> &operator-=(const DMatrix<T> &a)
     {
       checkDimension(a.nrows, a.ncols);
 
       for (int i=0; i<n; i++)
+      {
         v[i]-=a.v[i];
+      }
 
       return *this;
     }
@@ -313,15 +353,19 @@ template<class T> class DMatrix
       checkDimension(a.nrows, a.ncols);
 
       for (int i=0; i<n; i++)
+      {
         ret.v[i]=v[i]-a.v[i];
+      }
 
       return ret;
     }
 
-    DMatrix<T>& operator*=(T s)
+    DMatrix<T> &operator*=(T s)
     {
       for (int i=0; i<n; i++)
+      {
         v[i]*=s;
+      }
 
       return *this;
     }
@@ -331,7 +375,9 @@ template<class T> class DMatrix
       DMatrix<T> ret(nrows, ncols);
 
       for (int i=0; i<n; i++)
+      {
         ret.v[i]=s*v[i];
+      }
 
       return ret;
     }
@@ -344,15 +390,19 @@ template<class T> class DMatrix
 
       for (int k=0; k<nrows; k++)
         for (int i=0; i<ncols; i++)
+        {
           ret[k]+=v[k*ncols+i]*a[i];
+        }
 
       return ret;
     }
 
-    DMatrix<T>& operator/=(T s)
+    DMatrix<T> &operator/=(T s)
     {
       for (int i=0; i<n; i++)
+      {
         v[i]/=s;
+      }
 
       return *this;
     }
@@ -362,7 +412,9 @@ template<class T> class DMatrix
       DMatrix<T> ret(nrows, ncols);
 
       for (int i=0; i<n; i++)
+      {
         ret.v[i]=v[i]/s;
+      }
 
       return ret;
     }
@@ -371,7 +423,9 @@ template<class T> class DMatrix
     {
       for (int i=0; i<n; i++)
         if (v[i] != a.v[i])
+        {
           return false;
+        }
 
       return true;
     }
@@ -380,7 +434,9 @@ template<class T> class DMatrix
     {
       for (int i=0; i<n; i++)
         if (v[i] != a.v[i])
+        {
           return true;
+        }
 
       return false;
     }
@@ -388,21 +444,24 @@ template<class T> class DMatrix
 
 template<class T> DMatrix<T> inline operator*(const DMatrix<T> &a, const DMatrix<T> &b)
 {
-    DMatrix<T> ret(a.rows(), b.cols());
+  DMatrix<T> ret(a.rows(), b.cols());
 
-    assert(a.cols() == b.rows());
+  assert(a.cols() == b.rows());
 
-    for (int k=0; k<a.rows(); k++)
+  for (int k=0; k<a.rows(); k++)
+  {
+    for (int i=0; i<b.cols(); i++)
     {
-      for (int i=0; i<b.cols(); i++)
+      ret(k, i)=0;
+
+      for (int j=0; j<a.cols(); j++)
       {
-        ret(k, i)=0;
-        for (int j=0; j<a.cols(); j++)
-          ret(k, i)+=a(k, j)*b(j, i);
+        ret(k, i)+=a(k, j)*b(j, i);
       }
     }
+  }
 
-    return ret;
+  return ret;
 }
 
 /**
@@ -411,122 +470,144 @@ template<class T> DMatrix<T> inline operator*(const DMatrix<T> &a, const DMatrix
  */
 
 template<class T> inline DVector<T> operator*(const DVector<T> &a,
-  const DMatrix<T> &b)
+    const DMatrix<T> &b)
 {
-    DVector<T> ret(b.cols());
+  DVector<T> ret(b.cols());
 
-    assert(a.size() == b.rows());
+  assert(a.size() == b.rows());
 
-    for (int i=0; i<b.cols(); i++)
-      for (int k=0; k<b.rows(); k++)
-        ret[i]+=a[k]*b(k, i);
+  for (int i=0; i<b.cols(); i++)
+    for (int k=0; k<b.rows(); k++)
+    {
+      ret[i]+=a[k]*b(k, i);
+    }
 
-    return ret;
+  return ret;
 }
 
 template<class S, class T> DMatrix<T> inline operator*(S s, const DMatrix<T> &a)
 {
-    DMatrix<T> ret(a.rows(), a.cols());
+  DMatrix<T> ret(a.rows(), a.cols());
 
-    for (int k=0; k<ret.rows(); k++)
-      for (int i=0; i<ret.cols(); i++)
-        ret(k, i)=s*a(k, i);
+  for (int k=0; k<ret.rows(); k++)
+    for (int i=0; i<ret.cols(); i++)
+    {
+      ret(k, i)=s*a(k, i);
+    }
 
-    return ret;
+  return ret;
 }
 
 template<class T> inline DMatrix<T> transpose(const DMatrix<T> &a)
 {
-    DMatrix<T> ret(a.cols(), a.rows());
+  DMatrix<T> ret(a.cols(), a.rows());
 
-    for (int k=0; k<ret.rows(); k++)
-      for (int i=0; i<ret.cols(); i++)
-        ret(k, i)=a(i, k);
-
-    return ret;
-}
-
-template<class T, class Ch, class Tr>
-std::basic_ostream<Ch, Tr>& operator<<(std::basic_ostream<Ch, Tr> &out, const DMatrix<T> &a)
-{
-    out << "[";
-
-    for (int k=0; k<a.rows(); k++)
+  for (int k=0; k<ret.rows(); k++)
+    for (int i=0; i<ret.cols(); i++)
     {
-      for (int i=0; i<a.cols(); i++)
-      {
-        if (i > 0)
-          out << " ";
-
-        out << a(k, i);
-      }
-
-      if (k+1 < a.rows())
-        out << "; ";
+      ret(k, i)=a(i, k);
     }
 
-    out << "]";
-
-    return out;
+  return ret;
 }
 
 template<class T, class Ch, class Tr>
-std::basic_istream<Ch, Tr>& operator>>(std::basic_istream<Ch, Tr> &in, DMatrix<T> &a)
+std::basic_ostream<Ch, Tr> &operator<<(std::basic_ostream<Ch, Tr> &out, const DMatrix<T> &a)
 {
-    T    v;
-    std::vector<std::vector<T> > elem;
-    char c;
+  out << "[";
 
-    in >> c;
-
-    if (c == '[')
+  for (int k=0; k<a.rows(); k++)
+  {
+    for (int i=0; i<a.cols(); i++)
     {
-      while (c != ']' && in)
+      if (i > 0)
       {
-        in >> c;
-        if (c != ']')
+        out << " ";
+      }
+
+      out << a(k, i);
+    }
+
+    if (k+1 < a.rows())
+    {
+      out << "; ";
+    }
+  }
+
+  out << "]";
+
+  return out;
+}
+
+template<class T, class Ch, class Tr>
+std::basic_istream<Ch, Tr> &operator>>(std::basic_istream<Ch, Tr> &in, DMatrix<T> &a)
+{
+  T    v;
+  std::vector<std::vector<T> > elem;
+  char c;
+
+  in >> c;
+
+  if (c == '[')
+  {
+    while (c != ']' && in)
+    {
+      in >> c;
+
+      if (c != ']')
+      {
+        if (c != ';')
         {
-          if (c != ';')
+          in.putback(c);
+        }
+
+        elem.push_back(std::vector<T>());
+
+        while (c != ';' && c != ']' && in)
+        {
+          in >> c;
+
+          if (c != ';' && c != ']')
+          {
             in.putback(c);
 
-          elem.push_back(std::vector<T>());
-
-          while (c != ';' && c != ']' && in)
-          {
-            in >> c;
-            if (c != ';' && c != ']')
-            {
-              in.putback(c);
-
-              in >> v;
-              elem.back().push_back(v);
-            }
+            in >> v;
+            elem.back().push_back(v);
           }
+        }
 
-          if (in && elem.front().size() != elem.back().size())
-            in.setstate(std::ios_base::failbit);
+        if (in && elem.front().size() != elem.back().size())
+        {
+          in.setstate(std::ios_base::failbit);
         }
       }
-
-      if (in)
-      {
-        int rows=elem.size();
-        int cols=0;
-
-        if (rows > 0)
-          cols=elem.front().size();
-
-        a.init(rows, cols);
-
-        for (int k=0; k<rows; k++)
-          for (int i=0; i<cols; i++)
-            a(k, i)=elem[k][i];
-      }
     }
-    else
-      in.setstate(std::ios_base::failbit);
 
-    return in;
+    if (in)
+    {
+      int rows=elem.size();
+      int cols=0;
+
+      if (rows > 0)
+      {
+        cols=elem.front().size();
+      }
+
+      a.init(rows, cols);
+
+      for (int k=0; k<rows; k++)
+        for (int i=0; i<cols; i++)
+        {
+          a(k, i)=elem[k][i];
+        }
+    }
+  }
+  else
+  {
+    in.setstate(std::ios_base::failbit);
+  }
+
+  return in;
 }
 
 typedef DMatrix<double> Matrixd;

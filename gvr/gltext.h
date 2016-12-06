@@ -58,36 +58,36 @@ namespace gvr
 class GLTextItem
 {
   private:
-    
+
     std::string  text;
     GLfloat trans[16];
-    
+
   public:
-    
+
     GLTextItem(const std::string &t, const gmath::Matrix33d &R, const gmath::Vector3d &T, double s,
-      bool center=false);
-    
+               bool center=false);
+
     const std::string &getText() const { return text; }
-    
+
     const GLfloat *getGLTransformation() const { return trans; }
 };
 
 class GLText : public GLObject
 {
   private:
-    
+
     std::vector<GLTextItem> list;
-    
+
     GLText(const GLText &);
-    GLText& operator=(const GLText &);
-  
+    GLText &operator=(const GLText &);
+
   public:
-  
+
     GLText(int id) : GLObject(id) { }
-    
+
     void addText(const std::string &text, const gmath::Matrix33d &R, const gmath::Vector3d &T,
-      double scale, bool center=false);
-    
+                 double scale, bool center=false);
+
     virtual void draw(const GLCamera &cam);
 };
 

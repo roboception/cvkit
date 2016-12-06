@@ -46,268 +46,291 @@ namespace
 
 std::string createHelpText()
 {
-    std::ostringstream out;
+  std::ostringstream out;
 
-    out << "\n";
-    out << "List:\n";
-    out << "<cursor left>  Load previous image\n";
-    out << "<cursor right> Load next image\n";
-    out << "'k'            Switch between keep, keep_all and not keeping the settings when changing between images\n";
+  out << "\n";
+  out << "List:\n";
+  out << "<cursor left>  Load previous image\n";
+  out << "<cursor right> Load next image\n";
+  out << "'k'            Switch between keep, keep_all and not keeping the settings when changing between images\n";
 
-    return out.str();
+  return out.str();
 }
 
 }
 
 void ListImageWindow::set(int pos, int w, int h, bool size_max)
 {
-    if (pos >= 0 && pos < static_cast<int>(list.size()))
+  if (pos >= 0 && pos < static_cast<int>(list.size()))
+  {
+    ImageAdapterBase *adapt=list[pos];
+
+    if (imin < imax && kp == keep_all)
     {
-      ImageAdapterBase *adapt=list[pos];
+      adapt->setMinIntensity(imin);
+      adapt->setMaxIntensity(imax);
+    }
 
-      if (imin < imax && kp == keep_all)
-      {
-        adapt->setMinIntensity(imin);
-        adapt->setMaxIntensity(imax);
-      }
-
-      if (w > 0 && h > 0)
+    if (w > 0 && h > 0)
+    {
+      adapt->setMapping(map);
+      adapt->setChannel(channel);
+      setAdapter(adapt, false, keep_none, w, h, size_max);
+    }
+    else
+    {
+      if (kp == keep_none)
       {
         adapt->setMapping(map);
         adapt->setChannel(channel);
-        setAdapter(adapt, false, keep_none, w, h, size_max);
       }
-      else
-      {
-        if (kp == keep_none)
-        {
-          adapt->setMapping(map);
-          adapt->setChannel(channel);
-        }
 
-        setAdapter(adapt, false, kp);
-      }
+      setAdapter(adapt, false, kp);
     }
+  }
 
-    updateTitle();
+  updateTitle();
 }
 
 void ListImageWindow::updateTitle()
 {
-    ImageAdapterBase *adapt=getAdapter();
+  ImageAdapterBase *adapt=getAdapter();
 
-      // set image adapter and title
+  // set image adapter and title
 
-    if (adapt != 0)
+  if (adapt != 0)
+  {
+    std::ostringstream os;
+
+    os << name[current] << " - " << adapt->getOriginalWidth() << "x" <<
+       adapt->getOriginalHeight() << "x" << adapt->getOriginalDepth() <<
+       " " << adapt->getOriginalType();
+
+    if (kp != keep_none)
     {
-      std::ostringstream os;
+      os << " -";
 
-      os << name[current] << " - " << adapt->getOriginalWidth() << "x" <<
-        adapt->getOriginalHeight() << "x" << adapt->getOriginalDepth() <<
-        " " << adapt->getOriginalType();
-
-      if (kp != keep_none)
+      if (kp == keep_most)
       {
-        os << " -";
-
-        if (kp == keep_most)
-          os << " " << "keep";
-
-        if (kp == keep_all)
-          os << " " << "keep_all";
+        os << " " << "keep";
       }
 
-      setTitle(os.str().c_str());
-      setInfoText("");
+      if (kp == keep_all)
+      {
+        os << " " << "keep_all";
+      }
     }
-    else
-    {
-      setAdapter(0);
-      setTitle("Image");
-      setInfoText("No image!");
-    }
+
+    setTitle(os.str().c_str());
+    setInfoText("");
+  }
+  else
+  {
+    setAdapter(0);
+    setTitle("Image");
+    setInfoText("No image!");
+  }
 }
 
 ListImageWindow::ListImageWindow(double init_min, double init_max,
-  double valid_min, double valid_max, keep k, mapping m, int c)
+                                 double valid_min, double valid_max, keep k, mapping m, int c)
 {
-    addHelpText(createHelpText());
+  addHelpText(createHelpText());
 
-    current=0;
+  current=0;
 
-    imin=init_min;
-    imax=init_max;
-    vmin=valid_min;
-    vmax=valid_max;
-    kp=k;
-    map=m;
-    channel=c;
+  imin=init_min;
+  imax=init_max;
+  vmin=valid_min;
+  vmax=valid_max;
+  kp=k;
+  map=m;
+  channel=c;
 
-    set(-1, 0, 0, false);
+  set(-1, 0, 0, false);
 }
 
 ListImageWindow::~ListImageWindow()
 {
-    for (size_t i=0; i<list.size(); i++)
-      delete list[i];
+  for (size_t i=0; i<list.size(); i++)
+  {
+    delete list[i];
+  }
 }
 
 void ListImageWindow::add(const gimage::ImageU8 &image, const std::string &s, bool copy)
 {
-    const gimage::ImageU8 *im=&image;
+  const gimage::ImageU8 *im=&image;
 
-    if (copy)
-      im=new gimage::ImageU8(image);
+  if (copy)
+  {
+    im=new gimage::ImageU8(image);
+  }
 
-    ImageAdapterBase *adapt=new ImageAdapter<unsigned char>(im, vmin, vmax, copy);
+  ImageAdapterBase *adapt=new ImageAdapter<unsigned char>(im, vmin, vmax, copy);
 
-    list.push_back(adapt);
+  list.push_back(adapt);
 
-    if (s.size() == 0)
-    {
-      std::ostringstream out;
+  if (s.size() == 0)
+  {
+    std::ostringstream out;
 
-      out << "Image " << name.size();
+    out << "Image " << name.size();
 
-      name.push_back(out.str());
-    }
-    else
-      name.push_back(s);
+    name.push_back(out.str());
+  }
+  else
+  {
+    name.push_back(s);
+  }
 
-    if (list.size() == 1)
-    {
-      int w, h;
+  if (list.size() == 1)
+  {
+    int w, h;
 
-      getDisplaySize(w, h);
+    getDisplaySize(w, h);
 
-      current=0;
-      set(current, w, h, true);
+    current=0;
+    set(current, w, h, true);
 
-      setVisible(true);
-    }
+    setVisible(true);
+  }
 }
 
 void ListImageWindow::add(const gimage::ImageU16 &image, const std::string &s, bool copy)
 {
-    const gimage::ImageU16 *im=&image;
+  const gimage::ImageU16 *im=&image;
 
-    if (copy)
-      im=new gimage::ImageU16(image);
+  if (copy)
+  {
+    im=new gimage::ImageU16(image);
+  }
 
-    ImageAdapterBase *adapt=new ImageAdapter<unsigned short>(im, vmin, vmax, copy);
+  ImageAdapterBase *adapt=new ImageAdapter<unsigned short>(im, vmin, vmax, copy);
 
-    list.push_back(adapt);
+  list.push_back(adapt);
 
-    if (s.size() == 0)
-    {
-      std::ostringstream out;
+  if (s.size() == 0)
+  {
+    std::ostringstream out;
 
-      out << "Image " << name.size();
+    out << "Image " << name.size();
 
-      name.push_back(out.str());
-    }
-    else
-      name.push_back(s);
+    name.push_back(out.str());
+  }
+  else
+  {
+    name.push_back(s);
+  }
 
-    if (list.size() == 1)
-    {
-      int w, h;
+  if (list.size() == 1)
+  {
+    int w, h;
 
-      getDisplaySize(w, h);
+    getDisplaySize(w, h);
 
-      current=0;
-      set(current, w, h, true);
+    current=0;
+    set(current, w, h, true);
 
-      setVisible(true);
-    }
+    setVisible(true);
+  }
 }
 
 void ListImageWindow::add(const gimage::ImageFloat &image, const std::string &s, bool copy)
 {
-    const gimage::ImageFloat *im=&image;
+  const gimage::ImageFloat *im=&image;
 
-    if (copy)
-      im=new gimage::ImageFloat(image);
+  if (copy)
+  {
+    im=new gimage::ImageFloat(image);
+  }
 
-    ImageAdapterBase *adapt=new ImageAdapter<float>(im, vmin, vmax, copy);
+  ImageAdapterBase *adapt=new ImageAdapter<float>(im, vmin, vmax, copy);
 
-    list.push_back(adapt);
+  list.push_back(adapt);
 
-    if (s.size() == 0)
-    {
-      std::ostringstream out;
+  if (s.size() == 0)
+  {
+    std::ostringstream out;
 
-      out << "Image " << name.size();
+    out << "Image " << name.size();
 
-      name.push_back(out.str());
-    }
-    else
-      name.push_back(s);
+    name.push_back(out.str());
+  }
+  else
+  {
+    name.push_back(s);
+  }
 
-    if (list.size() == 1)
-    {
-      int w, h;
+  if (list.size() == 1)
+  {
+    int w, h;
 
-      getDisplaySize(w, h);
+    getDisplaySize(w, h);
 
-      current=0;
-      set(current, w, h, true);
+    current=0;
+    set(current, w, h, true);
 
-      setVisible(true);
-    }
+    setVisible(true);
+  }
 }
 
 void ListImageWindow::onKey(char c, SpecialKey key, int x, int y)
 {
-    switch (key)
-    {
-      case k_left: /* load previous image */
-          if (current > 0)
-          {
-            current--;
-            set(current);
-          }
+  switch (key)
+  {
+    case k_left: /* load previous image */
+      if (current > 0)
+      {
+        current--;
+        set(current);
+      }
 
-          setInfoLine("");
+      setInfoLine("");
+      break;
+
+    case k_right: /* load next image */
+      current++;
+
+      if (current < static_cast<int>(name.size()))
+      {
+        set(current);
+      }
+      else
+      {
+        current--;
+      }
+
+      setInfoLine("");
+      break;
+
+    default:
+      break;
+  }
+
+  switch (c)
+  {
+    case 'k':
+      switch (kp)
+      {
+        case keep_none:
+          kp=keep_most;
           break;
 
-      case k_right: /* load next image */
-          current++;
-          if (current < static_cast<int>(name.size()))
-            set(current);
-          else
-            current--;
-
-          setInfoLine("");
+        case keep_most:
+          kp=keep_all;
           break;
 
-      default:
+        case keep_all:
+          kp=keep_none;
           break;
-    }
+      }
 
-    switch (c)
-    {
-      case 'k':
-          switch (kp)
-          {
-            case keep_none:
-                kp=keep_most;
-                break;
+      updateTitle();
+      break;
+  }
 
-            case keep_most:
-                kp=keep_all;
-                break;
-
-            case keep_all:
-                kp=keep_none;
-                break;
-          }
-
-          updateTitle();
-          break;
-    }
-
-    ImageWindow::onKey(c, key, x, y);
+  ImageWindow::onKey(c, key, x, y);
 }
 
 }

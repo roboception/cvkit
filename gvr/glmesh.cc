@@ -169,139 +169,153 @@ GLint GLMesh::pf;
 
 GLMesh::GLMesh(Mesh &p) : GLPointCloud(p)
 {
-    tn=p.getTriangleCount();
+  tn=p.getTriangleCount();
 
-      // create shader programs, but only once per class
+  // create shader programs, but only once per class
 
-    if (init == 0)
-    {
-      prg=createProgram(vshader, fshader);
+  if (init == 0)
+  {
+    prg=createProgram(vshader, fshader);
 
-      pvertex=getAttributeLocation(prg, "vertex");
-      pvnormal=getAttributeLocation(prg, "vnormal");
+    pvertex=getAttributeLocation(prg, "vertex");
+    pvnormal=getAttributeLocation(prg, "vnormal");
 
-      ptrans=getUniformLocation(prg, "trans");
-      plight=getUniformLocation(prg, "light");
-      pcolor=getUniformLocation(prg, "color");
+    ptrans=getUniformLocation(prg, "trans");
+    plight=getUniformLocation(prg, "light");
+    pcolor=getUniformLocation(prg, "color");
 
 #ifndef __APPLE__
-      psize=getAttributeLocation(prg, "size");
-      pf=getUniformLocation(prg, "f");
+    psize=getAttributeLocation(prg, "size");
+    pf=getUniformLocation(prg, "f");
 #endif
-    }
+  }
 
-    init++;
+  init++;
 
-      // create buffer objects for data
+  // create buffer objects for data
 
-    glGenBuffers(1, &bnormal);
-    glBindBuffer(GL_ARRAY_BUFFER, bnormal);
-    glBufferData(GL_ARRAY_BUFFER, p.getVertexCount()*3*sizeof(float),
-      p.getNormalArray(), GL_STATIC_DRAW);
+  glGenBuffers(1, &bnormal);
+  glBindBuffer(GL_ARRAY_BUFFER, bnormal);
+  glBufferData(GL_ARRAY_BUFFER, p.getVertexCount()*3*sizeof(float),
+               p.getNormalArray(), GL_STATIC_DRAW);
 
-    glGenBuffers(1, &btriangle);
-    glBindBuffer(GL_ARRAY_BUFFER, btriangle);
-    glBufferData(GL_ARRAY_BUFFER, p.getTriangleCount()*3*sizeof(unsigned int),
-      p.getTriangleArray(), GL_STATIC_DRAW);
+  glGenBuffers(1, &btriangle);
+  glBindBuffer(GL_ARRAY_BUFFER, btriangle);
+  glBufferData(GL_ARRAY_BUFFER, p.getTriangleCount()*3*sizeof(unsigned int),
+               p.getTriangleArray(), GL_STATIC_DRAW);
 
-    checkGLError();
+  checkGLError();
 }
 
 GLMesh::~GLMesh()
 {
-      // clean up buffer objects
+  // clean up buffer objects
 
-    glDeleteBuffers(1, &bnormal);
-    glDeleteBuffers(1, &btriangle);
+  glDeleteBuffers(1, &bnormal);
+  glDeleteBuffers(1, &btriangle);
 
-      // clean up program, but only once per class
+  // clean up program, but only once per class
 
-    init--;
+  init--;
 
-    if (init == 0)
-    {
-      glDeleteProgram(prg);
-      prg=0;
-    }
+  if (init == 0)
+  {
+    glDeleteProgram(prg);
+    prg=0;
+  }
 }
 
 void GLMesh::draw(const GLCamera &cam)
 {
-    GLint defprg=0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &defprg);
+  GLint defprg=0;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &defprg);
 
-    glUseProgram(prg);
+  glUseProgram(prg);
 
-    glUniformMatrix4fv(ptrans, 1, GL_TRUE, cam.getTransformation());
+  glUniformMatrix4fv(ptrans, 1, GL_TRUE, cam.getTransformation());
 
-    double ps=cam.getPointScale();
+  double ps=cam.getPointScale();
 
-    if (bsize != 0 && ps == 0)
-      ps=1;
-
-#ifndef __APPLE__
-    glUniform1f(pf, static_cast<GLfloat>(cam.getFocalLength()*ps));
-#endif
-
-    const GLfloat *L=cam.getGLLightDirection();
-    glUniform3f(plight, L[0], L[1], L[2]);
-
-    if (cam.getRenderSpecialColor())
-    {
-      switch ((getID()-ID_MODEL_START)%3)
-      {
-        case 0:
-            glUniform3f(pcolor, 255/255.0f, 255/255.0f, 151/255.0f);
-            break;
-
-        case 1:
-            glUniform3f(pcolor, 155/255.0f, 155/255.0f, 255/255.0f);
-            break;
-
-        case 2:
-            glUniform3f(pcolor, 205/255.0f, 255/255.0f, 204/255.0f);
-            break;
-      }
-    }
-    else
-      glUniform3f(pcolor, 1.0f, 1.0f, 1.0f);
-
-    glEnableVertexAttribArray(pvertex);
-    glBindBuffer(GL_ARRAY_BUFFER, bvertex);
-    glVertexAttribPointer(pvertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-    glEnableVertexAttribArray(pvnormal);
-    glBindBuffer(GL_ARRAY_BUFFER, bnormal);
-    glVertexAttribPointer(pvnormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  if (bsize != 0 && ps == 0)
+  {
+    ps=1;
+  }
 
 #ifndef __APPLE__
-    if (bsize != 0 && cam.getRenderPointsOnly())
-    {
-      glEnableVertexAttribArray(psize);
-      glBindBuffer(GL_ARRAY_BUFFER, bsize);
-      glVertexAttribPointer(psize, 1, GL_FLOAT, GL_FALSE, 0, 0);
-    }
-    else
-      glVertexAttrib1f(psize, 1);
+  glUniform1f(pf, static_cast<GLfloat>(cam.getFocalLength()*ps));
 #endif
 
-    if (!cam.getRenderPointsOnly())
+  const GLfloat *L=cam.getGLLightDirection();
+  glUniform3f(plight, L[0], L[1], L[2]);
+
+  if (cam.getRenderSpecialColor())
+  {
+    switch ((getID()-ID_MODEL_START)%3)
     {
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, btriangle);
-      glDrawElements(GL_TRIANGLES, 3*tn, GL_UNSIGNED_INT, 0);
+      case 0:
+        glUniform3f(pcolor, 255/255.0f, 255/255.0f, 151/255.0f);
+        break;
+
+      case 1:
+        glUniform3f(pcolor, 155/255.0f, 155/255.0f, 255/255.0f);
+        break;
+
+      case 2:
+        glUniform3f(pcolor, 205/255.0f, 255/255.0f, 204/255.0f);
+        break;
     }
-    else
-      glDrawArrays(GL_POINTS, 0, vn);
+  }
+  else
+  {
+    glUniform3f(pcolor, 1.0f, 1.0f, 1.0f);
+  }
+
+  glEnableVertexAttribArray(pvertex);
+  glBindBuffer(GL_ARRAY_BUFFER, bvertex);
+  glVertexAttribPointer(pvertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  glEnableVertexAttribArray(pvnormal);
+  glBindBuffer(GL_ARRAY_BUFFER, bnormal);
+  glVertexAttribPointer(pvnormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 #ifndef __APPLE__
-    if (bsize != 0 && cam.getRenderPointsOnly())
-      glDisableVertexAttribArray(psize);
+
+  if (bsize != 0 && cam.getRenderPointsOnly())
+  {
+    glEnableVertexAttribArray(psize);
+    glBindBuffer(GL_ARRAY_BUFFER, bsize);
+    glVertexAttribPointer(psize, 1, GL_FLOAT, GL_FALSE, 0, 0);
+  }
+  else
+  {
+    glVertexAttrib1f(psize, 1);
+  }
+
 #endif
 
-    glDisableVertexAttribArray(pvnormal);
-    glDisableVertexAttribArray(pvertex);
+  if (!cam.getRenderPointsOnly())
+  {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, btriangle);
+    glDrawElements(GL_TRIANGLES, 3*tn, GL_UNSIGNED_INT, 0);
+  }
+  else
+  {
+    glDrawArrays(GL_POINTS, 0, vn);
+  }
 
-    glUseProgram(defprg);
+#ifndef __APPLE__
+
+  if (bsize != 0 && cam.getRenderPointsOnly())
+  {
+    glDisableVertexAttribArray(psize);
+  }
+
+#endif
+
+  glDisableVertexAttribArray(pvnormal);
+  glDisableVertexAttribArray(pvertex);
+
+  glUseProgram(defprg);
 }
 
 }

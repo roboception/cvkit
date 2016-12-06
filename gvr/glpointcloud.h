@@ -54,30 +54,30 @@ class PointCloud;
 class GLPointCloud : public GLObject
 {
   private:
-  
+
     static int   init;
     static GLint prg;
     static GLint ptrans;
     static GLint pvertex;
     static GLint psize;
     static GLint pf;
-  
+
     GLPointCloud(const GLPointCloud &);
-    GLPointCloud& operator=(const GLPointCloud &);
-    
+    GLPointCloud &operator=(const GLPointCloud &);
+
   protected:
-  
+
     int    vn;
     GLuint bvertex;
     GLuint bsize;
-  
+
   public:
-  
+
     GLPointCloud(PointCloud &p);
     virtual ~GLPointCloud();
-    
+
     virtual int getVertexCount() { return vn; }
-    
+
     virtual void draw(const GLCamera &cam);
 };
 

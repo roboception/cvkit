@@ -50,13 +50,13 @@ namespace
 const GLchar *vshader[]=
 {
   "#version 130\n",
-  
+
   "in vec3 vertex;",
   "in float size;",
-  
+
   "uniform mat4 trans;",
   "uniform float f;",
-  
+
   "void main()",
   "{",
   "  gl_Position=trans*vec4(vertex, 1.0);",
@@ -68,9 +68,9 @@ const GLchar *vshader[]=
 const GLchar *fshader[]=
 {
   "#version 130\n",
-  
+
   "out vec4 FragColor;",
-  
+
   "void main()",
   "{",
   "  FragColor=vec4(0, 0, 0, 1.0);",
@@ -83,13 +83,13 @@ const GLchar *fshader[]=
 const GLchar *vshader[]=
 {
   "#version 120\n",
-  
+
   "attribute vec3 vertex;",
   "attribute float size;",
-  
+
   "uniform mat4 trans;",
   "uniform float f;",
-  
+
   "void main()",
   "{",
   "  gl_Position=trans*vec4(vertex, 1.0);",
@@ -101,7 +101,7 @@ const GLchar *vshader[]=
 const GLchar *fshader[]=
 {
   "#version 120\n",
-  
+
   "void main()",
   "{",
   "  gl_FragColor=vec4(0, 0, 0, 1.0);",
@@ -120,104 +120,113 @@ GLint GLPointCloud::pf;
 
 GLPointCloud::GLPointCloud(PointCloud &p) : GLObject(p.getID())
 {
-    vn=p.getVertexCount();
-    
-      // create shader programs, but only once per class
-    
-    if (init == 0)
+  vn=p.getVertexCount();
+
+  // create shader programs, but only once per class
+
+  if (init == 0)
+  {
+    prg=createProgram(vshader, fshader);
+
+    pvertex=getAttributeLocation(prg, "vertex");
+    psize=getAttributeLocation(prg, "size");
+
+    ptrans=getUniformLocation(prg, "trans");
+    pf=getUniformLocation(prg, "f");
+  }
+
+  init++;
+
+  // create buffer objects for data
+
+  glGenBuffers(1, &bvertex);
+  glBindBuffer(GL_ARRAY_BUFFER, bvertex);
+  glBufferData(GL_ARRAY_BUFFER, p.getVertexCount()*3*sizeof(float),
+               p.getVertexArray(), GL_STATIC_DRAW);
+
+  bsize=0;
+
+  if (p.hasScanProp())
+  {
+    float *s=new float [p.getVertexCount()];
+
+    for (int i=p.getVertexCount()-1; i>=0; i--)
     {
-      prg=createProgram(vshader, fshader);
-      
-      pvertex=getAttributeLocation(prg, "vertex");
-      psize=getAttributeLocation(prg, "size");
-      
-      ptrans=getUniformLocation(prg, "trans");
-      pf=getUniformLocation(prg, "f");
+      s[i]=p.getScanSize(i);
     }
-    
-    init++;
-    
-      // create buffer objects for data
-    
-    glGenBuffers(1, &bvertex);
-    glBindBuffer(GL_ARRAY_BUFFER, bvertex);
-    glBufferData(GL_ARRAY_BUFFER, p.getVertexCount()*3*sizeof(float),
-      p.getVertexArray(), GL_STATIC_DRAW);
-    
-    bsize=0;
-    if (p.hasScanProp())
-    {
-      float *s=new float [p.getVertexCount()];
-      
-      for (int i=p.getVertexCount()-1; i>=0; i--)
-        s[i]=p.getScanSize(i);
-      
-      glGenBuffers(1, &bsize);
-      glBindBuffer(GL_ARRAY_BUFFER, bsize);
-      glBufferData(GL_ARRAY_BUFFER, p.getVertexCount()*sizeof(float),
-        s, GL_STATIC_DRAW);
-      
-      delete [] s;
-    }
-    
-    checkGLError();
+
+    glGenBuffers(1, &bsize);
+    glBindBuffer(GL_ARRAY_BUFFER, bsize);
+    glBufferData(GL_ARRAY_BUFFER, p.getVertexCount()*sizeof(float),
+                 s, GL_STATIC_DRAW);
+
+    delete [] s;
+  }
+
+  checkGLError();
 }
 
 GLPointCloud::~GLPointCloud()
 {
-      // clean up buffer objects
-    
-    glDeleteBuffers(1, &bvertex);
-    glDeleteBuffers(1, &bsize);
-    
-      // clean up program, but only once per class
-    
-    init--;
-    
-    if (init == 0)
-    {
-      glDeleteProgram(prg);
-      prg=0;
-    }
+  // clean up buffer objects
+
+  glDeleteBuffers(1, &bvertex);
+  glDeleteBuffers(1, &bsize);
+
+  // clean up program, but only once per class
+
+  init--;
+
+  if (init == 0)
+  {
+    glDeleteProgram(prg);
+    prg=0;
+  }
 }
 
 void GLPointCloud::draw(const GLCamera &cam)
 {
-    GLint defprg=0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &defprg);
-    
-    glUseProgram(prg);
-    
-    glUniformMatrix4fv(ptrans, 1, GL_TRUE, cam.getTransformation());
-    
-    double ps=cam.getPointScale();
-    
-    if (bsize != 0 && ps == 0)
-      ps=1;
-    
-    glUniform1f(pf, static_cast<GLfloat>(cam.getFocalLength()*ps));
-    
-    glEnableVertexAttribArray(pvertex);
-    glBindBuffer(GL_ARRAY_BUFFER, bvertex);
-    glVertexAttribPointer(pvertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    
-    if (bsize != 0)
-    {
-      glEnableVertexAttribArray(psize);
-      glBindBuffer(GL_ARRAY_BUFFER, bsize);
-      glVertexAttribPointer(psize, 1, GL_FLOAT, GL_FALSE, 0, 0);
-    }
-    else
-      glVertexAttrib1f(psize, 1);
-    
-    glDrawArrays(GL_POINTS, 0, vn);
-    
-    if (bsize != 0)
-      glDisableVertexAttribArray(psize);
-    
-    glDisableVertexAttribArray(pvertex);
-    
-    glUseProgram(defprg);
+  GLint defprg=0;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &defprg);
+
+  glUseProgram(prg);
+
+  glUniformMatrix4fv(ptrans, 1, GL_TRUE, cam.getTransformation());
+
+  double ps=cam.getPointScale();
+
+  if (bsize != 0 && ps == 0)
+  {
+    ps=1;
+  }
+
+  glUniform1f(pf, static_cast<GLfloat>(cam.getFocalLength()*ps));
+
+  glEnableVertexAttribArray(pvertex);
+  glBindBuffer(GL_ARRAY_BUFFER, bvertex);
+  glVertexAttribPointer(pvertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  if (bsize != 0)
+  {
+    glEnableVertexAttribArray(psize);
+    glBindBuffer(GL_ARRAY_BUFFER, bsize);
+    glVertexAttribPointer(psize, 1, GL_FLOAT, GL_FALSE, 0, 0);
+  }
+  else
+  {
+    glVertexAttrib1f(psize, 1);
+  }
+
+  glDrawArrays(GL_POINTS, 0, vn);
+
+  if (bsize != 0)
+  {
+    glDisableVertexAttribArray(psize);
+  }
+
+  glDisableVertexAttribArray(pvertex);
+
+  glUseProgram(defprg);
 }
 
 }

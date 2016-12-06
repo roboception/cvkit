@@ -72,6 +72,7 @@ template <class T> class MsgQueue
       nmax=std::max(1, _nmax);
 
       mutex.increment();
+
       for (int i=0; i<nmax; i++)
       {
         empty.increment();

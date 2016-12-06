@@ -84,7 +84,7 @@ class Camera
     long getWidth() const { return width; }
     long getHeight() const { return height; }
 
-      // Pw=R*Pc+T
+    // Pw=R*Pc+T
 
     void setR(const Matrix33d &RR) { R=RR; }
     void setT(const Vector3d &TT) { T=TT; }
@@ -109,15 +109,15 @@ class Camera
 
     virtual void getProperties(gutil::Properties &prop, int id=-1) const;
 
-      // transformation between a point P=[x y z] of the scene and p=[i k]
-      // in the image, with i as image column, k as image row and d as depth
-      // encoding, which can be a disparity, depending on the sub-class
+    // transformation between a point P=[x y z] of the scene and p=[i k]
+    // in the image, with i as image column, k as image row and d as depth
+    // encoding, which can be a disparity, depending on the sub-class
 
     virtual double projectPoint(Vector2d &p, const Vector3d &Pw) const=0;
     virtual void reconstructPoint(Vector3d &Pw, const Vector2d &p, double d) const=0;
 
-      // reconstruction of the raw from the camera C into scene with direction
-      // V, from a point in the image p=[i k]
+    // reconstruction of the raw from the camera C into scene with direction
+    // V, from a point in the image p=[i k]
 
     virtual void reconstructRay(Vector3d &V, Vector3d &C, const Vector2d &p) const=0;
 };
@@ -157,8 +157,11 @@ class PinholeCamera : public Camera
     {
       delete dist;
       dist=0;
+
       if (d != 0)
+      {
         dist=d->clone();
+      }
     }
 
     const Distortion *getDistortion() const { return dist; }
@@ -172,8 +175,8 @@ class PinholeCamera : public Camera
     virtual void reconstructPoint(Vector3d &Pw, const Vector2d &p, double d) const;
     virtual void reconstructRay(Vector3d &V, Vector3d &C, const Vector2d &p) const;
 
-      // projection and reconstruction of a point in the local camera
-      // coordinate system
+    // projection and reconstruction of a point in the local camera
+    // coordinate system
 
     void projectPointLocal(Vector2d &p, const Vector3d &Pc) const;
     void reconstructLocal(Vector3d &q, const Vector2d &p) const;

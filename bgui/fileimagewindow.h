@@ -68,7 +68,7 @@ class FileImageWindow : public ImageWindow
     int     wid;
 
     void load(unsigned int &pos, bool down=true, int w=-1, int h=-1,
-      bool size_max=false);
+              bool size_max=false);
 
     void updateTitle();
 
@@ -77,11 +77,11 @@ class FileImageWindow : public ImageWindow
   public:
 
     FileImageWindow(const std::vector<std::string> &files,  int firstfile,
-      bool watch=false, int x=-1, int y=-1, int w=-1, int h=-1,
-      bool size_max=false, double init_scale=0, double init_min=0,
-      double init_max=0, double valid_min=-std::numeric_limits<float>::max(),
-      double valid_max=std::numeric_limits<float>::max(),
-      keep k=keep_none, mapping m=map_raw, int c=-1, const char *viewcmd=0);
+                    bool watch=false, int x=-1, int y=-1, int w=-1, int h=-1,
+                    bool size_max=false, double init_scale=0, double init_min=0,
+                    double init_max=0, double valid_min=-std::numeric_limits<float>::max(),
+                    double valid_max=std::numeric_limits<float>::max(),
+                    keep k=keep_none, mapping m=map_raw, int c=-1, const char *viewcmd=0);
     virtual ~FileImageWindow();
 
     virtual void onKey(char c, SpecialKey key, int x, int y);

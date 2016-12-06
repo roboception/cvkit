@@ -47,7 +47,7 @@ struct SemaphoreData {};
 
 Semaphore::Semaphore(int c)
 {
-    p=0;
+  p=0;
 }
 
 Semaphore::~Semaphore()

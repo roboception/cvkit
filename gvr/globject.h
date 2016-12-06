@@ -44,27 +44,27 @@ class GLCamera;
 class GLObject
 {
   private:
-  
+
     int id;
-  
+
     GLObject(const GLObject &);
-    GLObject& operator=(const GLObject &);
-  
+    GLObject &operator=(const GLObject &);
+
   public:
-  
+
     GLObject(int _id)
     {
       id=_id;
     }
-    
+
     virtual ~GLObject() {};
-    
+
     int getID() { return id; }
     void setID(int _id) { id=_id; }
-    
+
     virtual int getVertexCount() { return 0; }
     virtual int getTriangleCount() { return 0; }
-    
+
     virtual void draw(const GLCamera &cam) {}
 };
 

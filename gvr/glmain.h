@@ -42,7 +42,7 @@ namespace gvr
 class GLListener
 {
   public:
-  
+
     virtual void onRedraw() { };
     virtual void onReshape(int w, int h) { };
     virtual void onSpecialKey(int key, int x, int y) { };

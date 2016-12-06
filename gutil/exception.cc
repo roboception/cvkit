@@ -53,61 +53,71 @@ namespace gutil
 void showError(const char *text)
 {
 #ifdef WIN32
-    MessageBox(NULL, TEXT(text), TEXT("Exception"), MB_ICONERROR | MB_OK);
+  MessageBox(NULL, TEXT(text), TEXT("Exception"), MB_ICONERROR | MB_OK);
 #else
-    std::cerr << text << std::endl;
+  std::cerr << text << std::endl;
 #endif
 }
 
 Exception::Exception(const std::string &type, const std::string &message)
 {
-    s=type+": "+message;
+  s=type+": "+message;
 
 #if defined(DEBUG) && defined(__GNUC__)
-    std::ostringstream os;
-    void *ptr[64];
-    int nptr=backtrace(ptr, 64);
-    char **sym=backtrace_symbols(ptr, nptr);
+  std::ostringstream os;
+  void *ptr[64];
+  int nptr=backtrace(ptr, 64);
+  char **sym=backtrace_symbols(ptr, nptr);
 
-    for (int i=1; i<nptr-1; i++)
-      os << sym[i] << "\n";
+  for (int i=1; i<nptr-1; i++)
+  {
+    os << sym[i] << "\n";
+  }
 
-    if (nptr > 1)
-      os << sym[nptr-1];
+  if (nptr > 1)
+  {
+    os << sym[nptr-1];
+  }
 
-    free(sym);
+  free(sym);
 
-    bt=os.str();
+  bt=os.str();
 #endif
 }
 
 void Exception::print() const
 {
-    showError(s.c_str());
+  showError(s.c_str());
 
 #if defined(DEBUG) && defined(__GNUC__)
-    size_t s0=0, e0, s1, e1;
+  size_t s0=0, e0, s1, e1;
 
-    while (s0 != std::string::npos)
+  while (s0 != std::string::npos)
+  {
+    if (bt[s0] == '\n')
     {
-      if (bt[s0] == '\n')
-        s0++;
-
-      e0=bt.find_first_of(" \t(", s0);
-      s1=bt.find_first_of("[", e0);
-      e1=bt.find_first_of("]", s1);
-
-      if (e0 != std::string::npos && s1 != std::string::npos &&
-        e1 != std::string::npos)
-      {
-        std::string cmd="addr2line -e "+bt.substr(s0, e0-s0)+" "+
-          bt.substr(s1+1, e1-s1-1);
-        if (system(cmd.c_str()) == -1)
-          std::cerr << cmd << " failed!" << std::endl;
-      }
-
-      s0=bt.find_first_of("\n", e1);
+      s0++;
     }
+
+    e0=bt.find_first_of(" \t(", s0);
+    s1=bt.find_first_of("[", e0);
+    e1=bt.find_first_of("]", s1);
+
+    if (e0 != std::string::npos && s1 != std::string::npos &&
+        e1 != std::string::npos)
+    {
+      std::string cmd="addr2line -e "+bt.substr(s0, e0-s0)+" "+
+                      bt.substr(s1+1, e1-s1-1);
+
+      if (system(cmd.c_str()) == -1)
+      {
+        std::cerr << cmd << " failed!" << std::endl;
+      }
+    }
+
+    s0=bt.find_first_of("\n", e1);
+  }
+
 #endif
 }
 

@@ -97,52 +97,56 @@ class ImageAdapterBase
       {
         default:
         case 0:
-            R(0, 0)=1;
-            R(1, 1)=1;
+          R(0, 0)=1;
+          R(1, 1)=1;
 
-            if (flip)
-            {
-              R(0, 0)=-1;
-              R(0, 2)=getOriginalWidth()-1;
-            }
-            break;
-
-        case 1:
-            R(0, 1)=1;
-            R(1, 0)=-1;
-            R(1, 2)=getOriginalHeight()-1;
-
-            if (flip)
-            {
-              R(1, 0)=1;
-              R(1, 2)=0;
-            }
-            break;
-
-        case 2:
+          if (flip)
+          {
             R(0, 0)=-1;
             R(0, 2)=getOriginalWidth()-1;
-            R(1, 1)=-1;
-            R(1, 2)=getOriginalHeight()-1;
+          }
 
-            if (flip)
-            {
-              R(0, 0)=1;
-              R(0, 2)=0;
-            }
-            break;
+          break;
+
+        case 1:
+          R(0, 1)=1;
+          R(1, 0)=-1;
+          R(1, 2)=getOriginalHeight()-1;
+
+          if (flip)
+          {
+            R(1, 0)=1;
+            R(1, 2)=0;
+          }
+
+          break;
+
+        case 2:
+          R(0, 0)=-1;
+          R(0, 2)=getOriginalWidth()-1;
+          R(1, 1)=-1;
+          R(1, 2)=getOriginalHeight()-1;
+
+          if (flip)
+          {
+            R(0, 0)=1;
+            R(0, 2)=0;
+          }
+
+          break;
 
         case 3:
-            R(0, 1)=-1;
-            R(0, 2)=getOriginalWidth()-1;
-            R(1, 0)=1;
+          R(0, 1)=-1;
+          R(0, 2)=getOriginalWidth()-1;
+          R(1, 0)=1;
 
-            if (flip)
-            {
-              R(1, 0)=-1;
-              R(1, 2)=getOriginalHeight()-1;
-            }
-            break;
+          if (flip)
+          {
+            R(1, 0)=-1;
+            R(1, 2)=getOriginalHeight()-1;
+          }
+
+          break;
       }
     }
 
@@ -170,7 +174,7 @@ class ImageAdapterBase
 
     virtual void adaptMinMaxIntensity(long x, long y, long w, long h)=0;
 
-      // returns properties of the underlying image
+    // returns properties of the underlying image
 
     virtual long getOriginalWidth() const=0;
     virtual long getOriginalHeight() const=0;
@@ -179,13 +183,13 @@ class ImageAdapterBase
     virtual double getIntensityOfPixel(long x, long y) const=0;
     virtual std::string getDescriptionOfPixel(long x, long y) const=0;
 
-      // size of scaled image
+    // size of scaled image
 
     virtual long getWidth() const=0;
     virtual long getHeight() const=0;
 
-      // converts a part into the given rgb image,
-      // the part can be partly or fully out of bounds
+    // converts a part into the given rgb image,
+    // the part can be partly or fully out of bounds
 
     virtual void copyInto(gimage::ImageU8 &rgb, long x=0, long y=0) const=0;
 };

@@ -43,7 +43,7 @@ struct ThreadData {};
 
 Thread::Thread()
 {
-    p=0;
+  p=0;
 }
 
 Thread::~Thread()
@@ -51,13 +51,13 @@ Thread::~Thread()
 
 void Thread::create(ThreadFunction &fct)
 {
-    fct.run();
+  fct.run();
 }
 
 void Thread::create(ParallelFunction &fct, long start, long end, long step,
-  int affinity)
+                    int affinity)
 {
-    fct.run(start, end, step);
+  fct.run(start, end, step);
 }
 
 void Thread::join()
@@ -65,12 +65,12 @@ void Thread::join()
 
 int Thread::getProcessingUnits()
 {
-    return 1;
+  return 1;
 }
 
 int Thread::getMaxThreads()
 {
-    return 1;
+  return 1;
 }
 
 void Thread::setMaxThreads(int n)

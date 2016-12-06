@@ -72,45 +72,47 @@ template<class T, int n> class SVector
 {
   private:
     T v[n];
-  
+
   public:
     SVector()
     {
       for (int i=0; i<n; i++)
+      {
         v[i]=0;
+      }
     }
-    
+
     SVector(T v0, T v1)
     {
       assert(n == 2);
-      
+
       v[0]=v0;
       v[1]=v1;
     }
-    
+
     SVector(T v0, T v1, T v2)
     {
       assert(n == 3);
-      
+
       v[0]=v0;
       v[1]=v1;
       v[2]=v2;
     }
-    
+
     SVector(T v0, T v1, T v2, T v3)
     {
       assert(n == 4);
-      
+
       v[0]=v0;
       v[1]=v1;
       v[2]=v2;
       v[3]=v3;
     }
-    
+
     SVector(T v0, T v1, T v2, T v3, T v4, T v5)
     {
       assert(n == 6);
-      
+
       v[0]=v0;
       v[1]=v1;
       v[2]=v2;
@@ -118,220 +120,262 @@ template<class T, int n> class SVector
       v[4]=v4;
       v[5]=v5;
     }
-    
+
     template<class S> SVector(const SVector<S, n> &a)
     {
       for (int i=0; i<n; i++)
+      {
         v[i]=a[i];
+      }
     }
-    
+
     int size() const
     {
       return n;
     }
-    
-    T& operator[](int i)
+
+    T &operator[](int i)
     {
       return v[i];
     }
-    
+
     T operator[](int i) const
     {
       return v[i];
     }
-    
-    SVector<T, n>& operator=(T s)
+
+    SVector<T, n> &operator=(T s)
     {
       for (int i=0; i<n; i++)
+      {
         v[i]=s;
-      
+      }
+
       return *this;
     }
-    
-    SVector<T, n>& operator=(const SVector<T, n> &a)
+
+    SVector<T, n> &operator=(const SVector<T, n> &a)
     {
       for (int i=0; i<n; i++)
+      {
         v[i]=a.v[i];
-      
+      }
+
       return *this;
     }
-    
-    SVector<T, n>& operator+=(const SVector<T, n> &a)
+
+    SVector<T, n> &operator+=(const SVector<T, n> &a)
     {
       for (int i=0; i<n; i++)
+      {
         v[i]+=a.v[i];
-      
+      }
+
       return *this;
     }
-    
+
     SVector<T, n> operator+(const SVector<T, n> &a) const
     {
       SVector<T, n> ret;
-      
+
       for (int i=0; i<n; i++)
+      {
         ret.v[i]=v[i]+a.v[i];
-      
+      }
+
       return ret;
     }
-    
-    SVector<T, n>& operator-=(const SVector<T, n> &a)
+
+    SVector<T, n> &operator-=(const SVector<T, n> &a)
     {
       for (int i=0; i<n; i++)
+      {
         v[i]-=a.v[i];
-      
+      }
+
       return *this;
     }
-    
+
     SVector<T, n> operator-() const
     {
       SVector<T, n> ret;
-      
+
       for (int i=0; i<n; i++)
+      {
         ret.v[i]=-v[i];
-      
+      }
+
       return ret;
     }
-    
+
     SVector<T, n> operator-(const SVector<T ,n> &a) const
     {
       SVector<T, n> ret;
-      
+
       for (int i=0; i<n; i++)
+      {
         ret.v[i]=v[i]-a.v[i];
-      
+      }
+
       return ret;
     }
-    
-    SVector<T, n>& operator*=(T s)
+
+    SVector<T, n> &operator*=(T s)
     {
       for (int i=0; i<n; i++)
+      {
         v[i]*=s;
-      
+      }
+
       return *this;
     }
-    
+
     SVector<T, n> operator*(T s) const
     {
       SVector<T, n> ret;
-      
+
       for (int i=0; i<n; i++)
+      {
         ret.v[i]=s*v[i];
-      
+      }
+
       return ret;
     }
-    
+
     T operator*(const SVector<T, n> &a) const
     {
       T ret=0;
-      
+
       for (int i=0; i<n; i++)
+      {
         ret+=v[i]*a.v[i];
-      
+      }
+
       return ret;
     }
-    
-    SVector<T, n>& operator/=(T s)
+
+    SVector<T, n> &operator/=(T s)
     {
       for (int i=0; i<n; i++)
+      {
         v[i]/=s;
-      
+      }
+
       return *this;
     }
-    
+
     SVector<T, n> operator/(T s) const
     {
       SVector<T, n> ret;
-      
+
       for (int i=0; i<n; i++)
+      {
         ret.v[i]=v[i]/s;
-      
+      }
+
       return ret;
     }
-    
+
     bool operator==(const SVector<T, n> &a) const
     {
       for (int i=0; i<n; i++)
         if (v[i] != a.v[i])
+        {
           return false;
-      
+        }
+
       return true;
     }
-    
+
     bool operator!=(const SVector<T, n> &a) const
     {
       for (int i=0; i<n; i++)
         if (v[i] != a.v[i])
+        {
           return true;
-      
+        }
+
       return false;
     }
 };
 
 template<class S, class T, int n> inline SVector<T, n> operator*(S s, const SVector<T, n> &a)
 {
-    SVector<T, n> ret;
-    
-    for (int i=0; i<n; i++)
-      ret[i]=s*a[i];
-    
-    return ret;
+  SVector<T, n> ret;
+
+  for (int i=0; i<n; i++)
+  {
+    ret[i]=s*a[i];
+  }
+
+  return ret;
 }
 
-template<class T> inline SVector<T, 3> cross (const SVector<T, 3> &a, const SVector<T, 3> &b)
+template<class T> inline SVector<T, 3> cross(const SVector<T, 3> &a, const SVector<T, 3> &b)
 {
-    SVector<T, 3> ret;
-    
-    ret[0]=a[1]*b[2]-a[2]*b[1];
-    ret[1]=a[2]*b[0]-a[0]*b[2];
-    ret[2]=a[0]*b[1]-a[1]*b[0];
-    
-    return ret;
+  SVector<T, 3> ret;
+
+  ret[0]=a[1]*b[2]-a[2]*b[1];
+  ret[1]=a[2]*b[0]-a[0]*b[2];
+  ret[2]=a[0]*b[1]-a[1]*b[0];
+
+  return ret;
 }
 
 template<class T, int n> inline T norm(const SVector<T, n> &a)
 {
-    T ret=0;
-    
-    for (int i=0; i<n; i++)
-      ret+=a[i]*a[i];
-    
-    return sqrt(ret);
+  T ret=0;
+
+  for (int i=0; i<n; i++)
+  {
+    ret+=a[i]*a[i];
+  }
+
+  return sqrt(ret);
 }
 
 template<class T, int n, class Ch, class Tr>
-std::basic_ostream<Ch, Tr>& operator<<(std::basic_ostream<Ch, Tr> &out, const SVector<T, n> &a)
+std::basic_ostream<Ch, Tr> &operator<<(std::basic_ostream<Ch, Tr> &out, const SVector<T, n> &a)
 {
-    out << "[" << a[0];
-    
-    for (int i=1; i<n; i++)
-      out << " " << a[i];
-    
-    out << "]";
-    
-    return out;
+  out << "[" << a[0];
+
+  for (int i=1; i<n; i++)
+  {
+    out << " " << a[i];
+  }
+
+  out << "]";
+
+  return out;
 }
 
 template<class T, int n, class Ch, class Tr>
-std::basic_istream<Ch, Tr>& operator>>(std::basic_istream<Ch, Tr> &in, SVector<T, n> &a)
+std::basic_istream<Ch, Tr> &operator>>(std::basic_istream<Ch, Tr> &in, SVector<T, n> &a)
 {
-    char c;
-    
-    in >> c;
-    
-    if (c == '[')
+  char c;
+
+  in >> c;
+
+  if (c == '[')
+  {
+    for (int i=0; i<n && in; i++)
     {
-      for (int i=0; i<n && in; i++)
-        in >> a[i];
-      
-      in >> c;
-      
-      if (c != ']')
-        in.setstate(std::ios_base::failbit);
+      in >> a[i];
     }
-    else
+
+    in >> c;
+
+    if (c != ']')
+    {
       in.setstate(std::ios_base::failbit);
-    
-    return in;
+    }
+  }
+  else
+  {
+    in.setstate(std::ios_base::failbit);
+  }
+
+  return in;
 }
 
 typedef SVector<double, 2> Vector2d;

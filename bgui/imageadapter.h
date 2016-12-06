@@ -61,7 +61,7 @@ template<class T> class ImageAdapter : public ImageAdapterBase
   public:
 
     ImageAdapter(const gimage::Image<T> *im, double valid_min=-std::numeric_limits<float>::max(),
-      double valid_max=std::numeric_limits<float>::max(), bool delete_on_close=false)
+                 double valid_max=std::numeric_limits<float>::max(), bool delete_on_close=false)
     {
       image=im;
       del=delete_on_close;
@@ -75,7 +75,9 @@ template<class T> class ImageAdapter : public ImageAdapterBase
     virtual ~ImageAdapter()
     {
       if (del)
+      {
         delete image;
+      }
     }
 
     void setSmoothing(bool tf)
@@ -96,7 +98,9 @@ template<class T> class ImageAdapter : public ImageAdapterBase
         }
       }
       else if (!tf)
+      {
         mipmap.clear();
+      }
     }
 
     bool getSmoothing()
@@ -106,10 +110,12 @@ template<class T> class ImageAdapter : public ImageAdapterBase
 
     void adaptMinMaxIntensity(long x, long y, long w, long h)
     {
-        // compute original area
+      // compute original area
 
-      const gmath::SVector<long, 2> p1=R*gmath::SVector<long, 3>(static_cast<long>(x/scale), static_cast<long>(y/scale), 1);
-      const gmath::SVector<long, 2> p2=R*gmath::SVector<long, 3>(static_cast<long>((x+w-1)/scale), static_cast<long>((y+h-1)/scale), 1);
+      const gmath::SVector<long, 2> p1=R*gmath::SVector<long, 3>(static_cast<long>(x/scale),
+                                       static_cast<long>(y/scale), 1);
+      const gmath::SVector<long, 2> p2=R*gmath::SVector<long, 3>(static_cast<long>((x+w-1)/scale),
+                                       static_cast<long>((y+h-1)/scale), 1);
 
       long xmin=std::min(p1[0], p2[0]), xmax=std::max(p1[0], p2[0]);
       long ymin=std::min(p1[1], p2[1]), ymax=std::max(p1[1], p2[1]);
@@ -119,7 +125,7 @@ template<class T> class ImageAdapter : public ImageAdapterBase
       ymin=std::max(ymin, 0l);
       ymax=std::min(ymax, image->getHeight()-1);
 
-         // search minimum and maximum valid intensity in the specified area
+      // search minimum and maximum valid intensity in the specified area
 
       imin=vmax;
       imax=vmin;
@@ -128,7 +134,9 @@ template<class T> class ImageAdapter : public ImageAdapterBase
       int dmax=image->getDepth()-1;
 
       if (channel >= 0 && channel < image->getDepth())
+      {
         dmin=dmax=channel;
+      }
 
       for (int d=dmin; d<=dmax; d++)
       {
@@ -187,16 +195,22 @@ template<class T> class ImageAdapter : public ImageAdapterBase
       int dmax=image->getDepth()-1;
 
       if (channel >= 0 && channel < image->getDepth())
+      {
         dmin=dmax=channel;
+      }
 
       for (int d=dmin; d<=dmax; d++)
       {
         if (image->get(p[0], p[1], d) > ret)
+        {
           ret=image->get(p[0], p[1], d);
+        }
       }
 
       if (ret < vmin || ret > vmax)
+      {
         ret=std::numeric_limits<double>::infinity();
+      }
 
       return ret;
     }
@@ -232,17 +246,25 @@ template<class T> class ImageAdapter : public ImageAdapterBase
     long getWidth() const
     {
       if ((rotation&1) == 0)
+      {
         return static_cast<long>(scale*image->getWidth());
+      }
       else
+      {
         return static_cast<long>(scale*image->getHeight());
+      }
     }
 
     long getHeight() const
     {
       if ((rotation&1) == 0)
+      {
         return static_cast<long>(scale*image->getHeight());
+      }
       else
+      {
         return static_cast<long>(scale*image->getWidth());
+      }
     }
 
     double getPixel(float x, float y, int c) const
@@ -256,16 +278,22 @@ template<class T> class ImageAdapter : public ImageAdapterBase
         double ret;
 
         if (j < 0)
+        {
           ret=image->getBilinear(x, y, c);
+        }
         else
+        {
           ret=mipmap[j].getBilinear(x/ds, y/ds, c);
+        }
 
         if (j+1 >= 0 && j+1 < static_cast<int>(mipmap.size()))
         {
           double f=(1/scale-ds)/ds;
 
           if (f > 1e-6)
+          {
             ret=(1-f)*ret+f*mipmap[j+1].getBilinear(x/(2*ds), y/(2*ds), c);
+          }
         }
 
         return ret;
@@ -275,7 +303,7 @@ template<class T> class ImageAdapter : public ImageAdapterBase
     }
 
     void getPixel(double &r, double &g, double &b, float x, float y,
-      int ir, int ig, int ib) const
+                  int ir, int ig, int ib) const
     {
       if (mipmap.size() > 0)
       {
@@ -327,7 +355,9 @@ template<class T> class ImageAdapter : public ImageAdapterBase
       double rainbow_size=1;
 
       if (irange > 0)
+      {
         rainbow_size=std::pow(10, std::floor(std::log(irange)/std::log(10))-1);
+      }
 
       if ((rotation&1) != 0)
       {
@@ -338,10 +368,14 @@ template<class T> class ImageAdapter : public ImageAdapterBase
       assert(rgb.getDepth() == 3);
 
       if (image->getDepth() < 3)
+      {
         ir=ig=ib=0;
+      }
 
       if (channel >= 0 && channel < image->getDepth())
+      {
         ir=ig=ib=channel;
+      }
 
       for (int k=0; k<rgb.getHeight(); k++)
       {
@@ -365,7 +399,7 @@ template<class T> class ImageAdapter : public ImageAdapterBase
 
           if (ig != ir || map == map_raw)
           {
-              // map color image or greyscale image directly
+            // map color image or greyscale image directly
 
             while (xf < iw && i < rgb.getWidth())
             {
@@ -381,9 +415,9 @@ template<class T> class ImageAdapter : public ImageAdapterBase
 
               if (gamma != 1.0)
               {
-                  // pow() can be extremly slow and linear lookup tables would be
-                  // very big for data with higher radiometric depth, thats why we
-                  // only allow a gamma with root of 2 and 4.
+                // pow() can be extremly slow and linear lookup tables would be
+                // very big for data with higher radiometric depth, thats why we
+                // only allow a gamma with root of 2 and 4.
 
                 if (static_cast<int>(gamma+0.5) == 2)
                 {
@@ -409,7 +443,7 @@ template<class T> class ImageAdapter : public ImageAdapterBase
           }
           else if (map == map_jet)
           {
-              // map greyscale image using jet encoding
+            // map greyscale image using jet encoding
 
             while (xf < iw && i < rgb.getWidth())
             {
@@ -431,21 +465,29 @@ template<class T> class ImageAdapter : public ImageAdapterBase
 
                     if (gamma != 1.0)
                     {
-                        // pow() can be extremly slow and linear lookup tables would be
-                        // very big for data with higher radiometric depth, thats why we
-                        // only allow a gamma with root of 2 and 4.
+                      // pow() can be extremly slow and linear lookup tables would be
+                      // very big for data with higher radiometric depth, thats why we
+                      // only allow a gamma with root of 2 and 4.
 
                       if (static_cast<int>(gamma+0.5) == 2)
+                      {
                         v=sqrt(v);
+                      }
                       else if (static_cast<int>(gamma+0.5) >= 3)
+                      {
                         v=sqrt(sqrt(r));
+                      }
                     }
                   }
                   else
+                  {
                     v=1.05;
+                  }
                 }
                 else
+                {
                   v=-0.05;
+                }
 
                 v=v/1.15+0.1;
                 r=std::max(0.0, std::min(1.0, (1.5 - 4*fabs(v-0.75))));
@@ -476,12 +518,16 @@ template<class T> class ImageAdapter : public ImageAdapterBase
               if (image->isValid(xs, ys))
               {
                 if (v < imin)
+                {
                   v=imin;
+                }
 
                 if (v > imax)
+                {
                   v=imax;
+                }
 
-                  // compute color
+                // compute color
 
                 double v1=v/rainbow_size;
 
@@ -494,37 +540,37 @@ template<class T> class ImageAdapter : public ImageAdapterBase
                 switch (v0)
                 {
                   case 0:
-                      r=1.0;
-                      g=v1;
-                      break;
+                    r=1.0;
+                    g=v1;
+                    break;
 
                   case 1:
-                      r=1.0-v1;
-                      g=1.0;
-                      break;
+                    r=1.0-v1;
+                    g=1.0;
+                    break;
 
                   case 2:
-                      g=1.0;
-                      b=v1;
-                      break;
+                    g=1.0;
+                    b=v1;
+                    break;
 
                   case 3:
-                      g=1.0-v1;
-                      b=1.0;
-                      break;
+                    g=1.0-v1;
+                    b=1.0;
+                    break;
 
                   case 4:
-                      b=1.0;
-                      r=v1;
-                      break;
+                    b=1.0;
+                    r=v1;
+                    break;
 
                   default:
-                      b=1.0-v1;
-                      r=1.0;
-                      break;
+                    b=1.0-v1;
+                    r=1.0;
+                    break;
                 }
 
-                  // compute brightness
+                // compute brightness
 
                 v=1.6*(v-imin)/irange-0.8;
 

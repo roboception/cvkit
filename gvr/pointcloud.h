@@ -46,57 +46,57 @@ namespace gvr
 class PointCloud : public Model
 {
   private:
-  
+
     int  n;
     float *vertex;
     float *scanprop; // size, depth error and confidence
     float *scanpos;
-    
+
     PointCloud(const PointCloud &);
-    PointCloud& operator=(const PointCloud &);
-    
+    PointCloud &operator=(const PointCloud &);
+
   public:
-    
+
     PointCloud();
     PointCloud(const PointCloud &p, const std::vector<bool> &vused);
     virtual ~PointCloud();
-    
+
     virtual void translate(const gmath::Vector3d &v);
     virtual void addExtend(gmath::Vector3d &emin, gmath::Vector3d &emax) const;
-    
+
     virtual void resizeVertexList(int vn, bool with_scanprop, bool with_scanpos);
-    
+
     int getVertexCount() const { return n; }
-    
+
     float *getVertexArray() { return vertex; };
     float getVertexComp(int i, int k) const { return vertex[3*i+k]; }
     void setVertexComp(int i, int k, float v) { vertex[3*i+k]=v; }
-    
+
     void setVertex(int i, const gmath::SVector<float, 3> &v)
     {
       vertex[3*i]=v[0];
       vertex[3*i+1]=v[1];
       vertex[3*i+2]=v[2];
     }
-    
+
     float *getScanPropArray() { return scanprop; };
-    
+
     bool hasScanProp() const { return scanprop != 0; }
     float getScanSize(int i) const { return scanprop[3*i]; }
     float getScanError(int i) const { return scanprop[3*i+1]; }
     float getScanConf(int i) const { return scanprop[3*i+2]; }
-    
+
     void setScanSize(int i, float v) { scanprop[3*i]=v; }
     void setScanError(int i, float v) { scanprop[3*i+1]=v; }
     void setScanConf(int i, float v) { scanprop[3*i+2]=v; }
-    
+
     float *getScanPosArray() { return scanpos; };
     bool hasScanPos() const { return scanpos != 0; }
     float getScanPosComp(int i, int k) const { return scanpos[3*i+k]; }
     void setScanPosComp(int i, int k, float v) { scanpos[3*i+k]=v; }
-    
-    virtual void addGLObjects(std::vector<GLObject*> &list);
-    
+
+    virtual void addGLObjects(std::vector<GLObject *> &list);
+
     virtual void loadPLY(PLYReader &ply);
     virtual void savePLY(const char *name, bool all=true, ply_encoding enc=ply_binary) const;
 };

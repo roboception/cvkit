@@ -44,33 +44,33 @@ namespace gvr
 class ColoredMesh : public Mesh
 {
   private:
-  
+
     unsigned char *rgb;
-  
+
     ColoredMesh(const ColoredMesh &);
-    ColoredMesh& operator=(const ColoredMesh &);
-    
+    ColoredMesh &operator=(const ColoredMesh &);
+
   public:
-    
+
     ColoredMesh();
     ColoredMesh(const ColoredMesh &p, const std::vector<bool> &vused, const std::vector<bool> &tused);
     virtual ~ColoredMesh();
-    
+
     virtual void resizeVertexList(int vn, bool with_scanprop, bool with_scanpos);
-    
+
     unsigned char *getColorArray() { return rgb; }
     unsigned char getColorComp(int i, int k) const { return rgb[3*i+k]; }
     void setColorComp(int i, int k, unsigned char c) { rgb[3*i+k]=c; }
-    
+
     void setColor(int i, unsigned char r, unsigned char g, unsigned char b)
     {
       rgb[3*i]=r;
       rgb[3*i+1]=g;
       rgb[3*i+2]=b;
     }
-    
-    virtual void addGLObjects(std::vector<GLObject*> &list);
-    
+
+    virtual void addGLObjects(std::vector<GLObject *> &list);
+
     virtual void loadPLY(PLYReader &ply);
     virtual void savePLY(const char *name, bool all=true, ply_encoding enc=ply_binary) const;
 };

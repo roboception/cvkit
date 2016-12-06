@@ -49,16 +49,16 @@ namespace
 const GLchar *vshader[]=
 {
   "#version 130\n",
-  
+
   "in vec3 vertex;",
   "in float size;",
   "in vec3 vcolor;",
-  
+
   "uniform mat4 trans;",
   "uniform float f;",
-  
+
   "out vec3 color;",
-  
+
   "void main()",
   "{",
   "  gl_Position=trans*vec4(vertex, 1.0);",
@@ -71,11 +71,11 @@ const GLchar *vshader[]=
 const GLchar *fshader[]=
 {
   "#version 130\n",
-  
+
   "in vec3 color;",
-  
+
   "out vec4 FragColor;",
-  
+
   "void main()",
   "{",
   "  FragColor=vec4(color, 1.0);",
@@ -90,14 +90,14 @@ const GLchar *fshader[]=
 const GLchar *vshader[]=
 {
   "#version 120\n",
-  
+
   "attribute vec3 vertex;",
   "attribute vec3 vcolor;",
-  
+
   "uniform mat4 trans;",
-  
+
   "varying vec3 color;",
-  
+
   "void main()",
   "{",
   "  gl_Position=trans*vec4(vertex, 1.0);",
@@ -111,16 +111,16 @@ const GLchar *vshader[]=
 const GLchar *vshader[]=
 {
   "#version 120\n",
-  
+
   "attribute vec3 vertex;",
   "attribute float size;",
   "attribute vec3 vcolor;",
-  
+
   "uniform mat4 trans;",
   "uniform float f;",
-  
+
   "varying vec3 color;",
-  
+
   "void main()",
   "{",
   "  gl_Position=trans*vec4(vertex, 1.0);",
@@ -135,9 +135,9 @@ const GLchar *vshader[]=
 const GLchar *fshader[]=
 {
   "#version 120\n",
-  
+
   "varying vec3 color;",
-  
+
   "void main()",
   "{",
   "  gl_FragColor=vec4(color, 1.0);",
@@ -160,111 +160,123 @@ GLint GLColoredMesh::pf;
 
 GLColoredMesh::GLColoredMesh(ColoredMesh &p) : GLMesh(p)
 {
-      // create shader programs, but only once per class
-    
-    if (init == 0)
-    {
-      prg=createProgram(vshader, fshader);
-      
-      pvertex=getAttributeLocation(prg, "vertex");
-      pvcolor=getAttributeLocation(prg, "vcolor");
-      ptrans=getUniformLocation(prg, "trans");
-      
+  // create shader programs, but only once per class
+
+  if (init == 0)
+  {
+    prg=createProgram(vshader, fshader);
+
+    pvertex=getAttributeLocation(prg, "vertex");
+    pvcolor=getAttributeLocation(prg, "vcolor");
+    ptrans=getUniformLocation(prg, "trans");
+
 #ifndef __APPLE__
-      psize=getAttributeLocation(prg, "size");
-      pf=getUniformLocation(prg, "f");
+    psize=getAttributeLocation(prg, "size");
+    pf=getUniformLocation(prg, "f");
 #endif
-    }
-    
-    init++;
-    
-      // create buffer objects for data
-    
-    glGenBuffers(1, &bcolor);
-    glBindBuffer(GL_ARRAY_BUFFER, bcolor);
-    glBufferData(GL_ARRAY_BUFFER, p.getVertexCount()*3*sizeof(unsigned char),
-      p.getColorArray(), GL_STATIC_DRAW);
-    
-    checkGLError();
+  }
+
+  init++;
+
+  // create buffer objects for data
+
+  glGenBuffers(1, &bcolor);
+  glBindBuffer(GL_ARRAY_BUFFER, bcolor);
+  glBufferData(GL_ARRAY_BUFFER, p.getVertexCount()*3*sizeof(unsigned char),
+               p.getColorArray(), GL_STATIC_DRAW);
+
+  checkGLError();
 }
 
 GLColoredMesh::~GLColoredMesh()
 {
-      // clean up buffer objects
-    
-    glDeleteBuffers(1, &bcolor);
-    
-      // clean up program, but only once per class
-    
-    init--;
-    
-    if (init == 0)
-    {
-      glDeleteProgram(prg);
-      prg=0;
-    }
+  // clean up buffer objects
+
+  glDeleteBuffers(1, &bcolor);
+
+  // clean up program, but only once per class
+
+  init--;
+
+  if (init == 0)
+  {
+    glDeleteProgram(prg);
+    prg=0;
+  }
 }
 
 void GLColoredMesh::draw(const GLCamera &cam)
 {
-    if (!cam.getRenderTexture())
-    {
-      GLMesh::draw(cam);
-      return;
-    }
-    
-    GLint defprg=0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &defprg);
-    
-    glUseProgram(prg);
-    
-    glUniformMatrix4fv(ptrans, 1, GL_TRUE, cam.getTransformation());
-    
-    double ps=cam.getPointScale();
-    
-    if (bsize != 0 && ps == 0)
-      ps=1;
-    
+  if (!cam.getRenderTexture())
+  {
+    GLMesh::draw(cam);
+    return;
+  }
+
+  GLint defprg=0;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &defprg);
+
+  glUseProgram(prg);
+
+  glUniformMatrix4fv(ptrans, 1, GL_TRUE, cam.getTransformation());
+
+  double ps=cam.getPointScale();
+
+  if (bsize != 0 && ps == 0)
+  {
+    ps=1;
+  }
+
 #ifndef __APPLE__
-    glUniform1f(pf, static_cast<GLfloat>(cam.getFocalLength()*ps));
+  glUniform1f(pf, static_cast<GLfloat>(cam.getFocalLength()*ps));
 #endif
-    
-    glEnableVertexAttribArray(pvertex);
-    glBindBuffer(GL_ARRAY_BUFFER, bvertex);
-    glVertexAttribPointer(pvertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    
-    glEnableVertexAttribArray(pvcolor);
-    glBindBuffer(GL_ARRAY_BUFFER, bcolor);
-    glVertexAttribPointer(pvcolor, 3, GL_UNSIGNED_BYTE, GL_FALSE, 0, 0);
-    
+
+  glEnableVertexAttribArray(pvertex);
+  glBindBuffer(GL_ARRAY_BUFFER, bvertex);
+  glVertexAttribPointer(pvertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  glEnableVertexAttribArray(pvcolor);
+  glBindBuffer(GL_ARRAY_BUFFER, bcolor);
+  glVertexAttribPointer(pvcolor, 3, GL_UNSIGNED_BYTE, GL_FALSE, 0, 0);
+
 #ifndef __APPLE__
-    if (bsize != 0 && cam.getRenderPointsOnly())
-    {
-      glEnableVertexAttribArray(psize);
-      glBindBuffer(GL_ARRAY_BUFFER, bsize);
-      glVertexAttribPointer(psize, 1, GL_FLOAT, GL_FALSE, 0, 0);
-    }
-    else
-      glVertexAttrib1f(psize, 1);
+
+  if (bsize != 0 && cam.getRenderPointsOnly())
+  {
+    glEnableVertexAttribArray(psize);
+    glBindBuffer(GL_ARRAY_BUFFER, bsize);
+    glVertexAttribPointer(psize, 1, GL_FLOAT, GL_FALSE, 0, 0);
+  }
+  else
+  {
+    glVertexAttrib1f(psize, 1);
+  }
+
 #endif
-    
-    if (!cam.getRenderPointsOnly())
-    {
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, btriangle);
-      glDrawElements(GL_TRIANGLES, 3*tn, GL_UNSIGNED_INT, 0);
-    }
-    else
-      glDrawArrays(GL_POINTS, 0, vn);
-    
+
+  if (!cam.getRenderPointsOnly())
+  {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, btriangle);
+    glDrawElements(GL_TRIANGLES, 3*tn, GL_UNSIGNED_INT, 0);
+  }
+  else
+  {
+    glDrawArrays(GL_POINTS, 0, vn);
+  }
+
 #ifndef __APPLE__
-    if (bsize != 0 && cam.getRenderPointsOnly())
-      glDisableVertexAttribArray(psize);
+
+  if (bsize != 0 && cam.getRenderPointsOnly())
+  {
+    glDisableVertexAttribArray(psize);
+  }
+
 #endif
-    
-    glDisableVertexAttribArray(pvcolor);
-    glDisableVertexAttribArray(pvertex);
-    
-    glUseProgram(defprg);
+
+  glDisableVertexAttribArray(pvcolor);
+  glDisableVertexAttribArray(pvertex);
+
+  glUseProgram(defprg);
 }
 
 }

@@ -43,189 +43,212 @@
 namespace gmath
 {
 
-namespace {
+namespace
+{
 
 double calcRoot(const Polynomiald &p, double low, double high)
 {
-    int    count=0;
-    int    max=200;
-    double x, xv;
-    double ret;
+  int    count=0;
+  int    max=200;
+  double x, xv;
+  double ret;
 
-      // get signs at low and high bounds
+  // get signs at low and high bounds
 
-    double lv=p(low);
-    double hv=p(high);
+  double lv=p(low);
+  double hv=p(high);
 
-      // the lower bound is exclusive and the higher bound inclusive,
-      // thus, use a higher lower bound in case of lv == 0
+  // the lower bound is exclusive and the higher bound inclusive,
+  // thus, use a higher lower bound in case of lv == 0
 
-    if (lv == 0)
+  if (lv == 0)
+  {
+    count=0;
+    x=(low+high)/2;
+    xv=p(x);
+
+    while (xv*hv > 0 && count < max)
     {
-      count=0;
-      x=(low+high)/2;
+      count++;
+      x=(low+x)/2;
       xv=p(x);
-      while (xv*hv > 0 && count < max)
-      {
-        count++;
-        x=(low+x)/2;
-        xv=p(x);
-      }
-
-      low=x;
-      lv=xv;
     }
 
-      // the signs must be oposite
+    low=x;
+    lv=xv;
+  }
 
-    if (lv*hv < 0)
+  // the signs must be oposite
+
+  if (lv*hv < 0)
+  {
+    // reduce the interval, until a midpoint between the low and high
+    // boundary can not be determined
+
+    count=0;
+    x=(low+high)/2;
+
+    while (x > low && x < high && count < max)
     {
-        // reduce the interval, until a midpoint between the low and high
-        // boundary can not be determined
+      count++;
 
-      count=0;
-      x=(low+high)/2;
-      while (x > low && x < high && count < max)
+      xv=p(x);
+
+      if (xv == 0)
       {
-        count++;
-
-        xv=p(x);
-
-        if (xv == 0)
-          break;
-
-        if (lv*xv < 0)
-          high=x;
-        else
-          low=x;
-
-        x=(high+low)/2;
+        break;
       }
 
-      ret=x;
+      if (lv*xv < 0)
+      {
+        high=x;
+      }
+      else
+      {
+        low=x;
+      }
+
+      x=(high+low)/2;
     }
 
-      // if the signs are not opposit, then assume that the root is exactly
-      // at the low or high bound (with the Sturm method it can only be the
-      // high bound, but both are checked to be on the safe side)
+    ret=x;
+  }
 
+  // if the signs are not opposit, then assume that the root is exactly
+  // at the low or high bound (with the Sturm method it can only be the
+  // high bound, but both are checked to be on the safe side)
+
+  else
+  {
+    if (std::abs(lv) < std::abs(hv))
+    {
+      ret=low;
+    }
     else
     {
-      if (std::abs(lv) < std::abs(hv))
-        ret=low;
-      else
-        ret=high;
+      ret=high;
     }
+  }
 
-    return ret;
+  return ret;
 }
 
 void findRoots(std::vector<double> &root, const SturmChaind &s, double low,
-  double high, int ln, int hn)
+               double high, int ln, int hn)
 {
-      // if there are multiple roots in the interval, try to reduce and split
-      // it using the Sturm chain and recall findRoots() on partial intervals
+  // if there are multiple roots in the interval, try to reduce and split
+  // it using the Sturm chain and recall findRoots() on partial intervals
 
-    if (ln-hn > 1)
+  if (ln-hn > 1)
+  {
+    bool loop=true;
+
+    while (loop)
     {
-      bool loop=true;
-      while (loop)
+      loop=false;
+
+      double v=(high+low)/2;
+
+      if (v > low && v < high)
       {
-        loop=false;
+        int vn=s.countSignChanges(v);
 
-        double v=(high+low)/2;
-
-        if (v > low && v < high)
+        if (vn < ln && vn > hn)
         {
-          int vn=s.countSignChanges(v);
-
-          if (vn < ln && vn > hn)
-          {
-            findRoots(root, s, low, v, ln, vn);
-            findRoots(root, s, v, high, vn, hn);
-          }
-          else if (vn == ln)
-          {
-            low=v;
-            loop=true;
-          }
-          else
-          {
-            high=v;
-            loop=true;
-          }
+          findRoots(root, s, low, v, ln, vn);
+          findRoots(root, s, v, high, vn, hn);
+        }
+        else if (vn == ln)
+        {
+          low=v;
+          loop=true;
         }
         else
         {
-            // this can only happen due to limited floating point resolution,
-            // v is used as all roots
+          high=v;
+          loop=true;
+        }
+      }
+      else
+      {
+        // this can only happen due to limited floating point resolution,
+        // v is used as all roots
 
-          for (int i=ln; i<hn-1; i++)
-            root.push_back(v);
+        for (int i=ln; i<hn-1; i++)
+        {
+          root.push_back(v);
         }
       }
     }
-      // if there is exacly one root in the interval, use bisection to
-      // determine it
+  }
+  // if there is exacly one root in the interval, use bisection to
+  // determine it
 
-    else if (ln-hn == 1)
-      root.push_back(calcRoot(s[0], low, high));
+  else if (ln-hn == 1)
+  {
+    root.push_back(calcRoot(s[0], low, high));
+  }
 }
 
 }
 
 std::vector<double> realRoots(const Polynomiald &p)
 {
-    std::vector<double> ret;
+  std::vector<double> ret;
 
-      // call direct solution, if the degree is <= 3
+  // call direct solution, if the degree is <= 3
 
-    if (p.getDegree() == 1) // compute solution to first degree in closed form
+  if (p.getDegree() == 1) // compute solution to first degree in closed form
+  {
+    ret.push_back(-p[0]/p[1]);
+  }
+  else if (p.getDegree() == 2) // compute solution to second degree in closed form
+  {
+    double v;
+
+    v=p[1]*p[1]-4*p[2]*p[0];
+
+    if (v > 0)
     {
-      ret.push_back(-p[0]/p[1]);
+      v=sqrt(v);
+
+      ret.push_back((-p[1]+v)/(2*p[2]));
+      ret.push_back((-p[1]-v)/(2*p[2]));
     }
-    else if (p.getDegree() == 2) // compute solution to second degree in closed form
+    else if (v == 0)
     {
-      double v;
+      ret.push_back(-p[1]/(2*p[2]));
+    }
+  }
+  else if (p.getDegree() > 2) // compute solutions of higher degrees using Sturm chains
+  {
+    SturmChaind s(p);
+    int ln=s.countSignChangesNegInf();
+    int hn=s.countSignChangesPosInf();
 
-      v=p[1]*p[1]-4*p[2]*p[0];
+    if (ln-hn > 0)
+    {
+      // determine radius around the origin that contains all roots using
+      // Gerschgorins theorem
 
-      if (v > 0)
+      double r=0;
+
+      for (int i=p.getDegree()-1; i>=0; i--)
       {
-        v=sqrt(v);
-
-        ret.push_back((-p[1]+v)/(2*p[2]));
-        ret.push_back((-p[1]-v)/(2*p[2]));
+        r+=std::abs(p[i]);
       }
-      else if (v == 0)
-        ret.push_back(-p[1]/(2*p[2]));
+
+      r/=std::abs(p[p.getDegree()]);
+      r=std::max(1.0, r);
+      r+=r*1e-12;
+
+      // recursively determine all roots
+
+      findRoots(ret, s, -r, r, ln, hn);
     }
-    else if (p.getDegree() > 2) // compute solutions of higher degrees using Sturm chains
-    {
-      SturmChaind s(p);
-      int ln=s.countSignChangesNegInf();
-      int hn=s.countSignChangesPosInf();
+  }
 
-      if (ln-hn > 0)
-      {
-          // determine radius around the origin that contains all roots using
-          // Gerschgorins theorem
-
-        double r=0;
-        for (int i=p.getDegree()-1; i>=0; i--)
-          r+=std::abs(p[i]);
-
-        r/=std::abs(p[p.getDegree()]);
-        r=std::max(1.0, r);
-        r+=r*1e-12;
-
-          // recursively determine all roots
-
-        findRoots(ret, s, -r, r, ln, hn);
-      }
-    }
-
-    return ret;
+  return ret;
 }
 
 }

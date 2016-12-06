@@ -49,7 +49,8 @@ namespace gvr
 enum ply_encoding { ply_ascii, ply_binary, ply_big_endian, ply_little_endian };
 
 enum ply_type { ply_none, ply_int8, ply_uint8, ply_int16, ply_uint16,
-  ply_int32, ply_uint32, ply_float32, ply_float64 };
+                ply_int32, ply_uint32, ply_float32, ply_float64
+              };
 
 /**
  * Class for offering read and write access to ply values.
@@ -67,11 +68,11 @@ class PLYValue
     PLYValue() {}
     virtual ~PLYValue() {}
 
-      // reading a value from the stream
+    // reading a value from the stream
 
     virtual void read(std::streambuf *in)=0;
 
-      // returning the value
+    // returning the value
 
     virtual int getListSize() const { return 0; }
     virtual int getInt(int i=0) const=0;
@@ -79,7 +80,7 @@ class PLYValue
     virtual float getFloat(int i=0) const=0;
     virtual double getDouble(int i=0) const=0;
 
-      // writing the value to a stream
+    // writing the value to a stream
 
     virtual void writeListSize(std::streambuf *out, int v);
     virtual void write(std::streambuf *out, int v)=0;
@@ -119,40 +120,40 @@ class PLYReader
 
     ~PLYReader();
 
-      // opens the ply file and reads the header, false is returned if the file
-      // is not a ply file
+    // opens the ply file and reads the header, false is returned if the file
+    // is not a ply file
 
     bool open(const char *name);
 
-      // print header to stdout
+    // print header to stdout
 
     void printHeader();
 
-      // get name of ply file
+    // get name of ply file
 
     const char *getName() { return filename.c_str(); }
 
-      // get all comments
+    // get all comments
 
     void getComments(std::vector<std::string> &clist) const;
 
-      // returns the instances of the requested element or -1 if the element
-      // does not exist
+    // returns the instances of the requested element or -1 if the element
+    // does not exist
 
     long instancesOfElement(const std::string &elem_name) const;
 
-      // returns the type of the requested property or ply_none if the property
-      // does not exist
+    // returns the type of the requested property or ply_none if the property
+    // does not exist
 
     ply_type getTypeOfProperty(const std::string &elem_name, const std::string &prop_name) const;
 
-      // sets a receiver object to a property and returns true if the property
-      // exists
+    // sets a receiver object to a property and returns true if the property
+    // exists
 
     bool setReceiver(const std::string &elem_name, const std::string &prop_name, PLYReceiver *receiver);
 
-      // reads data of all elements, calls the associated receivers and closes
-      // the file
+    // reads data of all elements, calls the associated receivers and closes
+    // the file
 
     void readData();
 };
@@ -183,28 +184,28 @@ class PLYWriter
 
     ~PLYWriter();
 
-      // step 1: open a new ply file for writing
+    // step 1: open a new ply file for writing
 
     void open(const char *name, ply_encoding encoding=ply_binary);
 
-      // step 2: specification of comments, elements and properties
+    // step 2: specification of comments, elements and properties
 
     void addComment(const std::string &s);
 
-      // an element contains a list of properties that define together one
-      // instance of data, there can be several elements
+    // an element contains a list of properties that define together one
+    // instance of data, there can be several elements
 
     void addElement(const std::string &name, long instances);
 
-      // each element contains one or more properties
+    // each element contains one or more properties
 
     void addProperty(const std::string &name, ply_type tvalue);
     void addProperty(const std::string &name, ply_type tsize, ply_type tvalue);
 
-      // step 3: writes the data for each instance of element and each property
-      // (must be called in exactly the same order as specified in the header,
-      // an exception is thrown if more data is written than specified in the
-      // header)
+    // step 3: writes the data for each instance of element and each property
+    // (must be called in exactly the same order as specified in the header,
+    // an exception is thrown if more data is written than specified in the
+    // header)
 
     void writeListSize(int v);
     void write(int v);
@@ -212,8 +213,8 @@ class PLYWriter
     void write(float v);
     void write(double v);
 
-      // step 4: closing the file (this will throw an exception if the data
-      // that has been specified in the header is not written completely)
+    // step 4: closing the file (this will throw an exception if the data
+    // that has been specified in the header is not written completely)
 
     void close();
 };

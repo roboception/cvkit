@@ -151,7 +151,9 @@ class Parameter
       in >> v;
 
       if (in.fail())
+      {
         throw IOException("Format error of argument: "+s);
+      }
     }
 
   private:

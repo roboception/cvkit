@@ -53,14 +53,14 @@ namespace gvr
 class GLCamera
 {
   private:
-    
+
     double      fov;
     int         width, height;
-    
+
     gmath::Matrix33d R;
     gmath::Vector3d  T;
     double      nz, fz;
-    
+
     double      scale;
     bool        texture;
     bool        specialcolor;
@@ -69,76 +69,76 @@ class GLCamera
     GLfloat     trans[4*4];
     GLfloat     gltrans[4*4];
     GLfloat     light[3];
-    
+
     int         mbutton, msx, msy;
     gmath::Vector3d    center;
     gmath::Matrix33d   Rs;
     gmath::Vector3d    Ts;
     double      step;
-    
+
     void computeTransformation();
-  
+
   public:
-  
+
     GLCamera();
-    
-      // initialise position, orientation and near and far plane of the camera
-      // with center and size of scene
-    
+
+    // initialise position, orientation and near and far plane of the camera
+    // with center and size of scene
+
     void init(const gmath::Vector3d &c, double size);
-    
-      // size of window for rendering
-    
+
+    // size of window for rendering
+
     void setSize(int w, int h);
-    
+
     int getWidth() { return width; }
     int getHeight() { return height; }
-    
-      // the focal length in pixel is f=w/(2*tan(field_of_view/2))
-    
+
+    // the focal length in pixel is f=w/(2*tan(field_of_view/2))
+
     double getFocalLength() const { return f; }
-    
-      // the transformation of a camera point to a world point is Pw=R*P+T
-    
+
+    // the transformation of a camera point to a world point is Pw=R*P+T
+
     const gmath::Matrix33d &getR() const { return R; }
     const gmath::Vector3d &getT() const { return T; }
-    
+
     void setPose(const gmath::Matrix33d &R, const gmath::Vector3d &T);
-    
-      // convert from a pixel in the depth buffer into 3D
-    
+
+    // convert from a pixel in the depth buffer into 3D
+
     gmath::Vector3d pixel2World(int x, int y, float d);
-    
-      // rendering settings like point scaling factor and color
-    
+
+    // rendering settings like point scaling factor and color
+
     double getPointScale() const { return scale; }
     void setPointScale(double s) { scale=s; }
-    
+
     bool getRenderTexture() const { return texture; }
     void setRenderTexture(bool t) { texture=t; }
-    
+
     bool getRenderSpecialColor() const { return specialcolor; }
     void setRenderSpecialColor(bool sc) { specialcolor=sc; }
-    
+
     bool getRenderPointsOnly() const { return pointsonly; }
     void setRenderPointsOnly(bool p) { pointsonly=p; }
-    
-      // returns the 4 x 4 transformation matrix and the transposed matrix
-      // for OpenGL
-    
+
+    // returns the 4 x 4 transformation matrix and the transposed matrix
+    // for OpenGL
+
     const GLfloat *getTransformation() const { return trans; }
     const GLfloat *getGLTransformation() const { return gltrans; }
-    
-      // returns a 3 dimensional that describes the illumination direction for
-      // OpenGL
-    
+
+    // returns a 3 dimensional that describes the illumination direction for
+    // OpenGL
+
     const GLfloat *getGLLightDirection() const { return light; }
-    
-      // methods that handle events for changing the camera pose or kind of
-      // rendering, the return value signals if the scene should be redrawn
-    
+
+    // methods that handle events for changing the camera pose or kind of
+    // rendering, the return value signals if the scene should be redrawn
+
     void setRotationCenter(const gmath::Vector3d &c) { center=c; }
-    
+
     bool onKey(unsigned char key, int x, int y);
     bool onMouseMove(int x, int y);
     bool onMouseButton(int button, int state, int x, int y);

@@ -53,53 +53,53 @@ namespace bgui
 class ImageWindow : public BaseWindow
 {
   private:
-  
+
     ImageAdapterBase *adapt;
     bool             del;
-    
+
     std::string      helptext;
-    
+
     char             lastkey;
     int              imx, imy;
     int              xp, yp;
     bool             showinfo;
-    
+
     void updateInfo();
-    
+
   protected:
-  
+
     void addHelpText(const std::string &text);
-  
+
   public:
-    
+
     enum keep {keep_none, keep_most, keep_all};
-    
+
     ImageWindow();
     ImageWindow(const gimage::ImageU8 &image, int x=-1, int y=-1, int w=-1, int h=-1,
-      double vmin=-std::numeric_limits<float>::max(), double vmax=std::numeric_limits<float>::max());
-    
+                double vmin=-std::numeric_limits<float>::max(), double vmax=std::numeric_limits<float>::max());
+
     ImageWindow(const gimage::ImageU16 &image, int x=-1, int y=-1, int w=-1, int h=-1,
-      double vmin=-std::numeric_limits<float>::max(), double vmax=std::numeric_limits<float>::max());
-    
+                double vmin=-std::numeric_limits<float>::max(), double vmax=std::numeric_limits<float>::max());
+
     ImageWindow(const gimage::ImageFloat &image, int x=-1, int y=-1, int w=-1, int h=-1,
-      double vmin=-std::numeric_limits<float>::max(), double vmax=std::numeric_limits<float>::max());
-    
+                double vmin=-std::numeric_limits<float>::max(), double vmax=std::numeric_limits<float>::max());
+
     virtual ~ImageWindow();
-    
+
     void setAdapter(ImageAdapterBase *adapter, bool delete_on_close=false,
-      keep k=keep_none, int w=-1, int h=-1, bool size_max=false);
+                    keep k=keep_none, int w=-1, int h=-1, bool size_max=false);
     ImageAdapterBase *getAdapter();
-    
+
     void redrawImage(bool force=true);
-  
+
     void visibleImagePart(long &x, long &y, long &w, long &h);
-    
+
     virtual void onResize(int w, int h);
     virtual void onMousePressed(Button b, int x, int y, int state);
     virtual void onMouseReleased(Button b, int x, int y, int state);
     virtual void onMouseMove(int x, int y, int state);
     virtual void onKey(char c, SpecialKey key, int x, int y);
-    
+
     char getLastKey();
 };
 

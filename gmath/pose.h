@@ -62,7 +62,9 @@ inline Matrix33d getRotation(const Vector6d &pose)
   double phi=norm(n);
 
   if (phi != 0)
+  {
     return createR(n/phi, phi);
+  }
 
   return Matrix33d();
 }
@@ -111,7 +113,9 @@ inline Vector4d getQuaternion(const Vector6d &pose)
   double s=std::sin(phi/2);
 
   if (phi != 0)
+  {
     s/=phi;
+  }
 
   return Vector4d(n[0]*s, n[1]*s, n[2]*s, std::cos(phi/2));
 }
@@ -199,7 +203,7 @@ inline Matrix66d getCovariance(const Vector6d pose_err)
 */
 
 Vector6d combineError(const Vector6d &pose0, const Vector6d &pose1,
-  const Vector6d &pose0_err, const Vector6d &pose1_err);
+                      const Vector6d &pose0_err, const Vector6d &pose1_err);
 
 }
 

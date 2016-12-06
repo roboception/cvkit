@@ -46,7 +46,7 @@ class ColoredPointCloud;
 class GLColoredPointCloud : public GLPointCloud
 {
   private:
-  
+
     static int   init;
     static GLint prg;
     static GLint ptrans;
@@ -54,19 +54,19 @@ class GLColoredPointCloud : public GLPointCloud
     static GLint psize;
     static GLint pvcolor;
     static GLint pf;
-  
+
     GLColoredPointCloud(const GLColoredPointCloud &);
-    GLColoredPointCloud& operator=(const GLColoredPointCloud &);
-    
+    GLColoredPointCloud &operator=(const GLColoredPointCloud &);
+
   protected:
-  
+
     GLuint bcolor;
-  
+
   public:
-  
+
     GLColoredPointCloud(ColoredPointCloud &p);
     virtual ~GLColoredPointCloud();
-    
+
     virtual void draw(const GLCamera &cam);
 };
 

@@ -46,7 +46,7 @@ class ColoredMesh;
 class GLColoredMesh : public GLMesh
 {
   private:
-  
+
     static int   init;
     static GLint prg;
     static GLint ptrans;
@@ -54,19 +54,19 @@ class GLColoredMesh : public GLMesh
     static GLint psize;
     static GLint pvcolor;
     static GLint pf;
-    
+
     GLColoredMesh(const GLColoredMesh &);
-    GLColoredMesh& operator=(const GLColoredMesh &);
-    
+    GLColoredMesh &operator=(const GLColoredMesh &);
+
   protected:
-  
+
     GLuint bcolor;
-  
+
   public:
-  
+
     GLColoredMesh(ColoredMesh &p);
     virtual ~GLColoredMesh();
-    
+
     virtual void draw(const GLCamera &cam);
 };
 

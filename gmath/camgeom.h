@@ -62,7 +62,7 @@ namespace gmath
 */
 
 inline Matrix33d createFundamental(const Matrix33d &K0, const Matrix33d &K1,
-  const Matrix33d &E)
+                                   const Matrix33d &E)
 {
   return transpose(inv(K1))*E*inv(K0);
 }
@@ -84,11 +84,13 @@ inline Matrix33d createFundamental(const Matrix34d &P0, const Matrix34d &P1)
   Vector4d W;
   svd(P0, U, W, V);
   Vector3d e1=P1*V.getColumn(3);
-  
+
   for (int i=0; i<W.size(); i++)
     if (W[i] != 0)
+    {
       W[i]=1.0/W[i];
-      
+    }
+
   return createSkewSymmetric(e1)*P1*mul(V, W, U);
 }
 
@@ -102,13 +104,15 @@ inline Matrix33d createFundamental(const Matrix34d &P0, const Matrix34d &P1)
 inline void normalizeFundamental(Matrix33d &F)
 {
   double v=0;
-  
+
   for (int k=0; k<F.rows(); k++)
   {
     for (int i=0; i<F.cols(); i++)
+    {
       v+=F(k, i)*F(k, i);
+    }
   }
-  
+
   F/=sqrt(v);
 }
 
@@ -125,7 +129,7 @@ inline Vector3d getEpipole0(const Matrix33d &F)
   Matrix33d U, V;
   Vector3d W;
   svd(F, U, W, V);
-  
+
   return V.getColumn(2);
 }
 
@@ -142,7 +146,7 @@ inline Vector3d getEpipole1(const Matrix33d &F)
   Matrix33d U, V;
   Vector3d W;
   svd(F, U, W, V);
-  
+
   return U.getColumn(2);
 }
 
@@ -164,18 +168,18 @@ inline double refineSampson(const Matrix33d &F, Vector3d &p0, Vector3d &p1)
 {
   p0/=p0[2];
   p1/=p1[2];
-  
+
   double s0=F(0, 0)*p0[0]+F(0, 1)*p0[1]+F(0, 2);
   double s1=F(1, 0)*p0[0]+F(1, 1)*p0[1]+F(1, 2);
   double s2=F(0, 0)*p1[0]+F(1, 0)*p1[1]+F(2, 0);
   double s3=F(0, 1)*p1[0]+F(1, 1)*p1[1]+F(2, 1);
   double s=p1*F*p0/(s0*s0+s1*s1+s2*s2+s3*s3);
-  
+
   p0[0]-=s*s2;
   p0[1]-=s*s3;
   p1[0]-=s*s0;
   p1[1]-=s*s1;
-  
+
   return s;
 }
 
@@ -193,7 +197,7 @@ inline double refineSampson(const Matrix33d &F, Vector3d &p0, Vector3d &p1)
 */
 
 void refineOptimal(const Matrix33d &F, Vector3d &p0, Vector3d &p1);
-                   
+
 // --- Essential matrix operations ---
 
 /**
@@ -222,7 +226,7 @@ inline Matrix33d createEssential(const Matrix33d &R, const Vector3d &T)
 */
 
 inline Matrix33d createEssential(const Matrix33d &K0, const Matrix33d &K1,
-  const Matrix33d &F)
+                                 const Matrix33d &F)
 {
   return transpose(K1)*F*K0;
 }
@@ -256,10 +260,10 @@ inline void normalizeEssential(Matrix33d &E)
 */
 
 inline Matrix34d createProjection(const Matrix33d &R,
-    const Vector3d &T)
+                                  const Vector3d &T)
 {
   Matrix34d P;
-  
+
   for (int k=0; k<3; k++)
   {
     P(k, 0)=R(k, 0);
@@ -267,7 +271,7 @@ inline Matrix34d createProjection(const Matrix33d &R,
     P(k, 2)=R(k, 2);
     P(k, 3)=T[k];
   }
-  
+
   return P;
 }
 
@@ -283,8 +287,8 @@ inline Matrix34d createProjection(const Matrix33d &R,
 */
 
 inline Matrix34d createProjection(const Matrix33d &K,
-    const Matrix33d &R,
-    const Vector3d &T)
+                                  const Matrix33d &R,
+                                  const Vector3d &T)
 {
   return K*createProjection(R, T);
 }
@@ -304,7 +308,7 @@ inline Matrix34d createProjection1(const Matrix33d &F)
   Vector3d e1=getEpipole1(F);
   Matrix33d A=createSkewSymmetric(e1)*F;
   Matrix34d P;
-  
+
   for (int k=0; k<3; k++)
   {
     P(k, 0)=A(k, 0);
@@ -312,7 +316,7 @@ inline Matrix34d createProjection1(const Matrix33d &F)
     P(k, 2)=A(k, 2);
     P(k, 3)=e1[k];
   }
-  
+
   return P;
 }
 
@@ -328,8 +332,8 @@ inline Matrix34d createProjection1(const Matrix33d &F)
 */
 
 Matrix34d createProjection1(const Matrix33d &E, const std::vector<Vector3d> &p0,
-  const std::vector<Vector3d> &p1);
-                                   
+                            const std::vector<Vector3d> &p1);
+
 /**
    Returns the rotation matrix from a projection matrix that contains only the
    rotation and translation.
@@ -341,11 +345,13 @@ Matrix34d createProjection1(const Matrix33d &E, const std::vector<Vector3d> &p0,
 inline Matrix33d getRotation(const Matrix34d &RT)
 {
   Matrix33d R;
-  
+
   for (int k=0; k<3; k++)
     for (int i=0; i<3; i++)
+    {
       R(k, i)=RT(k, i);
-      
+    }
+
   return R;
 }
 
@@ -364,7 +370,7 @@ inline Matrix33d getRotation(const Matrix34d &RT)
 */
 
 void refineOptimal(const Matrix34d &RT1, Vector3d &p0, Vector3d &p1);
-                   
+
 /**
    Projective reconstruction from image coordinates, by minimizing an algebraic
    error. The function refineOptimal() or refineSampson() should, but does not
@@ -379,10 +385,10 @@ void refineOptimal(const Matrix34d &RT1, Vector3d &p0, Vector3d &p1);
 */
 
 inline Vector4d reconstruct(const Matrix34d &P0, const Matrix34d &P1,
-  const Vector3d &p0, const Vector3d &p1)
+                            const Vector3d &p0, const Vector3d &p1)
 {
   Matrix44d X;
-  
+
   for (int i=0; i<4; i++)
   {
     X(0, i)=p0[0]/p0[2]*P0(2, i)-P0(0, i);
@@ -390,7 +396,7 @@ inline Vector4d reconstruct(const Matrix34d &P0, const Matrix34d &P1,
     X(2, i)=p1[0]/p1[2]*P1(2, i)-P1(0, i);
     X(3, i)=p1[1]/p1[2]*P1(2, i)-P1(1, i);
   }
-  
+
   Matrix44d U, V;
   Vector4d W;
   svd(X, U, W, V);
@@ -411,10 +417,10 @@ inline Vector4d reconstruct(const Matrix34d &P0, const Matrix34d &P1,
 */
 
 inline Vector4d reconstruct(const Matrix34d &P0, const Matrix34d &P1,
-  const Vector2d &p0, const Vector2d &p1)
+                            const Vector2d &p0, const Vector2d &p1)
 {
   Matrix44d X;
-  
+
   for (int i=0; i<4; i++)
   {
     X(0, i)=p0[0]*P0(2, i)-P0(0, i);
@@ -422,7 +428,7 @@ inline Vector4d reconstruct(const Matrix34d &P0, const Matrix34d &P1,
     X(2, i)=p1[0]*P1(2, i)-P1(0, i);
     X(3, i)=p1[1]*P1(2, i)-P1(1, i);
   }
-  
+
   Matrix44d U, V;
   Vector4d W;
   svd(X, U, W, V);
@@ -445,7 +451,7 @@ inline Vector4d reconstruct(const Matrix34d &P0, const Matrix34d &P1,
 */
 
 inline Vector3d reconstruct(const Matrix33d &R1, const Vector3d &T1,
-  const Vector3d &p0, const Vector3d &p1, bool ff=false)
+                            const Vector3d &p0, const Vector3d &p1, bool ff=false)
 {
   /*
     The implementation is based on the distance between a point X0 and
@@ -456,30 +462,34 @@ inline Vector3d reconstruct(const Matrix33d &R1, const Vector3d &T1,
     as unknowns. If the reconstruction is in front both cameras, then
     both parameters must be positive.
   */
-  
+
   Matrix33d Rt=transpose(R1);
-  
+
   const Vector3d &A=p0;
   const Vector3d B=Rt*p1;
   const Vector3d C=Rt*-T1;
-  
+
   double aa=A*A;
   double bb=B*B;
   double ab=A*B;
   double d=aa*bb-ab*ab;
-  
+
   if (std::abs(d) < 1e-9)
-    return 1e12*norm(C)*(A+B); // point near infinity relative to baseline
-    
+  {
+    return 1e12*norm(C)*(A+B);  // point near infinity relative to baseline
+  }
+
   double ac=A*C;
   double bc=B*C;
-  
+
   double s=(ac*bb-bc*ab)/d;
   double t=(ab*ac-bc*aa)/d;
-  
+
   if (ff && (s <= 0 || t <= 0)) // ensure that point is reconstructed in front
+  {
     return 1e12*norm(C)*(A+B);
-    
+  }
+
   return (s*A+t*B+C)/2;
 }
 
@@ -495,33 +505,35 @@ inline Vector3d reconstruct(const Matrix33d &R1, const Vector3d &T1,
 */
 
 inline bool reconstructInFront(const Matrix33d &R1, const Vector3d &T1,
-  const Vector3d &p0, const Vector3d &p1)
+                               const Vector3d &p0, const Vector3d &p1)
 {
   Matrix33d Rt=transpose(R1);
-  
+
   const Vector3d &A=p0;
   const Vector3d B=Rt*p1;
   const Vector3d C=Rt*-T1;
-  
+
   double aa=A*A;
   double bb=B*B;
   double ab=A*B;
   double d=aa*bb-ab*ab;
-  
+
   if (std::abs(d) < 1e-9)
   {
     if (ab > 0)
+    {
       return true;
-      
+    }
+
     return false;
   }
-  
+
   double ac=A*C;
   double bc=B*C;
-  
+
   double s=(ac*bb-bc*ab)/d;
   double t=(ab*ac-bc*aa)/d;
-  
+
   return t > 0 && s > 0;
 }
 
@@ -543,38 +555,42 @@ inline bool reconstructInFront(const Matrix33d &R1, const Vector3d &T1,
 */
 
 inline Vector4d reprojectionError(const Matrix33d &R1, const Vector3d &T1,
-  const Matrix33d &E, const Vector3d &p0, const Vector3d &p1, bool best=false)
+                                  const Matrix33d &E, const Vector3d &p0, const Vector3d &p1, bool best=false)
 {
   Vector3d q0(p0);
   Vector3d q1(p1);
-  
+
   if (best) // refine correspondences optimal or by Sampson approximation
+  {
     refineOptimal(E, q0, q1);
+  }
   else
+  {
     refineSampson(E, q0, q1);
-    
+  }
+
   // the reconstruction is forced to be in front of the cameras
-  
+
   Vector3d P=reconstruct(R1, T1, q0, q1, true);
-  
+
   // computation of reprojection error
-  
+
   Vector4d err(1e6, 1e6, 1e6, 1e6);
-  
+
   if (P[2] > 0)
   {
     err[0]=P[0]/P[2]-p0[0]/p0[2];
     err[1]=P[1]/P[2]-p0[1]/p0[2];
   }
-  
+
   P=R1*P+T1;
-  
+
   if (P[2] > 0)
   {
     err[2]=P[0]/P[2]-p1[0]/p1[2];
     err[3]=P[1]/P[2]-p1[1]/p1[2];
   }
-  
+
   return err;
 }
 

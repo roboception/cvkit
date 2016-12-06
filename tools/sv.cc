@@ -45,257 +45,294 @@
 
 int main(int argc, char *argv[])
 {
-    try
+  try
+  {
+    int x=-1, y=-1;
+    int w=-1, h=-1;
+    bool size_max=false;
+    double scale=0;
+    double imin=0;
+    double imax=0;
+    double vmin=-std::numeric_limits<float>::max();
+    double vmax=std::numeric_limits<float>::max();
+    bgui::FileImageWindow::keep kp=bgui::FileImageWindow::keep_none;
+    bgui::mapping map=bgui::map_raw;
+    int channel=-1;
+    bool watch=false;
+    std::vector<std::string> list;
+    int first=0;
+
+    const char *def[]=
     {
-      int x=-1, y=-1;
-      int w=-1, h=-1;
-      bool size_max=false;
-      double scale=0;
-      double imin=0;
-      double imax=0;
-      double vmin=-std::numeric_limits<float>::max();
-      double vmax=std::numeric_limits<float>::max();
-      bgui::FileImageWindow::keep kp=bgui::FileImageWindow::keep_none;
-      bgui::mapping map=bgui::map_raw;
-      int channel=-1;
-      bool watch=false;
-      std::vector<std::string> list;
-      int first=0;
+      "# sv [<options>] <image file> ...",
+      "#",
+      "-help # Print help and exit.",
+      "-version # Print version and exit.",
+      "-pos # Set initial position of window.",
+      " <x> <y> # Position of window.",
+      "-size # Set initial size of window. It will be limited by the screen size.",
+      " <w> <h> # Width and height of window.",
+      "-maxsize # Set initial maximum size of the window. It can be smaller, depending on the first image.",
+      " <w> <h> # Width and height of window.",
+      "-scale # Set initial scale factor (implies -keep).",
+      " <s> # Initial scale factor.",
+      "-select # Select a color channel.",
+      " R|G|B # Color channel.",
+      "-imin # Set initial minimum intensity (implies -keepall).",
+      " <v> # Intensity.",
+      "-imax # Set initial maximum intensity (implies -keepall).",
+      " <v> # Intensity.",
+      "-vmin # Set minimum valid intensity.",
+      " <v> # Intensity.",
+      "-vmax # Set maximum valid intensity.",
+      " <v> # Intensity.",
+      "-keep # Keep settings, except intensity range, when switching between images.",
+      "-keepall # Keep all settings when switching between images.",
+      "-watch # Watches the current image file for changes and reloads automatically.",
+      "-map # Mapping for greyscale images: raw (default), jet, rainbow.",
+      0
+    };
 
-      const char *def[]=
+    gutil::Parameter param(argc, argv, def);
+
+    // handle options
+
+    while (param.isNextParameter())
+    {
+      std::string p;
+
+      param.nextParameter(p);
+
+      if (p == "-help")
       {
-        "# sv [<options>] <image file> ...",
-        "#",
-        "-help # Print help and exit.",
-        "-version # Print version and exit.",
-        "-pos # Set initial position of window.",
-        " <x> <y> # Position of window.",
-        "-size # Set initial size of window. It will be limited by the screen size.",
-        " <w> <h> # Width and height of window.",
-        "-maxsize # Set initial maximum size of the window. It can be smaller, depending on the first image.",
-        " <w> <h> # Width and height of window.",
-        "-scale # Set initial scale factor (implies -keep).",
-        " <s> # Initial scale factor.",
-        "-select # Select a color channel.",
-        " R|G|B # Color channel.",
-        "-imin # Set initial minimum intensity (implies -keepall).",
-        " <v> # Intensity.",
-        "-imax # Set initial maximum intensity (implies -keepall).",
-        " <v> # Intensity.",
-        "-vmin # Set minimum valid intensity.",
-        " <v> # Intensity.",
-        "-vmax # Set maximum valid intensity.",
-        " <v> # Intensity.",
-        "-keep # Keep settings, except intensity range, when switching between images.",
-        "-keepall # Keep all settings when switching between images.",
-        "-watch # Watches the current image file for changes and reloads automatically.",
-        "-map # Mapping for greyscale images: raw (default), jet, rainbow.",
-        0
-      };
-
-      gutil::Parameter param(argc, argv, def);
-
-        // handle options
-
-      while (param.isNextParameter())
-      {
-        std::string p;
-
-        param.nextParameter(p);
-
-        if (p == "-help")
-        {
-          param.printHelp(std::cout);
-          return 0;
-        }
-
-        if (p == "-version")
-        {
-          std::cout << "This program is part of cvkit version " << VERSION << std::endl;
-          return 0;
-        }
-
-        if (p == "-pos")
-        {
-          param.nextValue(x);
-          param.nextValue(y);
-        }
-
-        if (p == "-size")
-        {
-          param.nextValue(w);
-          param.nextValue(h);
-          size_max=false;
-        }
-
-        if (p == "-maxsize")
-        {
-          param.nextValue(w);
-          param.nextValue(h);
-          size_max=true;
-        }
-
-        if (p == "-scale")
-        {
-          param.nextValue(scale);
-
-          if (scale > 0)
-          {
-            if (kp == bgui::FileImageWindow::keep_none)
-              kp=bgui::FileImageWindow::keep_most;
-          }
-          else
-            scale=0;
-        }
-
-        if (p == "-select")
-        {
-          std::string s;
-
-          param.nextString(s, "R|G|B");
-
-          if (s == "R")
-            channel=0;
-          else if (s == "G")
-            channel=1;
-          else if (s == "B")
-            channel=2;
-        }
-
-        if (p == "-imin")
-        {
-          param.nextValue(imin);
-          kp=bgui::FileImageWindow::keep_all;
-        }
-
-        if (p == "-imax")
-        {
-          param.nextValue(imax);
-          kp=bgui::FileImageWindow::keep_all;
-        }
-
-        if (p == "-vmin")
-          param.nextValue(vmin);
-
-        if (p == "-vmax")
-          param.nextValue(vmax);
-
-        if (p == "-keep")
-          kp=bgui::FileImageWindow::keep_most;
-
-        if (p == "-keepall")
-          kp=bgui::FileImageWindow::keep_all;
-
-        if (p == "-watch")
-          watch=true;
-
-        if (p == "-map")
-        {
-          std::string s;
-
-          param.nextString(s, "raw|jet|rainbow");
-
-          if (s == "jet")
-            map=bgui::map_jet;
-
-          if (s == "rainbow")
-            map=bgui::map_rainbow;
-        }
-      }
-
-        // collect files
-
-      if (param.remaining() < 1)
-      {
-        gutil::showError("No image files give");
         param.printHelp(std::cout);
-        return 10;
+        return 0;
       }
 
-      while (param.remaining() > 0)
+      if (p == "-version")
       {
-        std::string file;
-        param.nextString(file);
-        list.push_back(file);
+        std::cout << "This program is part of cvkit version " << VERSION << std::endl;
+        return 0;
       }
 
-        // if exactly one file is given, get all files of that directory for
-        // convenience
-
-      if (list.size() == 1)
+      if (p == "-pos")
       {
-        std::ifstream in;
-        in.open(list[0].c_str(), std::ifstream::in);
-        in.close();
+        param.nextValue(x);
+        param.nextValue(y);
+      }
 
-        if (!in.fail())
+      if (p == "-size")
+      {
+        param.nextValue(w);
+        param.nextValue(h);
+        size_max=false;
+      }
+
+      if (p == "-maxsize")
+      {
+        param.nextValue(w);
+        param.nextValue(h);
+        size_max=true;
+      }
+
+      if (p == "-scale")
+      {
+        param.nextValue(scale);
+
+        if (scale > 0)
         {
-          std::string name=list[0];
-          std::string dir="";
-
-          size_t i=name.find_last_of("\\/");
-          if (i != name.npos)
-            dir=name.substr(0, i+1);
-
-          try
+          if (kp == bgui::FileImageWindow::keep_none)
           {
-            std::set<std::string> content;
-            gutil::getFileList(content, dir, "");
-
-            list.clear();
-            for (std::set<std::string>::iterator it=content.begin(); it != content.end(); it++)
-              list.push_back(*it);
-
-            sort(list.begin(), list.end());
-
-            first=-1;
-            for (size_t k=0; k<list.size(); k++)
-            {
-              if (list[k] == name)
-                first=k;
-            }
-
-            if (first == -1)
-            {
-              list.insert(list.begin(), name);
-              first=0;
-            }
+            kp=bgui::FileImageWindow::keep_most;
           }
-          catch (const std::exception &ex)
-          { }
+        }
+        else
+        {
+          scale=0;
         }
       }
 
-        // open windows and show first image
+      if (p == "-select")
+      {
+        std::string s;
 
-      std::string viewcmd=argv[0];
+        param.nextString(s, "R|G|B");
 
-      size_t pos=viewcmd.find_last_of("/\\");
+        if (s == "R")
+        {
+          channel=0;
+        }
+        else if (s == "G")
+        {
+          channel=1;
+        }
+        else if (s == "B")
+        {
+          channel=2;
+        }
+      }
 
-      if (pos != viewcmd.npos)
-        viewcmd=viewcmd.substr(0, pos+1);
-      else
-        viewcmd.clear();
+      if (p == "-imin")
+      {
+        param.nextValue(imin);
+        kp=bgui::FileImageWindow::keep_all;
+      }
+
+      if (p == "-imax")
+      {
+        param.nextValue(imax);
+        kp=bgui::FileImageWindow::keep_all;
+      }
+
+      if (p == "-vmin")
+      {
+        param.nextValue(vmin);
+      }
+
+      if (p == "-vmax")
+      {
+        param.nextValue(vmax);
+      }
+
+      if (p == "-keep")
+      {
+        kp=bgui::FileImageWindow::keep_most;
+      }
+
+      if (p == "-keepall")
+      {
+        kp=bgui::FileImageWindow::keep_all;
+      }
+
+      if (p == "-watch")
+      {
+        watch=true;
+      }
+
+      if (p == "-map")
+      {
+        std::string s;
+
+        param.nextString(s, "raw|jet|rainbow");
+
+        if (s == "jet")
+        {
+          map=bgui::map_jet;
+        }
+
+        if (s == "rainbow")
+        {
+          map=bgui::map_rainbow;
+        }
+      }
+    }
+
+    // collect files
+
+    if (param.remaining() < 1)
+    {
+      gutil::showError("No image files give");
+      param.printHelp(std::cout);
+      return 10;
+    }
+
+    while (param.remaining() > 0)
+    {
+      std::string file;
+      param.nextString(file);
+      list.push_back(file);
+    }
+
+    // if exactly one file is given, get all files of that directory for
+    // convenience
+
+    if (list.size() == 1)
+    {
+      std::ifstream in;
+      in.open(list[0].c_str(), std::ifstream::in);
+      in.close();
+
+      if (!in.fail())
+      {
+        std::string name=list[0];
+        std::string dir="";
+
+        size_t i=name.find_last_of("\\/");
+
+        if (i != name.npos)
+        {
+          dir=name.substr(0, i+1);
+        }
+
+        try
+        {
+          std::set<std::string> content;
+          gutil::getFileList(content, dir, "");
+
+          list.clear();
+
+          for (std::set<std::string>::iterator it=content.begin(); it != content.end(); it++)
+          {
+            list.push_back(*it);
+          }
+
+          sort(list.begin(), list.end());
+
+          first=-1;
+
+          for (size_t k=0; k<list.size(); k++)
+          {
+            if (list[k] == name)
+            {
+              first=k;
+            }
+          }
+
+          if (first == -1)
+          {
+            list.insert(list.begin(), name);
+            first=0;
+          }
+        }
+        catch (const std::exception &ex)
+        { }
+      }
+    }
+
+    // open windows and show first image
+
+    std::string viewcmd=argv[0];
+
+    size_t pos=viewcmd.find_last_of("/\\");
+
+    if (pos != viewcmd.npos)
+    {
+      viewcmd=viewcmd.substr(0, pos+1);
+    }
+    else
+    {
+      viewcmd.clear();
+    }
 
 #ifdef WIN32
-      viewcmd=viewcmd+"plyv.exe";
+    viewcmd=viewcmd+"plyv.exe";
 #else
-      viewcmd=viewcmd+"plyv";
+    viewcmd=viewcmd+"plyv";
 #endif
 
-      bgui::FileImageWindow win(list, first, watch, x, y, w, h, size_max, scale,
-        imin, imax, vmin, vmax, kp, map, channel, viewcmd.c_str());
+    bgui::FileImageWindow win(list, first, watch, x, y, w, h, size_max, scale,
+                              imin, imax, vmin, vmax, kp, map, channel, viewcmd.c_str());
 
-      win.waitForClose();
-    }
-    catch (gutil::Exception &ex)
-    {
-      ex.print();
-    }
-    catch (...)
-    {
-      gutil::showError("An unknown exception occured");
-    }
+    win.waitForClose();
+  }
+  catch (gutil::Exception &ex)
+  {
+    ex.print();
+  }
+  catch (...)
+  {
+    gutil::showError("An unknown exception occured");
+  }
 
-    return 0;
+  return 0;
 }
