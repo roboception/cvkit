@@ -62,7 +62,7 @@ const GLchar *vshader[]=
   "void main()",
   "{",
   "  gl_Position=trans*vec4(vertex, 1.0);",
-  "  gl_PointSize=std::max(1.0, f*size/gl_Position.w);",
+  "  gl_PointSize=max(1.0, f*size/gl_Position.w);",
   "  color=vcolor/255;",
   "}",
   0
@@ -124,7 +124,7 @@ const GLchar *vshader[]=
   "void main()",
   "{",
   "  gl_Position=trans*vec4(vertex, 1.0);",
-  "  gl_PointSize=std::max(1.0, f*size/gl_Position.w);",
+  "  gl_PointSize=max(1.0, f*size/gl_Position.w);",
   "  color=vcolor/255;",
   "}",
   0

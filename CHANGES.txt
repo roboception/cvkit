@@ -1,10 +1,11 @@
 Version 1.8.3 (2016-12-06)
 --------------------------
 
-- Removed using declarations to avoid confusion
 - New helper class for computing a plane from sample points
 - New helper function for skipping known std::strings in input streams
 - Extended gimage::getNewImageName() so that it uses a given suffix
+- Removed using declarations to avoid confusion
+- Reformating all files
 
 Version 1.8.2 (2016-11-07)
 --------------------------
