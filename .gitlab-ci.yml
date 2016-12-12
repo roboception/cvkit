@@ -71,6 +71,22 @@
 ##############
 # Jobs
 ##############
+gen_dox:
+  <<: *amd64_job
+  stage: deploy
+  script:
+    - apt-get update -yq && apt-get install -y doxygen ncftp
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make doc
+    - upload_dox.sh doc/html
+  only:
+    - master
+    - tags
+  tags:
+    - docs
+
 build_amd64:
   <<: *amd64_job
   <<: *build
