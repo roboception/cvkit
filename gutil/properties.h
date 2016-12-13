@@ -62,6 +62,8 @@ class Properties
 
     Properties() { }
 
+    ///Loads the named file
+    ///Throws IOException
     explicit Properties(const char *name)
     {
       load(name);
@@ -196,6 +198,7 @@ class Properties
       return data.empty();
     }
 
+    ///Throws IOException
     void load(const char *name);
     void save(const char *name, const char *comment=0) const;
     void print();

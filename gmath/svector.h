@@ -74,6 +74,7 @@ template<class T, int n> class SVector
     T v[n];
 
   public:
+    ///Initializes vector to zero
     SVector()
     {
       for (int i=0; i<n; i++)
