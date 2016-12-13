@@ -176,6 +176,7 @@ endif ()
 
 include(CPack)
 
+
 # set default build type to release
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -245,6 +246,7 @@ endif ()
 
 # build individual parts
 
+add_subdirectory(doc)
 add_subdirectory(gutil)
 add_subdirectory(gmath)
 add_subdirectory(gimage)
