@@ -106,6 +106,7 @@ inline Vector6d getPose(const Matrix34d &RT)
   return pose;
 }
 
+///Format of returned quaternion is qx qy qz qw
 inline Vector4d getQuaternion(const Vector6d &pose)
 {
   Vector3d n(pose[3], pose[4], pose[5]);
