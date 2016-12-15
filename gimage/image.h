@@ -134,7 +134,7 @@ template<class T, class traits=PixelTraits<T> > class Image
     long width, height, n;
     T    *pixel;
     T    **row;
-    T    ** *img;
+    T ** *img;
 
   public:
 
