@@ -1,4 +1,3 @@
-
 Computer Vision Toolkit (cvkit)
 -------------------------------
 
