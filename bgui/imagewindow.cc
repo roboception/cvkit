@@ -128,6 +128,7 @@ ImageWindow::ImageWindow() : BaseWindow("Image", 100, 100)
   del=false;
   lastkey='\0';
   imx=imy=0;
+  xp=yp=0;
   showinfo=false;
 
   addHelpText(createHelpText());
@@ -261,9 +262,6 @@ ImageWindow::~ImageWindow()
 void ImageWindow::setAdapter(ImageAdapterBase *adapter, bool delete_on_close,
                              keep k, int w, int h, bool size_max)
 {
-  int  dw, dh;
-  long iw, ih;
-
   showinfo=false;
   updateInfo();
 
@@ -312,6 +310,8 @@ void ImageWindow::setAdapter(ImageAdapterBase *adapter, bool delete_on_close,
         getSize(w, h);
       }
 
+      int  dw, dh;
+
       getDisplaySize(dw, dh);
 
       w=std::min(w, dw);
@@ -322,8 +322,8 @@ void ImageWindow::setAdapter(ImageAdapterBase *adapter, bool delete_on_close,
       if (adapt->getScale() == 0)
       {
         adapt->setScale(1.0);
-        iw=adapt->getWidth();
-        ih=adapt->getHeight();
+        long iw=adapt->getWidth();
+        long ih=adapt->getHeight();
 
         double s=static_cast<double>(w)/iw;
         adapt->setScale(s);
@@ -354,11 +354,6 @@ void ImageWindow::setAdapter(ImageAdapterBase *adapter, bool delete_on_close,
 
       imx=0;
       imy=0;
-    }
-    else
-    {
-      iw=adapt->getWidth();
-      ih=adapt->getHeight();
     }
 
     // draw image

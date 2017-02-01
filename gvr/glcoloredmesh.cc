@@ -220,6 +220,7 @@ void GLColoredMesh::draw(const GLCamera &cam)
 
   glUniformMatrix4fv(ptrans, 1, GL_TRUE, cam.getTransformation());
 
+#ifndef __APPLE__
   double ps=cam.getPointScale();
 
   if (bsize != 0 && ps == 0)
@@ -227,7 +228,6 @@ void GLColoredMesh::draw(const GLCamera &cam)
     ps=1;
   }
 
-#ifndef __APPLE__
   glUniform1f(pf, static_cast<GLfloat>(cam.getFocalLength()*ps));
 #endif
 

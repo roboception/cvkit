@@ -48,7 +48,7 @@ bool Properties::operator == (const Properties &p) const
 
   if (data.size() == p.data.size())
   {
-    for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); it++)
+    for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); ++it)
     {
       std::map<std::string, std::string>::const_iterator pit=p.data.find(it->first);
 
@@ -129,7 +129,6 @@ void Properties::load(const char *name)
 {
   std::ifstream in;
   std::string   line;
-  size_t   pos;
 
   try
   {
@@ -147,7 +146,7 @@ void Properties::load(const char *name)
 
       trim(line);
 
-      pos=line.find('#');
+      size_t pos=line.find('#');
 
       if (pos != line.npos)
       {
@@ -177,7 +176,7 @@ void Properties::load(const char *name)
 
     in.close();
   }
-  catch (std::ios_base::failure ex)
+  catch (const std::ios_base::failure &ex)
   {
     throw IOException(ex.what());
   }
@@ -197,14 +196,14 @@ void Properties::save(const char *name, const char *comment) const
       out << "# " << comment << std::endl;
     }
 
-    for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); it++)
+    for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); ++it)
     {
       out << it->first << "=" << it->second << std::endl;
     }
 
     out.close();
   }
-  catch (std::ios_base::failure ex)
+  catch (const std::ios_base::failure &ex)
   {
     throw IOException(ex.what());
   }
@@ -212,7 +211,7 @@ void Properties::save(const char *name, const char *comment) const
 
 void Properties::print()
 {
-  for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); it++)
+  for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); ++it)
   {
     std::cout << it->first << "=" << it->second << std::endl;
   }

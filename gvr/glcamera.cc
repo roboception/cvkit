@@ -112,6 +112,11 @@ GLCamera::GLCamera()
   pointsonly=false;
   f=1;
 
+  mbutton=0;
+  msx=0;
+  msy=0;
+  step=0;
+
   computeTransformation();
 }
 

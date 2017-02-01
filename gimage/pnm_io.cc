@@ -155,7 +155,7 @@ std::istream::pos_type readPNMHeader(const char *name, int &ncomp, long &maxval,
     ret=in.tellg();
     in.close();
   }
-  catch (std::ios_base::failure ex)
+  catch (const std::ios_base::failure &ex)
   {
     throw gutil::IOException(ex.what());
   }
@@ -186,7 +186,7 @@ void writePNMHeader(const char *name, const char *type, long width,
 
     out.close();
   }
-  catch (std::ios_base::failure ex)
+  catch (const std::ios_base::failure &ex)
   {
     throw gutil::IOException(ex.what());
   }
@@ -358,7 +358,7 @@ void PNMImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
 
     in.close();
   }
-  catch (std::ios_base::failure ex)
+  catch (const std::ios_base::failure &ex)
   {
     throw gutil::IOException(ex.what());
   }
@@ -495,7 +495,7 @@ void PNMImageIO::load(ImageU16 &image, const char *name, int ds, long x,
 
       in.close();
     }
-    catch (std::ios_base::failure ex)
+    catch (const std::ios_base::failure &ex)
     {
       throw gutil::IOException(ex.what());
     }
@@ -663,7 +663,7 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
 
       in.close();
     }
-    catch (std::ios_base::failure ex)
+    catch (const std::ios_base::failure &ex)
     {
       throw gutil::IOException(ex.what());
     }
@@ -805,7 +805,7 @@ void PNMImageIO::save(const ImageU8 &image, const char *name) const
 
     out.close();
   }
-  catch (std::ios_base::failure ex)
+  catch (const std::ios_base::failure &ex)
   {
     throw gutil::IOException(ex.what());
   }
@@ -852,7 +852,7 @@ void PNMImageIO::save(const ImageU16 &image, const char *name) const
 
     out.close();
   }
-  catch (std::ios_base::failure ex)
+  catch (const std::ios_base::failure &ex)
   {
     throw gutil::IOException(ex.what());
   }
@@ -929,7 +929,7 @@ void PNMImageIO::save(const ImageFloat &image, const char *name) const
 
     out.close();
   }
-  catch (std::ios_base::failure ex)
+  catch (const std::ios_base::failure &ex)
   {
     throw gutil::IOException(ex.what());
   }

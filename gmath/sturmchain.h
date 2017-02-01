@@ -61,8 +61,11 @@ namespace gmath
 template<class T> class SturmChain
 {
   private:
+
     int n;
     Polynomial<T> *f;
+
+    SturmChain(const SturmChain &);
 
   public:
 
@@ -167,7 +170,7 @@ template<class T> class SturmChain
 
     int countSignChangesPosInf() const
     {
-      double f1, f2;
+      double f1;
       int    ret=0;
 
       // the sign of the highest coefficient has the same sign as the
@@ -177,7 +180,7 @@ template<class T> class SturmChain
 
       for (int k=1; k<n; k++)
       {
-        f2=f[k][f[k].getDegree()];
+        double f2=f[k][f[k].getDegree()];
 
         if ((f1 < 0 && f2 >= 0) || (f1 >= 0 && f2 < 0))
         {
@@ -196,7 +199,7 @@ template<class T> class SturmChain
 
     int countSignChangesNegInf() const
     {
-      double f1, f2;
+      double f1;
       int    ret=0;
 
       // the sign of the highest coefficient, multiplied by -1 if the degree
@@ -211,7 +214,7 @@ template<class T> class SturmChain
 
       for (int k=1; k<n; k++)
       {
-        f2=f[k][f[k].getDegree()];
+        double f2=f[k][f[k].getDegree()];
 
         if ((f[k].getDegree() & 0x1) != 0)
         {

@@ -74,7 +74,7 @@ std::string nextParameterFilename(gutil::Parameter &param, const std::string &re
 }
 
 template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
-                               const std::string repl)
+                               const std::string &repl)
 {
   try
   {
@@ -615,7 +615,7 @@ int main(int argc, char *argv[])
   // try loading with increasing data type and start processing using
   // remainder of the command line
 
-  for (std::set<std::string>::iterator it=list.begin(); it!=list.end(); it++)
+  for (std::set<std::string>::iterator it=list.begin(); it!=list.end(); ++it)
   {
     if (list.size() > 1)
     {

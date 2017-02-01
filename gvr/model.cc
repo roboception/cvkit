@@ -222,7 +222,7 @@ Model *loadPLY(const char *name)
       std::set<std::string> list;
       gutil::getFileList(list, s.substr(0, i+1), "");
 
-      for (std::set<std::string>::iterator it=list.begin(); it!=list.end(); it++)
+      for (std::set<std::string>::iterator it=list.begin(); it!=list.end(); ++it)
       {
         if (s.compare(*it) != 0  && gimage::getImageIO().handlesFile(it->c_str(), true))
         {

@@ -92,6 +92,11 @@ GLWorld::GLWorld(int w, int h)
 
   glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
   txt_rgb=0xffffff;
+
+  mb=0;
+  mx=0;
+  my=0;
+  mod=0;
 }
 
 GLWorld::~GLWorld()

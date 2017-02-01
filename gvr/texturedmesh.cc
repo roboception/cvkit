@@ -54,11 +54,9 @@ TexturedMesh::TexturedMesh()
 }
 
 TexturedMesh::TexturedMesh(const MultiTexturedMesh &p, int t, const std::vector<bool> &vused,
-                           const std::vector<bool> &tused) : Mesh(p, vused, tused)
+                           const std::vector<bool> &tused) : Mesh(p, vused, tused),
+                           basepath(p.getBasePath()), name(p.getTextureName(t))
 {
-  basepath=p.getBasePath();
-  name=p.getTextureName(t);
-
   // compute translation of vertex indices
 
   std::vector<unsigned int> index;

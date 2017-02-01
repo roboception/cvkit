@@ -59,10 +59,8 @@ void showError(const char *text)
 #endif
 }
 
-Exception::Exception(const std::string &type, const std::string &message)
+Exception::Exception(const std::string &type, const std::string &message): s(type+": "+message)
 {
-  s=type+": "+message;
-
 #if defined(DEBUG) && defined(__GNUC__)
   std::ostringstream os;
   void *ptr[64];
@@ -90,7 +88,7 @@ void Exception::print() const
   showError(s.c_str());
 
 #if defined(DEBUG) && defined(__GNUC__)
-  size_t s0=0, e0, s1, e1;
+  size_t s0=0;
 
   while (s0 != std::string::npos)
   {
@@ -99,9 +97,9 @@ void Exception::print() const
       s0++;
     }
 
-    e0=bt.find_first_of(" \t(", s0);
-    s1=bt.find_first_of("[", e0);
-    e1=bt.find_first_of("]", s1);
+    size_t e0=bt.find_first_of(" \t(", s0);
+    size_t s1=bt.find_first_of("[", e0);
+    size_t e1=bt.find_first_of("]", s1);
 
     if (e0 != std::string::npos && s1 != std::string::npos &&
         e1 != std::string::npos)

@@ -164,7 +164,7 @@ class Properties
       std::ostringstream out;
       typename std::vector<T>::const_iterator it;
 
-      for (it=value.begin(); it+1<value.end(); it++)
+      for (it=value.begin(); it+1<value.end(); ++it)
       {
         out << *it << sep;
       }

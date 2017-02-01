@@ -49,10 +49,8 @@ View::View()
   camera=0;
 }
 
-View::View(const View &v)
+View::View(const View &v) : image(v.image), depth(v.depth)
 {
-  image=v.image;
-  depth=v.depth;
   camera=v.getCamera()->clone();
 }
 
@@ -61,13 +59,16 @@ View::~View()
   delete camera;
 }
 
-const View &View::operator=(const View &v)
+View &View::operator=(const View &v)
 {
-  delete camera;
+  if (this != &v)
+  {
+    delete camera;
 
-  image=v.image;
-  depth=v.depth;
-  camera=v.getCamera()->clone();
+    image=v.image;
+    depth=v.depth;
+    camera=v.getCamera()->clone();
+  }
 
   return *this;
 }
@@ -598,7 +599,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
       // check list of files for images with the same size as the depth
       // image and prefer color images
 
-      for (std::set<std::string>::iterator it=flist.begin(); it!=flist.end(); it++)
+      for (std::set<std::string>::iterator it=flist.begin(); it!=flist.end(); ++it)
       {
         std::string s=*it;
 
@@ -625,7 +626,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
             }
           }
         }
-        catch (gutil::Exception ex)
+        catch (const gutil::Exception &ex)
         { }
       }
     }
@@ -676,7 +677,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
       std::set<std::string> checked;
       checked.insert(depthname);
 
-      for (std::set<std::string>::iterator it=flist.begin(); it!=flist.end(); it++)
+      for (std::set<std::string>::iterator it=flist.begin(); it!=flist.end(); ++it)
       {
         std::string s=*it;
 
@@ -734,7 +735,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
               }
             }
           }
-          catch (gutil::Exception ex)
+          catch (const gutil::Exception &ex)
           { }
         }
       }

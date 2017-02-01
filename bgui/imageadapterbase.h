@@ -72,13 +72,12 @@ class ImageAdapterBase
     {
       channel=-1;
       rotation=0;
+      flip=false;
       scale=1;
       imin=0;
       imax=255;
       gamma=1;
       map=map_raw;
-
-      setRotationFlip(0, false);
     }
 
     virtual ~ImageAdapterBase() {};

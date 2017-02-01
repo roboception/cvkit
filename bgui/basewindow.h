@@ -51,6 +51,8 @@ class BaseWindow
 
     struct BaseWindowData *p;
 
+    BaseWindow(const BaseWindow &);
+
   public:
 
     BaseWindow(const char *title, int w, int h);
@@ -130,4 +132,3 @@ class BaseWindow
 }
 
 #endif
-

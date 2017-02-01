@@ -120,14 +120,12 @@ Matrix33d createR(double ax, double ay, double az)
 
 bool recoverEuler(const Matrix33d &R, double &ax, double &ay, double &az, bool tolerant)
 {
-  int    i, k;
-  double pos[8][3];
-  double e, emin;
-
   // checking if cos(ay) is 0 or not
 
   if (std::abs(R(0, 2)) < 1.0-1e-10)
   {
+    double pos[8][3];
+
     // cos(ay) is not 0
 
     // creating 8 possible sets of angles: two possibilities for ay
@@ -155,11 +153,13 @@ bool recoverEuler(const Matrix33d &R, double &ax, double &ay, double &az, bool t
     // check all 8 possible sets of angles with the remaining 6 equations
     // and use the set with the lowest error
 
-    k=-1;
-    emin=0;
+    int k=-1;
+    double emin=0;
 
-    for (i=0; i<8; i++)
+    for (int i=0; i<8; i++)
     {
+      double e;
+
       e=std::abs(R(0, 0)-cos(pos[i][1])*cos(pos[i][2]));
 
       e+=std::abs(R(2, 2)-cos(pos[i][0])*cos(pos[i][1]));
@@ -257,19 +257,17 @@ bool recoverEuler(const Matrix33d &R, double &ax, double &ay, double &az, bool t
 
 Matrix33d createR(const Vector3d &n, double phi)
 {
-  double    l;
-  double    n1, n2, n3;
   Matrix33d R;
 
-  l=norm(n);
+  double l=norm(n);
 
   if (l > 0)
   {
     Matrix33d m1, m2, m3;
 
-    n1=n[0]/l;
-    n2=n[1]/l;
-    n3=n[2]/l;
+    double n1=n[0]/l;
+    double n2=n[1]/l;
+    double n3=n[2]/l;
 
     m2(0, 0)=n1*n1; m2(0, 1)=n1*n2; m2(0, 2)=n1*n3;
     m2(1, 0)=n2*n1; m2(1, 1)=n2*n2; m2(1, 2)=n2*n3;
@@ -288,7 +286,7 @@ Matrix33d createR(const Vector3d &n, double phi)
 double recoverAngleAxis(const Matrix33d &R, Vector3d &n)
 {
   double v;
-  double cos_phi, sin_phi;
+  double cos_phi;
   double phi;
 
   /*
@@ -373,7 +371,7 @@ double recoverAngleAxis(const Matrix33d &R, Vector3d &n)
     v=norm(n);
 
     n/=v;
-    sin_phi=v/2;
+    double sin_phi=v/2;
 
     phi=atan2(sin_phi, cos_phi);
   }

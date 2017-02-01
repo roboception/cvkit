@@ -66,7 +66,7 @@ class View
     View(const View &v);
     ~View();
 
-    const View &operator=(const View &v);
+    View &operator=(const View &v);
 
     void clear();
 

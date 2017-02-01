@@ -137,9 +137,8 @@ PinholeCamera::PinholeCamera()
   dist=0;
 }
 
-PinholeCamera::PinholeCamera(const PinholeCamera &pc) : Camera(pc)
+PinholeCamera::PinholeCamera(const PinholeCamera &pc) : Camera(pc), A(pc.A)
 {
-  A=pc.A;
   rho=pc.rho;
 
   dist=0;
@@ -192,19 +191,22 @@ PinholeCamera::PinholeCamera(const gutil::Properties &prop, int id)
   dist=Distortion::create(prop, id);
 }
 
-const PinholeCamera &PinholeCamera::operator = (const PinholeCamera &pc)
+PinholeCamera &PinholeCamera::operator = (const PinholeCamera &pc)
 {
-  Camera::operator=(pc);
-
-  A=pc.A;
-  rho=pc.rho;
-
-  delete [] dist;
-  dist=0;
-
-  if (pc.dist != 0)
+  if (this != &pc)
   {
-    dist=pc.dist->clone();
+    Camera::operator=(pc);
+
+    A=pc.A;
+    rho=pc.rho;
+
+    delete [] dist;
+    dist=0;
+
+    if (pc.dist != 0)
+    {
+      dist=pc.dist->clone();
+    }
   }
 
   return *this;

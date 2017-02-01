@@ -59,7 +59,7 @@ class GLCamera
 
     gmath::Matrix33d R;
     gmath::Vector3d  T;
-    double      nz, fz;
+    double           nz, fz;
 
     double      scale;
     bool        texture;
@@ -70,11 +70,11 @@ class GLCamera
     GLfloat     gltrans[4*4];
     GLfloat     light[3];
 
-    int         mbutton, msx, msy;
-    gmath::Vector3d    center;
-    gmath::Matrix33d   Rs;
-    gmath::Vector3d    Ts;
-    double      step;
+    int              mbutton, msx, msy;
+    gmath::Vector3d  center;
+    gmath::Matrix33d Rs;
+    gmath::Vector3d  Ts;
+    double           step;
 
     void computeTransformation();
 

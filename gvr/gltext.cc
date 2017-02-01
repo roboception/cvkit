@@ -42,10 +42,8 @@ namespace gvr
 {
 
 GLTextItem::GLTextItem(const std::string &t, const gmath::Matrix33d &R, const gmath::Vector3d &T,
-                       double s, bool center)
+                       double s, bool center): text(t)
 {
-  text=t;
-
   s/=119.05;
   gmath::SMatrix<double, 4, 4> RT;
   RT(0, 0)=R(0, 0); RT(0, 1)=R(0, 1); RT(0, 2)=R(0, 2); RT(0, 3)=T[0];

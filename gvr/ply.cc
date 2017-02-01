@@ -95,6 +95,11 @@ class PLYValueASCIIInt : public PLYValue
 
   public:
 
+    PLYValueASCIIInt()
+    {
+      value=0;
+    }
+
     void read(std::streambuf *in)
     {
       char s[40];
@@ -126,6 +131,11 @@ class PLYValueASCIIUInt : public PLYValue
     unsigned int value;
 
   public:
+
+    PLYValueASCIIUInt()
+    {
+      value=0;
+    }
 
     void read(std::streambuf *in)
     {
@@ -159,6 +169,11 @@ class PLYValueASCIIDouble : public PLYValue
     double value;
 
   public:
+
+    PLYValueASCIIDouble()
+    {
+      value=0;
+    }
 
     void read(std::streambuf *in)
     {
@@ -198,6 +213,11 @@ class PLYValueInt8 : public PLYValue
 
   public:
 
+    PLYValueInt8()
+    {
+      value=0;
+    }
+
     void read(std::streambuf *in) { value=static_cast<char>(in->sbumpc()); }
 
     int getInt(int i=0) const { return value; }
@@ -219,6 +239,11 @@ class PLYValueUInt8 : public PLYValue
 
   public:
 
+    PLYValueUInt8()
+    {
+      value=0;
+    }
+
     void read(std::streambuf *in) { value=static_cast<unsigned char>(in->sbumpc()); }
 
     int getInt(int i=0) const { return value; }
@@ -239,6 +264,11 @@ class PLYValueBigInt16 : public PLYValue
     short value;
 
   public:
+
+    PLYValueBigInt16()
+    {
+      value=0;
+    }
 
     void read(std::streambuf *in)
     {
@@ -270,6 +300,11 @@ class PLYValueBigUInt16 : public PLYValue
 
   public:
 
+    PLYValueBigUInt16()
+    {
+      value=0;
+    }
+
     void read(std::streambuf *in)
     {
       value=static_cast<unsigned short>((in->sbumpc()&0xff)<<8);
@@ -299,6 +334,11 @@ class PLYValueBigInt32 : public PLYValue
     int value;
 
   public:
+
+    PLYValueBigInt32()
+    {
+      value=0;
+    }
 
     void read(std::streambuf *in)
     {
@@ -334,6 +374,11 @@ class PLYValueBigUInt32 : public PLYValue
 
   public:
 
+    PLYValueBigUInt32()
+    {
+      value=0;
+    }
+
     void read(std::streambuf *in)
     {
       value=(in->sbumpc()&0xff)<<24;
@@ -368,6 +413,11 @@ class PLYValueLittleInt16 : public PLYValue
 
   public:
 
+    PLYValueLittleInt16()
+    {
+      value=0;
+    }
+
     void read(std::streambuf *in)
     {
       value=static_cast<short>(in->sbumpc()&0xff);
@@ -398,6 +448,11 @@ class PLYValueLittleUInt16 : public PLYValue
 
   public:
 
+    PLYValueLittleUInt16()
+    {
+      value=0;
+    }
+
     void read(std::streambuf *in)
     {
       value=static_cast<unsigned short>(in->sbumpc()&0xff);
@@ -427,6 +482,11 @@ class PLYValueLittleInt32 : public PLYValue
     int value;
 
   public:
+
+    PLYValueLittleInt32()
+    {
+      value=0;
+    }
 
     void read(std::streambuf *in)
     {
@@ -462,6 +522,11 @@ class PLYValueLittleUInt32 : public PLYValue
 
   public:
 
+    PLYValueLittleUInt32()
+    {
+      value=0;
+    }
+
     void read(std::streambuf *in)
     {
       value=in->sbumpc()&0xff;
@@ -495,6 +560,11 @@ class PLYValueFloat32 : public PLYValue
     float value;
 
   public:
+
+    PLYValueFloat32()
+    {
+      value=0;
+    }
 
     void read(std::streambuf *in)
     {
@@ -531,6 +601,11 @@ class PLYValueFloat64 : public PLYValue
     double value;
 
   public:
+
+    PLYValueFloat64()
+    {
+      value=0;
+    }
 
     void read(std::streambuf *in)
     {
@@ -576,6 +651,11 @@ class PLYValueSwapFloat32 : public PLYValue
 
   public:
 
+    PLYValueSwapFloat32()
+    {
+      value=0;
+    }
+
     void read(std::streambuf *in)
     {
       char *p=reinterpret_cast<char *>(&value);
@@ -612,6 +692,11 @@ class PLYValueSwapFloat64 : public PLYValue
     double value;
 
   public:
+
+    PLYValueSwapFloat64()
+    {
+      value=0;
+    }
 
     void read(std::streambuf *in)
     {
@@ -860,7 +945,7 @@ class PLYProperty
   private:
 
     ply_encoding enc;
-    std::string       name;
+    std::string  name;
     ply_type     tsize;
     ply_type     tvalue;
     PLYValue     *value;
@@ -981,20 +1066,17 @@ ply_type PLYProperty::name2Type(const std::string &name)
   return ply_none;
 }
 
-PLYProperty::PLYProperty()
+PLYProperty::PLYProperty(): enc(ply_ascii)
 {
-  enc=ply_ascii;
-  name="";
   tsize=ply_none;
   tvalue=ply_none;
   value=0;
   receiver=0;
 }
 
-PLYProperty::PLYProperty(const std::string &propname, ply_type type, ply_encoding encoding)
+PLYProperty::PLYProperty(const std::string &propname, ply_type type, ply_encoding encoding):
+  enc(encoding), name(propname)
 {
-  enc=encoding;
-  name=propname;
   tsize=ply_none;
   tvalue=type;
   value=createValue(type, encoding);
@@ -1002,20 +1084,16 @@ PLYProperty::PLYProperty(const std::string &propname, ply_type type, ply_encodin
 }
 
 PLYProperty::PLYProperty(const std::string &propname, ply_type t_size, ply_type t_value,
-                         ply_encoding encoding)
+                         ply_encoding encoding): enc(encoding), name(propname)
 {
-  enc=encoding;
-  name=propname;
   tsize=t_size;
   tvalue=t_value;
   value=new PLYValueList(tsize, tvalue, encoding);
   receiver=0;
 }
 
-PLYProperty::PLYProperty(const PLYProperty &p)
+PLYProperty::PLYProperty(const PLYProperty &p): enc(p.enc), name(p.name)
 {
-  enc=p.enc;
-  name=p.name;
   tsize=p.tsize;
   tvalue=p.tvalue;
 
@@ -1038,23 +1116,26 @@ PLYProperty::~PLYProperty()
 
 PLYProperty &PLYProperty::operator=(const PLYProperty &p)
 {
-  enc=p.enc;
-  name=p.name;
-  tsize=p.tsize;
-  tvalue=p.tvalue;
-
-  delete value;
-
-  if (tsize == ply_none)
+  if (this != &p)
   {
-    value=createValue(tvalue, enc);
-  }
-  else
-  {
-    value=new PLYValueList(tsize, tvalue, enc);
-  }
+    enc=p.enc;
+    name=p.name;
+    tsize=p.tsize;
+    tvalue=p.tvalue;
 
-  receiver=p.receiver;
+    delete value;
+
+    if (tsize == ply_none)
+    {
+      value=createValue(tvalue, enc);
+    }
+    else
+    {
+      value=new PLYValueList(tsize, tvalue, enc);
+    }
+
+    receiver=p.receiver;
+  }
 
   return *this;
 }
@@ -1117,7 +1198,7 @@ class PLYElement
   private:
 
     std::string              name;
-    long                size;
+    long                     size;
     std::vector<PLYProperty> list;
 
   public:
@@ -1146,7 +1227,7 @@ class PLYElement
 
     int getPropertyCount() { return list.size(); }
     PLYProperty &getProperty(int i) { return list[i]; }
-    PLYProperty *findProperty(const std::string s);
+    PLYProperty *findProperty(const std::string &s);
 
     // reading all data (i.e. all instances) of this element and calls the
     // receiver objects if specified
@@ -1154,9 +1235,8 @@ class PLYElement
     void readData(std::streambuf *in);
 };
 
-PLYElement::PLYElement(const std::string &elem_name, long elem_size)
+PLYElement::PLYElement(const std::string &elem_name, long elem_size): name(elem_name)
 {
-  name=elem_name;
   size=elem_size;
 }
 
@@ -1200,7 +1280,7 @@ std::string PLYElement::toString() const
   return s.str();
 }
 
-PLYProperty *PLYElement::findProperty(const std::string s)
+PLYProperty *PLYElement::findProperty(const std::string &s)
 {
   PLYProperty *ret=0;
 
@@ -1582,6 +1662,17 @@ PLYValue &PLYWriter::nextValue()
   }
 
   return element->getProperty(element->getPropertyCount()-pprop).getValue();
+}
+
+PLYWriter::PLYWriter()
+{
+  enc=ply_little_endian;
+  header_complete=false;
+  element=0;
+  pelem=0;
+  pinst=0;
+  pprop=0;
+  plist=0;
 }
 
 PLYWriter::~PLYWriter()

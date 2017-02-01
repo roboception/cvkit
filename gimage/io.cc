@@ -285,7 +285,7 @@ void loadTiledHeader(const BasicImageIO &io, std::set<std::string> &list,
 
   gutil::getFileList(list, prefix, suffix);
 
-  if (list.size() == 0)
+  if (list.empty() == 0)
   {
     throw gutil::IOException("There are no tiles: "+prefix+':'+suffix);
   }
@@ -299,7 +299,7 @@ void loadTiledHeader(const BasicImageIO &io, std::set<std::string> &list,
   int rows=0;
   int cols=0;
 
-  for (std::set<std::string>::iterator it=list.begin(); it!=list.end(); it++)
+  for (std::set<std::string>::iterator it=list.begin(); it!=list.end(); ++it)
   {
     int i, k;
     char sep1, sep2, sep3;
@@ -644,7 +644,7 @@ void ImageIO::save(const ImageFloat &image, const char *name) const
 
 const BasicImageIO &ImageIO::getBasicImageIO(const char *name, bool reading) const
 {
-  for (std::vector<BasicImageIO *>::const_iterator it=list.begin(); it<list.end(); it++)
+  for (std::vector<BasicImageIO *>::const_iterator it=list.begin(); it<list.end(); ++it)
   {
     if ((*it)->handlesFile(name, reading))
     {

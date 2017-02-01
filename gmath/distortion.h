@@ -51,6 +51,7 @@ class Distortion
 {
   public:
 
+    Distortion() {}
     virtual ~Distortion();
 
     /**

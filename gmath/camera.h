@@ -143,7 +143,7 @@ class PinholeCamera : public Camera
     PinholeCamera(const gutil::Properties &prop, int id=-1);
     virtual ~PinholeCamera() { delete dist; };
 
-    const PinholeCamera &operator = (const PinholeCamera &pc);
+    PinholeCamera &operator = (const PinholeCamera &pc);
     virtual Camera *clone() const;
 
     void setA(const Matrix33d &AA);

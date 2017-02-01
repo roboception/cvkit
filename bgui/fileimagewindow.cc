@@ -86,8 +86,6 @@ void FileImageWindow::load(unsigned int &pos, bool down, int w, int h, bool size
   while (adapt == 0 && pos < list.size())
   {
     gimage::ImageU8    *imageu8=0;
-    gimage::ImageU16   *imageu16=0;
-    gimage::ImageFloat *imagefloat=0;
 
     try
     {
@@ -98,6 +96,8 @@ void FileImageWindow::load(unsigned int &pos, bool down, int w, int h, bool size
     }
     catch (const gutil::Exception &ex)
     {
+      gimage::ImageU16   *imageu16=0;
+
       delete imageu8;
       imageu8=0;
 
@@ -110,6 +110,8 @@ void FileImageWindow::load(unsigned int &pos, bool down, int w, int h, bool size
       }
       catch (const gutil::Exception &ex)
       {
+        gimage::ImageFloat *imagefloat=0;
+
         delete imageu16;
         imageu16=0;
 

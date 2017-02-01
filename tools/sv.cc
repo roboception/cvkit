@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
 
           list.clear();
 
-          for (std::set<std::string>::iterator it=content.begin(); it != content.end(); it++)
+          for (std::set<std::string>::iterator it=content.begin(); it != content.end(); ++it)
           {
             list.push_back(*it);
           }

@@ -64,7 +64,7 @@ std::string readRAWHeader(const char *name, int &type, bool &msbfirst, long &wid
   if (pos != s.npos)
   {
     std::istringstream in(s.substr(pos+1));
-    char sep1=0, sep2=0, order;
+    char sep1=0, sep2=0;
 
     in >> std::noskipws >> width >> sep1 >> height >> sep2 >> type;
 
@@ -77,6 +77,8 @@ std::string readRAWHeader(const char *name, int &type, bool &msbfirst, long &wid
 
     if (!in.eof())
     {
+      char order;
+
       in >> order;
 
       if (order == 'm')
@@ -275,7 +277,7 @@ void RAWImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
 
     in.close();
   }
-  catch (std::ios_base::failure ex)
+  catch (const std::ios_base::failure &ex)
   {
     throw gutil::IOException(ex.what());
   }
@@ -413,7 +415,7 @@ void RAWImageIO::load(ImageU16 &image, const char *name, int ds, long x, long y,
 
       in.close();
     }
-    catch (std::ios_base::failure ex)
+    catch (const std::ios_base::failure &ex)
     {
       throw gutil::IOException(ex.what());
     }
@@ -453,7 +455,7 @@ void RAWImageIO::save(const ImageU8 &image, const char *name) const
 
     out.close();
   }
-  catch (std::ios_base::failure ex)
+  catch (const std::ios_base::failure &ex)
   {
     throw gutil::IOException(ex.what());
   }
@@ -489,7 +491,7 @@ void RAWImageIO::save(const ImageU16 &image, const char *name) const
 
     out.close();
   }
-  catch (std::ios_base::failure ex)
+  catch (const std::ios_base::failure &ex)
   {
     throw gutil::IOException(ex.what());
   }

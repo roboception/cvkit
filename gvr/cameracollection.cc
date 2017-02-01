@@ -48,10 +48,8 @@
 namespace gvr
 {
 
-CameraCollection::CameraCollection(const std::vector<gmath::PinholeCamera> &camlist)
-{
-  cl=camlist;
-}
+CameraCollection::CameraCollection(const std::vector<gmath::PinholeCamera> &camlist): cl(camlist)
+{ }
 
 void CameraCollection::loadCamera(const char *file)
 {

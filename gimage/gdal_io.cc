@@ -166,7 +166,7 @@ bool GDALImageIO::handlesFile(const char *name, bool reading) const
 
       gutil::getFileList(list, prefix, suffix);
 
-      if (list.size() > 0)
+      if (!list.empty())
       {
         name=list.begin()->c_str();
       }

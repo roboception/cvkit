@@ -182,6 +182,7 @@ class PLYWriter
 
   public:
 
+    PLYWriter();
     ~PLYWriter();
 
     // step 1: open a new ply file for writing
