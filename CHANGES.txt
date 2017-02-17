@@ -1,3 +1,8 @@
+Version 1.8.5 (2017-02-17)
+--------------------------
+
+- Changed ProcTime to measure relative time differences using the monotonic clock
+
 Version 1.8.4 (2017-02-01)
 --------------------------
 
