@@ -36,7 +36,7 @@
 #ifndef GUTIL_PROCTIME_H
 #define GUTIL_PROCTIME_H
 
-#include <sys/time.h>
+#include <time.h>
 
 namespace gutil
 {
@@ -45,7 +45,7 @@ class ProcTime
 {
   private:
 
-    struct timeval tstart;
+    struct timespec tstart;
     double total;
 
   public:
@@ -53,22 +53,23 @@ class ProcTime
     ProcTime()
     {
       tstart.tv_sec=0;
-      tstart.tv_usec=0;
+      tstart.tv_nsec=0;
       total=0;
     }
 
     void start()
     {
-      gettimeofday(&tstart, 0);
+      clock_gettime(CLOCK_MONOTONIC, &tstart);
     }
 
     void stop()
     {
-      struct timeval tend;
+      struct timespec tend;
 
-      gettimeofday(&tend, 0);
+      clock_gettime(CLOCK_MONOTONIC, &tend);
 
-      total+=tend.tv_sec-tstart.tv_sec+(tend.tv_usec-tstart.tv_usec)/1000000.0;
+      total+=tend.tv_sec-tstart.tv_sec+(tend.tv_nsec-tstart.tv_nsec)/1000000000.0;
+      tstart=tend;
     }
 
     void clear()
@@ -81,13 +82,22 @@ class ProcTime
       return total;
     }
 
+    static double monotonic()
+    {
+      struct timespec t;
+
+      clock_gettime(CLOCK_MONOTONIC, &t);
+
+      return t.tv_sec+t.tv_nsec/1000000000.0;
+    }
+
     static double current()
     {
-      struct timeval t;
+      struct timespec t;
 
-      gettimeofday(&t, 0);
+      clock_gettime(CLOCK_REALTIME, &t);
 
-      return t.tv_sec+t.tv_usec/1000000.0;
+      return t.tv_sec+t.tv_nsec/1000000000.0;
     }
 };
 
