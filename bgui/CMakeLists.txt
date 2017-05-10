@@ -82,7 +82,11 @@ endif ()
 
 if (INSTALL_DEVELOPMENT)
   add_library(bgui SHARED ${bgui_src})
-  target_link_libraries(bgui LINK_PRIVATE gimage)
+  target_link_libraries(bgui LINK_PRIVATE gimage gutil)
+
+  if (WIN32)
+    target_link_libraries(bgui LINK_PRIVATE gdi32 comctl32)
+  endif ()
 
   if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
     target_link_libraries(bgui LINK_PRIVATE ${X11_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

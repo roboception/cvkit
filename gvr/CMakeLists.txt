@@ -121,7 +121,7 @@ endif ()
 
 if (INSTALL_DEVELOPMENT)
   add_library(gvr SHARED ${gvr_src})
-  target_link_libraries(gvr LINK_PRIVATE gimage)
+  target_link_libraries(gvr LINK_PRIVATE gimage gmath gutil)
 
   if (OPENGL_FOUND AND GLUT_FOUND AND GLEW_FOUND)
     target_link_libraries(gvr LINK_PRIVATE ${GLUT_glut_LIBRARY})

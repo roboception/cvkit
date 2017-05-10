@@ -76,7 +76,7 @@ void Thread::create(ParallelFunction &fct, long start, long end, long step,
 {
   assert(p == 0);
 
-  p=reinterpret_cast<ThreadData *>(new std::thread(&ThreadFunction::run, &fct,
+  p=reinterpret_cast<ThreadData *>(new std::thread(&ParallelFunction::run, &fct,
                                    start, end, step));
 }
 

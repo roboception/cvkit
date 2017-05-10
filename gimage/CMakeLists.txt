@@ -73,6 +73,7 @@ if (PNG_FOUND)
 endif (PNG_FOUND)
 
 add_library(gimage_static STATIC ${gimage_src})
+target_link_libraries(gimage_static gutil_static)
 
 if (JPEG_FOUND)
   target_link_libraries(gimage_static ${JPEG_LIBRARIES})
@@ -89,6 +90,7 @@ endif ()
 if (INSTALL_DEVELOPMENT)
   add_library(gimage SHARED ${gimage_src})
   target_link_libraries(gimage LINK_PRIVATE gmath)
+  target_link_libraries(gimage LINK_PRIVATE gutil)
 
   if (JPEG_FOUND)
     target_link_libraries(gimage LINK_PRIVATE ${JPEG_LIBRARIES})

@@ -37,6 +37,6 @@
 #ifndef GUTIL_VERSION_H
 #define GUTIL_VERSION_H
 
-#define VERSION "1.8.5"
+#define VERSION "1.8.6"
 
 #endif

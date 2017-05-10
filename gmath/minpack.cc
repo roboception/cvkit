@@ -37,13 +37,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "minpack.h"
-#include "minpack/f2c.h"
-
 #include <assert.h>
 #include <cmath>
 
 #include <iostream>
+
+#include "minpack.h"
+#include "minpack/f2c.h"
 
 /* The functions are copied as prototypes, so that the compiler can check
    if I made mistakes while calling functions with so many parameter ;-) */

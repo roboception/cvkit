@@ -271,7 +271,7 @@ void GLWorld::onKey(unsigned char key, int x, int y)
         std::ostringstream out;
 
         out << "This program is based on cvkit version " << VERSION << "\n";
-        out << "Copyright (C) 2016 Roboception GmbH\n";
+        out << "Copyright (C) 2016, 2017 Roboception GmbH\n";
         out << "Copyright (C) 2014, 2015 Institute of Robotics and Mechatronics, German Aerospace Center\n";
         out << "Author: Heiko Hirschmueller\n";
         out << "Contact: heiko.hirschmueller@roboception.de\n";
@@ -283,7 +283,7 @@ void GLWorld::onKey(unsigned char key, int x, int y)
         out << "\n";
         out << "This program is based in part on the work of the Independent JPEG Group.\n";
 #endif
-#if defined (INCLUDE_GDAL) || defined (INCLUDE_PNG)
+#if defined (INCLUDE_PNG)
         out << png_get_copyright(0) << "\n";
 #endif
 

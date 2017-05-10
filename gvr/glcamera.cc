@@ -98,7 +98,7 @@ void GLCamera::computeTransformation()
 
 GLCamera::GLCamera()
 {
-  fov=50.0/180*M_PI;
+  fov=50.0/180*gmath::pi;
 
   width=1;
   height=1;

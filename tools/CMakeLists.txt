@@ -63,7 +63,7 @@ if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
   install(TARGETS sv DESTINATION bin)
 elseif (WIN32)
   add_executable(sv sv.cc)
-  target_link_libraries(sv bgui_static ${libs} comctl32 "-Wl,--subsystem,windows")
+  target_link_libraries(sv bgui_static ${libs} gdi32 comctl32 "-Wl,--subsystem,windows")
   install(TARGETS sv DESTINATION bin)
 endif ()
 
@@ -76,7 +76,7 @@ if (OPENGL_FOUND AND GLUT_FOUND AND GLEW_FOUND)
   target_link_libraries(plyv gvr_static ${libs})
   
   if (WIN32)
-    target_link_libraries(plyv "-Wl,--subsystem,windows")
+    target_link_libraries(plyv gdi32 "-Wl,--subsystem,windows")
   endif ()
   
   install(TARGETS plyv DESTINATION bin)

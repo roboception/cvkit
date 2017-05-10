@@ -48,7 +48,7 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.txt")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
 set(CPACK_PACKAGE_VERSION_MAJOR "1")
 set(CPACK_PACKAGE_VERSION_MINOR "8")
-set(CPACK_PACKAGE_VERSION_PATCH "5")
+set(CPACK_PACKAGE_VERSION_PATCH "6")
 set(CVKIT_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
 
 find_program(GIT_CMD git)
@@ -238,7 +238,9 @@ endif ()
 
 # - Standard definitions -
 
-add_definitions(-Wall)
+if (CMAKE_COMPILER_IS_GNUCC)
+  add_definitions(-Wall)
+endif ()
 
 if (APPLE)
   add_definitions(-Wno-deprecated-declarations)

@@ -194,7 +194,9 @@ int Thread::getProcessingUnits()
 {
   if (procunits <= 0)
   {
+#ifdef _SC_NPROCESSORS_CONF
     procunits=sysconf(_SC_NPROCESSORS_CONF);
+#endif
 
     if (procunits <= 0)
     {
