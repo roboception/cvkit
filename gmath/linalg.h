@@ -44,12 +44,14 @@
 
 #include <gutil/exception.h>
 
+#include <algorithm>
+
 namespace gmath
 {
 
 // --- Constants ---
 
-extern const double pi;
+const double pi=3.14159265358979323846;
 
 // --- Functions for 3x3 rotation matrices of type double ---
 

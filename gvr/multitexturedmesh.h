@@ -77,7 +77,7 @@ class MultiTexturedMesh : public Mesh
     const std::string &getBasePath() const { return basepath; }
     void setBasePath(std::string s) { basepath=s; }
 
-    int getTextureCount() const { return name.size(); }
+    int getTextureCount() const { return static_cast<int>(name.size()); }
     const std::string &getTextureName(int i) const { return name[i]; }
     void setTextureName(int i, std::string s) { name[i]=s; }
 

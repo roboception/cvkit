@@ -38,9 +38,13 @@
 
 #include <sstream>
 #include <iostream>
+#include <assert.h>
 
 #ifdef __GNUC__
 #include <dirent.h>
+#elif defined(WIN32)
+#define NOMINMAX
+#include <Windows.h>
 #endif
 
 bool gutil::isMSBFirst()
@@ -147,6 +151,33 @@ void gutil::getFileList(std::set<std::string> &list, const std::string &prefix,
   }
 
   closedir(p);
+#elif defined(WIN32)
+  std::string dir="";
+  size_t pos=prefix.find_last_of("\\");
+
+  if (pos < prefix.size())
+  {
+    dir=prefix.substr(0, pos+1);
+  }
+
+  HANDLE p;
+  WIN32_FIND_DATA data;
+
+  list.clear();
+
+  p=FindFirstFile((prefix+"*"+suffix).c_str(), &data);
+
+  if (p != INVALID_HANDLE_VALUE)
+  {
+    do
+    {
+      list.insert(dir+data.cFileName);
+    }
+    while (FindNextFile(p, &data));
+
+    FindClose(p);
+  }
+
 #else
   assert(false);
 #endif

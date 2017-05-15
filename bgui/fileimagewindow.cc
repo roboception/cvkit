@@ -94,7 +94,7 @@ void FileImageWindow::load(unsigned int &pos, bool down, int w, int h, bool size
       adapt=new ImageAdapter<unsigned char>(imageu8, vmin, vmax, true);
       imageu8=0;
     }
-    catch (const gutil::Exception &ex)
+    catch (const gutil::Exception &)
     {
       gimage::ImageU16   *imageu16=0;
 
@@ -108,7 +108,7 @@ void FileImageWindow::load(unsigned int &pos, bool down, int w, int h, bool size
         adapt=new ImageAdapter<unsigned short>(imageu16, vmin, vmax, true);
         imageu16=0;
       }
-      catch (const gutil::Exception &ex)
+      catch (const gutil::Exception &)
       {
         gimage::ImageFloat *imagefloat=0;
 
@@ -122,7 +122,7 @@ void FileImageWindow::load(unsigned int &pos, bool down, int w, int h, bool size
           adapt=new ImageAdapter<float>(imagefloat, vmin, vmax, true);
           imagefloat=0;
         }
-        catch (const gutil::Exception &ex)
+        catch (const gutil::Exception &)
         {
           delete imagefloat;
           imagefloat=0;
@@ -179,7 +179,7 @@ void FileImageWindow::load(unsigned int &pos, bool down, int w, int h, bool size
     prop.getValue("rotation", rotation, "0");
     prop.getValue("flip", flip, "0");
 
-    adapt->setRotationFlip(rotation/90, flip);
+    adapt->setRotationFlip(rotation/90, flip != 0);
 
     adapt->setScale(scale);
 
@@ -565,7 +565,7 @@ void FileImageWindow::onKey(char c, SpecialKey key, int x, int y)
             std::cout << "Failed!" << std::endl;
           }
         }
-        catch (const gutil::IOException &ex)
+        catch (const gutil::IOException &)
         {
           setInfoLine("Missing disparity parameter file!");
         }

@@ -1,8 +1,3 @@
-Version 1.8.6 (2017-05-10)
---------------------------
-
-- Fixing some compile problems when building on MSYS2 / MinGW64 under Windows.
-
 Version 1.8.5 (2017-02-17)
 --------------------------
 

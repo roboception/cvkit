@@ -36,7 +36,7 @@
 #ifndef GUTIL_FIXEDINT
 #define GUTIL_FIXEDINT
 
-#ifdef INCLUDE_CPP11
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 
 #include <cstdint>
 

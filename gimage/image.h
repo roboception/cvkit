@@ -470,7 +470,7 @@ template<class T, class traits=PixelTraits<T> > class Image
         x*=4;
         y*=4;
 
-        ret=p0*(4-x)*(4-y)+p1*x*(4-y)+p2*(4-x)*y+p3*x*y;
+        ret=static_cast<work_t>(p0*(4-x)*(4-y)+p1*x*(4-y)+p2*(4-x)*y+p3*x*y);
         ret/=16;
       }
 

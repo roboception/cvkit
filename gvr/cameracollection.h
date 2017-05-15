@@ -57,7 +57,7 @@ class CameraCollection : public Model
     CameraCollection() { };
     CameraCollection(const std::vector<gmath::PinholeCamera> &camlist);
 
-    int getCameraCount() const { return cl.size(); }
+    int getCameraCount() const { return static_cast<int>(cl.size()); }
     const gmath::PinholeCamera &getCamera(int i) const { return cl[i]; }
     void loadCamera(const char *file);
     void addCamera(const gmath::PinholeCamera &cam) { cl.push_back(cam); }

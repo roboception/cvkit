@@ -299,7 +299,7 @@ template<class T> class ImageAdapter : public ImageAdapterBase
         return ret;
       }
 
-      return image->get(x, y, c);
+      return image->get(static_cast<long>(x), static_cast<long>(y), c);
     }
 
     void getPixel(double &r, double &g, double &b, float x, float y,
@@ -340,9 +340,9 @@ template<class T> class ImageAdapter : public ImageAdapterBase
         return;
       }
 
-      r=image->get(x, y, ir);
-      g=image->get(x, y, ig);
-      b=image->get(x, y, ib);
+      r=image->get(static_cast<long>(x), static_cast<long>(y), ir);
+      g=image->get(static_cast<long>(x), static_cast<long>(y), ig);
+      b=image->get(static_cast<long>(x), static_cast<long>(y), ib);
     }
 
     void copyInto(gimage::ImageU8 &rgb, long x, long y) const
@@ -403,8 +403,8 @@ template<class T> class ImageAdapter : public ImageAdapterBase
 
             while (xf < iw && i < rgb.getWidth())
             {
-              float xs=R(0, 0)*xf+R(0, 1)*yf+R(0, 2);
-              float ys=R(1, 0)*xf+R(1, 1)*yf+R(1, 2);
+              float xs=static_cast<float>(R(0, 0)*xf+R(0, 1)*yf+R(0, 2));
+              float ys=static_cast<float>(R(1, 0)*xf+R(1, 1)*yf+R(1, 2));
 
               double r, g, b;
               getPixel(r, g, b, xs, ys, ir, ig, ib);
@@ -447,15 +447,15 @@ template<class T> class ImageAdapter : public ImageAdapterBase
 
             while (xf < iw && i < rgb.getWidth())
             {
-              float xs=R(0, 0)*xf+R(0, 1)*yf+R(0, 2);
-              float ys=R(1, 0)*xf+R(1, 1)*yf+R(1, 2);
+              float xs=static_cast<float>(R(0, 0)*xf+R(0, 1)*yf+R(0, 2));
+              float ys=static_cast<float>(R(1, 0)*xf+R(1, 1)*yf+R(1, 2));
 
               double v=getPixel(xs, ys, ir);
               double r=0.0;
               double g=0.0;
               double b=0.0;
 
-              if (image->isValid(xs, ys))
+              if (image->isValid(static_cast<long>(xs), static_cast<long>(ys)))
               {
                 if (v >= imin)
                 {
@@ -507,15 +507,15 @@ template<class T> class ImageAdapter : public ImageAdapterBase
           {
             while (xf < iw && i < rgb.getWidth())
             {
-              float xs=R(0, 0)*xf+R(0, 1)*yf+R(0, 2);
-              float ys=R(1, 0)*xf+R(1, 1)*yf+R(1, 2);
+              float xs=static_cast<float>(R(0, 0)*xf+R(0, 1)*yf+R(0, 2));
+              float ys=static_cast<float>(R(1, 0)*xf+R(1, 1)*yf+R(1, 2));
 
               double v=getPixel(xs, ys, ir);
               double r=0.0;
               double g=0.0;
               double b=0.0;
 
-              if (image->isValid(xs, ys))
+              if (image->isValid(static_cast<long>(xs), static_cast<long>(ys)))
               {
                 if (v < imin)
                 {

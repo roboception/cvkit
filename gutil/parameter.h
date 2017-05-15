@@ -43,6 +43,7 @@
 #include <vector>
 #include <set>
 #include <stdexcept>
+#include <algorithm>
 
 namespace gutil
 {
@@ -90,7 +91,7 @@ class Parameter
 
     int remaining() const
     {
-      return list.size()-pos;
+      return static_cast<int>(list.size()-pos);
     }
 
     /**

@@ -41,6 +41,8 @@
 
 #include <gutil/exception.h>
 
+#include <algorithm>
+
 namespace gvr
 {
 

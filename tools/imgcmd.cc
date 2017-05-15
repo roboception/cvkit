@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
       gimage::getImageIO().load(image, it->c_str(), ds, x, y, w, h);
       process(image, param, repl);
     }
-    catch (const std::exception &ex)
+    catch (const std::exception &)
     {
       try
       {
@@ -641,7 +641,7 @@ int main(int argc, char *argv[])
         gimage::getImageIO().load(image, it->c_str(), ds, x, y, w, h);
         process(image, param, repl);
       }
-      catch (const std::exception &ex)
+      catch (const std::exception &)
       {
         try
         {

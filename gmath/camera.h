@@ -97,7 +97,7 @@ class Camera
     double getZMax() const { return zmax; }
 
     void addMatch(std::string s) { match.push_back(s); }
-    int countMatch() { return match.size(); }
+    int countMatch() { return static_cast<int>(match.size()); }
     const std::string &getMatch(int i) { return match[i]; }
 
     bool isInside(const Vector2d &p) const;

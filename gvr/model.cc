@@ -81,7 +81,7 @@ void Model::setOriginFromPLY(PLYReader &ply)
       {
         in >> Rc >> Tc;
       }
-      catch (const gutil::Exception &ex)
+      catch (const gutil::Exception &)
       {
         Rc=0;
         Tc=0;
@@ -268,7 +268,7 @@ Model *loadDepth(const char *name, const char *spath, bool verbose)
   {
     if (list[i].compare(0, 2, "s=") == 0)
     {
-      dstep=atof(list[i].substr(2).c_str());
+      dstep=static_cast<float>(atof(list[i].substr(2).c_str()));
     }
   }
 

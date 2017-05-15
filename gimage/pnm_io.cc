@@ -137,7 +137,7 @@ std::istream::pos_type readPNMHeader(const char *name, int &ncomp, long &maxval,
 
     if (s == "Pf" || s == "PF")
     {
-      scale=atof(readPNMToken(in).c_str());
+      scale=static_cast<float>(atof(readPNMToken(in).c_str()));
     }
     else
     {
@@ -754,7 +754,7 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
 
         if (offset != 0)
         {
-          image+=offset;
+          image+=static_cast<float>(offset);
         }
       }
     }

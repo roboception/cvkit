@@ -109,7 +109,7 @@ class PLYValueASCIIInt : public PLYValue
 
     int getInt(int i=0) const { return value; }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
-    float getFloat(int i=0) const { return value; }
+    float getFloat(int i=0) const { return static_cast<float>(value); }
     double getDouble(int i=0) const { return value; }
 
     void write(std::streambuf *out, int v)
@@ -146,7 +146,7 @@ class PLYValueASCIIUInt : public PLYValue
 
     int getInt(int i=0) const { return static_cast<int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return value; }
-    float getFloat(int i=0) const { return value; }
+    float getFloat(int i=0) const { return static_cast<float>(value); }
     double getDouble(int i=0) const { return value; }
 
     void write(std::streambuf *out, int v) { write(out, static_cast<unsigned int>(v)); }
@@ -350,7 +350,7 @@ class PLYValueBigInt32 : public PLYValue
 
     int getInt(int i=0) const { return value; }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
-    float getFloat(int i=0) const { return value; }
+    float getFloat(int i=0) const { return static_cast<float>(value); }
     double getDouble(int i=0) const { return value; }
 
     void write(std::streambuf *out, int v)
@@ -389,7 +389,7 @@ class PLYValueBigUInt32 : public PLYValue
 
     int getInt(int i=0) const { return static_cast<unsigned int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return value; }
-    float getFloat(int i=0) const { return value; }
+    float getFloat(int i=0) const { return static_cast<float>(value); }
     double getDouble(int i=0) const { return value; }
 
     void write(std::streambuf *out, unsigned int v)
@@ -498,7 +498,7 @@ class PLYValueLittleInt32 : public PLYValue
 
     int getInt(int i=0) const { return value; }
     unsigned int getUnsignedInt(int i=0) const { return static_cast<unsigned int>(value); }
-    float getFloat(int i=0) const { return value; }
+    float getFloat(int i=0) const { return static_cast<float>(value); }
     double getDouble(int i=0) const { return value; }
 
     void write(std::streambuf *out, int v)
@@ -537,7 +537,7 @@ class PLYValueLittleUInt32 : public PLYValue
 
     int getInt(int i=0) const { return static_cast<unsigned int>(value); }
     unsigned int getUnsignedInt(int i=0) const { return value; }
-    float getFloat(int i=0) const { return value; }
+    float getFloat(int i=0) const { return static_cast<float>(value); }
     double getDouble(int i=0) const { return value; }
 
     void write(std::streambuf *out, unsigned int v)
@@ -922,7 +922,7 @@ class PLYValueList : public PLYValue
       }
     }
 
-    int getListSize() const { return used; }
+    int getListSize() const { return static_cast<int>(used); }
     int getInt(int i=0) const { return list[i]->getInt(); }
     unsigned int getUnsignedInt(int i=0) const { return list[i]->getUnsignedInt(); }
     float getFloat(int i=0) const { return list[i]->getFloat(); }
@@ -1225,7 +1225,7 @@ class PLYElement
 
     // returns the associated properties
 
-    int getPropertyCount() { return list.size(); }
+    int getPropertyCount() { return static_cast<int>(list.size()); }
     PLYProperty &getProperty(int i) { return list[i]; }
     PLYProperty *findProperty(const std::string &s);
 

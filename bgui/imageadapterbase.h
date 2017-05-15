@@ -150,7 +150,7 @@ class ImageAdapterBase
     }
 
     int getRotation() const { return rotation; }
-    int getFlip() const { return flip; }
+    bool getFlip() const { return flip; }
     const gmath::SMatrix<long, 2, 3> &getRotationMatrix() const { return R; }
 
     void setScale(double s) { scale=s; }

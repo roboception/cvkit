@@ -310,7 +310,7 @@ void loadView(View &view, const char *name, const char *spath, bool verbose)
       getImageIO().load(image, imagename.c_str(), ds, x, y, w, h);
       view.setImage(image);
     }
-    catch (gutil::Exception &ex)
+    catch (gutil::Exception &)
     {
       // load 16 bit image and convert to 8 bit
 
@@ -387,7 +387,7 @@ void getPrefixAlternatives(std::vector<std::string> &list, const std::string &de
     pos=depthname.rfind('_', pos-1);
   }
 
-  int n=list.size();
+  int n=static_cast<int>(list.size());
 
   // combine possible prefixes with all directories of the optional search
   // path
@@ -458,7 +458,7 @@ void loadViewProperties(gutil::Properties &prop, const char *name, const char *s
     list.clear();
     getPrefixAlternatives(list, depthname, spath);
 
-    for (int i=list.size()-1; i>=0; i--)
+    for (int i=static_cast<int>(list.size())-1; i>=0; i--)
     {
       for (int k=0; k<4; k++)
       {
@@ -473,7 +473,7 @@ void loadViewProperties(gutil::Properties &prop, const char *name, const char *s
             std::cout << "Using parameter file: " << list[i]+suffix[k] << std::endl;
           }
         }
-        catch (const gutil::Exception &ex)
+        catch (const gutil::Exception &)
         { }
       }
     }
@@ -530,7 +530,7 @@ void loadViewProperties(gutil::Properties &prop, const char *name, const char *s
         T[0]=t*(depthname[pos+4]-'0');
         prop.putValue("camera.T", T);
       }
-      catch (const gutil::IOException &ex)
+      catch (const gutil::IOException &)
       { }
       catch (const gutil::Exception &ex)
       {
@@ -593,7 +593,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
       {
         gutil::getFileList(flist, depthname.substr(0, pos)+"im"+depthname[pos+4]+".", "");
       }
-      catch (gutil::IOException &ex)
+      catch (gutil::IOException &)
       { }
 
       // check list of files for images with the same size as the depth
@@ -626,7 +626,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
             }
           }
         }
-        catch (const gutil::Exception &ex)
+        catch (const gutil::Exception &)
         { }
       }
     }
@@ -668,7 +668,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
       {
         gutil::getFileList(flist, list[i], "");
       }
-      catch (gutil::IOException &ex)
+      catch (gutil::IOException &)
       { }
 
       // check list of files for images with the same size as the depth
@@ -735,7 +735,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
               }
             }
           }
-          catch (const gutil::Exception &ex)
+          catch (const gutil::Exception &)
           { }
         }
       }

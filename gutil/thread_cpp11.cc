@@ -42,6 +42,7 @@
 #include <thread>
 #include <assert.h>
 #include <cstdlib>
+#include <algorithm>
 
 namespace
 {

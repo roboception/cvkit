@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
           {
             if (list[k] == name)
             {
-              first=k;
+              first=static_cast<int>(k);
             }
           }
 
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
             first=0;
           }
         }
-        catch (const std::exception &ex)
+        catch (const std::exception &)
         { }
       }
     }

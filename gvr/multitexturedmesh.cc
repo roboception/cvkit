@@ -266,7 +266,7 @@ void MultiTexturedMesh::savePLY(const char *plyname, bool all, ply_encoding enc)
 
   for (size_t i=0; i<name.size(); i++)
   {
-    ply.addComment("TextureFile "+getTextureName(i));
+    ply.addComment("TextureFile "+getTextureName(static_cast<int>(i)));
   }
 
   ply.addElement("vertex", getVertexCount());

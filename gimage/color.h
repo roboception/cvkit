@@ -60,11 +60,11 @@ void rgbToHSV(float &hue, float &sat, float &val, T red, T green, T blue, T maxv
 {
   float delta, vmin, vmax;
 
-  vmin=red;
+  vmin=static_cast<float>(red);
   vmin=std::min(vmin, static_cast<float>(green));
   vmin=std::min(vmin, static_cast<float>(blue));
 
-  vmax=red;
+  vmax=static_cast<float>(red);
   vmax=std::max(vmax, static_cast<float>(green));
   vmax=std::max(vmax, static_cast<float>(blue));
 

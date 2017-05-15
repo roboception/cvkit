@@ -38,6 +38,7 @@
 #define GUTIL_THREAD_H
 
 #include <iostream>
+#include <algorithm>
 
 namespace gutil
 {

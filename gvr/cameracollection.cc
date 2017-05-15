@@ -44,6 +44,7 @@
 #endif
 
 #include <limits>
+#include <algorithm>
 
 namespace gvr
 {

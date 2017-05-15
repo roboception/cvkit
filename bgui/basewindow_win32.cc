@@ -38,11 +38,14 @@
 #include <gutil/exception.h>
 #include <gutil/misc.h>
 
+#define NOMINMAX
+
 #include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
 #include <cstdlib>
 #include <string>
+#include <algorithm>
 
 /*
   NOTE: In contrast to the X11 implementation of this classe, the event loop of the
@@ -106,7 +109,7 @@ void drawInfoText(HWND hwnd, HDC hdc, BaseWindowData *p)
       if (list[i].size() > 0)
       {
         SIZE size;
-        GetTextExtentPoint32(hdc, TEXT(list[i].c_str()), list[i].size(), &size);
+        GetTextExtentPoint32(hdc, TEXT(list[i].c_str()), static_cast<int>(list[i].size()), &size);
         w=std::max(w, static_cast<int>(size.cx));
       }
 
@@ -135,7 +138,8 @@ void drawInfoText(HWND hwnd, HDC hdc, BaseWindowData *p)
     {
       if (list[i].size() > 0)
       {
-        TextOut(hdc, rect.left, rect.top+i*p->th, TEXT(list[i].c_str()), list[i].size());
+        TextOut(hdc, rect.left, static_cast<int>(rect.top+i*p->th), TEXT(list[i].c_str()),
+                static_cast<int>(list[i].size()));
       }
     }
   }
@@ -147,7 +151,7 @@ void drawInfoText(HWND hwnd, HDC hdc, BaseWindowData *p)
     GetClientRect(p->hwnd, &rect);
 
     SIZE size;
-    GetTextExtentPoint32(hdc, TEXT(p->info.c_str()), p->info.size(), &size);
+    GetTextExtentPoint32(hdc, TEXT(p->info.c_str()), static_cast<int>(p->info.size()), &size);
 
     // alternatively, draw one line of text at specified position
 
@@ -155,22 +159,24 @@ void drawInfoText(HWND hwnd, HDC hdc, BaseWindowData *p)
     {
       if (p->left)
       {
-        TextOut(hdc, rect.left, rect.top, TEXT(p->info.c_str()), p->info.size());
+        TextOut(hdc, rect.left, rect.top, TEXT(p->info.c_str()), static_cast<int>(p->info.size()));
       }
       else
       {
-        TextOut(hdc, rect.right-size.cx, rect.top, TEXT(p->info.c_str()), p->info.size());
+        TextOut(hdc, rect.right-size.cx, rect.top, TEXT(p->info.c_str()), static_cast<int>(p->info.size()));
       }
     }
     else
     {
       if (p->left)
       {
-        TextOut(hdc, rect.left, rect.bottom-size.cy, TEXT(p->info.c_str()), p->info.size());
+        TextOut(hdc, rect.left, rect.bottom-size.cy, TEXT(p->info.c_str()),
+                static_cast<int>(p->info.size()));
       }
       else
       {
-        TextOut(hdc, rect.right-size.cy, rect.bottom-size.cy, TEXT(p->info.c_str()), p->info.size());
+        TextOut(hdc, rect.right-size.cy, rect.bottom-size.cy, TEXT(p->info.c_str()),
+                static_cast<int>(p->info.size()));
       }
     }
   }
@@ -794,7 +800,7 @@ void BaseWindow::setInfoLine(const char *text, bool top, bool left)
 
   if (p->info.size() > 0)
   {
-    GetTextExtentPoint32(hdc, TEXT(p->info.c_str()), p->info.size(), &size);
+    GetTextExtentPoint32(hdc, TEXT(p->info.c_str()), static_cast<int>(p->info.size()), &size);
   }
 
   // clear old std::string completely, if position has changed
@@ -837,7 +843,7 @@ void BaseWindow::setInfoLine(const char *text, bool top, bool left)
   if (size.cx > 0 && size.cy > 0)
   {
     SIZE nsize;
-    GetTextExtentPoint32(hdc, TEXT(p->info.c_str()), p->info.size(), &nsize);
+    GetTextExtentPoint32(hdc, TEXT(p->info.c_str()), static_cast<int>(p->info.size()), &nsize);
 
     size.cx-=nsize.cx;
 

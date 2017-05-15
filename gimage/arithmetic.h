@@ -185,7 +185,7 @@ template<class T> void remapImage(Image<T> &image, const Image<T> &map)
       {
         for (int d=0; d<image.getDepth(); d++)
         {
-          image.set(i, k, d, map.get(static_cast<int>(image.get(i, k, d)), 0, d));
+          image.set(i, k, d, map.get(static_cast<long>(image.get(i, k, d)), 0, d));
         }
       }
     }
@@ -201,7 +201,8 @@ template<class T> void fillGammaMap(Image<T> &map, int depth, int from, int to, 
 
   for (int i=0; i<to && i<map.getWidth(); i++)
   {
-    map.setLimited(i, 0, depth, map.absMaxValue()*pow(static_cast<double>(i-from)/(to-from), 1.0/g));
+    map.setLimited(i, 0, depth, static_cast<T>(map.absMaxValue()*pow(static_cast<double>(i-from)/
+                   (to-from), 1.0/g)));
   }
 
   for (int i=to; i<map.getWidth(); i++)
@@ -212,11 +213,11 @@ template<class T> void fillGammaMap(Image<T> &map, int depth, int from, int to, 
 
 template<class T> void fillGammaMap(Image<T> &map, const Image<T> &image, double g)
 {
-  map.setSize(image.absMaxValue()+1, 1, image.getDepth());
+  map.setSize(static_cast<long>(image.absMaxValue()+1), 1, image.getDepth());
 
   for (int d=0; d<image.getDepth(); d++)
   {
-    fillGammaMap(map, d, 0, image.absMaxValue(), g);
+    fillGammaMap(map, d, 0, static_cast<int>(image.absMaxValue()), g);
   }
 }
 

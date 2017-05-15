@@ -62,11 +62,13 @@ PointCloud::PointCloud(const PointCloud &p, const std::vector<bool> &vused) : Mo
   scanprop=0;
   scanpos=0;
 
-  for (int i=vused.size()-1; i>=0; i--)
+  for (int i=static_cast<int>(vused.size())-1; i>=0; i--)
+  {
     if (vused[i])
     {
       n++;
     }
+  }
 
   vertex=new float [3*n];
 
@@ -132,18 +134,18 @@ void PointCloud::translate(const gmath::Vector3d &v)
   {
     for (int i=3*(n-1); i>=0; i-=3)
     {
-      vertex[i]+=t[0];
-      vertex[i+1]+=t[1];
-      vertex[i+2]+=t[2];
+      vertex[i]+=static_cast<float>(t[0]);
+      vertex[i+1]+=static_cast<float>(t[1]);
+      vertex[i+2]+=static_cast<float>(t[2]);
     }
 
     if (scanpos != 0)
     {
       for (int i=3*(n-1); i>=0; i-=3)
       {
-        scanpos[i]+=t[0];
-        scanpos[i+1]+=t[1];
-        scanpos[i+2]+=t[2];
+        scanpos[i]+=static_cast<float>(t[0]);
+        scanpos[i+1]+=static_cast<float>(t[1]);
+        scanpos[i+2]+=static_cast<float>(t[2]);
       }
     }
   }

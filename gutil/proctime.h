@@ -36,10 +36,67 @@
 #ifndef GUTIL_PROCTIME_H
 #define GUTIL_PROCTIME_H
 
+#ifdef WIN32
+#define NOMINMAX
+#include <Windows.h>
+#else
 #include <time.h>
+#endif
 
 namespace gutil
 {
+
+#ifdef WIN32
+
+class ProcTime
+{
+  private:
+
+    ULONGLONG tstart;
+    double total;
+
+  public:
+
+    ProcTime()
+    {
+      tstart=0;
+      total=0;
+    }
+
+    void start()
+    {
+      tstart=GetTickCount64();
+    }
+
+    void stop()
+    {
+      ULONGLONG tend=GetTickCount64();
+      total+=(tend-tstart)/1000.0;
+      tstart=tend;
+    }
+
+    void clear()
+    {
+      total=0;
+    }
+
+    double elapsed()
+    {
+      return total;
+    }
+
+    static double monotonic()
+    {
+      return GetTickCount64()/1000.0;
+    }
+
+    static double current()
+    {
+      return GetTickCount64()/1000.0;
+    }
+};
+
+#else
 
 class ProcTime
 {
@@ -100,6 +157,8 @@ class ProcTime
       return t.tv_sec+t.tv_nsec/1000000000.0;
     }
 };
+
+#endif
 
 }
 

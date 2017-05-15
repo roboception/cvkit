@@ -176,6 +176,13 @@ endif ()
 
 include(CPack)
 
+# export all DLL symbols if Visual studio is used for compilation and disable
+# some warnings
+
+if (MSVC)
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+  add_definitions("/wd4996")
+endif ()
 
 # set default build type to release
 
@@ -219,7 +226,7 @@ endif ()
 set(USE_CPP11 1 CACHE BOOL "Compile as C++11 (and use standard threads)")
 
 if (USE_CPP11)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DINCLUDE_CPP11")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif ()
 
 # - Optional pthread support -

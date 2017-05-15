@@ -149,16 +149,20 @@ void Histogram::visualize(ImageU8 &image) const
 
 void Histogram::convertToImage(ImageFloat &image) const
 {
-  float total=sumAll();
+  float total=static_cast<float>(sumAll());
 
   image.setSize(w, h, 1);
 
   if (total > 0)
+  {
     for (int k=0; k<h; k++)
+    {
       for (int i=0; i<w; i++)
       {
         image.set(i, k, 0, row[k][i]/total);
       }
+    }
+  }
 }
 
 }

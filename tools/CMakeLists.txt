@@ -41,12 +41,6 @@ set(libs
   gutil_static
 )
 
-# define external optional libraries
-
-if (CMAKE_COMPILER_IS_GNUCC AND WIN32)
-  set(libs ${libs} -static-libgcc -static-libstdc++)
-endif ()
-
 # build executables
 
 add_executable(imgcmd imgcmd.cc)

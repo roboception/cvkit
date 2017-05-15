@@ -38,6 +38,8 @@
 
 #include <gutil/version.h>
 
+#include <algorithm>
+
 #ifdef INCLUDE_PNG
 #include <png.h>
 #endif
