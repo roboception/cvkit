@@ -165,7 +165,7 @@ void gutil::getFileList(std::set<std::string> &list, const std::string &prefix,
 
   list.clear();
 
-  p=FindFirstFile((prefix+"*"+suffix).c_str(), &data);
+  p=FindFirstFileA((prefix+"*"+suffix).c_str(), &data);
 
   if (p != INVALID_HANDLE_VALUE)
   {
@@ -173,7 +173,7 @@ void gutil::getFileList(std::set<std::string> &list, const std::string &prefix,
     {
       list.insert(dir+data.cFileName);
     }
-    while (FindNextFile(p, &data));
+    while (FindNextFileA(p, &data));
 
     FindClose(p);
   }

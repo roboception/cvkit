@@ -285,7 +285,7 @@ void loadTiledHeader(const BasicImageIO &io, std::set<std::string> &list,
 
   gutil::getFileList(list, prefix, suffix);
 
-  if (list.empty() == 0)
+  if (list.empty())
   {
     throw gutil::IOException("There are no tiles: "+prefix+':'+suffix);
   }
