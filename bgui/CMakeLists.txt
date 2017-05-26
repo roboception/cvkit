@@ -92,6 +92,9 @@ if (INSTALL_DEVELOPMENT)
     target_link_libraries(bgui LINK_PRIVATE ${X11_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
   endif ()
 
-  install(TARGETS bgui_static bgui EXPORT CVKITTargets DESTINATION lib)
+  install(TARGETS bgui_static bgui EXPORT CVKITTargets
+          RUNTIME DESTINATION bin
+          LIBRARY DESTINATION lib
+          ARCHIVE DESTINATION lib)
   install(FILES ${bgui_hh} DESTINATION include/bgui)
 endif ()

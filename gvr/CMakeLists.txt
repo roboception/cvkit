@@ -133,7 +133,10 @@ if (INSTALL_DEVELOPMENT)
     endif ()
   endif ()
 
-  install(TARGETS gvr_static gvr EXPORT CVKITTargets DESTINATION lib)
+  install(TARGETS gvr_static gvr EXPORT CVKITTargets
+          RUNTIME DESTINATION bin
+          LIBRARY DESTINATION lib
+          ARCHIVE DESTINATION lib)
   install(FILES ${gvr_hh} DESTINATION include/gvr)
 endif ()
 

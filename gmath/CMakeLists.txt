@@ -74,6 +74,9 @@ if (INSTALL_DEVELOPMENT)
   add_library(gmath SHARED ${gmath_src})
   target_link_libraries(gmath LINK_PRIVATE gutil)
 
-  install(TARGETS gmath_static gmath EXPORT CVKITTargets DESTINATION lib)
+  install(TARGETS gmath_static gmath EXPORT CVKITTargets
+          RUNTIME DESTINATION bin
+          LIBRARY DESTINATION lib
+          ARCHIVE DESTINATION lib)
   install(FILES ${gmath_hh} DESTINATION include/gmath)
 endif ()

@@ -104,7 +104,10 @@ if (INSTALL_DEVELOPMENT)
     target_link_libraries(gimage LINK_PRIVATE ${GDAL_LIBRARIES})
   endif ()
 
-  install(TARGETS gimage gimage_static EXPORT CVKITTargets DESTINATION lib)
+  install(TARGETS gimage gimage_static EXPORT CVKITTargets
+          RUNTIME DESTINATION bin
+          LIBRARY DESTINATION lib
+          ARCHIVE DESTINATION lib)
   install(FILES ${gimage_hh} DESTINATION include/gimage)
 endif ()
 

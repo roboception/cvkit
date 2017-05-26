@@ -77,6 +77,9 @@ if (INSTALL_DEVELOPMENT)
     target_link_libraries(gutil LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT})
   endif ()
 
-  install(TARGETS gutil_static gutil EXPORT CVKITTargets DESTINATION lib)
+  install(TARGETS gutil_static gutil EXPORT CVKITTargets
+          RUNTIME DESTINATION bin
+          LIBRARY DESTINATION lib
+          ARCHIVE DESTINATION lib)
   install(FILES ${gutil_hh} DESTINATION include/gutil)
 endif ()
