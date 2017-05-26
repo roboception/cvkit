@@ -153,7 +153,7 @@ void gutil::getFileList(std::set<std::string> &list, const std::string &prefix,
   closedir(p);
 #elif defined(WIN32)
   std::string dir="";
-  size_t pos=prefix.find_last_of("\\");
+  size_t pos=prefix.find_last_of("/\\");
 
   if (pos < prefix.size())
   {
