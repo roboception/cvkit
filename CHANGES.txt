@@ -1,3 +1,16 @@
+Version 1.8.7 (2017-06-07)
+--------------------------
+
+- Permit '/' for searching files under Windows
+- Changed cmake so that dlls under windows are installed in bin instead of lib
+- Fixed bug regarding reading of tiled images
+- Changes and instructions for compilation under Visual Studio 2015
+
+Version 1.8.6 (2017-05-10)
+--------------------------
+
+- Fixing some compile problems using MSYS2 / MinGW64 under Windows
+
 Version 1.8.5 (2017-02-17)
 --------------------------
 
