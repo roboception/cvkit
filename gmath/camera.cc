@@ -200,7 +200,7 @@ PinholeCamera &PinholeCamera::operator = (const PinholeCamera &pc)
     A=pc.A;
     rho=pc.rho;
 
-    delete [] dist;
+    delete dist;
     dist=0;
 
     if (pc.dist != 0)
