@@ -39,6 +39,7 @@ set(gimage_src
   raw_io.cc
   analysis.cc
   view.cc
+  polygon.cc
 )
 
 set(gimage_hh
@@ -51,6 +52,7 @@ set(gimage_hh
   size.h
   view.h
   compare.h
+  polygon.h
 )
 
 if (USE_GDAL)
@@ -110,4 +112,3 @@ if (INSTALL_DEVELOPMENT)
           ARCHIVE DESTINATION lib)
   install(FILES ${gimage_hh} DESTINATION include/gimage)
 endif ()
-
