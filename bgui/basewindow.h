@@ -87,7 +87,7 @@ class BaseWindow
     virtual void onMouseMove(int x, int y, int state) { };
     virtual void onFileChanged(int watchid) { };
 
-    enum SpecialKey {k_none, k_esc, k_left, k_right, k_up, k_down};
+    enum SpecialKey {k_none, k_esc, k_left, k_right, k_up, k_down, k_home, k_end};
 
     virtual void onKey(char c, SpecialKey key, int x, int y) { };
 

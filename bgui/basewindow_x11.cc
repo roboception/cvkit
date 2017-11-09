@@ -351,6 +351,14 @@ bool handleX11Event(BaseWindowData *p, XEvent &event)
           case XK_Down:
             sk=BaseWindow::k_down;
             break;
+
+          case XK_Home:
+            sk=BaseWindow::k_home;
+            break;
+
+          case XK_End:
+            sk=BaseWindow::k_end;
+            break;
         }
 
         if (n == 0)

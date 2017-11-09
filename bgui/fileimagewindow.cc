@@ -424,6 +424,26 @@ void FileImageWindow::onKey(char c, SpecialKey key, int x, int y)
 {
   switch (key)
   {
+    case k_home: /* load first image */
+      if (current > 0)
+      {
+        current=0;
+        load(current, false);
+      }
+
+      setInfoLine("");
+      break;
+
+    case k_end: /* load last image */
+      if (list.size() > 0)
+      {
+        current=list.size()-1;
+        load(current, true);
+      }
+
+      setInfoLine("");
+      break;
+
     case k_left: /* load previous image */
       if (current > 0)
       {

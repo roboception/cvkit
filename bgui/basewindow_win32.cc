@@ -240,6 +240,14 @@ BaseWindow::SpecialKey getSpecialKey(WPARAM wparam)
       sk=BaseWindow::k_down;
       break;
 
+    case VK_HOME:
+      sk=BaseWindow::k_home;
+      break;
+
+    case VK_END:
+      sk=BaseWindow::k_end;
+      break;
+
     default:
       sk=BaseWindow::k_none;
       break;
