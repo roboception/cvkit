@@ -733,7 +733,7 @@ template<class T, class traits=PixelTraits<T> > class Image
      * Copy image content from and to an array. The array must have the size
      * getWidth()*getHeight()*getDepth(). Pixels are stored top down, line by
      * line from left to right. The values for all depth levels are stored
-     * sequentielly.
+     * sequentially.
      */
 
     void copyFrom(const store_t *p)

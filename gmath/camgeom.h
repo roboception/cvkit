@@ -539,7 +539,7 @@ inline bool reconstructInFront(const Matrix33d &R1, const Vector3d &T1,
 
 /**
    This function computes the reprojection error of a point that is
-   reconstructed by p0 and p1. The reprojection error in 4 dimensionsions is
+   reconstructed by p0 and p1. The reprojection error in 4 dimensions is
    given for a focal length of 1. The cameras are defined by the projection
    matrices [I|0] and [R1|T1].
 
