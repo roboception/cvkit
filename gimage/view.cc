@@ -86,6 +86,7 @@ void View::setCamera(const gmath::Camera *c)
 {
   if (c == 0)
   {
+    delete camera;
     camera=0;
     return;
   }
@@ -107,10 +108,12 @@ void View::setCamera(const gmath::Camera *c)
       assert(c->getHeight() == depth.getHeight());
     }
 
+    delete camera;
     camera=c->clone();
   }
   else
   {
+    delete camera;
     camera=c->clone();
 
     // set size of camera from images if neccessary
