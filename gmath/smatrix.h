@@ -343,8 +343,8 @@ template<class T, int n, int m, int u> inline SMatrix<T, n, m> operator*(const S
 }
 
 /**
- * Multiplication of a vector (which is implicitely transposed) with a matrix.
- * The resulting vector is implicitely transposed again, i.e. c'=a'*b
+ * Multiplication of a vector (which is implicitly transposed) with a matrix.
+ * The resulting vector is implicitly transposed again, i.e. c'=a'*b
  */
 
 template<class T, int nrows, int ncols> inline SVector<T, ncols> operator*

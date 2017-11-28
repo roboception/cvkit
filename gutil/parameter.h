@@ -63,7 +63,7 @@ class Parameter
      * validity of parameters. Format, line by line:
      *
      * -<param> Definition of a parameter
-     *  <arg>   Argunment that belongs to the previous parameter
+     *  <arg>   Argument that belongs to the previous parameter
      * <arg>    Free argument, i.e. without a parameter
      *          Empty means that this is only description
      *
