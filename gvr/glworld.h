@@ -36,11 +36,12 @@
 #ifndef GVR_GLWORLD_H
 #define GVR_GLWORLD_H
 
+#include <gutil/proctime.h>
+
 #include "glmain.h"
 #include "glcamera.h"
 
 #include <gmath/svector.h>
-#include <gutil/proctime.h>
 
 #include <vector>
 

@@ -43,8 +43,9 @@
 #ifdef __GNUC__
 #include <dirent.h>
 #elif defined(WIN32)
-#define NOMINMAX
 #include <Windows.h>
+#undef min
+#undef max
 #endif
 
 bool gutil::isMSBFirst()

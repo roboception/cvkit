@@ -38,14 +38,15 @@
 #include <gutil/exception.h>
 #include <gutil/misc.h>
 
-#define NOMINMAX
-
 #include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
 #include <cstdlib>
 #include <string>
 #include <algorithm>
+
+#undef min
+#undef max
 
 /*
   NOTE: In contrast to the X11 implementation of this classe, the event loop of the

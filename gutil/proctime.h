@@ -37,8 +37,9 @@
 #define GUTIL_PROCTIME_H
 
 #ifdef WIN32
-#define NOMINMAX
 #include <Windows.h>
+#undef min
+#undef max
 #else
 #include <time.h>
 #endif
