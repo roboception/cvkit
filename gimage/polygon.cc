@@ -103,8 +103,8 @@ void Polygon::scale(double s)
 {
   for (size_t i=0; i<vertex.size(); i++)
   {
-    vertex[i][0]*=s;
-    vertex[i][1]*=s;
+    vertex[i][0]=static_cast<long>(s*vertex[i][0]);
+    vertex[i][1]=static_cast<long>(s*vertex[i][1]);
   }
 }
 

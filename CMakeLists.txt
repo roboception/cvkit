@@ -181,6 +181,7 @@ include(CPack)
 
 if (MSVC)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+  add_definitions("/wd4251")
   add_definitions("/wd4996")
 endif ()
 

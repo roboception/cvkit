@@ -437,7 +437,7 @@ void FileImageWindow::onKey(char c, SpecialKey key, int x, int y)
     case k_end: /* load last image */
       if (list.size() > 0)
       {
-        current=list.size()-1;
+        current=static_cast<unsigned int>(list.size()-1);
         load(current, true);
       }
 
