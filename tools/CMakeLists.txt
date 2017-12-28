@@ -77,12 +77,8 @@ if (OPENGL_FOUND AND GLUT_FOUND AND GLEW_FOUND)
 endif ()
 
 if (WIN32)
-  if (USE_GDAL)
-    find_library(GDAL_DLL libgdal-1.dll)
-    
-    if (GDAL_DLL)
-      install(PROGRAMS ${GDAL_DLL} DESTINATION bin)
-    endif ()
+  if (INCLUDE_DLL)
+    install(PROGRAMS ${INCLUDE_DLL} DESTINATION bin)
   endif ()
 
   install(FILES ../README.txt ../USAGE.txt ../INSTALL.txt ../CHANGES.txt ../LICENSE.txt DESTINATION doc)

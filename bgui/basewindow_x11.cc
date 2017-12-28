@@ -53,8 +53,6 @@
 #include <stdint.h>
 #include <string>
 
-#include <gutil/proctime.h>
-
 namespace bgui
 {
 

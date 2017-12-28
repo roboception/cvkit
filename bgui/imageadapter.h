@@ -39,8 +39,6 @@
 #include "imageadapterbase.h"
 
 #include <gutil/exception.h>
-
-#include <gutil/proctime.h>
 #include <gimage/size.h>
 
 #include <cmath>

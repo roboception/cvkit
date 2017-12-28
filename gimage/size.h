@@ -39,8 +39,6 @@
 
 #include "image.h"
 
-#include <gutil/proctime.h>
-
 #include <vector>
 
 namespace gimage

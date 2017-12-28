@@ -579,7 +579,7 @@ void FileImageWindow::onKey(char c, SpecialKey key, int x, int y)
           out << " &";
 #endif
           std::cout << out.str() << std::endl;
-
+		  
           if (system(out.str().c_str()) == -1)
           {
             std::cout << "Failed!" << std::endl;

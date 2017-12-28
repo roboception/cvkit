@@ -34,8 +34,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "model.h"
 #include "glworld.h"
+#include "model.h"
 #include "globject.h"
 #include "glmisc.h"
 

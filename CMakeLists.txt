@@ -254,6 +254,16 @@ if (APPLE)
   add_definitions(-Wno-deprecated-declarations)
 endif ()
 
+# - Optional list of DLLs that are installed and included in package -
+
+if (WIN32)
+  add_definitions(-DWINVER=0x0600)
+  add_definitions(-D_WIN32_IE=0x0600)
+  add_definitions(-D_WIN32_WINNT=0x0600)
+  add_definitions(-DWIN32=1)
+  set(INCLUDE_DLL "" CACHE FILEPATH "List of DLLs to be installed and included in package")
+endif ()
+
 # build individual parts
 
 add_subdirectory(doc)

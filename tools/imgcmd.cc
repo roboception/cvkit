@@ -43,7 +43,6 @@
 #include <gimage/compare.h>
 
 #include <gutil/parameter.h>
-#include <gutil/proctime.h>
 #include <gutil/misc.h>
 #include <gutil/version.h>
 

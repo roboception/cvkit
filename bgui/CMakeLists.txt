@@ -69,8 +69,6 @@ if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
 endif ()
 
 if (WIN32)
-  add_definitions(-DWINVER=0x0500)
-  add_definitions(-D_WIN32_IE=0x0500)
   set(bgui_src ${bgui_src} basewindow_win32.cc)
 endif ()
 
