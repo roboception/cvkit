@@ -310,7 +310,7 @@ void loadView(View &view, const char *name, const char *spath, bool verbose)
 
     try
     {
-      getImageIO().load(image, imagename.c_str(), ds, x, y, w, h);
+      getImageIO().load(image, imagename.c_str(), 1, x, y, w, h);
       view.setImage(image);
     }
     catch (gutil::Exception &)
@@ -320,7 +320,7 @@ void loadView(View &view, const char *name, const char *spath, bool verbose)
       try
       {
         ImageU16 image2;
-        getImageIO().load(image2, imagename.c_str(), ds, x, y, w, h);
+        getImageIO().load(image2, imagename.c_str(), 1, x, y, w, h);
 
         double s=image2.maxValue()/255.0;
 
@@ -615,7 +615,8 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
 
           getImageIO().loadHeader(s.c_str(), w, h, d);
 
-          if (w == dw && h == dh)
+          int ds=(w+dw-1)/dw;
+          if ((w+ds-1)/ds == dw && (h+ds-1)/ds == dh)
           {
             if (verbose)
             {
@@ -724,7 +725,8 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
 
             getImageIO().loadHeader(s.c_str(), w, h, d);
 
-            if (w == dw && h == dh)
+            int ds=(w+dw-1)/dw;
+            if ((w+ds-1)/ds == dw && (h+ds-1)/ds == dh)
             {
               if (verbose)
               {

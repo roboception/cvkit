@@ -43,6 +43,7 @@
 #include "multitexturedmesh.h"
 
 #include <gimage/io.h>
+#include <gimage/size.h>
 #include <gimage/view.h>
 #include <gutil/misc.h>
 #include <gmath/linalg.h>
@@ -297,34 +298,49 @@ Model *loadDepth(const char *name, const char *spath, bool verbose)
   // create mesh
 
   Mesh *mesh=0;
-  const gimage::ImageU8 &image=view.getImage();
+  const gimage::ImageU8 *image=&view.getImage();
 
-  if (image.getWidth() > 0 && image.getHeight() > 0)
+  if (image->getWidth() > 0 && image->getHeight() > 0)
   {
     ColoredMesh *cmesh=new ColoredMesh();
     cmesh->resizeVertexList(n, true, true);
+
+    // resize image if required (i.e. its width and height to the depth image
+    // can be bigger by an integer factor)
+
+    gimage::ImageU8 dsimage;
+
+    {
+      int ds=(image->getWidth()+depth.getWidth()-1)/depth.getWidth();
+
+      if (ds > 1)
+      {
+        dsimage=gimage::downscaleImage(*image, ds);
+        image=&dsimage;
+      }
+    }
 
     // store colors
 
     n=0;
 
-    for (long k=0; k<image.getHeight(); k++)
+    for (long k=0; k<image->getHeight(); k++)
     {
-      for (long i=0; i<image.getWidth(); i++)
+      for (long i=0; i<image->getWidth(); i++)
       {
         if (depth.isValid(i, k))
         {
-          if (image.getDepth() == 3)
+          if (image->getDepth() == 3)
           {
-            cmesh->setColorComp(n, 0, image.get(i, k, 0));
-            cmesh->setColorComp(n, 1, image.get(i, k, 1));
-            cmesh->setColorComp(n, 2, image.get(i, k, 2));
+            cmesh->setColorComp(n, 0, image->get(i, k, 0));
+            cmesh->setColorComp(n, 1, image->get(i, k, 1));
+            cmesh->setColorComp(n, 2, image->get(i, k, 2));
           }
           else
           {
-            cmesh->setColorComp(n, 0, image.get(i, k, 0));
-            cmesh->setColorComp(n, 1, image.get(i, k, 0));
-            cmesh->setColorComp(n, 2, image.get(i, k, 0));
+            cmesh->setColorComp(n, 0, image->get(i, k, 0));
+            cmesh->setColorComp(n, 1, image->get(i, k, 0));
+            cmesh->setColorComp(n, 2, image->get(i, k, 0));
           }
 
           n++;

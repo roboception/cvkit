@@ -144,8 +144,10 @@ For finding parameter files, all prefixes are combined with the suffixes
 <prefix>_param.txt
 <prefix>_PARAM.TXT
 
-For finding texture images, the files must be readable images and of the
-same size as the disparity or height image. All files with all possible
+For finding texture images, the files must be readable images. The size must
+be the same than the size of the disparity or height image. It is also
+permitted that the texture image is by an integer factor bigger than the
+disparity or depth image. All files with all possible
 prefixes are tested, i.e.:
 
 <prefix>*
