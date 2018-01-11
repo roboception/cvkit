@@ -133,20 +133,42 @@ bool recoverEuler(const Matrix33d &R, double &ax, double &ay, double &az, bool t
 
     // for each possibility of ay there are two possibilities of ax
 
-    pos[0][0]=pos[1][0]=asin(-R(1, 2)/cos(pos[0][1]));
-    pos[2][0]=pos[3][0]=pi-pos[0][0];
+    if (std::abs(R(1, 2)/cos(pos[0][1])) <= 1 || std::abs(R(1, 2)/cos(pos[4][1])) <= 1)
+    {
+      pos[0][0]=pos[1][0]=asin(-R(1, 2)/cos(pos[0][1]));
+      pos[2][0]=pos[3][0]=pi-pos[0][0];
 
-    pos[4][0]=pos[5][0]=asin(-R(1, 2)/cos(pos[4][1]));
-    pos[6][0]=pos[7][0]=pi-pos[4][0];
+      pos[4][0]=pos[5][0]=asin(-R(1, 2)/cos(pos[4][1]));
+      pos[6][0]=pos[7][0]=pi-pos[4][0];
+    }
+    else
+    {
+      pos[0][0]=pos[1][0]=acos(R(2, 2)/cos(pos[0][1]));
+      pos[2][0]=pos[3][0]=pi-pos[0][0];
+
+      pos[4][0]=pos[5][0]=acos(R(2, 2)/cos(pos[4][1]));
+      pos[6][0]=pos[7][0]=pi-pos[4][0];
+    }
 
     // for each possibility of ay there are two possibilities of az as
     // well, which have to be combined with all possibilities of ax
 
-    pos[0][2]=pos[2][2]=asin(-R(0, 1)/cos(pos[0][1]));
-    pos[1][2]=pos[3][2]=pi-pos[0][2];
+    if (std::abs(R(0, 1)/cos(pos[0][1])) <= 1 || std::abs(R(0, 1)/cos(pos[4][1])) <= 1)
+    {
+      pos[0][2]=pos[2][2]=asin(-R(0, 1)/cos(pos[0][1]));
+      pos[1][2]=pos[3][2]=pi-pos[0][2];
 
-    pos[4][2]=pos[6][2]=asin(-R(0, 1)/cos(pos[4][1]));
-    pos[5][2]=pos[7][2]=pi-pos[4][2];
+      pos[4][2]=pos[6][2]=asin(-R(0, 1)/cos(pos[4][1]));
+      pos[5][2]=pos[7][2]=pi-pos[4][2];
+    }
+    else
+    {
+      pos[0][2]=pos[2][2]=acos(R(0, 0)/cos(pos[0][1]));
+      pos[1][2]=pos[3][2]=pi-pos[0][2];
+
+      pos[4][2]=pos[6][2]=acos(R(0, 0)/cos(pos[4][1]));
+      pos[5][2]=pos[7][2]=pi-pos[4][2];
+    }
 
     // check all 8 possible sets of angles with the remaining 6 equations
     // and use the set with the lowest error

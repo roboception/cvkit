@@ -38,6 +38,8 @@
 #include "minpack.h"
 #include "polynomial.h"
 
+#include "linalg.h"
+
 #include <limits>
 #include <cstring>
 
