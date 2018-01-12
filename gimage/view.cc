@@ -623,7 +623,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
               std::cout << "Found suitable image: " << s << std::endl;
             }
 
-            if (dd != 3)
+            if (dd == 0)
             {
               image=s;
               dd=d;
@@ -654,7 +654,6 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
     int  dd;
 
     getImageIO().loadHeader(depthname.c_str(), dw, dh, dd);
-
     dd=0;
 
     // go through list of prefixes
@@ -733,7 +732,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
                 std::cout << "Found suitable image: " << s << std::endl;
               }
 
-              if (dd != 3)
+              if (dd == 0)
               {
                 image=s;
                 dd=d;
