@@ -74,6 +74,12 @@ void split(std::vector<std::string> &list, const std::string &s, char delim=' ',
 void getFileList(std::set<std::string> &list, const std::string &prefix, const std::string &suffix);
 
 /**
+ * Forces given file to be synchronized to the device.
+ */
+
+bool syncFileByName(const char *name);
+
+/**
   Reads a std::string from the given input stream. If the std::string does not match the
   expected character sequence, then the failbit is set.
 */

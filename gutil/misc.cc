@@ -42,6 +42,9 @@
 
 #ifdef __GNUC__
 #include <dirent.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #elif defined(WIN32)
 #include <Windows.h>
 #undef min
@@ -182,6 +185,25 @@ void gutil::getFileList(std::set<std::string> &list, const std::string &prefix,
 #else
   assert(false);
 #endif
+}
+
+bool gutil::syncFileByName(const char *name)
+{
+  bool ret=false;
+#ifdef __GNUC__
+  int fd=open(name, O_RDONLY);
+  if (fd != -1)
+  {
+    if (fsync(fd) == 0)
+    {
+      ret=true;
+    }
+
+    close(fd);
+  }
+#endif
+
+  return ret;
 }
 
 bool gutil::skip(std::istream &in, const char *expected)
