@@ -1,12 +1,18 @@
+Version 1.9.2 (2018-02-28)
+--------------------------
+
+- Added function gutil::syncFileByName() for synchronizing files to their storage device
+- plyv does not prefer color images over monochrome images for texture any more
+
 Version 1.9.1 (2018-01-11)
----------------------------
+--------------------------
 
 - plyv now accepts texture images that are by an integer factor bigger than the
   corresponding disparity images
 - Fixed gmath::recoverEuler() that failed for some rotation matrices
 
 Version 1.9.0 (2017-12-28)
----------------------------
+--------------------------
 
 - Fixed some compile problems with MinGW64 and Visual Studio under Windows
 
