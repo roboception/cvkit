@@ -1132,8 +1132,102 @@ void BaseWindow::showBuffer()
 
   if (p->running)
   {
-    XPutImage(p->display, p->window, p->gc, p->image, 0, 0, 0, 0, p->w, p->h);
-    drawInfoText(p);
+    if (p->text.size() > 0)
+    {
+      // if text is displayed then draw whole image around text
+
+      std::vector<std::string> list;
+      gutil::split(list, p->text, '\n', false);
+
+      int x=0, y=0;
+      int w=0, h=0;
+
+      for (size_t i=0; i<list.size(); i++)
+      {
+        if (list[i].size() > 0)
+        {
+          w=std::max(w, XTextWidth(p->font, list[i].c_str(), list[i].size()));
+        }
+
+        h+=p->font->ascent+p->font->descent;
+      }
+
+      if (p->w > w)
+      {
+        x+=(p->w-w)/2;
+      }
+
+      if (p->h > h)
+      {
+        y+=(p->h-h)/2;
+      }
+
+      if (y > 0 && p->h > y+h)
+      {
+        XPutImage(p->display, p->window, p->gc, p->image, 0, 0, 0, 0, p->w, y);
+        XPutImage(p->display, p->window, p->gc, p->image, 0, y+h, 0, y+h, p->w, p->h-y-h);
+      }
+
+      if (x > 0 && p->w > x+w)
+      {
+        XPutImage(p->display, p->window, p->gc, p->image, 0, y, 0, y, x, h);
+        XPutImage(p->display, p->window, p->gc, p->image, x+w, y, x+w, y, p->w-x-w, h);
+      }
+
+      // draw text
+
+      drawInfoText(p);
+    }
+    else if (p->info.size() > 0)
+    {
+      // if info line is displayed then draw whole image except line
+
+      int w=XTextWidth(p->font, p->info.c_str(), p->info.size());
+      int h=p->font->ascent+p->font->descent;
+
+      if (p->top)
+      {
+        if (p->w > w)
+        {
+          if (p->left)
+          {
+            XPutImage(p->display, p->window, p->gc, p->image, w, 0, w, 0, p->w-w, h);
+          }
+          else
+          {
+            XPutImage(p->display, p->window, p->gc, p->image, 0, 0, 0, 0, p->w-w, h);
+          }
+        }
+
+        XPutImage(p->display, p->window, p->gc, p->image, 0, h, 0, h, p->w, p->h-h);
+      }
+      else
+      {
+        if (p->w > w)
+        {
+          if (p->left)
+          {
+            XPutImage(p->display, p->window, p->gc, p->image, w, p->h-h, w, p->h-h, p->w-w, h);
+          }
+          else
+          {
+            XPutImage(p->display, p->window, p->gc, p->image, 0, p->h-h, 0, p->h-h, p->w-w, h);
+          }
+        }
+
+        XPutImage(p->display, p->window, p->gc, p->image, 0, 0, 0, 0, p->w, p->h-h);
+      }
+
+      // draw info line
+
+      drawInfoText(p);
+    }
+    else
+    {
+      // draw whole image
+
+      XPutImage(p->display, p->window, p->gc, p->image, 0, 0, 0, 0, p->w, p->h);
+    }
   }
 
   pthread_mutex_unlock(&(p->mutex));
