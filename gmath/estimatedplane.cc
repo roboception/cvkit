@@ -67,7 +67,7 @@ void EstimatedPlane::add(double x, double y, double z)
   a=std::numeric_limits<double>::infinity();
 }
 
-double EstimatedPlane::getNormal(Vector3d N)
+double EstimatedPlane::getNormal(Vector3d &N)
 {
   if (!std::isfinite(a))
   {

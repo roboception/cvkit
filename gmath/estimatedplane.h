@@ -92,7 +92,7 @@ class EstimatedPlane
       @return  Distance of the plane from the origin.
     */
 
-    double getNormal(Vector3d N);
+    double getNormal(Vector3d &N);
 
     /**
       Returns the Z value of the plane at the coordinate x and y.
