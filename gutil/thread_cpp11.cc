@@ -86,6 +86,7 @@ void Thread::join()
   if (p != 0)
   {
     reinterpret_cast<std::thread *>(p)->join();
+    delete reinterpret_cast<std::thread *>(p);
     p=0;
   }
 }
