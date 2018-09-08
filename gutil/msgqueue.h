@@ -99,32 +99,8 @@ template <class T> class MsgQueue
     }
 
     /**
-      Add a message to the queue. If the queue has reached the maximum message
-      count, then this method removes the oldest message. Thus this method
-      never blocks.
-
-      @param msg Message to be added to the queue.
-    */
-
-    void push_replace(const T &msg)
-    {
-      Lock lock(mutex);
-
-      if (queue.size() >= nmax)
-      {
-        queue.pop();
-        queue.push(msg);
-      }
-      else
-      {
-        queue.push(msg);
-        full.increment();
-      }
-    }
-
-    /**
       Removes a message from the queue. If the queue is empty, then this method
-      blocks until push() or push_replace() has been called.
+      blocks until push() has been called.
 
       @return Message.
     */
@@ -142,6 +118,82 @@ template <class T> class MsgQueue
       }
 
       empty.increment();
+
+      return ret;
+    }
+};
+
+/**
+  Threadsafe implementation of a queue with replace, i.e. push never blocks,
+  that can be used for inter-thread communication in a producer consumer
+  schema.
+*/
+
+template <class T> class MsgQueueReplace
+{
+  private:
+
+    int           nmax;
+    std::queue<T> queue;
+    Semaphore     mutex;
+    Semaphore     full;
+
+  public:
+
+    /**
+      Initialization of a message queue.
+
+      @param _nmax Maximum number of messages.
+    */
+
+    MsgQueueReplace(int _nmax)
+    {
+      nmax=std::max(1, _nmax);
+      mutex.increment();
+    }
+
+    /**
+      Add a message to the queue. If the queue has reached the maximum message
+      count, then this method removes the oldest message. Thus this method
+      never blocks.
+
+      @param msg Message to be added to the queue.
+    */
+
+    void push(const T &msg)
+    {
+      Lock lock(mutex);
+
+      if (queue.size() >= nmax)
+      {
+        queue.pop();
+        queue.push(msg);
+      }
+      else
+      {
+        queue.push(msg);
+        full.increment();
+      }
+    }
+
+    /**
+      Removes a message from the queue. If the queue is empty, then this method
+      blocks until push() has been called.
+
+      @return Message.
+    */
+
+    T pop()
+    {
+      T ret;
+
+      full.decrement();
+
+      {
+        Lock lock(mutex);
+        ret=queue.front();
+        queue.pop();
+      }
 
       return ret;
     }
