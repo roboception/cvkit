@@ -1,3 +1,8 @@
+Version 1.9.6 (2018-09-14)
+--------------------------
+
+- Ensure that threads are joined in between if create is called more than once
+
 Version 1.9.5 (2018-09-08)
 --------------------------
 
