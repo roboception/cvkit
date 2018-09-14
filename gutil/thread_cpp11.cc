@@ -67,7 +67,7 @@ Thread::~Thread()
 
 void Thread::create(ThreadFunction &fct)
 {
-  assert(p == 0);
+  join();
 
   p=reinterpret_cast<ThreadData *>(new std::thread(&ThreadFunction::run, &fct));
 }
@@ -75,7 +75,7 @@ void Thread::create(ThreadFunction &fct)
 void Thread::create(ParallelFunction &fct, long start, long end, long step,
                     int affinity)
 {
-  assert(p == 0);
+  join();
 
   p=reinterpret_cast<ThreadData *>(new std::thread(&ParallelFunction::run, &fct,
                                    start, end, step));

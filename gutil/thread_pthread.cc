@@ -104,7 +104,12 @@ Thread::~Thread()
 
 void Thread::create(ThreadFunction &fct)
 {
-  assert(!p->running);
+  if (p->running)
+  {
+    pthread_cancel(p->thread);
+    pthread_join(p->thread, 0);
+    p->running=false;
+  }
 
   pthread_attr_t attr;
   pthread_attr_init(&attr);
@@ -130,7 +135,12 @@ void Thread::create(ThreadFunction &fct)
 void Thread::create(ParallelFunction &fct, long start, long end, long step,
                     int affinity)
 {
-  assert(!p->running);
+  if (p->running)
+  {
+    pthread_cancel(p->thread);
+    pthread_join(p->thread, 0);
+    p->running=false;
+  }
 
   pthread_attr_t attr;
   pthread_attr_init(&attr);
