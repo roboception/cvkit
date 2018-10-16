@@ -116,8 +116,8 @@ void loadViewProperties(gutil::Properties &prop, const char *name, const char *s
   Extracts the image name from the given name or searches a suitable image.
 */
 
-void getViewImageName(std::string &image, const char *name, const char *spath=0,
-                      bool verbose=false);
+int getViewImageName(std::string &image, const char *name, const char *spath=0,
+                     bool verbose=false);
 
 }
 

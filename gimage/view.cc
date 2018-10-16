@@ -302,7 +302,9 @@ void loadView(View &view, const char *name, const char *spath, bool verbose)
   // load image
 
   std::string imagename;
-  getViewImageName(imagename, name, spath, verbose);
+  int scale=getViewImageName(imagename, name, spath, verbose);
+
+  scale*=ds;
 
   if (imagename.size() > 0)
   {
@@ -310,7 +312,7 @@ void loadView(View &view, const char *name, const char *spath, bool verbose)
 
     try
     {
-      getImageIO().load(image, imagename.c_str(), 1, x, y, w, h);
+      getImageIO().load(image, imagename.c_str(), 1, x*scale, y*scale, w*scale, h*scale);
       view.setImage(image);
     }
     catch (gutil::Exception &)
@@ -320,7 +322,7 @@ void loadView(View &view, const char *name, const char *spath, bool verbose)
       try
       {
         ImageU16 image2;
-        getImageIO().load(image2, imagename.c_str(), 1, x, y, w, h);
+        getImageIO().load(image2, imagename.c_str(), 1, x*scale, y*scale, w*scale, h*scale);
 
         double s=image2.maxValue()/255.0;
 
@@ -543,9 +545,11 @@ void loadViewProperties(gutil::Properties &prop, const char *name, const char *s
   }
 }
 
-void getViewImageName(std::string &image, const char *name, const char *spath,
-                      bool verbose)
+int getViewImageName(std::string &image, const char *name, const char *spath,
+                     bool verbose)
 {
+  int ret=0;
+
   std::vector<std::string> list;
 
   // get image name from specification
@@ -600,7 +604,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
       { }
 
       // check list of files for images with the same size as the depth
-      // image and prefer color images
+      // image
 
       for (std::set<std::string>::iterator it=flist.begin(); it!=flist.end(); ++it)
       {
@@ -627,6 +631,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
             {
               image=s;
               dd=d;
+              ret=ds;
             }
           }
         }
@@ -736,6 +741,7 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
               {
                 image=s;
                 dd=d;
+                ret=ds;
               }
             }
           }
@@ -757,6 +763,8 @@ void getViewImageName(std::string &image, const char *name, const char *spath,
       std::cout << "No texture image found" << std::endl;
     }
   }
+
+  return ret;
 }
 
 }
