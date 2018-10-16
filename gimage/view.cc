@@ -39,6 +39,8 @@
 
 #include <gutil/misc.h>
 
+#include <algorithm>
+#include <string>
 #include <iostream>
 
 namespace gimage
@@ -545,14 +547,49 @@ void loadViewProperties(gutil::Properties &prop, const char *name, const char *s
   }
 }
 
+namespace
+{
+
+// Return rating of given string as (part of) name of image that can be
+// used as texture for corresponing disparity image.
+
+int getTextureNameRating(std::string name)
+{
+  // convert to lower case
+
+  std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+  // check for keyword in name
+
+  const char *list[]={"intensity", "img", "image", "mono", "color", "rgb", "left", 0};
+
+  int rating=0;
+
+  int i=0;
+  while (list[i] != 0)
+  {
+    if (name.find(list[i]) != name.npos)
+    {
+      rating=i+1;
+    }
+
+    i++;
+  }
+
+  return rating;
+}
+
+}
+
 int getViewImageName(std::string &image, const char *name, const char *spath,
                      bool verbose)
 {
+  int rating=-1;
   int ret=0;
 
-  std::vector<std::string> list;
-
   // get image name from specification
+
+  std::vector<std::string> list;
 
   gutil::split(list, name, ',');
 
@@ -590,7 +627,6 @@ int getViewImageName(std::string &image, const char *name, const char *spath,
       int  dd;
 
       getImageIO().loadHeader(depthname.c_str(), dw, dh, dd);
-      dd=0;
 
       // get list of all files with that prefix
 
@@ -666,7 +702,7 @@ int getViewImageName(std::string &image, const char *name, const char *spath,
     list.clear();
     getPrefixAlternatives(list, depthname, spath);
 
-    for (size_t i=0; i<list.size(); i++)
+    for (size_t i=0; i<list.size() && image.size() == 0; i++)
     {
       // get list of all files with that prefix
 
@@ -737,10 +773,11 @@ int getViewImageName(std::string &image, const char *name, const char *spath,
                 std::cout << "Found suitable image: " << s << std::endl;
               }
 
-              if (dd == 0)
+              int r=getTextureNameRating(s.substr(list[i].size()));
+              if (r > rating)
               {
                 image=s;
-                dd=d;
+                rating=r;
                 ret=ds;
               }
             }
