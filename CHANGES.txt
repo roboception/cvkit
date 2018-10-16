@@ -1,3 +1,9 @@
+Version 1.9.8 (2018-10-16)
+--------------------------
+
+- Fixed wrong scaling of texture in some cases when plyv is called from sv via 'p' key
+- Added heuristic for finding the correct texture image that corresponds to the disparity image
+
 Version 1.9.7 (2018-10-15)
 --------------------------
 
