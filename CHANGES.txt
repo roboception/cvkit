@@ -1,3 +1,8 @@
+Version 1.9.7 (2018-10-15)
+--------------------------
+
+- Disabled syncFileByName() function under MinGW since fsync is not available
+
 Version 1.9.6 (2018-09-14)
 --------------------------
 
