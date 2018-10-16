@@ -190,7 +190,7 @@ void gutil::getFileList(std::set<std::string> &list, const std::string &prefix,
 bool gutil::syncFileByName(const char *name)
 {
   bool ret=false;
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__MINGW32__) 
   int fd=open(name, O_RDONLY);
   if (fd != -1)
   {
