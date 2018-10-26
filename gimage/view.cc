@@ -600,6 +600,7 @@ int getViewImageName(std::string &image, const char *name, const char *spath,
     if (list[i].compare(0, 2, "i=") == 0)
     {
       image=list[i].substr(2);
+      ret=1;
     }
   }
 
