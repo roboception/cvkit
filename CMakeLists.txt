@@ -163,15 +163,11 @@ else (WIN32)
 
   set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
 
-  # Generate postinst, postrm hooks which call ldconfig
-  set(POSTINST_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/postinst")
-  set(POSTRM_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/postrm")
-  file(WRITE "${POSTINST_SCRIPT}" "#!/bin/sh\n\nset -e\n")
-  file(WRITE "${POSTRM_SCRIPT}" "#!/bin/sh\n\nset -e\n")
-  file(APPEND "${POSTINST_SCRIPT}" "if [ \"$1\" = \"configure\" ]; then\n        ldconfig\nfi\n")
-  file(APPEND "${POSTRM_SCRIPT}" "if [ \"$1\" = \"remove\" ]; then\n        ldconfig\nfi\n")
-  execute_process(COMMAND chmod 755 "${POSTINST_SCRIPT}" "${POSTRM_SCRIPT}")
-  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${POSTINST_SCRIPT};${POSTRM_SCRIPT}")
+  # Generate trigger file for ldconfig
+  set(TRIGGERS_FILE "${CMAKE_CURRENT_BINARY_DIR}/triggers")
+  file(WRITE "${TRIGGERS_FILE}" "activate-noawait ldconfig\n")
+  execute_process(COMMAND chmod 644 "${TRIGGERS_FILE}")
+  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${TRIGGERS_FILE}")
 endif ()
 
 include(CPack)
