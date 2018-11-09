@@ -1,83 +1,87 @@
+before_script:
+  - export DISTRO_CODENAME=`lsb_release -cs` && echo Using distro $DISTRO_CODENAME
+
+#########################
+# Templates using anchors
+#########################
+.amd64_trusty_t: &amd64_trusty_job
+  image: registry.roboception.de/tools/docker_images:buildimage
+  tags:
+    - amd64
+    - docker
+
+.armhf_trusty_t: &armhf_trusty_job
+  image: registry.roboception.de/tools/docker_images:armhf-buildimage
+  tags:
+    - armhf
+    - docker
+
+.amd64_xenial_t: &amd64_xenial_job
+  image: registry.roboception.de/tools/docker_images:xenial-buildimage
+  tags:
+    - amd64
+    - docker
+
+.armhf_xenial_t: &armhf_xenial_job
+  image: registry.roboception.de/tools/docker_images:armhf-xenial-buildimage
+  tags:
+    - armhf
+    - docker
+
+.amd64_bionic_t: &amd64_bionic_job
+  image: registry.roboception.de/tools/docker_images:bionic-buildimage
+  tags:
+    - amd64
+    - docker
+
 #############
 # Templates
 #############
-
-.amd64_template: &amd64_job   # Hidden job that defines an anchor named 'amd64_job'
-  image: registry.roboception.de/tools/docker_images:buildimage
-  variables:
-    DISTRO_CODENAME: trusty
-  tags:
-    - amd64
-    - docker
-
-.armhf_template: &armhf_job   # Hidden job that defines an anchor named 'armhf_job'
-  image: registry.roboception.de/tools/docker_images:armhf-buildimage
-  variables:
-    DISTRO_CODENAME: trusty
-  tags:
-    - armhf
-    - docker
-
-.amd64_xenial_template: &amd64_xenial_job
-  image: registry.roboception.de/tools/docker_images:xenial-buildimage
-  variables:
-    DISTRO_CODENAME: xenial
-  tags:
-    - amd64
-    - docker
-
-.armhf_xenial_template: &armhf_xenial_job
-  image: registry.roboception.de/tools/docker_images:armhf-xenial-buildimage
-  variables:
-    DISTRO_CODENAME: xenial
-  tags:
-    - armhf
-    - docker
-
-.build_t: &build
-  stage: build
+.test:
+  stage: test
   script:
-    - mkdir build
-    - cd build
+    - mkdir build && cd build
     - cmake ..
     - make -j 4
+    - CTEST_OUTPUT_ON_FAILURE=1 make test
 
-.package_testing_t: &package_testing
+# Debian packaging
+.package:
   stage: deploy
   script:
-    - mkdir build
-    - cd build
+    - mkdir build && cd build
     - cmake ..
     - make -j 4
     - make package
-    - upload_deb.sh $DISTRO_CODENAME-testing *.deb
+    - if [ -z "$APT_REPO" ]; then export APT_REPO=testing; fi
+    - upload_deb.sh $DISTRO_CODENAME-$APT_REPO *.deb
+
+.package_testing:
+  extends: .package
   only:
     - master
+  variables:
+    TESTING_DEBS: "true"
+    APT_REPO: "testing"
 
-.package_stable_t: &package_stable
-  stage: deploy
-  script:
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make -j 4
-    - make package
-    - upload_deb.sh $DISTRO_CODENAME-stable *.deb
+.package_stable:
+  extends: .package
   only:
-    - /^v[0-9.]+$/
+    - /^v[0-9]+\.[0-9]+\.[0-9]+/
   except:
     - branches
+  variables:
+    APT_REPO: "stable"
 
 ##############
-# Jobs
+#### Jobs ####
 ##############
 gen_dox:
-  <<: *amd64_job
+  <<: *amd64_trusty_job
   stage: deploy
   script:
     - apt-get update -yq && apt-get install -y doxygen ncftp
-    - mkdir build
-    - cd build
+    - mkdir build && cd build
     - cmake ..
     - make doc
     - upload_dox.sh doc/html
@@ -87,50 +91,76 @@ gen_dox:
   tags:
     - docs
 
-build_amd64:
-  <<: *amd64_job
-  <<: *build
+################
+# Testing builds
+################
 
-build_armhf:
-  <<: *armhf_job
-  <<: *build
+# Test (on every commit)
+########################
+test:trusty:amd64:
+  <<: *amd64_trusty_job
+  extends: .test
 
-build_xenial_amd64:
+test:trusty:armhf:
+  <<: *armhf_trusty_job
+  extends: .test
+
+test:xenial:amd64:
   <<: *amd64_xenial_job
-  <<: *build
+  extends: .test
 
-build_xenial_armhf:
+test:xenial:armhf:
   <<: *armhf_xenial_job
-  <<: *build
+  extends: .test
 
-package_testing_amd64:
-  <<: *amd64_job
-  <<: *package_testing
+test:bionic:amd64:
+  <<: *amd64_bionic_job
+  extends: .test
 
-package_stable_amd64:
-  <<: *amd64_job
-  <<: *package_stable
+# Deploy testing (only on master)
+#################################
+package_testing:trusty:amd64:
+  <<: *amd64_trusty_job
+  extends: .package_testing
 
-package_testing_armhf:
-  <<: *armhf_job
-  <<: *package_testing
+package_testing:trusty:armhf:
+  <<: *armhf_trusty_job
+  extends: .package_testing
 
-package_stable_armhf:
-  <<: *armhf_job
-  <<: *package_stable
-
-package_xenial_testing_amd64:
+package_testing:xenial:amd64:
   <<: *amd64_xenial_job
-  <<: *package_testing
+  extends: .package_testing
 
-package_xenial_stable_amd64:
+package_testing:xenial:armhf:
+  <<: *armhf_xenial_job
+  extends: .package_testing
+
+package_testing:bionic:amd64:
+  <<: *amd64_bionic_job
+  extends: .package_testing
+
+################
+# Stable builds
+################
+
+# Deploy stable (only for releases, version tags)
+#################################################
+package_stable:trusty:amd64:
+  <<: *amd64_trusty_job
+  extends: .package_stable
+
+package_stable:trusty:armhf:
+  <<: *armhf_trusty_job
+  extends: .package_stable
+
+package_stable:xenial:amd64:
   <<: *amd64_xenial_job
-  <<: *package_stable
+  extends: .package_stable
 
-package_xenial_testing_armhf:
+package_stable:xenial:armhf:
   <<: *armhf_xenial_job
-  <<: *package_testing
+  extends: .package_stable
 
-package_xenial_stable_armhf:
-  <<: *armhf_xenial_job
-  <<: *package_stable
+package_stable:bionic:amd64:
+  <<: *amd64_bionic_job
+  extends: .package_stable
