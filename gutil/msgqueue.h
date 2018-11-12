@@ -164,7 +164,7 @@ template <class T> class MsgQueueReplace
     {
       Lock lock(mutex);
 
-      if (queue.size() >= nmax)
+      if (queue.size() >= static_cast<size_t>(nmax))
       {
         queue.pop();
         queue.push(msg);
