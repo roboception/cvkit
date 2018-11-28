@@ -1,6 +1,9 @@
 before_script:
   - export DISTRO_CODENAME=`lsb_release -cs` && echo Using distro $DISTRO_CODENAME
 
+variables:
+  GET_SOURCES_ATTEMPTS: 3
+
 #########################
 # Templates using anchors
 #########################
