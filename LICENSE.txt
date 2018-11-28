@@ -2,7 +2,7 @@ Computer Vision Toolkit (cvkit)
 
 Author: Heiko Hirschmueller
 
-Copyright (c) 2016, 2017 Roboception GmbH
+Copyright (c) 2016, 2017, 2018 Roboception GmbH
 Copyright (c) 2014, 2015 Institute of Robotics and Mechatronics, German Aerospace Center
 All rights reserved.
 
