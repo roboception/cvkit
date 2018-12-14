@@ -177,6 +177,39 @@ template <class T> class MsgQueueReplace
     }
 
     /**
+      Add a message to the queue. If the queue has reached the maximum message
+      count, then this method removes the oldest message and returns it. Thus
+      this method never blocks.
+
+      @param msg Message to be added to the queue.
+      @param old Message that was removed from the queue. This is left
+                 untouched if no message was returned.
+      @return    True if an old message was removed.
+    */
+
+    bool push(const T &msg, T &old)
+    {
+      Lock lock(mutex);
+
+      bool ret=false;
+
+      if (queue.size() >= static_cast<size_t>(nmax))
+      {
+        old=queue.front();
+        queue.pop();
+        queue.push(msg);
+        ret=true;
+      }
+      else
+      {
+        queue.push(msg);
+        full.increment();
+      }
+
+      return ret;
+    }
+
+    /**
       Removes a message from the queue. If the queue is empty, then this method
       blocks until push() has been called.
 
