@@ -91,6 +91,9 @@ class GLWorld : public GLListener
     GLWorld(int w, int h);
     virtual ~GLWorld();
 
+    void setInfoText(const std::string &s) { infotext=s; }
+    void setInfoLine(const std::string &s) { infoline=s; }
+
     void setCapturePrefix(const char *p) { prefix=std::string(p); }
 
     const gmath::Vector3d &getOffset() const { return offset; }
@@ -102,11 +105,11 @@ class GLWorld : public GLListener
 
     void resetCamera();
 
-    void onRedraw();
-    void onReshape(int w, int h);
-    void onKey(unsigned char key, int x, int y);
-    void onMouseButton(int button, int state, int x, int y);
-    void onMouseMove(int x, int y);
+    virtual void onRedraw();
+    virtual void onReshape(int w, int h);
+    virtual void onKey(unsigned char key, int x, int y);
+    virtual void onMouseButton(int button, int state, int x, int y);
+    virtual void onMouseMove(int x, int y);
 };
 
 }
