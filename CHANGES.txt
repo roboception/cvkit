@@ -1,3 +1,10 @@
+Version 1.9.12 (2018-12-14)
+---------------------------
+
+- Added method for getting the replaced element from MsgQueueReplace::push()
+- Added possibility to set info line and text from sub-class of GLWorld
+- Added wrapper functions for redisplaying GL window and registration of GL timer function
+
 Version 1.9.11 (2018-11-28)
 ---------------------------
 
