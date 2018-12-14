@@ -84,6 +84,16 @@ void GLInitWindow(int x, int y, int w, int h, const char *title)
   glEnable(GL_CULL_FACE);
 }
 
+void GLRedisplay()
+{
+  glutPostRedisplay();
+}
+
+void GLTimerFunc(unsigned int milliseconds, void (*fct)(int value), int value)
+{
+  glutTimerFunc(milliseconds, fct, value);
+}
+
 namespace
 {
 

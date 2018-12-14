@@ -65,6 +65,19 @@ void GLInit(int &argc, char **argv);
 void GLInitWindow(int x, int y, int w, int h, const char *title);
 
 /**
+ * Mark window for redisplay.
+ */
+
+void GLRedisplay();
+
+/**
+ * Register a callback that is called (once) in the given amount of
+ * milliseconds.
+ */
+
+void GLTimerFunc(unsigned int milliseconds, void (*fct)(int value), int value);
+
+/**
  * Setting the Listener for the event callbacks and enter the GLUT main loop.
  * This function will never return!
  */
