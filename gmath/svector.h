@@ -126,7 +126,7 @@ template<class T, int n> class SVector
     {
       for (int i=0; i<n; i++)
       {
-        v[i]=a[i];
+        v[i]=static_cast<T>(a[i]);
       }
     }
 

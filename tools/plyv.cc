@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
             {
               camlist.loadCamera((dir+"calib.txt").c_str());
             }
-            catch (const gutil::IOException &ex)
+            catch (const gutil::IOException &)
             { }
           }
         }
