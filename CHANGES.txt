@@ -1,3 +1,9 @@
+Version 1.9.13 (2018-01-08)
+---------------------------
+
+- Added possibility to wrap existing image data with gimage::Image object
+- Minor fixes for compiling with Visual Studio under Windows
+
 Version 1.9.12 (2018-12-14)
 ---------------------------
 
