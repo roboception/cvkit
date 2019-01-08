@@ -38,6 +38,7 @@
 #define GIMAGE_IMAGE_H
 
 #include <gutil/fixedint.h>
+#include <gutil/exception.h>
 
 #include <limits>
 #include <algorithm>
@@ -170,9 +171,55 @@ template<class T, class traits=PixelTraits<T> > class Image
       memcpy(pixel, a.pixel, n*sizeof(T));
     }
 
+    /**
+      Creation of an image object as wrapper around existing pixel data. A
+      pixel at row k and column i of depth layer j is supposed to be at
+      p[j*w*h+k*w+i]. The given pointer is used and must be valid for the
+      lifetime of this object.
+    */
+
+    Image(long w, long h, long d, T *p)
+    {
+      depth=d;
+      width=w;
+      height=h;
+      n=-width*height*depth; // negative n means managing foreign memory
+
+      pixel=0;
+      row=0;
+      img=0;
+
+      if (n < 0)
+      {
+        long m=height*depth;
+
+        pixel=p;
+        row=new T*[m];
+        img=new T **[depth];
+
+        row[0]=pixel;
+
+        for (long k=1; k<m; k++)
+        {
+          row[k]=row[k-1]+width;
+        }
+
+        img[0]=row;
+
+        for (int j=1; j<depth; j++)
+        {
+          img[j]=img[j-1]+height;
+        }
+      }
+    }
+
     ~Image()
     {
-      delete [] pixel;
+      if (n >= 0)
+      {
+        delete [] pixel;
+      }
+
       delete [] row;
       delete [] img;
     }
@@ -181,6 +228,11 @@ template<class T, class traits=PixelTraits<T> > class Image
     {
       if (width != w || height != h || depth != d)
       {
+        if (n < 0)
+        {
+          throw gutil::InvalidArgumentException("Cannot change size, because image is used as a wrapper");
+        }
+
         if (pixel != 0)
         {
           delete [] pixel;
@@ -234,14 +286,15 @@ template<class T, class traits=PixelTraits<T> > class Image
     {
       setSize(a.getWidth(), a.getHeight(), a.getDepth());
 
-      memcpy(pixel, a.pixel, n*sizeof(T));
+      memcpy(pixel, a.pixel, std::abs(n)*sizeof(T));
 
       return *this;
     }
 
     Image<T> &operator=(store_t v)
     {
-      for (long i=0; i<n; i++)
+      long pn=std::abs(n);
+      for (long i=0; i<pn; i++)
       {
         pixel[i]=v;
       }
@@ -255,11 +308,12 @@ template<class T, class traits=PixelTraits<T> > class Image
 
       if (inv == 0)
       {
-        memset(pixel, 0, n*sizeof(T));
+        memset(pixel, 0, std::abs(n)*sizeof(T));
       }
       else
       {
-        for (long i=0; i<n; i++)
+        long pn=std::abs(n);
+        for (long i=0; i<pn; i++)
         {
           pixel[i]=inv;
         }
@@ -313,7 +367,8 @@ template<class T, class traits=PixelTraits<T> > class Image
     {
       store_t inv=ptraits::limit(ptraits::invalid());
 
-      for (long i=0; i<n; i++)
+      long pn=std::abs(n);
+      for (long i=0; i<pn; i++)
       {
         if (pixel[i] != inv)
         {
@@ -658,7 +713,8 @@ template<class T, class traits=PixelTraits<T> > class Image
     {
       work_t ret=ptraits::maxValue();
 
-      for (long i=0; i<n; i++)
+      long pn=std::abs(n);
+      for (long i=0; i<pn; i++)
       {
         if (isValidS(pixel[i]))
         {
@@ -673,7 +729,8 @@ template<class T, class traits=PixelTraits<T> > class Image
     {
       work_t ret=ptraits::minValue();
 
-      for (long i=0; i<n; i++)
+      long pn=std::abs(n);
+      for (long i=0; i<pn; i++)
       {
         if (isValidS(pixel[i]))
         {
@@ -721,7 +778,7 @@ template<class T, class traits=PixelTraits<T> > class Image
     void setImage(const Image<T> &a)
     {
       setSize(a.getWidth(), a.getHeight(), a.getDepth());
-      memcpy(pixel, a.getPtr(0, 0, 0), n*sizeof(T));
+      memcpy(pixel, a.getPtr(0, 0, 0), std::abs(n)*sizeof(T));
     }
 
     void setInvalid(long i, long k, long j)
