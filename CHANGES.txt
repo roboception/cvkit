@@ -1,4 +1,9 @@
-Version 1.9.13 (2018-01-08)
+Version 1.9.14 (2019-01-09)
+---------------------------
+
+- Added optional parameter for maximum disparity step for reconstruction of disparity images in plyv
+
+Version 1.9.13 (2019-01-08)
 ---------------------------
 
 - Added possibility to wrap existing image data with gimage::Image object
