@@ -258,9 +258,14 @@ Model *loadPLY(const char *name)
 
 Model *loadDepth(const char *name, const char *spath, bool verbose)
 {
+  // load view
+
+  gimage::View view;
+  loadView(view, name, spath, verbose);
+
   // read optional maximum step size parameter
 
-  float dstep=1.0f;
+  float dstep=view.getDepthStep();
 
   std::vector<std::string> list;
   gutil::split(list, name, ',');
@@ -272,11 +277,6 @@ Model *loadDepth(const char *name, const char *spath, bool verbose)
       dstep=static_cast<float>(atof(list[i].substr(2).c_str()));
     }
   }
-
-  // load view
-
-  gimage::View view;
-  loadView(view, name, spath, verbose);
 
   // determine the number of valid points
 

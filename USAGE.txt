@@ -120,6 +120,11 @@ if the name of the disparity starts with "disp<x>...", then the file
 "calib.txt" is loaded from the same directory and the information for camera x
 is converted accordingly.
 
+Furthermore, the maximum disparity step between neighboring pixels can be
+defined for triangulation. The default is 1.
+
+step=<step>
+
 --- Automatically finding the parameter files and image ---
 
 If the parameters p and i are not given, then the tools try to find the

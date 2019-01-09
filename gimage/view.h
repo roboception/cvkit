@@ -59,6 +59,7 @@ class View
     ImageU8       image;
     ImageFloat    depth;
     gmath::Camera *camera;
+    float         step;
 
   public:
 
@@ -78,6 +79,9 @@ class View
 
     void setDepthImage(const ImageFloat &d);
     const ImageFloat &getDepthImage() const { return depth; }
+
+    void setDepthStep(float s) { step=s; }
+    float getDepthStep() { return step; }
 };
 
 

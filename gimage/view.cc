@@ -49,6 +49,7 @@ namespace gimage
 View::View()
 {
   camera=0;
+  step=1;
 }
 
 View::View(const View &v) : image(v.image), depth(v.depth)
@@ -254,6 +255,12 @@ void loadView(View &view, const char *name, const char *spath, bool verbose)
       throw gutil::IOException("Cannot create camera object from properties");
     }
   }
+
+  // optionally set depth step from properties
+
+  float step=1.0f;
+  prop.getValue("step", step, 1.0f);
+  view.setDepthStep(step);
 
   // set downscale factor and select part
 
