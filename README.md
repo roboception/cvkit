@@ -24,13 +24,13 @@ invented at Stanford University as an extendable format for storing vertices
 and polygons together with additional information. It is especially useful for
 scanned real-world data.
 
-See INSTALL.txt and USAGE.txt for more information.
+See INSTALL.md and USAGE.md for more information.
 
 Acknowledgments
 ---------------
 
 The initial version of cvkit has been developed while I was working for the
-Institute of Robotics and Mechatronics of the German Aerospace Center (DLR). 
+Institute of Robotics and Mechatronics of the German Aerospace Center (DLR).
 It has been published under the BSD license for supporting version 3 of the
 Middlebury stereo evaluation.  I am now with the Roboception GmbH, which is
 a DLR spin-off company.
@@ -46,10 +46,10 @@ Operator of Argonne National Laboratory.
 Contact
 -------
 
-Dr. Heiko Hirschmueller
-Roboception GmbH
-Kaflerstrasse 2
-81241 Muenchen
-Germany
+    Dr. Heiko Hirschmueller
+    Roboception GmbH
+    Kaflerstrasse 2
+    81241 Muenchen
+    Germany
 
 Email: heiko.hirschmueller@roboception.de
