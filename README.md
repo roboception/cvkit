@@ -24,7 +24,7 @@ invented at Stanford University as an extendable format for storing vertices
 and polygons together with additional information. It is especially useful for
 scanned real-world data.
 
-See INSTALL.md and USAGE.md for more information.
+See [INSTALL.md](INSTALL.md) and [USAGE.md](USAGE.md) for more information.
 
 Acknowledgments
 ---------------

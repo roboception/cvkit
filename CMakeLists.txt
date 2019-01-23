@@ -44,8 +44,8 @@ include_directories(${CMAKE_SOURCE_DIR})
 set(CPACK_PACKAGE_CONTACT "Heiko Hirschmueller <heiko.hirschmueller@roboception.de>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Computer Vision Toolkit")
 set(CPACK_PACKAGE_VENDOR "Institute of Robotics and Mechatronics, German Aerospace Center")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.txt")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_VERSION_MAJOR "1")
 set(CPACK_PACKAGE_VERSION_MINOR "9")
 set(CPACK_PACKAGE_VERSION_PATCH "14")
@@ -106,8 +106,8 @@ if (WIN32)
 
   set(CPACK_NSIS_CREATE_ICONS_EXTRA "
     CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Example.lnk' '\\\$INSTDIR\\\\example'
-    CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Readme.lnk' '\\\$INSTDIR\\\\doc\\\\README.txt'
-    CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Usage.lnk' '\\\$INSTDIR\\\\doc\\\\USAGE.txt'
+    CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Readme.lnk' '\\\$INSTDIR\\\\doc\\\\README.md'
+    CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Usage.lnk' '\\\$INSTDIR\\\\doc\\\\USAGE.md'
   ")
 
   set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
