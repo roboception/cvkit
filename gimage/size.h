@@ -252,6 +252,30 @@ template<class T> Image<T> medianDownscaleImage(const Image<T> &image, int facto
   return ret;
 }
 
+template<class T> Image<T> resizeImageBilinear(const Image<T> &image, long w, long h)
+{
+  std::vector<typename Image<T>::work_t> v(image.getDepth());
+  Image<T> ret(w, h, image.getDepth());
+
+  const float fx=static_cast<float>(image.getWidth())/w;
+  const float fy=static_cast<float>(image.getHeight())/h;
+
+  for (long k=0; k<h; k++)
+  {
+    for (long i=0; i<w; i++)
+    {
+      image.getBilinear(v, i*fx, k*fy);
+
+      for (int d=0; d<image.getDepth(); d++)
+      {
+        ret.set(i, k, d, static_cast<typename Image<T>::store_t>(v[d]));
+      }
+    }
+  }
+
+  return ret;
+}
+
 template<class T> Image<T> cropImage(const Image<T> &image, long x, long y, long w, long h)
 {
   w=std::max(0l, w);

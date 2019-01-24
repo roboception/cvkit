@@ -305,8 +305,7 @@ Model *loadDepth(const char *name, const char *spath, bool verbose)
     ColoredMesh *cmesh=new ColoredMesh();
     cmesh->resizeVertexList(n, true, true);
 
-    // resize image if required (i.e. its width and height to the depth image
-    // can be bigger by an integer factor)
+    // resize image if required
 
     gimage::ImageU8 dsimage;
 
@@ -316,6 +315,11 @@ Model *loadDepth(const char *name, const char *spath, bool verbose)
       if (ds > 1)
       {
         dsimage=gimage::downscaleImage(*image, ds);
+        image=&dsimage;
+      }
+      else if (image->getWidth() < depth.getWidth() || image->getHeight() < depth.getHeight())
+      {
+        dsimage=gimage::resizeImageBilinear(*image, depth.getWidth(), depth.getHeight());
         image=&dsimage;
       }
     }
