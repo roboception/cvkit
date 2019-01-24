@@ -159,24 +159,27 @@ void CameraCollection::addGLObjects(std::vector<GLObject *> &list)
 
   double s=0;
 
-  for (size_t i=0; i<cl.size(); i++)
+  if (cl.size() > 1)
   {
-    double m=std::numeric_limits<double>::max();
-
-    for (size_t k=0; k<cl.size(); k++)
+    for (size_t i=0; i<cl.size(); i++)
     {
-      if (k != i)
-      {
-        double d=norm(cl[i].getT()-cl[k].getT());
+      double m=std::numeric_limits<double>::max();
 
-        if (d > 0)
+      for (size_t k=0; k<cl.size(); k++)
+      {
+        if (k != i)
         {
-          m=std::min(m, d);
+          double d=norm(cl[i].getT()-cl[k].getT());
+
+          if (d > 0)
+          {
+            m=std::min(m, d);
+          }
         }
       }
-    }
 
-    s+=m;
+      s+=m;
+    }
   }
 
   if (cl.size() >= 2)
@@ -188,7 +191,7 @@ void CameraCollection::addGLObjects(std::vector<GLObject *> &list)
 
   if (s == 0)
   {
-    s=1;
+    s=0.2;
 
     if (cl.size() > 0 && cl[0].getZMin() > 0)
     {
