@@ -135,21 +135,6 @@ void View::setCamera(const gmath::Camera *c)
 
 void View::setImage(const ImageU8 &img)
 {
-  // make sure that the size of the camera is the same as the size of the
-  // images
-
-  if (camera != 0 && camera->getWidth() > 0 && camera->getHeight() > 0)
-  {
-    assert(camera->getWidth() == img.getWidth());
-    assert(camera->getHeight() == img.getHeight());
-  }
-
-  if (depth.getWidth() > 0 && depth.getHeight() > 0)
-  {
-    assert(img.getWidth() == depth.getWidth());
-    assert(img.getHeight() == depth.getHeight());
-  }
-
   image=img;
 
   // set size of camera from images if neccessary
