@@ -1,3 +1,11 @@
+Version 1.9.15 (2019-01-24)
+---------------------------
+
+- In plyv, fixed size of camera if only one parameter file is loaded as camera
+- plyv can now correctly map lower resolution texture to highe resolution depth image
+- change README, etc. to markdown files
+- Removed some asserts that are not necessary any more
+
 Version 1.9.14 (2019-01-09)
 ---------------------------
 
