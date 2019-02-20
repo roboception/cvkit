@@ -1,3 +1,8 @@
+Version 2.0.0 (2019-02-20)
+--------------------------
+
+- Added methods to remove properties related to camera distortion parameters
+
 Version 1.9.15 (2019-01-24)
 ---------------------------
 
