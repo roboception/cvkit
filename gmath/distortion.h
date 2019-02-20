@@ -67,6 +67,16 @@ class Distortion
     static Distortion *create(const gutil::Properties &prop, int id=-1);
 
     /**
+      Removes the parameters of all lens distortion model in the provided
+      property object.
+
+      @param prop Camera parameters.
+      @param id   Camera id or -1.
+    */
+
+    static void cleanAllProperties(gutil::Properties &prop, int id=-1);
+
+    /**
       Clones the current object.
 
       @return Pointer to clone object. The pointer must be deleted by the
@@ -90,6 +100,16 @@ class Distortion
     */
 
     virtual void getProperties(gutil::Properties &prop, int id=-1) const;
+
+    /**
+      Removes the parameters of the current lens distortion model from the
+      provided property object.
+
+      @param prop Camera parameters.
+      @param id   Camera id or -1.
+    */
+
+    virtual void cleanProperties(gutil::Properties &prop, int id=-1) const;
 };
 
 /**
@@ -111,6 +131,7 @@ class RadialDistortion : public Distortion
     void transform(double &x, double &y, double xd, double yd) const;
     void invTransform(double &xd, double &yd, double x, double y) const;
     void getProperties(gutil::Properties &prop, int id=-1) const;
+    void cleanProperties(gutil::Properties &prop, int id=-1) const;
 
   private:
 
@@ -137,6 +158,7 @@ class RadialTangentialDistortion : public Distortion
     void transform(double &x, double &y, double xd, double yd) const;
     void invTransform(double &xd, double &yd, double x, double y) const;
     void getProperties(gutil::Properties &prop, int id=-1) const;
+    void cleanProperties(gutil::Properties &prop, int id=-1) const;
 
   private:
 
@@ -163,6 +185,7 @@ class EquidistantDistortion : public Distortion
     void transform(double &x, double &y, double xd, double yd) const;
     void invTransform(double &xd, double &yd, double x, double y) const;
     void getProperties(gutil::Properties &prop, int id=-1) const;
+    void cleanProperties(gutil::Properties &prop, int id=-1) const;
 
   private:
 

@@ -96,6 +96,17 @@ Distortion *Distortion::create(const gutil::Properties &prop, int id)
   return 0;
 }
 
+void Distortion::cleanAllProperties(gutil::Properties &prop, int id)
+{
+  EquidistantDistortion ed;
+  RadialTangentialDistortion rtd(3);
+  RadialDistortion rd(3);
+
+  ed.cleanProperties(prop, id);
+  rtd.cleanProperties(prop, id);
+  rd.cleanProperties(prop, id);
+}
+
 Distortion *Distortion::clone() const
 {
   return new Distortion();
@@ -127,6 +138,9 @@ void Distortion::invTransform(double &xd, double &yd, double x, double y) const
 }
 
 void Distortion::getProperties(gutil::Properties &prop, int id) const
+{ }
+
+void Distortion::cleanProperties(gutil::Properties &prop, int id) const
 { }
 
 RadialDistortion::RadialDistortion(int n)
@@ -268,6 +282,13 @@ void RadialDistortion::getProperties(gutil::Properties &prop, int id) const
   prop.putValue(getCameraKey("k1", id).c_str(), kd[0]);
   prop.putValue(getCameraKey("k2", id).c_str(), kd[1]);
   prop.putValue(getCameraKey("k3", id).c_str(), kd[2]);
+}
+
+void RadialDistortion::cleanProperties(gutil::Properties &prop, int id) const
+{
+  prop.remove(getCameraKey("k1", id).c_str());
+  prop.remove(getCameraKey("k2", id).c_str());
+  prop.remove(getCameraKey("k3", id).c_str());
 }
 
 RadialTangentialDistortion::RadialTangentialDistortion(int n)
@@ -423,6 +444,15 @@ void RadialTangentialDistortion::getProperties(gutil::Properties &prop, int id) 
   prop.putValue(getCameraKey("k3", id).c_str(), kd[4]);
 }
 
+void RadialTangentialDistortion::cleanProperties(gutil::Properties &prop, int id) const
+{
+  prop.remove(getCameraKey("p1", id).c_str());
+  prop.remove(getCameraKey("p2", id).c_str());
+  prop.remove(getCameraKey("k1", id).c_str());
+  prop.remove(getCameraKey("k2", id).c_str());
+  prop.remove(getCameraKey("k3", id).c_str());
+}
+
 EquidistantDistortion::EquidistantDistortion()
 {
   for (int i=0; i<4; i++)
@@ -552,6 +582,14 @@ void EquidistantDistortion::getProperties(gutil::Properties &prop, int id) const
   prop.putValue(getCameraKey("e2", id).c_str(), ed[1]);
   prop.putValue(getCameraKey("e3", id).c_str(), ed[2]);
   prop.putValue(getCameraKey("e4", id).c_str(), ed[3]);
+}
+
+void EquidistantDistortion::cleanProperties(gutil::Properties &prop, int id) const
+{
+  prop.remove(getCameraKey("e1", id).c_str());
+  prop.remove(getCameraKey("e2", id).c_str());
+  prop.remove(getCameraKey("e3", id).c_str());
+  prop.remove(getCameraKey("e4", id).c_str());
 }
 
 }
