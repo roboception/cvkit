@@ -3,7 +3,7 @@
  *
  * Author: Heiko Hirschmueller
  *
- * Copyright (c) 2016 Roboception GmbH
+ * Copyright (c) 2016, 2019 Roboception GmbH
  * Copyright (c) 2015 Institute of Robotics and Mechatronics, German Aerospace Center
  * All rights reserved.
  *
@@ -68,17 +68,38 @@ std::string getCameraKey(const char *key, int id)
 
 }
 
+// --------------------- Distortion ---------------------
+
 Distortion::~Distortion()
 { }
 
 Distortion *Distortion::create(const gutil::Properties &prop, int id)
 {
+  // try equidistant model
+
   EquidistantDistortion ed(prop, id);
 
   if (ed.getParameter(0) != 0 || ed.getParameter(1) != 0 ||
       ed.getParameter(2) != 0 || ed.getParameter(3) != 0)
   {
     return ed.clone();
+  }
+
+  // create best fitting model, i.e. with lowest number of parameters
+
+  RationalTangentialThinPrismDistortion ratpd(prop, id);
+
+  if (ratpd.getParameter(8) != 0 || ratpd.getParameter(9) != 0 || ratpd.getParameter(10) != 0 ||
+      ratpd.getParameter(11) != 0)
+  {
+    return ratpd.clone();
+  }
+
+  RationalTangentialDistortion ratd(prop, id);
+
+  if (ratd.getParameter(5) != 0 || ratd.getParameter(6) != 0 || ratd.getParameter(7) != 0)
+  {
+    return ratd.clone();
   }
 
   RadialTangentialDistortion rtd(prop, id);
@@ -142,6 +163,8 @@ void Distortion::getProperties(gutil::Properties &prop, int id) const
 
 void Distortion::cleanProperties(gutil::Properties &prop, int id) const
 { }
+
+// --------------------- RadialDistortion ---------------------
 
 RadialDistortion::RadialDistortion(int n)
 {
@@ -291,6 +314,8 @@ void RadialDistortion::cleanProperties(gutil::Properties &prop, int id) const
   prop.remove(getCameraKey("k3", id).c_str());
 }
 
+// --------------------- RadialTangentialDistortion ---------------------
+
 RadialTangentialDistortion::RadialTangentialDistortion(int n)
 {
   std::min(n, 3);
@@ -307,6 +332,7 @@ RadialTangentialDistortion::RadialTangentialDistortion(const gutil::Properties &
 {
   prop.getValue(getCameraKey("p1", id).c_str(), kd[0], "0");
   prop.getValue(getCameraKey("p2", id).c_str(), kd[1], "0");
+
   prop.getValue(getCameraKey("k1", id).c_str(), kd[2], "0");
   prop.getValue(getCameraKey("k2", id).c_str(), kd[3], "0");
   prop.getValue(getCameraKey("k3", id).c_str(), kd[4], "0");
@@ -359,10 +385,10 @@ void RadialTangentialDistortion::setParameter(int i, double v)
 void RadialTangentialDistortion::transform(double &x, double &y, double xd, double yd) const
 {
   const double r2=xd*xd+yd*yd;
-  const double s=1.0+kd[2]*r2+kd[3]*r2*r2+kd[4]*r2*r2*r2;
+  const double s=1.0 + kd[2]*r2 + kd[3]*r2*r2 + kd[4]*r2*r2*r2;
 
-  const double xx=xd*s+2*kd[0]*xd*yd+kd[1]*(r2+2*xd*xd);
-  const double yy=yd*s+kd[0]*(r2+2*yd*yd)+2*kd[1]*xd*yd;
+  const double xx=xd*s + 2*kd[0]*xd*yd        +   kd[1]*(r2+2*xd*xd);
+  const double yy=yd*s +   kd[0]*(r2+2*yd*yd) + 2*kd[1]*xd*yd;
 
   x=xx;
   y=yy;
@@ -377,26 +403,26 @@ struct RadialTangentialDistortionParameter
   double xd, yd;
 };
 
-int computeRadialTangentialDistortion(int n, double x[], int m, double fvec[],
-                                      double fjac[], void *up)
+int computeRadialTangentialDistortion(int n, double x[], int m, double fvec[], double fjac[],
+                                      void *up)
 {
   RadialTangentialDistortionParameter *p=static_cast<RadialTangentialDistortionParameter *>(up);
 
   if (fvec != 0)
   {
     const double r2=x[0]*x[0]+x[1]*x[1];
-    const double s=1.0+p->kd[2]*r2+p->kd[3]*r2*r2+p->kd[4]*r2*r2*r2;
+    const double s=1.0 + p->kd[2]*r2 + p->kd[3]*r2*r2 + p->kd[4]*r2*r2*r2;
 
-    fvec[0]=p->xd-(x[0]*s+2*p->kd[0]*x[0]*x[1]+p->kd[1]*(r2+2*x[0]*x[0]));
-    fvec[1]=p->yd-(x[1]*s+p->kd[0]*(r2+2*x[1]*x[1])+2*p->kd[1]*x[0]*x[1]);
+    fvec[0]=p->xd-(x[0]*s + 2*p->kd[0]*x[0]*x[1]        +   p->kd[1]*(r2+2*x[0]*x[0]));
+    fvec[1]=p->yd-(x[1]*s +   p->kd[0]*(r2+2*x[1]*x[1]) + 2*p->kd[1]*x[0]*x[1]);
   }
 
   if (fjac != 0)
   {
     const double r2=x[0]*x[0]+x[1]*x[1];
 
-    const double f=1.0+p->kd[2]*r2+p->kd[3]*r2*r2+p->kd[4]*r2*r2*r2;
-    const double fs=p->kd[2]+2*p->kd[3]*r2+3*p->kd[4]*r2*r2;
+    const double f=1.0 + p->kd[2]*r2 +   p->kd[3]*r2*r2 +   p->kd[4]*r2*r2*r2;
+    const double fs=     p->kd[2]    + 2*p->kd[3]*r2    + 3*p->kd[4]*r2*r2;
 
     fjac[0]=-(f+2*x[0]*x[0]*fs+2*p->kd[0]*x[1]+6*p->kd[1]*x[0]);
     fjac[1]=-(2*x[0]*x[1]*fs+2*p->kd[0]*x[0]+2*p->kd[1]*x[1]);
@@ -420,6 +446,7 @@ void RadialTangentialDistortion::invTransform(double &xd, double &yd, double xx,
   param.kd[2]=kd[2];
   param.kd[3]=kd[3];
   param.kd[4]=kd[4];
+
   param.xd=xx;
   param.yd=yy;
 
@@ -439,6 +466,7 @@ void RadialTangentialDistortion::getProperties(gutil::Properties &prop, int id) 
 {
   prop.putValue(getCameraKey("p1", id).c_str(), kd[0]);
   prop.putValue(getCameraKey("p2", id).c_str(), kd[1]);
+
   prop.putValue(getCameraKey("k1", id).c_str(), kd[2]);
   prop.putValue(getCameraKey("k2", id).c_str(), kd[3]);
   prop.putValue(getCameraKey("k3", id).c_str(), kd[4]);
@@ -448,10 +476,336 @@ void RadialTangentialDistortion::cleanProperties(gutil::Properties &prop, int id
 {
   prop.remove(getCameraKey("p1", id).c_str());
   prop.remove(getCameraKey("p2", id).c_str());
+
   prop.remove(getCameraKey("k1", id).c_str());
   prop.remove(getCameraKey("k2", id).c_str());
   prop.remove(getCameraKey("k3", id).c_str());
 }
+
+// --------------------- RationalTangentialDistortion ---------------------
+
+RationalTangentialDistortion::RationalTangentialDistortion()
+{
+  for (int i=0; i<8; i++)
+  {
+    kd[i]=0;
+  }
+}
+
+RationalTangentialDistortion::RationalTangentialDistortion(const gutil::Properties &prop, int id)
+{
+  prop.getValue(getCameraKey("p1", id).c_str(), kd[0], "0");
+  prop.getValue(getCameraKey("p2", id).c_str(), kd[1], "0");
+
+  prop.getValue(getCameraKey("k1", id).c_str(), kd[2], "0");
+  prop.getValue(getCameraKey("k2", id).c_str(), kd[3], "0");
+  prop.getValue(getCameraKey("k3", id).c_str(), kd[4], "0");
+  prop.getValue(getCameraKey("k4", id).c_str(), kd[5], "0");
+  prop.getValue(getCameraKey("k5", id).c_str(), kd[6], "0");
+  prop.getValue(getCameraKey("k6", id).c_str(), kd[7], "0");
+}
+
+Distortion *RationalTangentialDistortion::clone() const
+{
+  RationalTangentialDistortion *ret=new RationalTangentialDistortion();
+
+  for (int i=0; i<8; i++)
+  {
+    ret->kd[i]=kd[i];
+  }
+
+  return ret;
+}
+
+int RationalTangentialDistortion::countParameter() const
+{
+  return 8;
+}
+
+double RationalTangentialDistortion::getParameter(int i) const
+{
+  return kd[i];
+}
+
+void RationalTangentialDistortion::setParameter(int i, double v)
+{
+  kd[i]=v;
+}
+
+void RationalTangentialDistortion::transform(double &x, double &y, double xd, double yd) const
+{
+  const double r2=xd*xd+yd*yd;
+  const double r4=r2*r2;
+  const double r6=r4*r2;
+
+  const double s=(1.0 + kd[2]*r2 + kd[3]*r4 + kd[4]*r6) /
+                 (1.0 + kd[5]*r2 + kd[6]*r4 + kd[7]*r6);
+
+  const double xx=xd*s + 2*kd[0]*xd*yd      + kd[1]*(r2+2*xd*xd);
+  const double yy=yd*s + kd[0]*(r2+2*yd*yd) + 2*kd[1]*xd*yd;
+
+  x=xx;
+  y=yy;
+}
+
+namespace
+{
+
+struct RationalTangentialDistortionParameter
+{
+  double p1, p2;
+  double kd[6];
+  double xd, yd;
+};
+
+int computeRationalTangentialDistortion(int n, double x[], int m, double fvec[], void *up)
+{
+  RationalTangentialDistortionParameter *p=static_cast<RationalTangentialDistortionParameter *>(up);
+
+  const double r2=x[0]*x[0]+x[1]*x[1];
+  const double r4=r2*r2;
+  const double r6=r4*r2;
+
+  const double s=(1.0 + p->kd[0]*r2 + p->kd[1]*r4 + p->kd[2]*r6) /
+                 (1.0 + p->kd[3]*r2 + p->kd[4]*r4 + p->kd[5]*r6);
+
+  fvec[0]=p->xd - (x[0]*s + 2*p->p1*x[0]*x[1]      + p->p2*(r2+2*x[0]*x[0]));
+  fvec[1]=p->yd - (x[1]*s + p->p1*(r2+2*x[1]*x[1]) + 2*p->p2*x[0]*x[1]);
+
+  return 0;
+}
+
+}
+
+void RationalTangentialDistortion::invTransform(double &xd, double &yd, double xx, double yy) const
+{
+  double x[2]= {xx, yy};
+
+  RationalTangentialDistortionParameter param;
+
+  param.p1=kd[0];
+  param.p2=kd[1];
+  param.kd[0]=kd[2];
+  param.kd[1]=kd[3];
+  param.kd[2]=kd[4];
+  param.kd[3]=kd[5];
+  param.kd[4]=kd[6];
+  param.kd[5]=kd[7];
+  param.xd=xx;
+  param.yd=yy;
+
+  double fvec[2];
+
+  long ltmp[2]= {0, 0};
+  double dtmp[16];
+
+  memset(dtmp, 0, 16*sizeof(double));
+  gmath::slmdif(computeRationalTangentialDistortion, 2, 2, x, fvec, &param, 1e-6, 0, ltmp, dtmp);
+
+  xd=x[0];
+  yd=x[1];
+}
+
+void RationalTangentialDistortion::getProperties(gutil::Properties &prop, int id) const
+{
+  prop.putValue(getCameraKey("p1", id).c_str(), kd[0]);
+  prop.putValue(getCameraKey("p2", id).c_str(), kd[1]);
+
+  prop.putValue(getCameraKey("k1", id).c_str(), kd[2]);
+  prop.putValue(getCameraKey("k2", id).c_str(), kd[3]);
+  prop.putValue(getCameraKey("k3", id).c_str(), kd[4]);
+  prop.putValue(getCameraKey("k4", id).c_str(), kd[5]);
+  prop.putValue(getCameraKey("k5", id).c_str(), kd[6]);
+  prop.putValue(getCameraKey("k6", id).c_str(), kd[7]);
+}
+
+void RationalTangentialDistortion::cleanProperties(gutil::Properties &prop, int id) const
+{
+  prop.remove(getCameraKey("p1", id).c_str());
+  prop.remove(getCameraKey("p2", id).c_str());
+
+  prop.remove(getCameraKey("k1", id).c_str());
+  prop.remove(getCameraKey("k2", id).c_str());
+  prop.remove(getCameraKey("k3", id).c_str());
+  prop.remove(getCameraKey("k4", id).c_str());
+  prop.remove(getCameraKey("k5", id).c_str());
+  prop.remove(getCameraKey("k6", id).c_str());
+}
+
+// --------------------- RationalTangentialThinPrismDistortion ---------------------
+
+RationalTangentialThinPrismDistortion::RationalTangentialThinPrismDistortion()
+{
+  for (int i=0; i<12; i++)
+  {
+    kd[i]=0;
+  }
+}
+
+RationalTangentialThinPrismDistortion::RationalTangentialThinPrismDistortion(const gutil::Properties &prop, int id)
+{
+  prop.getValue(getCameraKey("p1", id).c_str(), kd[0], "0");
+  prop.getValue(getCameraKey("p2", id).c_str(), kd[1], "0");
+
+  prop.getValue(getCameraKey("k1", id).c_str(), kd[2], "0");
+  prop.getValue(getCameraKey("k2", id).c_str(), kd[3], "0");
+  prop.getValue(getCameraKey("k3", id).c_str(), kd[4], "0");
+  prop.getValue(getCameraKey("k4", id).c_str(), kd[5], "0");
+  prop.getValue(getCameraKey("k5", id).c_str(), kd[6], "0");
+  prop.getValue(getCameraKey("k6", id).c_str(), kd[7], "0");
+
+  prop.getValue(getCameraKey("s1", id).c_str(), kd[8], "0");
+  prop.getValue(getCameraKey("s2", id).c_str(), kd[9], "0");
+  prop.getValue(getCameraKey("s3", id).c_str(), kd[10], "0");
+  prop.getValue(getCameraKey("s4", id).c_str(), kd[11], "0");
+}
+
+Distortion *RationalTangentialThinPrismDistortion::clone() const
+{
+  RationalTangentialThinPrismDistortion *ret=new RationalTangentialThinPrismDistortion();
+
+  for (int i=0; i<12; i++)
+  {
+    ret->kd[i]=kd[i];
+  }
+
+  return ret;
+}
+
+int RationalTangentialThinPrismDistortion::countParameter() const
+{
+  return 12;
+}
+
+double RationalTangentialThinPrismDistortion::getParameter(int i) const
+{
+  return kd[i];
+}
+
+void RationalTangentialThinPrismDistortion::setParameter(int i, double v)
+{
+  kd[i]=v;
+}
+
+void RationalTangentialThinPrismDistortion::transform(double &x, double &y, double xd, double yd) const
+{
+  const double r2=xd*xd+yd*yd;
+  const double r4=r2*r2;
+  const double r6=r4*r2;
+
+  const double s=(1.0 + kd[2]*r2 + kd[3]*r4 + kd[4]*r6) /
+                 (1.0 + kd[5]*r2 + kd[6]*r4 + kd[7]*r6);
+
+  const double xx=xd*s + 2*kd[0]*xd*yd        +   kd[1]*(r2+2*xd*xd) + kd[8]*r2 + kd[9]*r4;
+  const double yy=yd*s +   kd[0]*(r2+2*yd*yd) + 2*kd[1]*xd*yd        + kd[10]*r2 + kd[11]*r4;
+
+  x=xx;
+  y=yy;
+}
+
+namespace
+{
+
+struct RationalTangentialThinPrismDistortionParameter
+{
+  double p1, p2;
+  double kd[6];
+  double s[4];
+  double xd, yd;
+};
+
+int computeRationalTangentialThinPrismDistortion(int n, double x[], int m, double fvec[], void *up)
+{
+  RationalTangentialThinPrismDistortionParameter *p=static_cast<RationalTangentialThinPrismDistortionParameter *>(up);
+
+  const double r2=x[0]*x[0]+x[1]*x[1];
+  const double r4=r2*r2;
+  const double r6=r4*r2;
+
+  const double s=(1.0 + p->kd[0]*r2 + p->kd[1]*r4 + p->kd[2]*r6) /
+                 (1.0 + p->kd[3]*r2 + p->kd[4]*r4 + p->kd[5]*r6);
+
+  fvec[0]=p->xd - (x[0]*s + 2*p->p1*x[0]*x[1]        +   p->p2*(r2+2*x[0]*x[0]) + p->s[0]*r2 + p->s[1]*r4);
+  fvec[1]=p->yd - (x[1]*s +   p->p1*(r2+2*x[1]*x[1]) + 2*p->p2*x[0]*x[1]        + p->s[2]*r2 + p->s[3]*r4);
+
+  return 0;
+}
+
+}
+
+void RationalTangentialThinPrismDistortion::invTransform(double &xd, double &yd, double xx, double yy) const
+{
+  double x[2]= {xx, yy};
+
+  RationalTangentialThinPrismDistortionParameter param;
+
+  param.p1=kd[0];
+  param.p2=kd[1];
+
+  param.kd[0]=kd[2];
+  param.kd[1]=kd[3];
+  param.kd[2]=kd[4];
+  param.kd[3]=kd[5];
+  param.kd[4]=kd[6];
+  param.kd[5]=kd[7];
+
+  param.s[0]=kd[8];
+  param.s[1]=kd[9];
+  param.s[2]=kd[10];
+  param.s[3]=kd[11];
+
+  param.xd=xx;
+  param.yd=yy;
+
+  double fvec[2];
+
+  long ltmp[2]= {0, 0};
+  double dtmp[16];
+
+  memset(dtmp, 0, 16*sizeof(double));
+  gmath::slmdif(computeRationalTangentialThinPrismDistortion, 2, 2, x, fvec, &param, 1e-6, 0, ltmp, dtmp);
+
+  xd=x[0];
+  yd=x[1];
+}
+
+void RationalTangentialThinPrismDistortion::getProperties(gutil::Properties &prop, int id) const
+{
+  prop.putValue(getCameraKey("p1", id).c_str(), kd[0]);
+  prop.putValue(getCameraKey("p2", id).c_str(), kd[1]);
+
+  prop.putValue(getCameraKey("k1", id).c_str(), kd[2]);
+  prop.putValue(getCameraKey("k2", id).c_str(), kd[3]);
+  prop.putValue(getCameraKey("k3", id).c_str(), kd[4]);
+  prop.putValue(getCameraKey("k4", id).c_str(), kd[5]);
+  prop.putValue(getCameraKey("k5", id).c_str(), kd[6]);
+  prop.putValue(getCameraKey("k6", id).c_str(), kd[7]);
+
+  prop.putValue(getCameraKey("s1", id).c_str(), kd[8]);
+  prop.putValue(getCameraKey("s2", id).c_str(), kd[9]);
+  prop.putValue(getCameraKey("s3", id).c_str(), kd[10]);
+  prop.putValue(getCameraKey("s4", id).c_str(), kd[11]);
+}
+
+void RationalTangentialThinPrismDistortion::cleanProperties(gutil::Properties &prop, int id) const
+{
+  prop.remove(getCameraKey("p1", id).c_str());
+  prop.remove(getCameraKey("p2", id).c_str());
+
+  prop.remove(getCameraKey("k1", id).c_str());
+  prop.remove(getCameraKey("k2", id).c_str());
+  prop.remove(getCameraKey("k3", id).c_str());
+  prop.remove(getCameraKey("k4", id).c_str());
+  prop.remove(getCameraKey("k5", id).c_str());
+  prop.remove(getCameraKey("k6", id).c_str());
+
+  prop.remove(getCameraKey("s1", id).c_str());
+  prop.remove(getCameraKey("s2", id).c_str());
+  prop.remove(getCameraKey("s3", id).c_str());
+  prop.remove(getCameraKey("s4", id).c_str());
+}
+
+// --------------------- Equidistant ---------------------
 
 EquidistantDistortion::EquidistantDistortion()
 {
