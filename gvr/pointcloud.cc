@@ -156,31 +156,152 @@ void PointCloud::translate(const gmath::Vector3d &v)
 
 void PointCloud::addExtend(gmath::Vector3d &emin, gmath::Vector3d &emax) const
 {
-  float xmin=std::numeric_limits<float>::max();
-  float ymin=std::numeric_limits<float>::max();
-  float zmin=std::numeric_limits<float>::max();
-  float xmax=-std::numeric_limits<float>::max();
-  float ymax=-std::numeric_limits<float>::max();
-  float zmax=-std::numeric_limits<float>::max();
+  float pxmin=-std::numeric_limits<float>::max();
+  float pymin=-std::numeric_limits<float>::max();
+  float pzmin=-std::numeric_limits<float>::max();
+  float pxmax=std::numeric_limits<float>::max();
+  float pymax=std::numeric_limits<float>::max();
+  float pzmax=std::numeric_limits<float>::max();
 
-  for (int i=3*(n-1); i>=0; i-=3)
+  bool repeat=true;
+  while (repeat)
   {
-    xmin=std::min(xmin, vertex[i]);
-    ymin=std::min(ymin, vertex[i+1]);
-    zmin=std::min(zmin, vertex[i+2]);
+    repeat=false;
 
-    xmax=std::max(xmax, vertex[i]);
-    ymax=std::max(ymax, vertex[i+1]);
-    zmax=std::max(zmax, vertex[i+2]);
+    // compute extend
+
+    float xmin=std::numeric_limits<float>::max();
+    float ymin=std::numeric_limits<float>::max();
+    float zmin=std::numeric_limits<float>::max();
+    float xmax=-std::numeric_limits<float>::max();
+    float ymax=-std::numeric_limits<float>::max();
+    float zmax=-std::numeric_limits<float>::max();
+
+    for (int i=3*(n-1); i>=0; i-=3)
+    {
+      float x=vertex[i];
+      float y=vertex[i+1];
+      float z=vertex[i+2];
+
+      if (x >= pxmin && x < pxmax && y >= pymin && y < pymax && z >= pzmin && z < pzmax)
+      {
+        xmin=std::min(xmin, x);
+        ymin=std::min(ymin, y);
+        zmin=std::min(zmin, z);
+
+        xmax=std::max(xmax, x);
+        ymax=std::max(ymax, y);
+        zmax=std::max(zmax, z);
+      }
+    }
+
+    // divide range of each coordinate into two halves compute number of points
+    // in each halve
+
+    int nxmin=0;
+    int nymin=0;
+    int nzmin=0;
+    int m=0;
+
+    float xmean=(xmax+xmin)/2;
+    float ymean=(ymax+ymin)/2;
+    float zmean=(zmax+zmin)/2;
+
+    for (int i=3*(n-1); i>=0; i-=3)
+    {
+      float x=vertex[i];
+      float y=vertex[i+1];
+      float z=vertex[i+2];
+
+      if (x >= pxmin && x < pxmax && y >= pymin && y < pymax && z >= pzmin && z < pzmax)
+      {
+        if (vertex[i] < xmean)
+        {
+          nxmin++;
+        }
+
+        if (vertex[i+1] < ymean)
+        {
+          nymin++;
+        }
+
+        if (vertex[i+2] < zmean)
+        {
+          nzmin++;
+        }
+
+        m++;
+      }
+    }
+
+    pxmin=xmin;
+    pxmax=xmax;
+    pymin=ymin;
+    pymax=ymax;
+    pzmin=zmin;
+    pzmax=zmax;
+
+    if (2*m > n)
+    {
+      // reduce range and try again if one half contains less than 1/100 of the
+      // points
+
+      if (pxmax > pxmin)
+      {
+        if (nxmin*100 < m)
+        {
+          pxmin=xmean;
+          repeat=true;
+        }
+
+        if ((m-nxmin)*100 < m)
+        {
+          pxmax=xmean;
+          repeat=true;
+        }
+      }
+
+      if (pymax > pymin)
+      {
+        if (nymin*100 < m)
+        {
+          pymin=ymean;
+          repeat=true;
+        }
+
+        if ((m-nymin)*100 < m)
+        {
+          pymax=ymean;
+          repeat=true;
+        }
+      }
+
+      if (pzmax > pzmin)
+      {
+        if (nzmin*100 < m)
+        {
+          pzmin=zmean;
+          repeat=true;
+        }
+
+        if ((m-nzmin)*100 < m)
+        {
+          pzmax=zmean;
+          repeat=true;
+        }
+      }
+    }
   }
 
-  emin[0]=std::min(emin[0], getOrigin()[0]+xmin);
-  emin[1]=std::min(emin[1], getOrigin()[1]+ymin);
-  emin[2]=std::min(emin[2], getOrigin()[2]+zmin);
+  // add extend
 
-  emax[0]=std::max(emax[0], getOrigin()[0]+xmax);
-  emax[1]=std::max(emax[1], getOrigin()[1]+ymax);
-  emax[2]=std::max(emax[2], getOrigin()[2]+zmax);
+  emin[0]=std::min(emin[0], getOrigin()[0]+pxmin);
+  emin[1]=std::min(emin[1], getOrigin()[1]+pymin);
+  emin[2]=std::min(emin[2], getOrigin()[2]+pzmin);
+
+  emax[0]=std::max(emax[0], getOrigin()[0]+pxmax);
+  emax[1]=std::max(emax[1], getOrigin()[1]+pymax);
+  emax[2]=std::max(emax[2], getOrigin()[2]+pzmax);
 }
 
 void PointCloud::resizeVertexList(int vn, bool with_scanprop, bool with_scanpos)
