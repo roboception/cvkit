@@ -1,3 +1,9 @@
+Version 2.0.1 (2019-02-26)
+--------------------------
+
+- Ignore outliers when computing extend of reconstructed scene for plyv
+- Added rational and thin prism lens distortion models
+
 Version 2.0.0 (2019-02-20)
 --------------------------
 
