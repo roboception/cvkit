@@ -242,6 +242,8 @@ endif ()
 
 # - Standard definitions -
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 if (CMAKE_COMPILER_IS_GNUCC)
   add_definitions(-Wall)
 endif ()
