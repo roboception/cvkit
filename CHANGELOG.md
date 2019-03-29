@@ -1,3 +1,8 @@
+Version 2.0.2 (2019-03-29)
+--------------------------
+
+- Compile static libraries as relocatable
+
 Version 2.0.1 (2019-02-26)
 --------------------------
 
