@@ -78,4 +78,11 @@ void Semaphore::decrement()
   sem_wait(&(p->sem));
 }
 
+bool Semaphore::tryDecrement()
+{
+  int ret=sem_trywait(&(p->sem));
+
+  return ret == 0;
+}
+
 }

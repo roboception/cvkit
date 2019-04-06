@@ -39,6 +39,7 @@
 
 #include "semaphore.h"
 
+#include <deque>
 #include <queue>
 
 namespace gutil
@@ -53,8 +54,7 @@ template <class T> class MsgQueue
 {
   private:
 
-    int           nmax;
-    std::queue<T> queue;
+    std::deque<T> queue;
     Semaphore     mutex;
     Semaphore     full;
     Semaphore     empty;
@@ -67,17 +67,9 @@ template <class T> class MsgQueue
       @param _nmax Maximum number of messages.
     */
 
-    MsgQueue(int _nmax)
-    {
-      nmax=std::max(1, _nmax);
-
-      mutex.increment();
-
-      for (int i=0; i<nmax; i++)
-      {
-        empty.increment();
-      }
-    }
+    MsgQueue(int nmax)
+      : queue(), mutex(1), full(0), empty(std::max(1, nmax))
+    { }
 
     /**
       Add a message to the queue. If the queue has reached the maximum message
@@ -92,7 +84,27 @@ template <class T> class MsgQueue
 
       {
         Lock lock(mutex);
-        queue.push(msg);
+        queue.push_back(msg);
+      }
+
+      full.increment();
+    }
+
+    /**
+      Inserts the given message as first element to the queue. If the queue has
+      reached the maximum message count, then this method blocks until pop() is
+      called.
+
+      @param msg Message to be inserted to the queue.
+    */
+
+    void pushFront(const T &msg)
+    {
+      empty.decrement();
+
+      {
+        Lock lock(mutex);
+        queue.push_front(msg);
       }
 
       full.increment();
@@ -114,12 +126,29 @@ template <class T> class MsgQueue
       {
         Lock lock(mutex);
         ret=queue.front();
-        queue.pop();
+        queue.pop_front();
       }
 
       empty.increment();
 
       return ret;
+    }
+
+    /**
+      Removes all available messages from the queue and adds them to the given
+      vector. This method never blocks.
+    */
+
+    void flush(std::vector<T> &list)
+    {
+      Lock lock(mutex);
+
+      while (full.tryDecrement())
+      {
+        list.push_back(queue.front());
+        queue.pop_front();
+        empty.increment();
+      }
     }
 };
 
@@ -229,6 +258,22 @@ template <class T> class MsgQueueReplace
       }
 
       return ret;
+    }
+
+    /**
+      Removes all available messages from the queue and adds them to the given
+      vector. This method never blocks.
+    */
+
+    void flush(std::vector<T> &list)
+    {
+      Lock lock(mutex);
+
+      while (full.tryDecrement())
+      {
+        list.push_back(queue.front());
+        queue.pop();
+      }
     }
 };
 

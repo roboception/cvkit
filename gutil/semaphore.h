@@ -55,6 +55,7 @@ class Semaphore
 
     void increment();
     void decrement();
+    bool tryDecrement();
 
   private:
 

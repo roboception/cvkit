@@ -59,4 +59,7 @@ void Semaphore::increment()
 void Semaphore::decrement()
 { }
 
+bool Semaphore::tryDecrement()
+{ }
+
 }

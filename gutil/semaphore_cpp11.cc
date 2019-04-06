@@ -80,4 +80,17 @@ void Semaphore::decrement()
   p->count--;
 }
 
+void Semaphore::try_decrement()
+{
+  std::unique_lock<std::mutex> lck(p->mtx);
+
+  if (p->count > 0)
+  {
+    p->count--;
+    return true;
+  }
+
+  return false;
+}
+
 }
