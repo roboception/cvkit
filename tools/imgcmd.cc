@@ -348,14 +348,16 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
       {
         gimage::Image<T> image2;
         long     x, y;
+        int      z;
         float    opacity;
 
         gimage::getImageIO().load(image2, nextParameterFilename(param, repl).c_str());
         param.nextValue(x);
         param.nextValue(y);
+        param.nextValue(z);
         param.nextValue(opacity);
 
-        paste(image, image2, x, y, 0, opacity);
+        paste(image, image2, x, y, z, opacity);
       }
 
       if (p == "-pick")
@@ -505,7 +507,7 @@ int main(int argc, char *argv[])
 
     "-paste # Pasts another image into the image.",
     " <name> # File name of second image.",
-    " <x> <y> # Position for in the first image to start the second image.",
+    " <x> <y> <z> # Position for in the first image to start the second image.",
     " <opacity> # Factor between 0 and 1 that defines the opacity of the new image.",
 
     "-pick # Prints the value of the pixel to stdout.",
