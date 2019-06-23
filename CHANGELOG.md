@@ -1,3 +1,9 @@
+Version 2.0.4 (2019-06-23)
+--------------------------
+
+- Fixed selecting negative values with 'b' or 'w' in sv tool
+- Added possibility in imgcmd to paste images into different color channel
+
 Version 2.0.3 (2019-04-07)
 --------------------------
 
