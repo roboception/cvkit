@@ -182,7 +182,7 @@ template<class T> class ImageAdapter : public ImageAdapterBase
 
     double getIntensityOfPixel(long x, long y) const
     {
-      double ret=0;
+      double ret=vmin-1;
 
       x=static_cast<long>(x/scale);
       y=static_cast<long>(y/scale);
