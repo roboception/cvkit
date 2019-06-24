@@ -106,8 +106,8 @@ if (WIN32)
 
   set(CPACK_NSIS_CREATE_ICONS_EXTRA "
     CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Example.lnk' '\\\$INSTDIR\\\\example'
-    CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Readme.lnk' '\\\$INSTDIR\\\\doc\\\\README.md'
-    CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Usage.lnk' '\\\$INSTDIR\\\\doc\\\\USAGE.md'
+    CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Readme.lnk' '\\\$INSTDIR\\\\doc\\\\README.TXT'
+    CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Usage.lnk' '\\\$INSTDIR\\\\doc\\\\USAGE.TXT'
   ")
 
   set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
