@@ -109,11 +109,15 @@ endif ()
 
 add_library(gvr_static STATIC ${gvr_src})
 
+if (PNG_FOUND)
+  target_link_libraries(gvr_static ${PNG_LIBRARIES})
+endif ()
+
 if (OPENGL_FOUND AND GLUT_FOUND AND GLEW_FOUND)
   target_link_libraries(gvr_static ${GLUT_glut_LIBRARY})
   target_link_libraries(gvr_static ${GLEW_LIBRARIES})
   target_link_libraries(gvr_static ${OPENGL_LIBRARIES})
-  
+
   if (WIN32)
     target_link_libraries(gvr_static winmm)
   endif ()
@@ -123,11 +127,15 @@ if (INSTALL_DEVELOPMENT)
   add_library(gvr SHARED ${gvr_src})
   target_link_libraries(gvr LINK_PRIVATE gimage gmath gutil)
 
+  if (PNG_FOUND)
+    target_link_libraries(gvr LINK_PRIVATE ${PNG_LIBRARIES})
+  endif ()
+
   if (OPENGL_FOUND AND GLUT_FOUND AND GLEW_FOUND)
     target_link_libraries(gvr LINK_PRIVATE ${GLUT_glut_LIBRARY})
     target_link_libraries(gvr LINK_PRIVATE ${GLEW_LIBRARIES})
     target_link_libraries(gvr LINK_PRIVATE ${OPENGL_LIBRARIES})
-	
+
     if (WIN32)
       target_link_libraries(gvr LINK_PRIVATE winmm)
     endif ()
@@ -139,4 +147,3 @@ if (INSTALL_DEVELOPMENT)
           ARCHIVE DESTINATION lib)
   install(FILES ${gvr_hh} DESTINATION include/gvr)
 endif ()
-

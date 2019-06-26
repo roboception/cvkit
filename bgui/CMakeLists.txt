@@ -74,6 +74,10 @@ endif ()
 
 add_library(bgui_static STATIC ${bgui_src})
 
+if (PNG_FOUND)
+  target_link_libraries(bgui_static ${PNG_LIBRARIES})
+endif ()
+
 if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
   target_link_libraries(bgui_static ${X11_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 endif ()
@@ -81,6 +85,10 @@ endif ()
 if (INSTALL_DEVELOPMENT)
   add_library(bgui SHARED ${bgui_src})
   target_link_libraries(bgui LINK_PRIVATE gimage gutil)
+
+  if (PNG_FOUND)
+    target_link_libraries(bgui LINK_PRIVATE ${PNG_LIBRARIES})
+  endif ()
 
   if (WIN32)
     target_link_libraries(bgui LINK_PRIVATE gdi32 comctl32)
