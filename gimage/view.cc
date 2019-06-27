@@ -656,7 +656,7 @@ int getViewImageName(std::string &image, const char *name, const char *spath,
               std::cout << "Found suitable image: " << s << std::endl;
             }
 
-            if (dd == 0)
+            if (dd == 1)
             {
               image=s;
               dd=d;
