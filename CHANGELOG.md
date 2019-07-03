@@ -1,3 +1,12 @@
+Version 2.0.5 (2019-07-03)
+--------------------------
+
+- Extended plane estimation class
+- In plyv, fixed loading texture of Middlebury datasets
+- Link bgui and gvr explicitely against libpng for resolving the
+  png_get_copyright call when building on Mac
+- Some minor fixes for building on Windows
+
 Version 2.0.4 (2019-06-23)
 --------------------------
 
