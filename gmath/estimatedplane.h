@@ -51,6 +51,7 @@ class EstimatedPlane
   public:
 
     EstimatedPlane();
+    EstimatedPlane(const Vector3d &p0, const Vector3d &p1, const Vector3d &p2);
 
     /**
       Clears the plane.
@@ -82,6 +83,7 @@ class EstimatedPlane
     */
 
     void add(double x, double y, double z);
+    void add(const Vector3d &v) { add(v[0], v[1], v[2]); }
 
     /**
       Returns the normal vector and distance of the plane to the origin. The

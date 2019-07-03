@@ -43,6 +43,27 @@ EstimatedPlane::EstimatedPlane()
   clear();
 }
 
+EstimatedPlane::EstimatedPlane(const Vector3d &p0, const Vector3d &p1, const Vector3d &p2)
+{
+  sx=sy=sz=0;
+  sxx=sxy=sxz=syy=syz=0;
+  n=0;
+
+  a=b=c=std::numeric_limits<double>::infinity();
+
+  Vector3d u=p1-p0;
+  Vector3d v=p2-p0;
+  Vector3d N=gmath::cross(u, v);
+
+  if (fabs(N[2]) != 0)
+  {
+    N/=N[2];
+    a=-N[0];
+    b=-N[1];
+    c=p0*N;
+  }
+}
+
 void EstimatedPlane::clear()
 {
   sx=sy=sz=0;
