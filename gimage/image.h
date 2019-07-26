@@ -585,7 +585,7 @@ template<class T, class traits=PixelTraits<T> > class Image
 
         if (isValidS(p0) && isValidS(p1) && isValidS(p2) && isValidS(p3))
         {
-          p[j]=(p0*s0+p1*s1+p2*s2+p3*s3)/16;
+          p[j]=static_cast<work_t>((p0*s0+p1*s1+p2*s2+p3*s3)/16);
         }
       }
     }
