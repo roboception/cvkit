@@ -7,12 +7,6 @@ variables:
 #########################
 # Templates using anchors
 #########################
-.amd64_trusty_t: &amd64_trusty_job
-  image: registry.roboception.de/tools/docker_images:buildimage
-  tags:
-    - amd64
-    - docker
-
 .armhf_trusty_t: &armhf_trusty_job
   image: registry.roboception.de/tools/docker_images:armhf-buildimage
   tags:
@@ -25,16 +19,16 @@ variables:
     - amd64
     - docker
 
-.armhf_xenial_t: &armhf_xenial_job
-  image: registry.roboception.de/tools/docker_images:armhf-xenial-buildimage
-  tags:
-    - armhf
-    - docker
-
 .amd64_bionic_t: &amd64_bionic_job
   image: registry.roboception.de/tools/docker_images:bionic-buildimage
   tags:
     - amd64
+    - docker
+
+.armhf_bionic_t: &armhf_bionic_job
+  image: registry.roboception.de/tools/docker_images:armhf-bionic-buildimage
+  tags:
+    - armhf
     - docker
 
 #############
@@ -80,7 +74,7 @@ variables:
 #### Jobs ####
 ##############
 gen_dox:
-  <<: *amd64_trusty_job
+  <<: *amd64_bionic_job
   stage: deploy
   script:
     - apt-get update -yq && apt-get install -y doxygen ncftp
@@ -100,10 +94,6 @@ gen_dox:
 
 # Test (on every commit)
 ########################
-test:trusty:amd64:
-  <<: *amd64_trusty_job
-  extends: .test
-
 test:trusty:armhf:
   <<: *armhf_trusty_job
   extends: .test
@@ -112,20 +102,16 @@ test:xenial:amd64:
   <<: *amd64_xenial_job
   extends: .test
 
-test:xenial:armhf:
-  <<: *armhf_xenial_job
-  extends: .test
-
 test:bionic:amd64:
   <<: *amd64_bionic_job
   extends: .test
 
+test:bionic:armhf:
+  <<: *armhf_bionic_job
+  extends: .test
+
 # Deploy testing (only on master)
 #################################
-package_testing:trusty:amd64:
-  <<: *amd64_trusty_job
-  extends: .package_testing
-
 package_testing:trusty:armhf:
   <<: *armhf_trusty_job
   extends: .package_testing
@@ -134,12 +120,12 @@ package_testing:xenial:amd64:
   <<: *amd64_xenial_job
   extends: .package_testing
 
-package_testing:xenial:armhf:
-  <<: *armhf_xenial_job
-  extends: .package_testing
-
 package_testing:bionic:amd64:
   <<: *amd64_bionic_job
+  extends: .package_testing
+
+package_testing:bionic:armhf:
+  <<: *armhf_bionic_job
   extends: .package_testing
 
 ################
@@ -148,10 +134,6 @@ package_testing:bionic:amd64:
 
 # Deploy stable (only for releases, version tags)
 #################################################
-package_stable:trusty:amd64:
-  <<: *amd64_trusty_job
-  extends: .package_stable
-
 package_stable:trusty:armhf:
   <<: *armhf_trusty_job
   extends: .package_stable
@@ -160,10 +142,10 @@ package_stable:xenial:amd64:
   <<: *amd64_xenial_job
   extends: .package_stable
 
-package_stable:xenial:armhf:
-  <<: *armhf_xenial_job
-  extends: .package_stable
-
 package_stable:bionic:amd64:
   <<: *amd64_bionic_job
+  extends: .package_stable
+
+package_stable:bionic:armhf:
+  <<: *armhf_bionic_job
   extends: .package_stable
