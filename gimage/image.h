@@ -47,6 +47,7 @@
 #include <cstring>
 #include <cmath>
 #include <vector>
+#include <utility>
 
 #include <iostream>
 
@@ -171,6 +172,25 @@ template<class T, class traits=PixelTraits<T> > class Image
       memcpy(pixel, a.pixel, n*sizeof(T));
     }
 
+    Image(Image<T> &&a) noexcept
+    {
+      depth=a.depth;
+      width=a.width;
+      height=a.height;
+      n=a.n;
+      pixel=a.pixel;
+      row=a.row;
+      img=a.img;
+
+      a.depth=0;
+      a.width=0;
+      a.height=0;
+      a.n=0;
+      a.pixel=0;
+      a.row=0;
+      a.img=0;
+    }
+
     /**
       Creation of an image object as wrapper around existing pixel data. A
       pixel at row k and column i of depth layer j is supposed to be at
@@ -287,6 +307,19 @@ template<class T, class traits=PixelTraits<T> > class Image
       setSize(a.getWidth(), a.getHeight(), a.getDepth());
 
       memcpy(pixel, a.pixel, std::abs(n)*sizeof(T));
+
+      return *this;
+    }
+
+    Image<T> &operator=(Image<T> &&a) noexcept
+    {
+      std::swap(depth, a.depth);
+      std::swap(width, a.width);
+      std::swap(height, a.height);
+      std::swap(n, a.n);
+      std::swap(pixel, a.pixel);
+      std::swap(row, a.row);
+      std::swap(img, a.img);
 
       return *this;
     }
