@@ -1,3 +1,12 @@
+Version 2.0.6 (2019-08-29)
+--------------------------
+
+- Added functions for converting pose to 4x4 transformation matrix and inverting transformation matrices
+- Added method for specifying precision when adding values to a Property object
+- Implement move constructor and move assignment operator for Image
+- Fixes for compiling with Visual Studio
+- Minor cmake changes
+
 Version 2.0.5 (2019-07-03)
 --------------------------
 
