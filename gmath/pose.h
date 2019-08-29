@@ -137,6 +137,65 @@ inline Vector6d getPose(const Vector4d &Q, const Vector3d &T)
   return pose;
 }
 
+/*
+  Convert pose into transformation:
+
+      [ R  t ]
+  T = [      ]
+      [ 0  1 ]
+*/
+
+inline gmath::Matrix44d getTransformation(const gmath::Vector6d &pose)
+{
+  gmath::Matrix33d R=gmath::getRotation(pose);
+  gmath::Vector3d T=gmath::getTranslation(pose);
+
+  gmath::Matrix44d ret;
+
+  for (int k=0; k<3; k++)
+  {
+    for (int i=0; i<3; i++)
+    {
+      ret(k, i)=R(k, i);
+    }
+
+    ret(k, 3)=T[k];
+  }
+
+  ret(3, 0)=0;
+  ret(3, 1)=0;
+  ret(3, 2)=0;
+  ret(3, 3)=1;
+
+  return ret;
+}
+
+/*
+  Computes the inverse transformation. The transformation must be of the form:
+
+      [ R  t ]
+  T = [      ]
+      [ 0  1 ]
+*/
+
+inline gmath::Matrix44d inverseTransformation(const gmath::Matrix44d &T)
+{
+  gmath::Matrix44d Tinv;
+
+  Tinv.setRow(0, T.getColumn(0));
+  Tinv.setRow(1, T.getColumn(1));
+  Tinv.setRow(2, T.getColumn(2));
+
+  Tinv.setColumn(3, -(Tinv*T.getColumn(3)));
+
+  Tinv(3, 0)=0;
+  Tinv(3, 1)=0;
+  Tinv(3, 2)=0;
+  Tinv(3, 3)=1;
+
+  return Tinv;
+}
+
 /**
    Compute the combination of two pose transformations.
 
