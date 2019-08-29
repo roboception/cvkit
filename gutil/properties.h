@@ -158,6 +158,14 @@ class Properties
       putString(key, out.str());
     }
 
+    template <class T> void putValue(const char *key, const T &value, int precision)
+    {
+      std::ostringstream out;
+      out.precision(precision);
+      out << value;
+      putString(key, out.str());
+    }
+
     template <class T> void putValueVector(const char *key,
                                            const std::vector<T> &value, const char sep='|')
     {
