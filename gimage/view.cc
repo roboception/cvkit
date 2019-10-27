@@ -553,22 +553,29 @@ int getTextureNameRating(std::string name)
 
   // check for keyword in name
 
-  const char *list[]={"intensity", "img", "image", "mono", "color", "rgb", "left", 0};
+  const static std::vector<std::string> whitelist{"intensity", "img", "image", "mono", "color", "rgb", "left"};
+  const static std::vector<std::string> blacklist{"right"};
 
-  int rating=0;
-
-  int i=0;
-  while (list[i] != 0)
+  const auto is_part_of_name = [&name](const std::string &str) -> bool
   {
-    if (name.find(list[i]) != name.npos)
-    {
-      rating=i+1;
-    }
+    return name.find(str) != std::string::npos;
+  };
 
-    i++;
+  if (std::any_of(blacklist.begin(), blacklist.end(), is_part_of_name))
+  {
+    return 0;
   }
 
-  return rating;
+  const auto last_whitelist_match_idx =
+      std::distance(
+          std::find_if(whitelist.rbegin(), whitelist.rend(), is_part_of_name),
+          whitelist.rend()) - 1;
+  if (last_whitelist_match_idx >= 0)
+  {
+    return last_whitelist_match_idx + 1;
+  }
+
+  return 0;
 }
 
 }
