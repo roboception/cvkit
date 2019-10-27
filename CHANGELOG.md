@@ -1,3 +1,8 @@
+Version 2.0.7 (2019-10-27)
+--------------------------
+
+- Low rating for file name containing 'right' for searching texture images in plyv and plycmd tool
+
 Version 2.0.6 (2019-08-29)
 --------------------------
 
