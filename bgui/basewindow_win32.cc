@@ -554,9 +554,17 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
 
   HDC hdc=GetDC(p->hwnd);
 
+  HFONT fixed_font=static_cast<HFONT>(GetStockObject(ANSI_FIXED_FONT));
+  HFONT old_font=static_cast<HFONT>(SelectObject(hdc, fixed_font));
+
   SIZE size;
   GetTextExtentPoint32(hdc, TEXT("ABCDEFG"), 7, &size);
   p->th=size.cy;
+
+  if (old_font != 0)
+  {
+    SelectObject(hdc, old_font);
+  }
 
   // create memory bitmap as buffer
 
