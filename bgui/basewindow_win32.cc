@@ -89,6 +89,12 @@ class WindowsException : public gutil::Exception
 
 void drawInfoText(HWND hwnd, HDC hdc, BaseWindowData *p)
 {
+  HFONT fixed_font=static_cast<HFONT>(GetStockObject(ANSI_FIXED_FONT));
+  HFONT old_font=static_cast<HFONT>(SelectObject(hdc, fixed_font));
+  
+  SetBkColor(hdc, 0x000000);
+  SetTextColor(hdc, 0xffffff);
+  
   if (p->text.size() > 0)
   {
     SetTextAlign(hdc, TA_TOP | TA_LEFT);
@@ -180,6 +186,11 @@ void drawInfoText(HWND hwnd, HDC hdc, BaseWindowData *p)
                 static_cast<int>(p->info.size()));
       }
     }
+  }
+  
+  if (old_font != 0)
+  {
+    SelectObject(hdc, old_font);
   }
 }
 
