@@ -1,3 +1,10 @@
+Version 2.0.8 (2019-12-19)
+--------------------------
+
+- New function for adding Gaussian noise to an image (available in imgcmd)
+- Fixed potential problem with font height under Windows
+- For text in Windows, use fixed font with black background as under Linux
+
 Version 2.0.7 (2019-10-27)
 --------------------------
 
