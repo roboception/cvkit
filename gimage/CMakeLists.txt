@@ -53,6 +53,7 @@ set(gimage_hh
   view.h
   compare.h
   polygon.h
+  noise.h
 )
 
 if (USE_GDAL)
