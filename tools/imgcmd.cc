@@ -37,6 +37,7 @@
 #include <gimage/io.h>
 #include <gimage/color.h>
 #include <gimage/size.h>
+#include <gimage/noise.h>
 #include <gimage/analysis.h>
 #include <gimage/arithmetic.h>
 #include <gimage/paint.h>
@@ -44,6 +45,7 @@
 
 #include <gutil/parameter.h>
 #include <gutil/misc.h>
+#include <gutil/proctime.h>
 #include <gutil/version.h>
 
 #include <iostream>
@@ -290,6 +292,16 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
         image/=s;
       }
 
+      if (p == "-noise")
+      {
+        double s;
+        param.nextValue(s);
+
+        srand(static_cast<unsigned int>(1000000*gutil::ProcTime::current()));
+
+        addScaledNoise(image, s);
+      }
+
       if (p == "-valid")
       {
         double from, to;
@@ -496,6 +508,9 @@ int main(int argc, char *argv[])
 
     "-div # Divides all pixels by the given value.",
     " <s> # Floating point value.",
+
+    "-noise # Add Gaussian noise to the pixel values. The noise is scaled to the pixel intensity.",
+    " <s> # Standard deviation at full intensity.",
 
     "-valid # Invalidates pixels outside the given range.",
     " <from> <to> # Range.",
