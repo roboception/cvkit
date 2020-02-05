@@ -958,7 +958,6 @@ class PLYProperty
 
     // construction of a scalar or list property
 
-    PLYProperty();
     PLYProperty(const std::string &propname, ply_type type, ply_encoding encoding);
     PLYProperty(const std::string &propname, ply_type t_size, ply_type t_value, ply_encoding encoding);
     PLYProperty(const PLYProperty &p);
@@ -1064,14 +1063,6 @@ ply_type PLYProperty::name2Type(const std::string &name)
   assert(false);
 
   return ply_none;
-}
-
-PLYProperty::PLYProperty(): enc(ply_ascii)
-{
-  tsize=ply_none;
-  tvalue=ply_none;
-  value=0;
-  receiver=0;
 }
 
 PLYProperty::PLYProperty(const std::string &propname, ply_type type, ply_encoding encoding):

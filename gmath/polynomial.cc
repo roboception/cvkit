@@ -233,9 +233,14 @@ std::vector<double> realRoots(const Polynomiald &p)
 
       double r=0;
 
-      for (int i=p.getDegree()-1; i>=0; i--)
+      int i=p.getDegree()-1;
+      if (i >= 0)
       {
-        r+=std::abs(p[i]);
+        while (i >= 0)
+        {
+          r+=std::abs(p[i]);
+          i--;
+        }
       }
 
       r/=std::abs(p[p.getDegree()]);
