@@ -38,7 +38,6 @@
 #define GIMAGE_IMAGE_H
 
 #include <gutil/fixedint.h>
-#include <gutil/exception.h>
 
 #include <limits>
 #include <algorithm>
@@ -48,6 +47,7 @@
 #include <cmath>
 #include <vector>
 #include <utility>
+#include <exception>
 
 #include <iostream>
 
@@ -250,7 +250,7 @@ template<class T, class traits=PixelTraits<T> > class Image
       {
         if (n < 0)
         {
-          throw gutil::InvalidArgumentException("Cannot change size, because image is used as a wrapper");
+          throw std::runtime_error("Cannot change size, because image is used as a wrapper");
         }
 
         if (pixel != 0)
