@@ -3,7 +3,7 @@
  *
  * Author: Heiko Hirschmueller
  *
- * Copyright (c) 2016-2019 Roboception GmbH
+ * Copyright (c) 2016-2020 Roboception GmbH
  * Copyright (c) 2014 Institute of Robotics and Mechatronics, German Aerospace Center
  * All rights reserved.
  *
@@ -37,6 +37,6 @@
 #ifndef GUTIL_VERSION_H
 #define GUTIL_VERSION_H
 
-#define VERSION "2.0.9"
+#define VERSION "2.0.10"
 
 #endif

@@ -1,3 +1,9 @@
+Version 2.0.10 (2020-02-07)
+---------------------------
+
+- Changed exception in Image template to standard runtime exception
+- Fixed some compiler warnings
+
 Version 2.0.9 (2019-12-19)
 --------------------------
 

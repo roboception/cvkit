@@ -271,7 +271,7 @@ void GLWorld::onKey(unsigned char key, int x, int y)
         std::ostringstream out;
 
         out << "This program is based on cvkit version " << VERSION << "\n";
-        out << "Copyright (C) 2016, 2017, 2018, 2019 Roboception GmbH\n";
+        out << "Copyright (C) 2016 - 2020 Roboception GmbH\n";
         out << "Copyright (C) 2014, 2015 Institute of Robotics and Mechatronics, German Aerospace Center\n";
         out << "Author: Heiko Hirschmueller\n";
         out << "Contact: heiko.hirschmueller@roboception.de\n";
