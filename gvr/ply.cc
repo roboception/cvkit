@@ -115,7 +115,7 @@ class PLYValueASCIIInt : public PLYValue
     void write(std::streambuf *out, int v)
     {
       char s[40];
-      sprintf(s, "%d ", v);
+      snprintf(s, sizeof(s), "%d ", v);
       out->sputn(s, strlen(s));
     }
 
@@ -154,7 +154,7 @@ class PLYValueASCIIUInt : public PLYValue
     void write(std::streambuf *out, unsigned int v)
     {
       char s[40];
-      sprintf(s, "%u ", v);
+      snprintf(s, sizeof(s), "%u ", v);
       out->sputn(s, strlen(s));
     }
 
@@ -193,14 +193,14 @@ class PLYValueASCIIDouble : public PLYValue
     void write(std::streambuf *out, float v)
     {
       char s[40];
-      sprintf(s, "%.8g ", v);
+      snprintf(s, sizeof(s), "%.8g ", v);
       out->sputn(s, strlen(s));
     }
 
     void write(std::streambuf *out, double v)
     {
       char s[40];
-      sprintf(s, "%.16g ", v);
+      snprintf(s, sizeof(s), "%.16g ", v);
       out->sputn(s, strlen(s));
     }
 };
