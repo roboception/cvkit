@@ -208,8 +208,12 @@ class Properties
 
     ///Throws IOException
     void load(const char *name);
+    void load(std::istream& in);
     void save(const char *name, const char *comment=0) const;
     void print();
+
+  private:
+    void load(std::istream& in, const char *name);
 
   private:
 

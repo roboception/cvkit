@@ -128,12 +128,22 @@ void Properties::putString(const char *key, const std::string &value)
 void Properties::load(const char *name)
 {
   std::ifstream in;
-  std::string   line;
+  in.open(name);
+  load(in, name);
+}
+
+void Properties::load(std::istream &in)
+{
+  load(in, "stream");
+}
+
+void Properties::load(std::istream &in, const char *name)
+{
+  std::string line;
 
   try
   {
     in.exceptions(std::ios_base::badbit);
-    in.open(name);
 
     if (!in.good())
     {
@@ -173,8 +183,6 @@ void Properties::load(const char *name)
         }
       }
     }
-
-    in.close();
   }
   catch (const std::ios_base::failure &ex)
   {
