@@ -1,3 +1,9 @@
+Version 2.0.11 (2020-04-03)
+---------------------------
+
+- new method for loading properties from std::istream
+- use snprintf instead of printf for writing ply ASCII files
+
 Version 2.0.10 (2020-02-07)
 ---------------------------
 
