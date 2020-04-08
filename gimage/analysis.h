@@ -195,6 +195,7 @@ class Histogram
     // stores a visualization of the 1D or 2D histogram into the given image
 
     void visualize(ImageU8 &image) const;
+    void visualize(ImageU8 &image, unsigned long maxval) const;
 
     // stores the normalized 1D or 2D histogram into the given float image
 

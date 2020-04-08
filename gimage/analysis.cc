@@ -115,20 +115,29 @@ void Histogram::visualize(ImageU8 &image) const
   unsigned long maxval=1;
 
   for (int k=0; k<h; k++)
+  {
     for (int i=0; i<w; i++)
     {
       maxval=std::max(maxval, row[k][i]);
     }
+  }
 
+  visualize(image, maxval);
+}
+
+void Histogram::visualize(ImageU8 &image, unsigned long maxval) const
+{
   if (h > 1)
   {
     image.setSize(w, h, 1);
 
     for (int k=0; k<h; k++)
+    {
       for (int i=0; i<w; i++)
       {
         image.set(i, k, 0, static_cast<unsigned char>(255-255*row[k][i]/maxval));
       }
+    }
   }
   else
   {
