@@ -1,3 +1,8 @@
+Version 2.0.12 (2020-04-17)
+---------------------------
+
+- Added method to specify maximum value for visualizing a histogram
+
 Version 2.0.11 (2020-04-03)
 ---------------------------
 
