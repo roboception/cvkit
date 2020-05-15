@@ -1,3 +1,8 @@
+Version 2.0.13 (2020-05-15)
+---------------------------
+
+- Fixed downscaling of float images with invalid values
+
 Version 2.0.12 (2020-04-17)
 ---------------------------
 
