@@ -209,6 +209,141 @@ template<class T> Image<T> downscaleImage(const Image<T> &image, int factor)
   return ret;
 }
 
+template<> inline Image<float> downscaleImage(const Image<float> &image, int factor)
+{
+  factor=std::max(1, factor);
+
+  if (factor == 1)
+  {
+    return image;
+  }
+
+  Image<float> ret((image.getWidth()+factor-1)/factor,
+                   (image.getHeight()+factor-1)/factor, image.getDepth());
+
+  for (int d=0; d<image.getDepth(); d++)
+  {
+    float *out=ret.getPtr(0, 0, d);
+
+    long k=0;
+
+    while (k+factor <= image.getHeight())
+    {
+      long i=0;
+
+      // average over factor*factor pixels of the input image
+
+      while (i+factor <= image.getWidth())
+      {
+        typename Image<float>::work_t v=0;
+        int n=0;
+
+        const float *in=image.getPtr(i, k, d);
+
+        for (int kk=0; kk<factor; kk++)
+        {
+          for (int ii=0; ii<factor; ii++)
+          {
+            if (image.isValidS(in[ii]))
+            {
+              v+=in[ii];
+              n++;
+            }
+          }
+
+          in+=image.getWidth();
+        }
+
+        if (n > 0)
+        {
+          *out++=static_cast<typename Image<float>::store_t>((v+(n>>1))/n);
+        }
+        else
+        {
+          *out++=PixelTraits<float>::invalid();
+        }
+
+        i+=factor;
+      }
+
+      // if there are less than factor pixels left in the image row, then
+      // average with boundary check
+
+      if (i < image.getWidth())
+      {
+        typename Image<float>::work_t v=0;
+        int n=0;
+
+        const float *in=image.getPtr(i, k, d);
+
+        for (int kk=0; kk<factor; kk++)
+        {
+          for (int ii=0; ii<factor && i+ii<image.getWidth(); ii++)
+          {
+            if (image.isValidS(in[ii]))
+            {
+              v+=in[ii];
+              n++;
+            }
+          }
+
+          in+=image.getWidth();
+        }
+
+        if (n > 0)
+        {
+          *out++=static_cast<typename Image<float>::store_t>((v+(n>>1))/n);
+        }
+        else
+        {
+          *out++=PixelTraits<float>::invalid();
+        }
+      }
+
+      k+=factor;
+    }
+
+    // if there are less than factor image rows left in the image, then
+    // average with boundary check
+
+    if (k < image.getHeight())
+    {
+      for (long i=0; i<image.getWidth(); i+=factor)
+      {
+        typename Image<float>::work_t v=0;
+        int n=0;
+
+        const float *in=image.getPtr(i, k, d);
+
+        for (int kk=0; kk<factor && k+kk<image.getHeight(); kk++)
+        {
+          for (int ii=0; ii<factor && i+ii<image.getWidth(); ii++)
+          {
+            if (image.isValidS(in[ii]))
+            {
+              v+=in[ii];
+              n++;
+            }
+          }
+
+          in+=image.getWidth();
+        }
+
+        if (n > 0)
+        {
+          *out++=static_cast<typename Image<float>::store_t>((v+(n>>1))/n);
+        }
+        else
+        {
+          *out++=PixelTraits<float>::invalid();
+        }
+      }
+    }
+  }
+
+  return ret;
+}
+
 template<class T> Image<T> medianDownscaleImage(const Image<T> &image, int factor)
 {
   factor=std::max(1, factor);
