@@ -1,3 +1,8 @@
+Version 2.0.14 (2020-06-02)
+---------------------------
+
+- Added class for inverse distance weighted interpolation in a regular grid
+
 Version 2.0.13 (2020-05-15)
 ---------------------------
 
