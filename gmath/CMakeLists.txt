@@ -50,6 +50,7 @@ set(gmath_src
   minpack/dpmpar.c
   minpack/enorm.c
   estimatedplane.cc
+  idw.cc
 )
 
 set(gmath_hh
@@ -66,6 +67,7 @@ set(gmath_hh
   svector.h
   minpack.h
   estimatedplane.h
+  idw.h
 )
 
 add_library(gmath_static STATIC ${gmath_src})
