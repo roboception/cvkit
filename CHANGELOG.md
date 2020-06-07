@@ -1,3 +1,8 @@
+Version 2.0.15 (2020-06-02)
+---------------------------
+
+- Changed some methods of IDW class to const
+
 Version 2.0.14 (2020-06-02)
 ---------------------------
 
