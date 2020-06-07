@@ -84,21 +84,21 @@ class IDWNode
       Returns the number of data values below this node.
     */
 
-    int getCount() { return n; }
+    int getCount() const { return n; }
 
     /**
       Get the interpolated value at x, y as fraction. The value is calculated
       by f = nominator / denominator.
     */
 
-    void get(unsigned int x, unsigned int y, float &nominator, float &denominator);
+    void get(unsigned int x, unsigned int y, float &nominator, float &denominator) const;
 
     /**
       Gets the value of this node, which is the average of the values of all
       nodes below.
     */
 
-    float getNodeValue() { return f; }
+    float getNodeValue() const { return f; }
 
   private:
 
@@ -133,8 +133,8 @@ class IDW
       returned upon request.
     */
 
-    void setID(int id);
-    int getID();
+    void setID(int _id) { id=_id; }
+    int getID() const { return id; }
 
     /**
       Add a data value. fx and fy are the derivation of f in x and y direction
@@ -151,19 +151,19 @@ class IDW
       Returns the total number of data values.
     */
 
-    int getCount();
+    int getCount() const;
 
     /**
       Returns the interpolated value at a given location.
     */
 
-    float get(unsigned int x, unsigned int y);
+    float get(unsigned int x, unsigned int y) const;
 
     /**
       Returns the mean of all values.
     */
 
-    float getMean();
+    float getMean() const;
 
   private:
 

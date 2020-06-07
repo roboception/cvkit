@@ -224,7 +224,7 @@ IDWNode *IDWNode::add(unsigned int _x, unsigned int _y, float _f, float _w)
   return ret;
 }
 
-void IDWNode::get(unsigned int _x, unsigned int _y, float &nominator, float &denominator)
+void IDWNode::get(unsigned int _x, unsigned int _y, float &nominator, float &denominator) const
 {
   const float xd=_x-xs;
   const float yd=_y-ys;
@@ -276,16 +276,6 @@ IDW::~IDW()
   delete root;
 }
 
-void IDW::setID(int _id)
-{
-  id=_id;
-}
-
-int IDW::getID()
-{
-  return id;
-}
-
 void IDW::add(unsigned int x, unsigned int y, float f, float w)
 {
   if (root == 0)
@@ -298,7 +288,7 @@ void IDW::add(unsigned int x, unsigned int y, float f, float w)
   }
 }
 
-int IDW::getCount()
+int IDW::getCount() const
 {
   if (root != 0)
   {
@@ -308,7 +298,7 @@ int IDW::getCount()
   return 0;
 }
 
-float IDW::get(unsigned int x, unsigned int y)
+float IDW::get(unsigned int x, unsigned int y) const
 {
   if (root != 0)
   {
@@ -326,7 +316,7 @@ float IDW::get(unsigned int x, unsigned int y)
   return 0;
 }
 
-float IDW::getMean()
+float IDW::getMean() const
 {
   if (root != 0)
   {
