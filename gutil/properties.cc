@@ -199,21 +199,26 @@ void Properties::save(const char *name, const char *comment) const
     out.exceptions(std::ios_base::failbit | std::ios_base::badbit | std::ios_base::eofbit);
     out.open(name);
 
-    if (comment != 0)
-    {
-      out << "# " << comment << std::endl;
-    }
-
-    for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); ++it)
-    {
-      out << it->first << "=" << it->second << std::endl;
-    }
+    save(out, comment);
 
     out.close();
   }
   catch (const std::ios_base::failure &ex)
   {
     throw IOException(ex.what());
+  }
+}
+
+void Properties::save(std::ostream& out, const char *comment) const
+{
+  if (comment != 0)
+  {
+    out << "# " << comment << std::endl;
+  }
+
+  for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); ++it)
+  {
+    out << it->first << "=" << it->second << std::endl;
   }
 }
 

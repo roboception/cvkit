@@ -210,6 +210,7 @@ class Properties
     void load(const char *name);
     void load(std::istream& in);
     void save(const char *name, const char *comment=0) const;
+    void save(std::ostream& out, const char *comment=0) const;
     void print();
 
   private:
