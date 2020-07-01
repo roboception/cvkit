@@ -1,3 +1,8 @@
+Version 2.0.16 (2020-07-01)
+---------------------------
+
+- Added method for saving properties to ostream.
+
 Version 2.0.15 (2020-06-02)
 ---------------------------
 
