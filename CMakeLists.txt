@@ -218,16 +218,12 @@ else ()
   set(USE_GDAL 0 CACHE BOOL "Install header and libs for development with cvkit" FORCE)
 endif ()
 
-# - Optionally compile as C++11 -
+# - Use C++11 -
 
-set(USE_CPP11 1 CACHE BOOL "Compile as C++11 (and use standard threads)")
-
-if (USE_CPP11)
-  if (CMAKE_MAJOR_VERSION VERSION_LESS "3.1.0")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  else ()
-    set(CMAKE_CXX_STANDARD 11)
-  endif ()
+if (CMAKE_MAJOR_VERSION VERSION_LESS "3.1.0")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+else ()
+  set(CMAKE_CXX_STANDARD 11)
 endif ()
 
 # - Optional pthread support -
