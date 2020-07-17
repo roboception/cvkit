@@ -42,6 +42,22 @@
 namespace gimage
 {
 
+template<class T> void clipRange(Image<T> &image, T from, T to)
+{
+  for (int d=0; d<image.getDepth(); d++)
+  {
+    for (long k=0; k<image.getHeight(); k++)
+    {
+      for (long i=0; i<image.getWidth(); i++)
+      {
+        T v=image.get(i, k, d);
+        if (v < from) image.set(i, k, d, from);
+        if (v > to) image.set(i, k, d, to);
+      }
+    }
+  }
+}
+
 template<class T> void validRange(Image<T> &image, T from, T to)
 {
   for (int d=0; d<image.getDepth(); d++)

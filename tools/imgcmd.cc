@@ -311,6 +311,15 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
         validRange(image, static_cast<T>(from), static_cast<T>(to));
       }
 
+      if (p == "-clip")
+      {
+        double from, to;
+
+        param.nextValue(from);
+        param.nextValue(to);
+        clipRange(image, static_cast<T>(from), static_cast<T>(to));
+      }
+
       if (p == "-cmp")
       {
         gimage::Image<T> image2;
@@ -513,6 +522,9 @@ int main(int argc, char *argv[])
     " <s> # Standard deviation at full intensity.",
 
     "-valid # Invalidates pixels outside the given range.",
+    " <from> <to> # Range.",
+
+    "-clip # Sets smaller or larger pixel values to the corresponding range value.",
     " <from> <to> # Range.",
 
     "-cmp # Compares images with some tolerance. The result is printed and given as image with absolute differences.",
