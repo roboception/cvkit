@@ -1,3 +1,9 @@
+Version 2.1.1 (2020-07-17)
+--------------------------
+
+- Making inverse distance weighted interpolation thread safe
+- Added building for focal in gitlab file
+
 Version 2.1.0 (2020-07-17)
 --------------------------
 
