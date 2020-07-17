@@ -265,7 +265,7 @@ void IDWNode::get(unsigned int _x, unsigned int _y, float &nominator, float &den
   }
 }
 
-IDW::IDW(int _id)
+IDW::IDW(int _id) : sem(1)
 {
   id=_id;
   root=0;
@@ -278,6 +278,8 @@ IDW::~IDW()
 
 void IDW::add(unsigned int x, unsigned int y, float f, float w)
 {
+  gutil::Lock lock(sem);
+
   if (root == 0)
   {
     root=new IDWNode(x, y, f, w);

@@ -36,7 +36,10 @@
 #ifndef GMATH_IDW_H
 #define GMATH_IDW_H
 
+#include <gutil/semaphore.h>
+
 #include <list>
+#include <atomic>
 
 namespace gmath
 {
@@ -131,14 +134,25 @@ class IDW
     /**
       Sets an arbitrary ID. The ID is not used by the class itself, it is just
       returned upon request.
+
+      NOTE: There can be setID calls from parallel threads, but setID and
+      getID() must must not be called in parallel!
     */
 
     void setID(int _id) { id=_id; }
-    int getID() const { return id; }
+
+    /**
+      Returns the given id.
+    */
+
+    int getID() { return id; }
 
     /**
       Add a data value. fx and fy are the derivation of f in x and y direction
       and w is a weighting factor.
+
+      NOTE: There can be add calls from parallel threads, but add and get must
+      must not be called in parallel!
 
       @param x, y Location of data.
       @param f    Value at x, y.
@@ -170,7 +184,9 @@ class IDW
     IDW(class IDW &); // forbidden
     IDW &operator=(const IDW &); // forbidden
 
-    int id;
+    gutil::Semaphore sem;
+
+    std::atomic_int id;
     IDWNode *root;
 };
 
