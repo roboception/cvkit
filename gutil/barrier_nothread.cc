@@ -3,7 +3,7 @@
  *
  * Author: Heiko Hirschmueller
  *
- * Copyright (c) 2014, Institute of Robotics and Mechatronics, German Aerospace Center
+ * Copyright (c) 2020 Roboception GmbH
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,35 +33,31 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "semaphore.h"
-
-/*
- * Empty definition, since synchronization is not needed without thread
- * support.
- */
+#include "barrier.h"
 
 namespace gutil
 {
 
-struct SemaphoreData {};
-
-Semaphore::Semaphore(int c)
+struct BarrierData
 {
-  p=0;
+  int p;
+};
+
+Barrier::Barrier(int c)
+{ }
+
+Barrier::~Barrier()
+{ }
+
+void Barrier::reinit(int c)
+{ }
+
+int Barrier::getCount()
+{
+  return 1;
 }
 
-Semaphore::~Semaphore()
+void Barrier::wait()
 { }
-
-void Semaphore::increment()
-{ }
-
-void Semaphore::decrement()
-{ }
-
-bool Semaphore::tryDecrement()
-{
-  return false;
-}
 
 }

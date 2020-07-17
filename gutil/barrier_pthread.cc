@@ -3,7 +3,7 @@
  *
  * Author: Heiko Hirschmueller
  *
- * Copyright (c) 2014, Institute of Robotics and Mechatronics, German Aerospace Center
+ * Copyright (c) 2020 Roboception GmbH
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,35 +33,76 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "semaphore.h"
+#include "barrier.h"
+#include "thread.h"
 
-/*
- * Empty definition, since synchronization is not needed without thread
- * support.
- */
+#include <pthread.h>
+#include <assert.h>
 
 namespace gutil
 {
 
-struct SemaphoreData {};
-
-Semaphore::Semaphore(int c)
+struct BarrierData
 {
-  p=0;
+  int count;
+  pthread_barrier_t barrier;
+};
+
+Barrier::Barrier(int c)
+{
+  p=new BarrierData();
+
+  p->count=c;
+  if (p->count < 1)
+  {
+    p->count=Thread::getMaxThreads();
+  }
+
+#ifndef NDEBUG
+  int err=
+#endif
+    pthread_barrier_init(&(p->barrier), 0, p->count);
+
+  assert(!err);
 }
 
-Semaphore::~Semaphore()
-{ }
-
-void Semaphore::increment()
-{ }
-
-void Semaphore::decrement()
-{ }
-
-bool Semaphore::tryDecrement()
+Barrier::~Barrier()
 {
-  return false;
+  pthread_barrier_destroy(&(p->barrier));
+  delete p;
+}
+
+void Barrier::reinit(int c)
+{
+#ifndef NDEBUG
+  int err=
+#endif
+    pthread_barrier_destroy(&(p->barrier));
+
+  assert(!err);
+
+  p->count=c;
+  if (p->count < 1)
+  {
+    p->count=Thread::getMaxThreads();
+  }
+
+#ifndef NDEBUG
+  err=
+#endif
+    pthread_barrier_init(&(p->barrier), 0, p->count);
+
+  assert(!err);
+}
+
+int Barrier::getCount()
+{
+  return p->count;
+}
+
+void Barrier::wait()
+{
+  pthread_barrier_wait(&(p->barrier));
 }
 
 }

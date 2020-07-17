@@ -3,7 +3,7 @@
  *
  * Author: Heiko Hirschmueller
  *
- * Copyright (c) 2014, Institute of Robotics and Mechatronics, German Aerospace Center
+ * Copyright (c) 2020 Roboception GmbH
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,35 +33,40 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "semaphore.h"
-
-/*
- * Empty definition, since synchronization is not needed without thread
- * support.
- */
+#ifndef GUTIL_BARRIER_H
+#define GUTIL_BARRIER_H
 
 namespace gutil
 {
 
-struct SemaphoreData {};
+struct BarrierData;
 
-Semaphore::Semaphore(int c)
+/**
+  Implementation of a thread barrier. Threads calling wait are blocked until
+  the predified number of threads call wait. Then, all threads are unblocked.
+*/
+
+class Barrier
 {
-  p=0;
+  public:
+
+    Barrier(int c=0);
+    ~Barrier();
+
+    void reinit(int c);
+
+    int getCount();
+
+    void wait();
+
+  private:
+
+    Barrier(const Barrier &);
+    Barrier &operator=(const Barrier &);
+
+    BarrierData *p;
+};
+
 }
 
-Semaphore::~Semaphore()
-{ }
-
-void Semaphore::increment()
-{ }
-
-void Semaphore::decrement()
-{ }
-
-bool Semaphore::tryDecrement()
-{
-  return false;
-}
-
-}
+#endif

@@ -48,6 +48,7 @@ set(gutil_hh
   proctime.h
   properties.h
   semaphore.h
+  barrier.h
   thread.h
   msgqueue.h
   version.h
@@ -56,12 +57,15 @@ set(gutil_hh
 if (INCLUDE_PTHREADS)
   set(gutil_src ${gutil_src} thread_pthread.cc)
   set(gutil_src ${gutil_src} semaphore_pthread.cc)
+  set(gutil_src ${gutil_src} barrier_pthread.cc)
 elseif (USE_CPP11)
   set(gutil_src ${gutil_src} thread_cpp11.cc)
   set(gutil_src ${gutil_src} semaphore_cpp11.cc)
+  set(gutil_src ${gutil_src} barrier_cpp11.cc)
 else ()
   set(gutil_src ${gutil_src} thread_nothread.cc)
   set(gutil_src ${gutil_src} semaphore_nothread.cc)
+  set(gutil_src ${gutil_src} barrier_nothread.cc)
 endif ()
 
 add_library(gutil_static STATIC ${gutil_src})

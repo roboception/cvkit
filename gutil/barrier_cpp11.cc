@@ -3,7 +3,7 @@
  *
  * Author: Heiko Hirschmueller
  *
- * Copyright (c) 2014, Institute of Robotics and Mechatronics, German Aerospace Center
+ * Copyright (c) 2020 Roboception GmbH
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,35 +33,82 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "semaphore.h"
+#include "barrier.h"
+#include "thread.h"
 
-/*
- * Empty definition, since synchronization is not needed without thread
- * support.
- */
+#include <mutex>
+#include <condition_variable>
 
 namespace gutil
 {
 
-struct SemaphoreData {};
-
-Semaphore::Semaphore(int c)
+struct BarrierData
 {
-  p=0;
+  int                     generation;
+  int                     init_count;
+  int                     count;
+  std::mutex              mtx;
+  std::condition_variable cv;
+};
+
+Barrier::Barrier(int c)
+{
+  p=new BarrierData();
+
+  p->generation=0;
+
+  p->init_count=c;
+  if (p->init_count < 1)
+  {
+    p->init_count=Thread::getMaxThreads();
+  }
+
+  p->count=p->init_count;
 }
 
-Semaphore::~Semaphore()
-{ }
-
-void Semaphore::increment()
-{ }
-
-void Semaphore::decrement()
-{ }
-
-bool Semaphore::tryDecrement()
+Barrier::~Barrier()
 {
-  return false;
+  delete p;
+}
+
+void Barrier::reinit(int c)
+{
+  std::unique_lock<std::mutex> lck(p->mtx);
+
+  p->init_count=c;
+  if (p->init_count < 1)
+  {
+    p->init_count=Thread::getMaxThreads();
+  }
+
+  p->generation++;
+  p->count=p->init_count;
+  p->cv.notify_all();
+}
+
+int Barrier::getCount()
+{
+  return p->init_count;
+}
+
+void Barrier::wait()
+{
+  std::unique_lock<std::mutex> lck(p->mtx);
+  int gen=p->generation;
+
+  p->count--;
+  if (p->count == 0)
+  {
+    p->generation++;
+    p->count=p->init_count;
+    p->cv.notify_all();
+    return;
+  }
+
+  while (gen == p->generation)
+  {
+    p->cv.wait(lck);
+  }
 }
 
 }
