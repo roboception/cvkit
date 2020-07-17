@@ -1,3 +1,10 @@
+Version 2.1.0 (2020-07-17)
+--------------------------
+
+- Added clip function in imgcmd
+- Minimum requirement is now C++11
+- Added class for creating thread barriers
+
 Version 2.0.16 (2020-07-01)
 ---------------------------
 
