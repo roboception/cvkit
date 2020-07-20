@@ -1,7 +1,7 @@
 before_script:
   - export DISTRO_CODENAME=`lsb_release -cs` && echo Using distro $DISTRO_CODENAME
-  - if [ "$DISTRO_CODENAME" = "trusty" ]; then apt-get autoremove --purge -y libgdal-dev; fi
-  - if [ "$DISTRO_CODENAME" = "xenial" ]; then apt-get autoremove --purge -y libgdal-dev; fi
+  - if [ "$DISTRO_CODENAME" = "trusty" ]; then apt-get purge -y libgdal-dev; fi
+  - if [ "$DISTRO_CODENAME" = "xenial" ]; then apt-get purge -y libgdal-dev; fi
 
 variables:
   GET_SOURCES_ATTEMPTS: "3"
