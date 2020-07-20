@@ -443,6 +443,10 @@ template<class T> void loadInternal(Image<T> &image, GDALDataType gt,
 
     // loading bands directly or via color table
 
+    GDALRasterIOExtraArg arg;
+    INIT_RASTERIO_EXTRA_ARG(arg);
+    arg.eResampleAlg=GRIORA_Average;
+
     if (rgba_count < 0)
     {
       T *p=new T [w*h];
@@ -455,8 +459,8 @@ template<class T> void loadInternal(Image<T> &image, GDALDataType gt,
 
         if (getMaxValue(GDALGetRasterDataType(gb)) > 0)
         {
-          if (GDALRasterIO(gb, GF_Read, xf, yf, wf, hf, p, w, h, gt,
-                           sizeof(T), w*sizeof(T)) < CE_Failure)
+          if (GDALRasterIOEx(gb, GF_Read, xf, yf, wf, hf, p, w, h, gt,
+                           sizeof(T), w*sizeof(T), &arg) < CE_Failure)
           {
             for (int k=0; k<h; k++)
             {
@@ -487,8 +491,8 @@ template<class T> void loadInternal(Image<T> &image, GDALDataType gt,
 
       GDALRasterBandH gb=GDALGetRasterBand(gd, 1);
 
-      if (GDALRasterIO(gb, GF_Read, xf, yf, wf, hf, p, w, h, GDT_Int16,
-                       sizeof(short), w*sizeof(short)) < CE_Failure)
+      if (GDALRasterIOEx(gb, GF_Read, xf, yf, wf, hf, p, w, h, GDT_Int16,
+                       sizeof(short), w*sizeof(short), &arg) < CE_Failure)
       {
         for (int k=0; k<h; k++)
         {
