@@ -1,3 +1,9 @@
+Version 2.1.2 (2020-07-20)
+--------------------------
+
+- Loading downscaled images via GDAL using averaging instead of nearest
+  neighbor as for the other formats too
+
 Version 2.1.1 (2020-07-17)
 --------------------------
 
