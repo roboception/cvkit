@@ -195,7 +195,7 @@ set(INSTALL_DEVELOPMENT 1 CACHE BOOL "Install header and libs for development wi
 
 find_package(JPEG)
 find_package(PNG)
-find_package(GDAL)
+find_package(GDAL 2.0.0 REQUIRED)
 find_package(OpenGL)
 find_package(GLUT)
 find_package(GLEW)
