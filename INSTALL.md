@@ -15,9 +15,9 @@ Optional packages:
 
 - libjpeg for loading and saving JPG images with 8 bits per color.
 - libpng for loading and saving PNG files with 8 or 16 bits per color.
-- GDAL (www.gdal.org) is used for loading many different scientific raster
-  formats. It also supports loading and saving TIFF images with 8 or 16 bit
-  integer or 32 bit floating point values.
+- GDAL (www.gdal.org) version >= 2.0 is used for loading many different
+  scientific raster formats. It also supports loading and saving TIFF
+  images with 8 or 16 bit integer or 32 bit floating point values.
 
 If none of these libraries are available, only PGM, PPM and PFM are
 supported for loading and saving images.

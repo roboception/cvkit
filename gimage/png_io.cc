@@ -333,7 +333,7 @@ void PNGImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
         {
           if (nline[j] > 0)
           {
-            image.set(i, k, d, static_cast<ImageU8::store_t>(vline[j]/nline[j]));
+            image.set(i, k, d, static_cast<ImageU8::store_t>((vline[j]+nline[j]/2)/nline[j]));
           }
 
           j++;
@@ -554,7 +554,7 @@ void PNGImageIO::load(ImageU16 &image, const char *name, int ds, long x, long y,
         {
           if (nline[j] > 0)
           {
-            image.set(i, k, d, static_cast<ImageU8::store_t>(vline[j]/nline[j]));
+            image.set(i, k, d, static_cast<ImageU8::store_t>((vline[j]+nline[j]/2)/nline[j]));
           }
 
           j++;
