@@ -1,3 +1,8 @@
+Version 2.1.5 (2020-07-21)
+--------------------------
+
+- Fixed rounding when downscaling while loading images in PNG format
+
 Version 2.1.4 (2020-07-20)
 --------------------------
 
