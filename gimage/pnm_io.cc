@@ -709,14 +709,14 @@ void PNMImageIO::load(ImageFloat &image, const char *name, int ds, long x,
           prop.load((s.substr(0, pos)+"_param.txt").c_str());
         }
       }
-      catch (std::exception)
+      catch (const std::exception &)
       { }
 
       try
       {
         prop.load((s+"_param.txt").c_str());
       }
-      catch (std::exception)
+      catch (const std::exception &)
       { }
 
       if (prop.contains("subbit"))

@@ -214,7 +214,7 @@ bool ImageIO::handlesFile(const char *name, bool reading) const
     getBasicImageIO(name, reading);
     ret=true;
   }
-  catch (std::exception)
+  catch (const std::exception &)
   {
     ret=false;
   }
@@ -269,14 +269,14 @@ void loadTiledHeader(const BasicImageIO &io, std::set<std::string> &list,
   {
     prop.load((prefix+".hdr").c_str());
   }
-  catch (std::exception)
+  catch (const std::exception &)
   { }
 
   try
   {
     prop.load((prefix+"_param.txt").c_str());
   }
-  catch (std::exception)
+  catch (const std::exception &)
   { }
 
   prop.getValue("border", tborder, "0");
