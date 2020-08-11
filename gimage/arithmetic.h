@@ -136,6 +136,25 @@ template<class T> Image<T> &operator/=(Image<T> &image, double s)
   return image;
 }
 
+template<class T> void reciprocal(Image<T> &image)
+{
+  for (int d=0; d<image.getDepth(); d++)
+  {
+    for (long k=0; k<image.getHeight(); k++)
+    {
+      for (long i=0; i<image.getWidth(); i++)
+      {
+        T v=image.get(i, k, d);
+
+        if (image.isValidS(v))
+        {
+          image.setLimited(i, k, d, 1/v);
+        }
+      }
+    }
+  }
+}
+
 template<class T> Image<T> operator+(const Image<T> &image, typename Image<T>::work_t s)
 {
   Image<T> ret(image);

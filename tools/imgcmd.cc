@@ -292,6 +292,11 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
         image/=s;
       }
 
+      if (p == "-reciprocal")
+      {
+        reciprocal(image);
+      }
+
       if (p == "-noise")
       {
         double s;
@@ -517,6 +522,8 @@ int main(int argc, char *argv[])
 
     "-div # Divides all pixels by the given value.",
     " <s> # Floating point value.",
+
+    "-reciprocal # Computes the reciprocal of all pixel values",
 
     "-noise # Add Gaussian noise to the pixel values. The noise is scaled to the pixel intensity.",
     " <s> # Standard deviation at full intensity.",
