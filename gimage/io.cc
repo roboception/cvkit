@@ -93,21 +93,24 @@ void BasicImageIO::loadProperties(gutil::Properties &prop, const char *name) con
 
   if (pos != s.npos)
   {
-    s.replace(pos, s.size()-pos, ".hdr");
-  }
-  else
-  {
-    s.append(".hdr");
+    s=s.substr(0, pos);
   }
 
   std::ifstream in;
-
-  in.open(s.c_str(), std::ifstream::in);
-  in.close();
+  in.open((s+".hdr").c_str(), std::ifstream::in);
 
   if (!in.fail())
   {
-    prop.load(s.c_str());
+    prop.load(in);
+    in.close();
+  }
+
+  in.open((s+"_param.txt").c_str(), std::ifstream::in);
+
+  if (!in.fail())
+  {
+    prop.load(in);
+    in.close();
   }
 }
 
