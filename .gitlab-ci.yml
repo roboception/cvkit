@@ -46,9 +46,11 @@ variables:
 #############
 .test:
   stage: test
+  variables:
+    CMAKE_OPTS: ""
   script:
     - mkdir build && cd build
-    - cmake ..
+    - cmake $CMAKE_OPTS ..
     - make -j 4
     - CTEST_OUTPUT_ON_FAILURE=1 make test
 
