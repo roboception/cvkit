@@ -1,3 +1,11 @@
+Version 2.2.0 (2020-08-21)
+--------------------------
+
+- Added parameter -recirpocal to imgcmd
+- Fixing compiler warnings of gcc 9.3.0
+- Loading corresponding param.txt and hdr file as image properties in ImageIO::loadProperties() method
+- Building in gitlab without GDAL for arm bionic
+
 Version 2.1.5 (2020-07-21)
 --------------------------
 
