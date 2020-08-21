@@ -76,9 +76,11 @@ variables:
 # Debian packaging
 .package:
   stage: deploy
+  variables:
+    CMAKE_OPTS: ""
   script:
     - mkdir build && cd build
-    - cmake ..
+    - cmake $CMAKE_OPTS ..
     - make -j 4
     - make package
     - if [ -z "$APT_REPO" ]; then export APT_REPO=testing; fi
@@ -144,6 +146,8 @@ test:bionic:amd64:
 test:bionic:armhf:
   <<: *armhf_bionic_job
   extends: .test_latest
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 test:focal:amd64:
   <<: *amd64_focal_job
@@ -166,6 +170,8 @@ test_stable:bionic:amd64:
 test_stable:bionic:armhf:
   <<: *armhf_bionic_job
   extends: .test_stable
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 test_stable:focal:amd64:
   <<: *amd64_focal_job
@@ -188,6 +194,8 @@ package_testing:bionic:amd64:
 package_testing:bionic:armhf:
   <<: *armhf_bionic_job
   extends: .package_testing
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 package_testing:focal:amd64:
   <<: *amd64_focal_job
@@ -214,6 +222,8 @@ test_release:bionic:amd64:
 test_release:bionic:armhf:
   <<: *armhf_bionic_job
   extends: .test_release
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 test_release:focal:amd64:
   <<: *amd64_focal_job
@@ -236,6 +246,8 @@ package_stable:bionic:amd64:
 package_stable:bionic:armhf:
   <<: *armhf_bionic_job
   extends: .package_stable
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 package_stable:focal:amd64:
   <<: *amd64_focal_job
