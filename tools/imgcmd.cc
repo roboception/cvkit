@@ -406,7 +406,7 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
       if (p == "-print")
       {
         std::string what;
-        param.nextString(what, "all|type|min|max|width|height|depth");
+        param.nextString(what, "all|type|min|max|mean|width|height|depth");
 
         if (what == "all" || what == "type")
         {
@@ -422,6 +422,23 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
         if (what == "all" || what == "max")
         {
           std::cout << "max=" << image.maxValue() << std::endl;
+        }
+
+        if (what == "all" || what == "mean")
+        {
+          double v=0;
+
+          for (long k=0; k<image.getHeight(); k++)
+          {
+            for (long i=0; i<image.getWidth(); i++)
+            {
+              v+=image.get(i, k);
+            }
+          }
+
+          v/=image.getWidth()*image.getHeight();
+
+          std::cout << "mean=" << v << std::endl;
         }
 
         if (what == "all" || what == "width")
