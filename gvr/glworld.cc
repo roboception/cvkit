@@ -53,7 +53,8 @@
 #ifdef __APPLE__
 #include <glut.h>
 #else
-#include <GL/glut.h>
+#include <GL/freeglut.h>
+#define USES_FREEGLUT
 #endif
 
 #ifdef INCLUDE_PNG
@@ -428,7 +429,12 @@ void GLWorld::onKey(unsigned char key, int x, int y)
 
     case 'q':
     case 27: /* ESC */
+#ifdef USES_FREEGLUT
+      glutLeaveMainLoop(); // clean way to exit loop/program
+      return;
+#else
       exit(0);
+#endif
 
     case '0':
       {
