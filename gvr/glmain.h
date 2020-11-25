@@ -84,6 +84,12 @@ void GLTimerFunc(unsigned int milliseconds, void (*fct)(int value), int value);
 
 void GLMainLoop(GLListener &listener);
 
+/**
+  Leaves main loop.
+*/
+
+void GLLeaveMainLoop();
+
 }
 
 #endif

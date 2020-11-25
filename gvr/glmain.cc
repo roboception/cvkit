@@ -41,7 +41,8 @@
 #ifdef __APPLE__
 #include <glut.h>
 #else
-#include <GL/glut.h>
+#include <GL/freeglut.h>
+#define USES_FREEGLUT
 #endif
 
 #include <cstdlib>
@@ -195,6 +196,19 @@ void GLMainLoop(GLListener &l)
   // enter event loop
 
   glutMainLoop();
+}
+
+/**
+  Leaves main loop.
+*/
+
+void GLLeaveMainLoop()
+{
+#ifdef USES_FREEGLUT
+    glutLeaveMainLoop(); // clean way to exit loop/program
+#else
+    exit(0);
+#endif
 }
 
 }
