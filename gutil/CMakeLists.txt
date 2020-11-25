@@ -57,7 +57,10 @@ set(gutil_hh
 if (INCLUDE_PTHREADS)
   set(gutil_src ${gutil_src} thread_pthread.cc)
   set(gutil_src ${gutil_src} semaphore_pthread.cc)
-  set(gutil_src ${gutil_src} barrier_pthread.cc)
+
+  if (NOT APPLE)
+    set(gutil_src ${gutil_src} barrier_pthread.cc)
+  endif ()
 else ()
   set(gutil_src ${gutil_src} thread_cpp11.cc)
   set(gutil_src ${gutil_src} semaphore_cpp11.cc)
