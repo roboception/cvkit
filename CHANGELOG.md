@@ -1,3 +1,10 @@
+Version 2.2.1 (2020-11-25)
+--------------------------
+
+- Clean way to exit plyv using glutLeaveMainLoop instead of exit
+- Added printing of mean intensity value in imgcmd
+- Fix for Apples pthread implementation that does not know barriers
+
 Version 2.2.0 (2020-08-21)
 --------------------------
 
