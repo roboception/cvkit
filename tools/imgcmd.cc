@@ -565,7 +565,7 @@ int main(int argc, char *argv[])
     " <x> <y> # Position of pixel.",
 
     "-print # Prints information about the image to stdout.",
-    " <what> # Kind of requested information: all, min, max, width, height, depth or type.",
+    " <what> # Kind of requested information: all, min, max, mean, width, height, depth or type.",
 
     0
   };
