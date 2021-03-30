@@ -1,3 +1,8 @@
+Version 2.3.0 (2021-03-30)
+--------------------------
+
+- Added optional disparity image parameters disp.scale, disp.offset and disp.inv
+
 Version 2.2.1 (2020-11-25)
 --------------------------
 
