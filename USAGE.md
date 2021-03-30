@@ -105,6 +105,15 @@ Pw is defined by Pw = R*Pc + T:
     camera.R=[1 0 0; 0 1 0; 0 0 1]
     camera.T=[0 0 0]
 
+Disparity values are normally expected as absolute values that are stored in a
+floating point format (e.g. PFM or TIFF). Infinity is used to mark invalid
+values. For also supporting integer formats, the following optional values can
+be used:
+
+    disp.scale=1
+    disp.offset=0
+    disp.inv=inf
+
 For orthogonal height images, the following parameters must be given instead
 camera.A and rho:
 

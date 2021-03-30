@@ -36,6 +36,7 @@
 #include "view.h"
 #include "arithmetic.h"
 #include "io.h"
+#include "size.h"
 
 #include <gutil/misc.h>
 
@@ -271,24 +272,70 @@ void loadView(View &view, const char *name, const char *spath, bool verbose)
   // load disparity
 
   ImageFloat depth;
-  getImageIO().load(depth, list[0].c_str(), ds, x, y, w, h);
+  getImageIO().load(depth, list[0].c_str(), 1, ds*x, ds*y, ds*w, ds*h);
 
-  // consider optional offset
+  // consider value for invalid pixels (inf is default)
 
-  float doffs;
-  prop.getValue("doffs", doffs, "0");
-
-  if (doffs != 0)
+  try
   {
-    depth+=doffs;
-  }
+    float inv;
+    prop.getValue("disp.inv", inv);
 
-  // optionally downscale and set depth image
+    for (long k=0; k<depth.getHeight(); k++)
+    {
+      for (long i=0; i<depth.getWidth(); i++)
+      {
+        if (depth.get(i, k, 0) == inv)
+        {
+          depth.setInvalid(i, k, 0);
+        }
+      }
+    }
+  }
+  catch (const std::exception &)
+  { }
+
+  // optionally downscale image
 
   if (ds > 1)
   {
-    depth/=ds;
+    depth=downscaleImage(depth, ds);
   }
+
+  // get optional scale and offset
+
+  float scale, offset;
+
+  prop.getValue("disp.scale", scale, "1");
+  prop.getValue("disp.offset", offset, "0");
+
+  // apply scale, offset and downscale factor if any of them is not the default
+
+  if (ds > 1 || scale != 1 || offset != 0)
+  {
+    float dscale=1;
+    if (ds > 1)
+    {
+      dscale=1.0f/ds;
+    }
+
+    for (long k=0; k<depth.getHeight(); k++)
+    {
+      for (long i=0; i<depth.getWidth(); i++)
+      {
+        float *v=depth.getPtr(i, k, 0);
+
+        if (depth.isValidS(*v))
+        {
+          depth.set(i, k, 0, (scale* *v+offset)*dscale);
+        }
+
+        v++;
+      }
+    }
+  }
+
+  // set depth image
 
   view.setDepthImage(depth);
   depth.setSize(0, 0, 0);
@@ -296,9 +343,9 @@ void loadView(View &view, const char *name, const char *spath, bool verbose)
   // load image
 
   std::string imagename;
-  int scale=getViewImageName(imagename, name, spath, verbose);
+  int iscale=getViewImageName(imagename, name, spath, verbose);
 
-  scale*=ds;
+  iscale*=ds;
 
   if (imagename.size() > 0)
   {
@@ -306,7 +353,7 @@ void loadView(View &view, const char *name, const char *spath, bool verbose)
 
     try
     {
-      getImageIO().load(image, imagename.c_str(), 1, x*scale, y*scale, w*scale, h*scale);
+      getImageIO().load(image, imagename.c_str(), 1, x*iscale, y*iscale, w*iscale, h*iscale);
       view.setImage(image);
     }
     catch (gutil::Exception &)
@@ -316,7 +363,7 @@ void loadView(View &view, const char *name, const char *spath, bool verbose)
       try
       {
         ImageU16 image2;
-        getImageIO().load(image2, imagename.c_str(), 1, x*scale, y*scale, w*scale, h*scale);
+        getImageIO().load(image2, imagename.c_str(), 1, x*iscale, y*iscale, w*iscale, h*iscale);
 
         double s=image2.maxValue()/255.0;
 
@@ -521,7 +568,7 @@ void loadViewProperties(gutil::Properties &prop, const char *name, const char *s
         prop.putValue("t", t);
 
         mprop.getString("doffs", s, "0");
-        prop.putString("doffs", s);
+        prop.putString("disp.offset", s);
 
         prop.putString("camera.R", "[1 0 0; 0 1 0; 0 0 1]");
 
