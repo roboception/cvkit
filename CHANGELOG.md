@@ -1,3 +1,8 @@
+Version 2.3.1 (2021-04-07)
+--------------------------
+
+- Added some functions for dealing with quaternions
+
 Version 2.3.0 (2021-03-30)
 --------------------------
 
