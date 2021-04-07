@@ -58,6 +58,7 @@ set(gmath_hh
   camera.h
   camgeom.h
   pose.h
+  quaternion.h
   dmatrix.h
   dvector.h
   linalg.h

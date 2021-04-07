@@ -38,6 +38,7 @@
 #define GMATH_POSE_H
 
 #include "camgeom.h"
+#include "quaternion.h"
 
 #include <gmath/linalg.h>
 
@@ -107,7 +108,7 @@ inline Vector6d getPose(const Matrix34d &RT)
 }
 
 ///Format of returned quaternion is qx qy qz qw
-inline Vector4d getQuaternion(const Vector6d &pose)
+inline Quaternion getQuaternion(const Vector6d &pose)
 {
   Vector3d n(pose[3], pose[4], pose[5]);
   double phi=norm(n);
@@ -118,10 +119,10 @@ inline Vector4d getQuaternion(const Vector6d &pose)
     s/=phi;
   }
 
-  return Vector4d(n[0]*s, n[1]*s, n[2]*s, std::cos(phi/2));
+  return Quaternion(n[0]*s, n[1]*s, n[2]*s, std::cos(phi/2));
 }
 
-inline Vector6d getPose(const Vector4d &Q, const Vector3d &T)
+inline Vector6d getPose(const Quaternion &Q, const Vector3d &T)
 {
   double phi=2*std::acos(Q[3]);
   Vector6d pose(T[0], T[1], T[2], 0, 0, 0);
