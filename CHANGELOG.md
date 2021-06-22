@@ -1,3 +1,9 @@
+Version 2.3.2 (2021-06-22)
+--------------------------
+
+- Return 0 pointer in Distortion::create() if properties do not contain distortion
+- Fixed treatment of pixel center option in camera definition
+
 Version 2.3.1 (2021-04-07)
 --------------------------
 
