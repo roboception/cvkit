@@ -109,7 +109,7 @@ Distortion *Distortion::create(const gutil::Properties &prop, int id)
     return rtd.clone();
   }
 
-  if (rtd.countParameter() >= 1)
+  if (rtd.countParameter() > 2 || rtd.getParameter(0) != 0 || rtd.getParameter(1) != 0)
   {
     return new RadialDistortion(prop, id);
   }
