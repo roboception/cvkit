@@ -162,8 +162,8 @@ PinholeCamera::PinholeCamera(const gutil::Properties &prop, int id)
 
   if (origin == "center")
   {
-    A(0, 2)+=0.5;
-    A(1, 2)+=0.5;
+    P(0, 2)+=0.5;
+    P(1, 2)+=0.5;
   }
 
   double dx, dy;
