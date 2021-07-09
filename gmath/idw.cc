@@ -47,8 +47,8 @@ IDWNode::IDWNode(unsigned int _x, unsigned int _y, float _f, float _w)
   s=1;
 
   r2=5*5;
-  xs=x;
-  ys=y;
+  xs=static_cast<float>(x);
+  ys=static_cast<float>(y);
 
   n=1;
   f=_f;
@@ -78,7 +78,7 @@ IDWNode::IDWNode(unsigned int _x, unsigned int _y, unsigned int _s, IDWNode *_ch
   y=_y;
   s=_s;
 
-  r2=25*s*s;
+  r2=static_cast<float>(25*s*s);
   xs=x+0.5f*s-0.5f;
   ys=y+0.5f*s-0.5f;
 

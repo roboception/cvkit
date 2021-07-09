@@ -164,7 +164,7 @@ void MultiTexturedMesh::loadPLY(PLYReader &ply)
 
     if (k != 0)
     {
-      comment[i].find("texturefile");
+      k=comment[i].find("texturefile");
     }
 
     if (k == 0)

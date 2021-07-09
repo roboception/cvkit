@@ -168,7 +168,7 @@ void Distortion::cleanProperties(gutil::Properties &prop, int id) const
 
 RadialDistortion::RadialDistortion(int n)
 {
-  std::min(n, 3);
+  n=std::min(n, 3);
 
   kn=n;
   kd[0]=0;
@@ -318,7 +318,7 @@ void RadialDistortion::cleanProperties(gutil::Properties &prop, int id) const
 
 RadialTangentialDistortion::RadialTangentialDistortion(int n)
 {
-  std::min(n, 3);
+  n=std::min(n, 3);
 
   kn=n;
   kd[0]=0;

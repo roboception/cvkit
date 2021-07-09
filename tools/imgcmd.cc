@@ -304,7 +304,7 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
 
         srand(static_cast<unsigned int>(1000000*gutil::ProcTime::current()));
 
-        addScaledNoise(image, s);
+        addScaledNoise(image, static_cast<float>(s));
       }
 
       if (p == "-valid")
