@@ -72,7 +72,7 @@ class ProcTime
     void stop()
     {
       ULONGLONG tend=GetTickCount64();
-      total+=(tend-tstart)/1000.0;
+      total+=static_cast<double>(tend-tstart)/1000.0;
       tstart=tend;
     }
 
@@ -88,12 +88,12 @@ class ProcTime
 
     static double monotonic()
     {
-      return GetTickCount64()/1000.0;
+      return static_cast<double>(GetTickCount64())/1000.0;
     }
 
     static double current()
     {
-      return GetTickCount64()/1000.0;
+      return static_cast<double>(GetTickCount64())/1000.0;
     }
 };
 
