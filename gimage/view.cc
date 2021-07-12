@@ -619,7 +619,7 @@ int getTextureNameRating(std::string name)
           whitelist.rend()) - 1;
   if (last_whitelist_match_idx >= 0)
   {
-    return last_whitelist_match_idx + 1;
+    return static_cast<int>(last_whitelist_match_idx + 1);
   }
 
   return 0;
