@@ -1,3 +1,8 @@
+Version 2.3.3 (2021-07-13)
+--------------------------
+
+- Fixed some compile warnings and minor bugs
+
 Version 2.3.2 (2021-06-22)
 --------------------------
 
