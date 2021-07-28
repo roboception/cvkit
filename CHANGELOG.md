@@ -1,3 +1,8 @@
+Version 2.3.4 (2021-07-28)
+--------------------------
+
+- Fixed rounding of color to intensity conversion
+
 Version 2.3.3 (2021-07-13)
 --------------------------
 
