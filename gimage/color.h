@@ -185,7 +185,36 @@ void imageToGrey(Image<T> &ret, const Image<T> &image)
         ret.setLimited(i, k, 0,
                        (9798*static_cast<typename Image<T>::work_t>(red)
                         +19234*static_cast<typename Image<T>::work_t>(green)
-                        +3736*static_cast<typename Image<T>::work_t>(blue))/32768);
+                        +3736*static_cast<typename Image<T>::work_t>(blue)+16384)>>15);
+      }
+      else
+      {
+        ret.setInvalid(i, k, 0);
+      }
+    }
+  }
+}
+
+template<>
+inline void imageToGrey<float>(Image<float> &ret, const Image<float> &image)
+{
+  float red, green, blue;
+
+  assert(image.getDepth() == 3);
+
+  ret.setSize(image.getWidth(), image.getHeight(), 1);
+
+  for (long k=0; k<image.getHeight(); k++)
+  {
+    for (long i=0; i<image.getWidth(); i++)
+    {
+      red=image.get(i, k, 0);
+      green=image.get(i, k, 1);
+      blue=image.get(i, k, 2);
+
+      if (image.isValidS(red) && image.isValidS(green) && image.isValidS(blue))
+      {
+        ret.setLimited(i, k, 0, (9798*red+19234*green+3736*blue)/32768);
       }
       else
       {
