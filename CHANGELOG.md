@@ -1,3 +1,8 @@
+Version 2.3.5 (2021-07-28)
+--------------------------
+
+- Removed building for trusty and xenial on the CI
+
 Version 2.3.4 (2021-07-28)
 --------------------------
 
