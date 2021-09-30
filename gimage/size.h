@@ -256,7 +256,7 @@ template<> inline Image<float> downscaleImage(const Image<float> &image, int fac
 
         if (n > 0)
         {
-          *out++=static_cast<typename Image<float>::store_t>((v+(n>>1))/n);
+          *out++=static_cast<typename Image<float>::store_t>(v/n);
         }
         else
         {
@@ -292,7 +292,7 @@ template<> inline Image<float> downscaleImage(const Image<float> &image, int fac
 
         if (n > 0)
         {
-          *out++=static_cast<typename Image<float>::store_t>((v+(n>>1))/n);
+          *out++=static_cast<typename Image<float>::store_t>(v/n);
         }
         else
         {
@@ -331,7 +331,7 @@ template<> inline Image<float> downscaleImage(const Image<float> &image, int fac
 
         if (n > 0)
         {
-          *out++=static_cast<typename Image<float>::store_t>((v+(n>>1))/n);
+          *out++=static_cast<typename Image<float>::store_t>(v/n);
         }
         else
         {
