@@ -1,3 +1,8 @@
+Version 2.3.6 (2021-09-30)
+--------------------------
+
+- Fixed rounding error when downscaling floating point images
+
 Version 2.3.5 (2021-07-28)
 --------------------------
 
