@@ -47,6 +47,11 @@
 #include <vector>
 #include <limits>
 
+#ifdef WIN32
+#undef min
+#undef max
+#endif
+
 namespace gmath
 {
 

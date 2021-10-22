@@ -120,9 +120,9 @@ void MultiTexturedMesh::addGLObjects(std::vector<GLObject *> &list)
 
   for (size_t i=0; i<name.size(); i++)
   {
-    if (getUsedByTexture(i, vused, tused))
+    if (getUsedByTexture(static_cast<int>(i), vused, tused))
     {
-      TexturedMesh p(*this, i, vused, tused);
+      TexturedMesh p(*this, static_cast<int>(i), vused, tused);
       list.push_back(new GLTexturedMesh(p));
     }
   }

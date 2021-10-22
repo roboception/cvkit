@@ -255,7 +255,7 @@ void renderInfoText(const char *p, long fg_rgb, long bg_rgb)
   {
     if (list[i].size() > 0)
     {
-      glRasterPos2i(x+2, y+(i+1)*th);
+      glRasterPos2i(x+2, y+static_cast<int>(i+1)*th);
 
       for (size_t k=0; k<list[i].size(); k++)
       {

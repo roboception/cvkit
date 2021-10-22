@@ -349,7 +349,7 @@ void CameraCollection::addGLObjects(std::vector<GLObject *> &list)
 
     for (size_t i=0; i<cl.size(); i++)
     {
-      id.insert(std::pair<std::string,int>(cl[i].getName(), i));
+      id.insert(std::pair<std::string,int>(cl[i].getName(), static_cast<int>(i)));
       m.setVertex(i, cl[i].getT());
       m.setColor(i, 255, 255, 0);
     }
