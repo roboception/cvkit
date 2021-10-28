@@ -1,3 +1,11 @@
+Version 2.3.7 (2021-10-28)
+--------------------------
+
+- Fixed not checking last row and column when adapting to intensity in sv
+- Fixed loading images with colon in file name
+- Fixed compiling with GLEW on Mac
+- Fixed some Windows compile issues
+
 Version 2.3.6 (2021-09-30)
 --------------------------
 
