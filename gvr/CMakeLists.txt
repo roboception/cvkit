@@ -114,14 +114,9 @@ if (PNG_FOUND)
 endif ()
 
 if (OPENGL_FOUND AND GLUT_FOUND AND GLEW_FOUND)
-  message("cmake version: " ${CMAKE_VERSION})
-  message("GLEW include dir: " ${GLEW_INCLUDE_DIR})
-  message("GLEW include dirs: " ${GLEW_INCLUDE_DIRS})
-  message("GLEW libraries: " ${GLEW_LIBRARIES})
-  message("GLEW library: " ${GLEW_LIBRARY})
-
   target_link_libraries(gvr_static ${GLUT_glut_LIBRARY})
   target_link_libraries(gvr_static ${GLEW_LIBRARIES})
+  target_link_libraries(gvr_static GLEW::GLEW)
   target_link_libraries(gvr_static ${OPENGL_LIBRARIES})
 
   if (WIN32)
@@ -140,6 +135,7 @@ if (INSTALL_DEVELOPMENT)
   if (OPENGL_FOUND AND GLUT_FOUND AND GLEW_FOUND)
     target_link_libraries(gvr LINK_PRIVATE ${GLUT_glut_LIBRARY})
     target_link_libraries(gvr LINK_PRIVATE ${GLEW_LIBRARIES})
+    target_link_libraries(gvr LINK_PRIVATE GLEW::GLEW)
     target_link_libraries(gvr LINK_PRIVATE ${OPENGL_LIBRARIES})
 
     if (WIN32)

@@ -47,6 +47,9 @@ add_executable(imgcmd imgcmd.cc)
 target_link_libraries(imgcmd ${libs})
 
 add_executable(plycmd plycmd.cc)
+if (GLEW_FOUND)
+  target_link_libraries(plycmd GLEW::GLEW)
+endif ()
 target_link_libraries(plycmd gvr_static ${libs})
 
 install(TARGETS imgcmd plycmd DESTINATION bin)
@@ -67,6 +70,7 @@ if (OPENGL_FOUND AND GLUT_FOUND AND GLEW_FOUND)
   add_definitions(-DINCLUDE_GL)
   
   add_executable(plyv plyv.cc)
+  target_link_libraries(plyv GLEW::GLEW)
   target_link_libraries(plyv gvr_static ${libs})
   
   if (WIN32)
