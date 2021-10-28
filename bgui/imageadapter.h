@@ -138,9 +138,9 @@ template<class T> class ImageAdapter : public ImageAdapterBase
 
       for (int d=dmin; d<=dmax; d++)
       {
-        for (long y=ymin; y<ymax; y++)
+        for (long y=ymin; y<=ymax; y++)
         {
-          for (long x=xmin; x<xmax; x++)
+          for (long x=xmin; x<=xmax; x++)
           {
             double v=image->get(x, y, d);
 
