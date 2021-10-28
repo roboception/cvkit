@@ -408,22 +408,17 @@ void getPrefixAlternatives(std::vector<std::string> &list, const std::string &de
 
   pos=depthname.rfind(':');
 
-  if (pos != depthname.npos && depthname.compare(pos, 2, ":\\") == 0)
+  if (pos != depthname.npos && depthname.compare(pos, 2, ":\\") != 0)
   {
-    pos=depthname.npos;
+    list.push_back(depthname.substr(0, pos));
   }
 
-  if (pos == depthname.npos)
+  pos=depthname.rfind('.');
+
+  if (pos != depthname.npos && pos > spos)
   {
-    pos=depthname.rfind('.');
-
-    if (pos == depthname.npos || pos < spos)
-    {
-      return;
-    }
+    list.push_back(depthname.substr(0, pos));
   }
-
-  list.push_back(depthname.substr(0, pos));
 
   pos=depthname.rfind('_', pos-1);
 

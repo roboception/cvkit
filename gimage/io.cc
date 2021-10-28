@@ -78,6 +78,7 @@ void BasicImageIO::loadProperties(gutil::Properties &prop, const char *name) con
 {
   std::string s=name;
   size_t pos;
+  bool available=false;
 
   pos=s.rfind(':');
 
@@ -86,31 +87,60 @@ void BasicImageIO::loadProperties(gutil::Properties &prop, const char *name) con
     pos=s.npos;
   }
 
-  if (pos == s.npos)
-  {
-    pos=s.rfind('.');
-  }
-
   if (pos != s.npos)
   {
+    // try loading as tiled image
+
     s=s.substr(0, pos);
+
+    std::ifstream in;
+    in.open((s+".hdr").c_str(), std::ifstream::in);
+
+    if (!in.fail())
+    {
+      available=true;
+      prop.load(in);
+      in.close();
+    }
+
+    in.open((s+"_param.txt").c_str(), std::ifstream::in);
+
+    if (!in.fail())
+    {
+      available=true;
+      prop.load(in);
+      in.close();
+    }
   }
 
-  std::ifstream in;
-  in.open((s+".hdr").c_str(), std::ifstream::in);
-
-  if (!in.fail())
+  if (!available)
   {
-    prop.load(in);
-    in.close();
-  }
+    // loading as normal image
 
-  in.open((s+"_param.txt").c_str(), std::ifstream::in);
+    s=name;
+    pos=s.rfind('.');
 
-  if (!in.fail())
-  {
-    prop.load(in);
-    in.close();
+    if (pos != s.npos)
+    {
+      s=s.substr(0, pos);
+    }
+
+    std::ifstream in;
+    in.open((s+".hdr").c_str(), std::ifstream::in);
+
+    if (!in.fail())
+    {
+      prop.load(in);
+      in.close();
+    }
+
+    in.open((s+"_param.txt").c_str(), std::ifstream::in);
+
+    if (!in.fail())
+    {
+      prop.load(in);
+      in.close();
+    }
   }
 }
 
@@ -317,6 +347,11 @@ void loadTiledHeader(const BasicImageIO &io, std::set<std::string> &list,
     }
   }
 
+  if (cols == 0 || rows == 0)
+  {
+    throw gutil::IOException("This is not a tiled image: "+prefix+':'+suffix);
+  }
+
   // compute total size
 
   width=(twidth-2*tborder)*cols;
@@ -338,20 +373,28 @@ void ImageIO::loadHeader(const char *name, long &width, long &height,
 
   if (pos != s.npos)
   {
-    // extract prefix and suffix from file name
+    try
+    {
+      // extract prefix and suffix from file name
 
-    std::string prefix=s.substr(0, pos);
-    std::string suffix=s.substr(pos+1);
+      std::string prefix=s.substr(0, pos);
+      std::string suffix=s.substr(pos+1);
 
-    // get header information
+      // get header information
 
-    std::set<std::string> list;
-    long twidth;
-    long theight;
-    long tborder;
+      std::set<std::string> list;
+      long twidth;
+      long theight;
+      long tborder;
 
-    loadTiledHeader(getBasicImageIO(name, true), list, prefix, suffix, twidth,
-                    theight, tborder, width, height, depth);
+      loadTiledHeader(getBasicImageIO(name, true), list, prefix, suffix, twidth,
+                      theight, tborder, width, height, depth);
+    }
+    catch (const std::exception &)
+    {
+      // if loading as tiled image failes, try loading as normal image with colon in file name
+      getBasicImageIO(name, true).loadHeader(name, width, height, depth);
+    }
   }
   else
   {
@@ -579,7 +622,15 @@ void ImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
   }
   else
   {
-    loadTiled(getBasicImageIO(name, true), image, name, ds, x, y, w, h);
+    try
+    {
+      loadTiled(getBasicImageIO(name, true), image, name, ds, x, y, w, h);
+    }
+    catch (const std::exception &)
+    {
+      // if loading as tiled image fails, try loading as image with colon in file name
+      getBasicImageIO(name, true).load(image, name, ds, x, y, w, h);
+    }
   }
 }
 
@@ -600,7 +651,15 @@ void ImageIO::load(ImageU16 &image, const char *name, int ds, long x, long y,
   }
   else
   {
-    loadTiled(getBasicImageIO(name, true), image, name, ds, x, y, w, h);
+    try
+    {
+      loadTiled(getBasicImageIO(name, true), image, name, ds, x, y, w, h);
+    }
+    catch (const std::exception &)
+    {
+      // if loading as tiled image fails, try loading as image with colon in file name
+      getBasicImageIO(name, true).load(image, name, ds, x, y, w, h);
+    }
   }
 }
 
@@ -621,7 +680,15 @@ void ImageIO::load(ImageFloat &image, const char *name, int ds, long x, long y,
   }
   else
   {
-    loadTiled(getBasicImageIO(name, true), image, name, ds, x, y, w, h);
+    try
+    {
+      loadTiled(getBasicImageIO(name, true), image, name, ds, x, y, w, h);
+    }
+    catch (const std::exception &)
+    {
+      // if loading as tiled image fails, try loading as image with colon in file name
+      getBasicImageIO(name, true).load(image, name, ds, x, y, w, h);
+    }
   }
 }
 
