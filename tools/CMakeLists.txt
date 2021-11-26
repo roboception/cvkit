@@ -50,6 +50,9 @@ add_executable(plycmd plycmd.cc)
 if (GLEW_FOUND)
   target_link_libraries(plycmd GLEW::GLEW)
 endif ()
+if (GLUT_FOUND)
+  target_link_libraries(plycmd ${GLUT_LIBRARIES})
+endif ()
 target_link_libraries(plycmd gvr_static ${libs})
 
 install(TARGETS imgcmd plycmd DESTINATION bin)
@@ -68,15 +71,16 @@ if (OPENGL_FOUND AND GLUT_FOUND AND GLEW_FOUND)
   include_directories(${GLUT_INCLUDE_DIR})
   include_directories(${GLEW_INCLUDE_DIRS})
   add_definitions(-DINCLUDE_GL)
-  
+
   add_executable(plyv plyv.cc)
   target_link_libraries(plyv GLEW::GLEW)
+  target_link_libraries(plyv ${GLUT_LIBRARIES})
   target_link_libraries(plyv gvr_static ${libs})
-  
+
   if (WIN32)
     target_link_libraries(plyv gdi32 "-Wl,--subsystem,windows")
   endif ()
-  
+
   install(TARGETS plyv DESTINATION bin)
 endif ()
 
