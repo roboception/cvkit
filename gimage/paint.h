@@ -323,6 +323,55 @@ template<class T> void fillRect(Image<T> &image, long x, long y, long w,
   }
 }
 
+template<class T> void drawEllipse(Image<T> &image, long xm, long ym, long ra,
+  long rb, float r, float g=-1, float b=-1, double amin=0, double amax=2*3.14159265358979323846)
+{
+  double astep=std::max(0.0, amax-amin)/2*3.14159265358979323846/(4*ra+4*rb);
+
+  for (double t=amin; t<=amax; t+=astep)
+  {
+    long x=static_cast<long>(ra*cos(t)+xm+0.5);
+    long y=static_cast<long>(rb*sin(t)+ym+0.5);
+
+    if (x >= 0 && y >= 0 && x < image.getWidth() && y < image.getHeight())
+    {
+      image.set(x, y, 0, static_cast<T>(r));
+
+      if (image.getDepth() >= 3)
+      {
+        image.set(x, y, 1, static_cast<T>(g));
+        image.set(x, y, 2, static_cast<T>(b));
+      }
+    }
+  }
+}
+
+template<class T> void drawArrowEllipse(Image<T> &image, long xm, long ym, long ra,
+  long rb, long alen1, long alen2, float r, float g=-1, float b=-1, double amin=0, double amax=2*3.14159265358979323846)
+{
+  drawEllipse(image, xm, ym, ra, rb, r, g, b, amin, amax);
+
+  if (alen1 > 0)
+  {
+    long x1=static_cast<long>(ra*cos(amin+0.17)+xm+0.5);
+    long y1=static_cast<long>(rb*sin(amin+0.17)+ym+0.5);
+    long x2=static_cast<long>(ra*cos(amin)+xm+0.5);
+    long y2=static_cast<long>(rb*sin(amin)+ym+0.5);
+
+    drawArrowHead(image, x1, y1, x2, y2, alen1, r, g, b);
+  }
+
+  if (alen2 > 0)
+  {
+    long x1=static_cast<long>(ra*cos(amax-0.17)+xm+0.5);
+    long y1=static_cast<long>(rb*sin(amax-0.17)+ym+0.5);
+    long x2=static_cast<long>(ra*cos(amax)+xm+0.5);
+    long y2=static_cast<long>(rb*sin(amax)+ym+0.5);
+
+    drawArrowHead(image, x1, y1, x2, y2, alen2, r, g, b);
+  }
+}
+
 }
 
 #endif
