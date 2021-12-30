@@ -27,6 +27,12 @@ variables:
     - amd64
     - docker
 
+.armhf_focal_t: &armhf_focal_job
+  image: registry.roboception.de/tools/docker_images:armhf-focal-buildimage
+  tags:
+    - armhf
+    - docker
+
 #############
 # Templates
 #############
@@ -133,6 +139,12 @@ test:focal:amd64:
   <<: *amd64_focal_job
   extends: .test_latest
 
+test:bionic:armhf:
+  <<: *armhf_focal_job
+  extends: .test_latest
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
+
 # Test against stable (is allowed to fail)
 ##########################################
 test_stable:bionic:amd64:
@@ -149,6 +161,12 @@ test_stable:focal:amd64:
   <<: *amd64_focal_job
   extends: .test_stable
 
+test_stable:focal:armhf:
+  <<: *armhf_focal_job
+  extends: .test_stable
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
+
 # Deploy testing (only on master)
 #################################
 package_testing:bionic:amd64:
@@ -164,6 +182,12 @@ package_testing:bionic:armhf:
 package_testing:focal:amd64:
   <<: *amd64_focal_job
   extends: .package_testing
+
+package_testing:focal:armhf:
+  <<: *armhf_focal_job
+  extends: .package_testing
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 ################
 # Stable builds
@@ -185,6 +209,12 @@ test_release:focal:amd64:
   <<: *amd64_focal_job
   extends: .test_release
 
+test_release:focal:armhf:
+  <<: *armhf_focal_job
+  extends: .test_release
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
+
 # Deploy stable (only for releases, version tags)
 #################################################
 package_stable:bionic:amd64:
@@ -200,3 +230,9 @@ package_stable:bionic:armhf:
 package_stable:focal:amd64:
   <<: *amd64_focal_job
   extends: .package_stable
+
+package_stable:focal:armhf:
+  <<: *armhf_focal_job
+  extends: .package_stable
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
