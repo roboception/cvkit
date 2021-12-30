@@ -46,27 +46,6 @@ variables:
     - make -j 4
     - CTEST_OUTPUT_ON_FAILURE=1 make test
 
-# run test script with latest debs from testing installed
-.test_latest:
-  extends: .test
-  variables:
-    TESTING_DEBS: "true"
-
-# run test script with released debs from stable installed (allowed to fail)
-.test_stable:
-  extends: .test
-  allow_failure: true
-  except:
-    - /^v[0-9]+\.[0-9]+\.[0-9]+/
-
-# run test script with released debs from stable (only for releases, mustn't fail)
-.test_release:
-  extends: .test
-  only:
-    - /^v[0-9]+\.[0-9]+\.[0-9]+/
-  except:
-    - branches
-
 # Debian packaging
 .package:
   stage: deploy
@@ -87,7 +66,6 @@ variables:
   except:
     - tags
   variables:
-    TESTING_DEBS: "true"
     APT_REPO: "testing"
 
 .package_stable:
@@ -104,8 +82,6 @@ variables:
 ##############
 gen_dox:
   <<: *amd64_bionic_job
-  variables:
-    TESTING_DEBS: "true"
   stage: deploy
   script:
     - apt-get update -yq && apt-get install -y doxygen ncftp
@@ -123,47 +99,25 @@ gen_dox:
 # Testing builds
 ################
 
-# Test against latest (on every commit)
-#######################################
+# Test against (on every commit)
+################################
 test:bionic:amd64:
   <<: *amd64_bionic_job
-  extends: .test_latest
+  extends: .test
 
 test:bionic:armhf:
   <<: *armhf_bionic_job
-  extends: .test_latest
+  extends: .test
   variables:
     CMAKE_OPTS: "-DUSE_GDAL=off"
 
 test:focal:amd64:
   <<: *amd64_focal_job
-  extends: .test_latest
+  extends: .test
 
 test:bionic:armhf:
   <<: *armhf_focal_job
-  extends: .test_latest
-  variables:
-    CMAKE_OPTS: "-DUSE_GDAL=off"
-
-# Test against stable (is allowed to fail)
-##########################################
-test_stable:bionic:amd64:
-  <<: *amd64_bionic_job
-  extends: .test_stable
-
-test_stable:bionic:armhf:
-  <<: *armhf_bionic_job
-  extends: .test_stable
-  variables:
-    CMAKE_OPTS: "-DUSE_GDAL=off"
-
-test_stable:focal:amd64:
-  <<: *amd64_focal_job
-  extends: .test_stable
-
-test_stable:focal:armhf:
-  <<: *armhf_focal_job
-  extends: .test_stable
+  extends: .test
   variables:
     CMAKE_OPTS: "-DUSE_GDAL=off"
 
@@ -192,28 +146,6 @@ package_testing:focal:armhf:
 ################
 # Stable builds
 ################
-
-# Test against stable if it is a release
-########################################
-test_release:bionic:amd64:
-  <<: *amd64_bionic_job
-  extends: .test_release
-
-test_release:bionic:armhf:
-  <<: *armhf_bionic_job
-  extends: .test_release
-  variables:
-    CMAKE_OPTS: "-DUSE_GDAL=off"
-
-test_release:focal:amd64:
-  <<: *amd64_focal_job
-  extends: .test_release
-
-test_release:focal:armhf:
-  <<: *armhf_focal_job
-  extends: .test_release
-  variables:
-    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 # Deploy stable (only for releases, version tags)
 #################################################
