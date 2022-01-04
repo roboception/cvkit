@@ -1,3 +1,10 @@
+Version 2.3.8 (2022-01-04)
+--------------------------
+
+- Add armhf focal build for CI and removed unnecessary jobs
+- Added functions to draw an ellipse
+- Fixed compilation issues with GLUT on linux
+
 Version 2.3.7 (2021-10-28)
 --------------------------
 
