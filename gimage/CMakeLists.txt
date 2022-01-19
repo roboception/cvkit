@@ -54,6 +54,9 @@ set(gimage_hh
   compare.h
   polygon.h
   noise.h
+  gauss.h
+  gauss_pyramid.h
+  laplace_pyramid.h
 )
 
 if (USE_GDAL)

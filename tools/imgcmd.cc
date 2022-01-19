@@ -3,6 +3,7 @@
  *
  * Author: Heiko Hirschmueller
  *
+ * Copyright (c) 2021, Roboception GmbH
  * Copyright (c) 2014, Institute of Robotics and Mechatronics, German Aerospace Center
  * All rights reserved.
  *
@@ -37,6 +38,10 @@
 #include <gimage/io.h>
 #include <gimage/color.h>
 #include <gimage/size.h>
+#include <gimage/size.h>
+#include <gimage/gauss.h>
+#include <gimage/gauss_pyramid.h>
+#include <gimage/laplace_pyramid.h>
 #include <gimage/noise.h>
 #include <gimage/analysis.h>
 #include <gimage/arithmetic.h>
@@ -104,6 +109,20 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
 
         param.nextValue(factor);
         image=medianDownscaleImage(image, factor);
+      }
+
+      if (p == "-dsg")
+      {
+        gimage::Image<T> tmp;
+        gimage::reduceGauss(tmp, image);
+        image=tmp;
+      }
+
+      if (p == "-usg")
+      {
+        gimage::Image<T> tmp;
+        gimage::expandGauss(tmp, image);
+        image=tmp;
       }
 
       if (p == "-crop")
@@ -295,6 +314,33 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
       if (p == "-reciprocal")
       {
         reciprocal(image);
+      }
+
+      if (p == "-addimage")
+      {
+        gimage::Image<T> image2;
+
+        gimage::getImageIO().load(image2, nextParameterFilename(param, repl).c_str());
+
+        image+=image2;
+      }
+
+      if (p == "-subimage")
+      {
+        gimage::Image<T> image2;
+
+        gimage::getImageIO().load(image2, nextParameterFilename(param, repl).c_str());
+
+        image-=image2;
+      }
+
+      if (p == "-gauss")
+      {
+        float s;
+
+        param.nextValue(s);
+
+        gimage::gauss(image, s);
       }
 
       if (p == "-noise")
@@ -499,6 +545,10 @@ int main(int argc, char *argv[])
     "-dsm # Downscaling the image by computing the median.",
     " <ds> # Integer downscale factor.",
 
+    "-dsg # Downscaling the image by factor 2 after Gaussian smoothing.",
+
+    "-usg # Upsampling the image by factor 2 after Gaussian smoothing.",
+
     "-crop # Selecting a part of the image.",
     " <x> <y> # Left upper corner of the image.",
     " <w> <h> # Width and height of the image.",
@@ -541,6 +591,15 @@ int main(int argc, char *argv[])
     " <s> # Floating point value.",
 
     "-reciprocal # Computes the reciprocal of all pixel values",
+
+    "-addimage # Adds pixel values of the given image to the input image.",
+    " <image2> # File name of second image in the same format and size as the first image.",
+
+    "-subimage # Subtracts pixel values of the given image from the input image.",
+    " <image2> # File name of second image in the same format and size as the first image.",
+
+    "-gauss # Gaussian smoothing.",
+    " <s> # Standard deviation, which must be >= 0.5.",
 
     "-noise # Add Gaussian noise to the pixel values. The noise is scaled to the pixel intensity.",
     " <s> # Standard deviation at full intensity.",

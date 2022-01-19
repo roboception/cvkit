@@ -67,6 +67,38 @@ template<class T> Image<T> &operator+=(Image<T> &image, typename Image<T>::work_
   return image;
 }
 
+template<class T> Image<T> &operator+=(Image<T> &image, Image<T> &image2)
+{
+  if (image.getWidth() != image2.getWidth() || image.getHeight() != image2.getHeight() ||
+    image.getDepth() != image2.getDepth())
+  {
+    throw gutil::InvalidArgumentException("Images must have the same size and depth");
+  }
+
+  for (int d=0; d<image.getDepth(); d++)
+  {
+    for (long k=0; k<image.getHeight(); k++)
+    {
+      for (long i=0; i<image.getWidth(); i++)
+      {
+        typename Image<T>::work_t v=image.get(i, k, d);
+        typename Image<T>::work_t v2=image2.get(i, k, d);
+
+        if (image.isValidW(v) && image2.isValidW(v2))
+        {
+          image.setLimited(i, k, d, v+v2);
+        }
+        else
+        {
+          image.setInvalid(i, k, d);
+        }
+      }
+    }
+  }
+
+  return image;
+}
+
 template<class T> Image<T> &operator-=(Image<T> &image, typename Image<T>::work_t s)
 {
   for (int d=0; d<image.getDepth(); d++)
@@ -82,6 +114,38 @@ template<class T> Image<T> &operator-=(Image<T> &image, typename Image<T>::work_
         if (image.isValidS(v))
         {
           image.setLimited(i, k, d, v-s);
+        }
+      }
+    }
+  }
+
+  return image;
+}
+
+template<class T> Image<T> &operator-=(Image<T> &image, Image<T> &image2)
+{
+  if (image.getWidth() != image2.getWidth() || image.getHeight() != image2.getHeight() ||
+    image.getDepth() != image2.getDepth())
+  {
+    throw gutil::InvalidArgumentException("Images must have the same size and depth");
+  }
+
+  for (int d=0; d<image.getDepth(); d++)
+  {
+    for (long k=0; k<image.getHeight(); k++)
+    {
+      for (long i=0; i<image.getWidth(); i++)
+      {
+        typename Image<T>::work_t v=image.get(i, k, d);
+        typename Image<T>::work_t v2=image2.get(i, k, d);
+
+        if (image.isValidW(v) && image2.isValidW(v2))
+        {
+          image.setLimited(i, k, d, v-v2);
+        }
+        else
+        {
+          image.setInvalid(i, k, d);
         }
       }
     }
