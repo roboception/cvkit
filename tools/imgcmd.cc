@@ -41,7 +41,7 @@
 #include <gimage/size.h>
 #include <gimage/gauss.h>
 #include <gimage/gauss_pyramid.h>
-#include <gimage/laplace_pyramid.h>
+#include <gimage/hdr.h>
 #include <gimage/noise.h>
 #include <gimage/analysis.h>
 #include <gimage/arithmetic.h>
@@ -371,6 +371,32 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
         clipRange(image, static_cast<T>(from), static_cast<T>(to));
       }
 
+      if (p == "-hdr")
+      {
+        float scale;
+        param.nextValue(scale);
+
+        gimage::HighDynamicRangeFusion<T> hdr;
+
+        hdr.add(image, std::min(65535.0f, static_cast<float>(image.absMaxValue())));
+
+        std::string s;
+        std::vector<std::string> slist;
+        param.nextString(s);
+        gutil::split(slist, s, ',');
+
+        for (size_t i=0; i<slist.size(); i++)
+        {
+          gimage::Image<T> tmp;
+          std::string name=slist[i];
+          gutil::trim(name);
+          gimage::getImageIO().load(tmp, name.c_str());
+          hdr.add(tmp, std::min(65535.0f, static_cast<float>(image.absMaxValue())));
+        }
+
+        hdr.fuse(image, scale);
+      }
+
       if (p == "-cmp")
       {
         gimage::Image<T> image2;
@@ -609,6 +635,10 @@ int main(int argc, char *argv[])
 
     "-clip # Sets smaller or larger pixel values to the corresponding range value.",
     " <from> <to> # Range.",
+
+    "-hdr # Fuses all given image into one high dynamic range image.",
+    " <scale> # Factor for scaling pixel values. Default: 1.0",
+    " <image 1>,... # Comma separated list of images.",
 
     "-cmp # Compares images with some tolerance. The result is printed and given as image with absolute differences.",
     " <image> # Image for comparison.",

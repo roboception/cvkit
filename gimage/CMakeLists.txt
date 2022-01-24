@@ -40,6 +40,7 @@ set(gimage_src
   analysis.cc
   view.cc
   polygon.cc
+  hdr.cc
 )
 
 set(gimage_hh
@@ -57,6 +58,7 @@ set(gimage_hh
   gauss.h
   gauss_pyramid.h
   laplace_pyramid.h
+  hdr.h
 )
 
 if (USE_GDAL)

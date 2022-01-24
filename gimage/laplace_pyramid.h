@@ -54,7 +54,7 @@ namespace gimage
   @param image Input image.
 */
 
-template<class T> void createLaplacianPyramid(std::vector<ImageFloat > &p,
+template<class T> void createLaplacianPyramid(std::vector<ImageFloat> &p,
   const Image<T> &image)
 {
   // determine number of levels
@@ -139,7 +139,7 @@ template<class T> void createLaplacianPyramid(std::vector<ImageFloat > &p,
   @param p     Laplacian pyramid as input, which will be modified!
 */
 
-template<class T> void collapseLaplacianPyramid(Image<T> &image, std::vector<ImageFloat > &p)
+template<class T> void collapseLaplacianPyramid(Image<T> &image, std::vector<ImageFloat> &p)
 {
   if (p.size() < 1) return; // there is no pyramid
 
@@ -194,7 +194,7 @@ template<class T> void collapseLaplacianPyramid(Image<T> &image, std::vector<Ima
 
   // image at level 0 is result
 
-  image.setImage(p[0]);
+  image.setImageLimited(p[0]);
 }
 
 }

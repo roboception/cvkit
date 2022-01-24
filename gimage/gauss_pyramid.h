@@ -159,9 +159,12 @@ template<class T, class S> void createGaussPyramid(std::vector<Image<T> > &p, co
 
   if (n == 0) return; // input image is too small
 
-  // populate highest level with given image
+  // populate highest level with given image if not already done
 
-  p[0].setImage(image);
+  if (&(p[0]) != &image)
+  {
+    p[0].setImage(image);
+  }
 
   // smooth and downsample image for all other levels
 
