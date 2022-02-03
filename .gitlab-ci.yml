@@ -115,7 +115,7 @@ test:focal:amd64:
   <<: *amd64_focal_job
   extends: .test
 
-test:bionic:armhf:
+test:focal:armhf:
   <<: *armhf_focal_job
   extends: .test
   variables:
