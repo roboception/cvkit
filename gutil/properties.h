@@ -149,6 +149,23 @@ class Properties
       }
     }
 
+    std::string getString(const char *key)
+    {
+      std::string value;
+      getString(key, value, "");
+      return value;
+    }
+
+    int getInteger(const char *key)
+    {
+      return std::stoi(getString(key));
+    }
+
+    double getDouble(const char *key)
+    {
+      return std::stod(getString(key));
+    }
+
     void putString(const char *key, const std::string &value);
 
     template <class T> void putValue(const char *key, const T &value)
