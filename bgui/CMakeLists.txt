@@ -52,11 +52,11 @@ if (USE_GDAL)
   add_definitions(-DINCLUDE_GDAL)
 endif ()
 
-if (JPEG_FOUND)
+if (USE_JPEG)
   add_definitions(-DINCLUDE_JPEG)
 endif ()
 
-if (PNG_FOUND)
+if (USE_PNG)
   include_directories(${PNG_INCLUDE_DIRS})
   add_definitions(-DINCLUDE_PNG)
   add_definitions(${PNG_DEFINITIONS})
@@ -74,7 +74,7 @@ endif ()
 
 add_library(bgui_static STATIC ${bgui_src})
 
-if (PNG_FOUND)
+if (USE_PNG)
   target_link_libraries(bgui_static ${PNG_LIBRARIES})
 endif ()
 
@@ -86,7 +86,7 @@ if (INSTALL_DEVELOPMENT)
   add_library(bgui SHARED ${bgui_src})
   target_link_libraries(bgui LINK_PRIVATE gimage gutil)
 
-  if (PNG_FOUND)
+  if (USE_PNG)
     target_link_libraries(bgui LINK_PRIVATE ${PNG_LIBRARIES})
   endif ()
 

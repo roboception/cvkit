@@ -210,12 +210,30 @@ if (NOT WIN32 AND NOT CYGWIN)
   endif ()
 endif ()
 
-# make it possible to compile without GDAL, even if it is available
+# make it possible to compile without external dependencies
+
+if (JPEG_FOUND)
+  set(USE_JPEG 1 CACHE BOOL "Use JPEG for loading and saving images")
+else ()
+  set(USE_JPEG 0 CACHE BOOL "Use JPEG for loading and saving images" FORCE)
+endif ()
+
+if (PNG_FOUND)
+  set(USE_PNG 1 CACHE BOOL "Use PNG for loading and saving images")
+else ()
+  set(USE_PNG 0 CACHE BOOL "Use PNG for loading and saving images" FORCE)
+endif ()
 
 if (GDAL_FOUND)
-  set(USE_GDAL 1 CACHE BOOL "Install header and libs for development with cvkit")
+  set(USE_GDAL 1 CACHE BOOL "Use GDAL for loading and saving images")
 else ()
-  set(USE_GDAL 0 CACHE BOOL "Install header and libs for development with cvkit" FORCE)
+  set(USE_GDAL 0 CACHE BOOL "Use GDAL for loading and saving images" FORCE)
+endif ()
+
+if (OPENGL_FOUND AND GLUT_FOUND AND GLEW_FOUND)
+  set(USE_3D 1 CACHE BOOL "Compile with support for 3D visualization")
+else ()
+  set(USE_3D 0 CACHE BOOL "Compile with support for 3D visualization" FORCE)
 endif ()
 
 # - Use C++11 -

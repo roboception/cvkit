@@ -67,27 +67,27 @@ if (USE_GDAL)
   set(gimage_src ${gimage_src} gdal_io.cc)
 endif (USE_GDAL)
 
-if (JPEG_FOUND)
+if (USE_JPEG)
   include_directories(${JPEG_INCLUDE_DIRS})
   add_definitions(-DINCLUDE_JPEG)
   set(gimage_src ${gimage_src} jpeg_io.cc)
-endif (JPEG_FOUND)
+endif (USE_JPEG)
 
-if (PNG_FOUND)
+if (USE_PNG)
   include_directories(${PNG_INCLUDE_DIRS})
   add_definitions(-DINCLUDE_PNG)
   add_definitions(${PNG_DEFINITIONS})
   set(gimage_src ${gimage_src} png_io.cc)
-endif (PNG_FOUND)
+endif (USE_PNG)
 
 add_library(gimage_static STATIC ${gimage_src})
 target_link_libraries(gimage_static gutil_static)
 
-if (JPEG_FOUND)
+if (USE_JPEG)
   target_link_libraries(gimage_static ${JPEG_LIBRARIES})
 endif ()
 
-if (PNG_FOUND)
+if (USE_PNG)
   target_link_libraries(gimage_static ${PNG_LIBRARIES})
 endif ()
 
@@ -100,11 +100,11 @@ if (INSTALL_DEVELOPMENT)
   target_link_libraries(gimage LINK_PRIVATE gmath)
   target_link_libraries(gimage LINK_PRIVATE gutil)
 
-  if (JPEG_FOUND)
+  if (USE_JPEG)
     target_link_libraries(gimage LINK_PRIVATE ${JPEG_LIBRARIES})
   endif ()
 
-  if (PNG_FOUND)
+  if (USE_PNG)
     target_link_libraries(gimage LINK_PRIVATE ${PNG_LIBRARIES})
   endif ()
 
