@@ -1,3 +1,11 @@
+Version 2.4.0 (2022-03-30)
+--------------------------
+
+- Added cmake options to not use a dependency, even if it is available
+- Added some convenience methods to gutil::Properties class
+- Added hdr image fusion
+- Added some options for image manipulation to imgcmd
+
 Version 2.3.8 (2022-01-04)
 --------------------------
 
