@@ -65,6 +65,40 @@ void VEdge::setYCurrent(long yc)
   xc=(xend-xstart)*(yc-ymin)/(ymax-ymin)+xstart;
 }
 
+long Polygon::getCenterX() const
+{
+  long ret=0;
+
+  if (vertex.size() > 0)
+  {
+    for (size_t i=0; i<vertex.size(); i++)
+    {
+      ret+=vertex[i][0];
+    }
+
+    ret/=vertex.size();
+  }
+
+  return ret;
+}
+
+long Polygon::getCenterY() const
+{
+  long ret=0;
+
+  if (vertex.size() > 0)
+  {
+    for (size_t i=0; i<vertex.size(); i++)
+    {
+      ret+=vertex[i][1];
+    }
+
+    ret/=vertex.size();
+  }
+
+  return ret;
+}
+
 bool Polygon::isInside(long x, long y) const
 {
   bool ret=false;
@@ -107,6 +141,32 @@ void Polygon::scale(double s)
     vertex[i][1]=static_cast<long>(s*vertex[i][1]);
   }
 }
+
+void Polygon::scaleCenter(double s)
+{
+  if (vertex.size() > 0)
+  {
+    double cx=0;
+    double cy=0;
+
+    for (size_t i=0; i<vertex.size(); i++)
+    {
+      cx+=vertex[i][0];
+      cy+=vertex[i][1];
+    }
+
+    cx/=vertex.size();
+    cy/=vertex.size();
+
+    for (size_t i=0; i<vertex.size(); i++)
+    {
+      vertex[i][0]=static_cast<long>(s*(vertex[i][0]-cx)+cx);
+      vertex[i][1]=static_cast<long>(s*(vertex[i][1]-cy)+cy);
+    }
+  }
+}
+
+
 
 void Polygon::getVEdges(std::vector<VEdge> &list) const
 {

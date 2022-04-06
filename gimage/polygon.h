@@ -138,6 +138,22 @@ class Polygon
     long getY(int i) const { return vertex[i][1]; }
 
     /**
+      Returns the X coordinate of the center of all vertices.
+
+      @return X coordinate of center.
+    */
+
+    long getCenterX() const;
+
+    /**
+      Returns the Y coordinate of the center of all vertices.
+
+      @return Y coordinate of center.
+    */
+
+    long getCenterY() const;
+
+    /**
       Checks if the given point is inside the polygon.
 
       @param x X coordinate of point;
@@ -179,6 +195,14 @@ class Polygon
     */
 
     void scale(double s);
+
+    /**
+      Scale all vertices by the given factor in relation to center of polygon.
+
+      @param s Scale factor.
+    */
+
+    void scaleCenter(double s);
 
     /**
       Computes the list of non-horizontal edges of the polygon. The edges are
