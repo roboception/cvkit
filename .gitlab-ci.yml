@@ -21,6 +21,12 @@ variables:
     - armhf
     - docker
 
+.arm64_bionic_t: &arm64_bionic_job
+  image: registry.roboception.de/tools/docker_images:bionic-buildimage
+  tags:
+    - arm64
+    - docker
+
 .amd64_focal_t: &amd64_focal_job
   image: registry.roboception.de/tools/docker_images:focal-buildimage
   tags:
@@ -31,6 +37,12 @@ variables:
   image: registry.roboception.de/tools/docker_images:armhf-focal-buildimage
   tags:
     - armhf
+    - docker
+
+.arm64_focal_t: &arm64_focal_job
+  image: registry.roboception.de/tools/docker_images:focal-buildimage
+  tags:
+    - arm64
     - docker
 
 #############
@@ -111,6 +123,10 @@ test:bionic:armhf:
   variables:
     CMAKE_OPTS: "-DUSE_GDAL=off"
 
+test:bionic:arm64:
+  <<: *arm64_bionic_job
+  extends: .test
+
 test:focal:amd64:
   <<: *amd64_focal_job
   extends: .test
@@ -120,6 +136,10 @@ test:focal:armhf:
   extends: .test
   variables:
     CMAKE_OPTS: "-DUSE_GDAL=off"
+
+test:focal:arm64:
+  <<: *arm64_focal_job
+  extends: .test
 
 # Deploy testing (only on master)
 #################################
@@ -133,6 +153,10 @@ package_testing:bionic:armhf:
   variables:
     CMAKE_OPTS: "-DUSE_GDAL=off"
 
+package_testing:bionic:arm64:
+  <<: *arm64_bionic_job
+  extends: .package_testing
+
 package_testing:focal:amd64:
   <<: *amd64_focal_job
   extends: .package_testing
@@ -142,6 +166,10 @@ package_testing:focal:armhf:
   extends: .package_testing
   variables:
     CMAKE_OPTS: "-DUSE_GDAL=off"
+
+package_testing:focal:arm64:
+  <<: *arm64_focal_job
+  extends: .package_testing
 
 ################
 # Stable builds
@@ -159,6 +187,10 @@ package_stable:bionic:armhf:
   variables:
     CMAKE_OPTS: "-DUSE_GDAL=off"
 
+package_stable:bionic:arm64:
+  <<: *arm64_bionic_job
+  extends: .package_stable
+
 package_stable:focal:amd64:
   <<: *amd64_focal_job
   extends: .package_stable
@@ -168,3 +200,7 @@ package_stable:focal:armhf:
   extends: .package_stable
   variables:
     CMAKE_OPTS: "-DUSE_GDAL=off"
+
+package_stable:focal:arm64:
+  <<: *arm64_focal_job
+  extends: .package_stable
