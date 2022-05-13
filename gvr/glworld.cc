@@ -90,6 +90,7 @@ GLWorld::GLWorld(int w, int h)
 
   colorschema=0;
 
+  bg_locked=false;
   glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
   txt_rgb=0xffffff;
 
@@ -107,6 +108,12 @@ GLWorld::~GLWorld()
   }
 
   list.resize(0);
+}
+
+void GLWorld::setBackgroundColor(float red, float green, float blue)
+{
+  glClearColor(red, green, blue, 0.0f);
+  bg_locked=true;
 }
 
 void GLWorld::addModel(Model &model)
@@ -333,22 +340,25 @@ void GLWorld::onKey(unsigned char key, int x, int y)
       break;
 
     case '\t':
-      if (colorschema == 0)
+      if (!bg_locked)
       {
-        colorschema=1;
+        if (colorschema == 0)
+        {
+          colorschema=1;
 
-        glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-        txt_rgb=0x4c4c4c;
+          glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+          txt_rgb=0x4c4c4c;
+        }
+        else
+        {
+          colorschema=0;
+
+          glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
+          txt_rgb=0xffffff;
+        }
+
+        redisplay=true;
       }
-      else
-      {
-        colorschema=0;
-
-        glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
-        txt_rgb=0xffffff;
-      }
-
-      redisplay=true;
       break;
 
     case 'f':

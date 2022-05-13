@@ -80,6 +80,7 @@ class GLWorld : public GLListener
     int               mb, mx, my;
     int               mod;
 
+    bool              bg_locked;
     std::string       infotext;
     std::string       infoline;
 
@@ -90,6 +91,8 @@ class GLWorld : public GLListener
 
     GLWorld(int w, int h);
     virtual ~GLWorld();
+
+    void setBackgroundColor(float red, float green, float blue);
 
     void setInfoText(const std::string &s) { infotext=s; }
     void setInfoLine(const std::string &s) { infoline=s; }
