@@ -1,3 +1,9 @@
+Version 2.4.2 (2022-05-13)
+--------------------------
+
+- In GL window, toggling texture when clicking in lower, right corner additionally to 't' key
+- Added method to set background color for GL windows
+
 Version 2.4.1 (2022-04-06)
 --------------------------
 
