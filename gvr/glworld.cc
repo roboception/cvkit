@@ -543,6 +543,15 @@ void GLWorld::onMouseButton(int button, int state, int x, int y)
         std::abs(static_cast<double>(x-mx)) <= 1 && std::abs(static_cast<double>(y-my)) <= 1)
     {
       mod=GLUT_ACTIVE_CTRL;
+
+      // as special treatment toggle texture when double clicking into lower
+      // right corner
+
+      if (x > camera.getWidth()*0.98 && y > camera.getHeight()*0.98)
+      {
+        camera.onKey('t', x, y);
+        return;
+      }
     }
 
     mt.clear();
