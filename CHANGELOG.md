@@ -1,3 +1,8 @@
+Version 2.4.3 (2022-05-20)
+--------------------------
+
+- In GL window, removed toggling texture when clicking in lower, right corner
+
 Version 2.4.2 (2022-05-13)
 --------------------------
 
