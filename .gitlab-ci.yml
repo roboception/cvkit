@@ -93,7 +93,7 @@ variables:
 #### Jobs ####
 ##############
 gen_dox:
-  <<: *amd64_bionic_job
+  <<: *amd64_focal_job
   stage: deploy
   script:
     - apt-get update -yq && apt-get install -y doxygen ncftp
