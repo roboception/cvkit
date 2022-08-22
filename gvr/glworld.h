@@ -62,6 +62,8 @@ class GLWorld : public GLListener
 {
   private:
 
+    bool              apply_keycodes;
+    std::string       keycodes;
     std::string       prefix;
 
     gmath::Vector3d   offset;
@@ -89,7 +91,7 @@ class GLWorld : public GLListener
 
   public:
 
-    GLWorld(int w, int h);
+    GLWorld(int w, int h, double hfov=-1, const std::string &keycodes="");
     virtual ~GLWorld();
 
     void setBackgroundColor(float red, float green, float blue);

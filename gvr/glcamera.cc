@@ -145,6 +145,13 @@ void GLCamera::init(const gmath::Vector3d &c, double size)
   center=c;
 }
 
+void GLCamera::setHFoV(double hfov)
+{
+  fov=hfov;
+  f=static_cast<float>(width/(2*tan(fov/2)));
+  computeTransformation();
+}
+
 void GLCamera::setSize(int w, int h)
 {
   width=w;

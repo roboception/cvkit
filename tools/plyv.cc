@@ -39,9 +39,11 @@
 #include <gvr/glworld.h>
 #include <gmath/svector.h>
 #include <gmath/camera.h>
+#include <gmath/linalg.h>
 #include <gutil/parameter.h>
 #include <gutil/exception.h>
 #include <gutil/version.h>
+#include <gutil/misc.h>
 
 #include <cstdlib>
 
@@ -69,6 +71,14 @@ int main(int argc, char *argv[])
       "-version # Print version and exit.",
       "-spath # Search path for finding parameter files or images that are associated with the depth image. Default is the content of the environment variable CVKIT_SPATH.",
       " <dir list> # List of directories.",
+      "-bg # Setting background color.",
+      " <r>,<g>,<b> # Background color.",
+      "-size # Set size of virtual camera image.",
+      " <w> <h> # Size of image. Default: 800 600",
+      "-hfov # Horizontal field of view.",
+      " <hfov> # Horizontal field of view in degree. Default: 50",
+      "-key # Sends the given keycodes to the viewer on startup.",
+      " <codes> # Key codes to be set in the given order.",
       0
     };
 
@@ -77,6 +87,11 @@ int main(int argc, char *argv[])
     // handle options
 
     std::string spath;
+    std::string bg;
+    std::string keycodes;
+    int width=800;
+    int height=600;
+    double hfov=-1;
 
     if (getenv("CVKIT_SPATH") != 0)
     {
@@ -105,6 +120,28 @@ int main(int argc, char *argv[])
       {
         param.nextString(spath);
       }
+
+      if (p == "-bg")
+      {
+        param.nextString(bg);
+      }
+
+      if (p == "-key")
+      {
+        param.nextString(keycodes);
+      }
+
+      if (p == "-size")
+      {
+        param.nextValue(width);
+        param.nextValue(height);
+      }
+
+      if (p == "-hfov")
+      {
+        param.nextValue(hfov);
+        hfov=hfov/180*gmath::pi;
+      }
     }
 
     if (param.remaining() < 1)
@@ -116,10 +153,28 @@ int main(int argc, char *argv[])
 
     // initialization
 
-    gvr::GLInitWindow(-1, -1, 800, 600, "plyv");
+    gvr::GLInitWindow(-1, -1, width, height, "plyv");
 
-    gvr::GLWorld          world(800, 600);
+    gvr::GLWorld          world(width, height, hfov, keycodes);
     gvr::CameraCollection camlist;
+
+    if (bg.size() > 0)
+    {
+      std::vector<std::string> list;
+
+      gutil::split(list, bg, ',');
+
+      if (list.size() != 3)
+      {
+        throw gutil::InvalidArgumentException(std::string("Illegal format: ")+bg);
+      }
+
+      float r=std::max(0.0f, std::min(1.0f, std::stoi(list[0])/255.0f));
+      float g=std::max(0.0f, std::min(1.0f, std::stoi(list[1])/255.0f));
+      float b=std::max(0.0f, std::min(1.0f, std::stoi(list[2])/255.0f));
+
+      world.setBackgroundColor(r, g, b);
+    }
 
     // add models
 

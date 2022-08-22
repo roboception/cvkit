@@ -87,6 +87,10 @@ class GLCamera
 
     void init(const gmath::Vector3d &c, double size);
 
+    // set horizontal field of view in radians
+
+    void setHFoV(double hfov);
+
     // size of window for rendering
 
     void setSize(int w, int h);

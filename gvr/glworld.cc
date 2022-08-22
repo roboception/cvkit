@@ -63,8 +63,11 @@
 namespace gvr
 {
 
-GLWorld::GLWorld(int w, int h)
+GLWorld::GLWorld(int w, int h, double hfov, const std::string &_keycodes)
 {
+  keycodes=_keycodes;
+  apply_keycodes=(keycodes.size() > 0);
+
   extmin[0]=std::numeric_limits<float>::max();
   extmin[1]=std::numeric_limits<float>::max();
   extmin[2]=std::numeric_limits<float>::max();
@@ -83,6 +86,11 @@ GLWorld::GLWorld(int w, int h)
   showid[ID_CAMERA_BODY]=false;
   showid[ID_CAMERA_RANGE]=false;
   showid[ID_CAMERA_LINK]=false;
+
+  if (hfov > 0)
+  {
+    camera.setHFoV(hfov);
+  }
 
   camera.setSize(w, h);
 
@@ -167,6 +175,19 @@ void GLWorld::resetCamera()
 
 void GLWorld::onRedraw()
 {
+  // before first redraw, apply key codes (except c and q)
+
+  if (apply_keycodes)
+  {
+    for (size_t k=0; k<keycodes.size(); k++)
+    {
+      if (keycodes[k] != 'c' && keycodes[k] != 'q')
+      {
+        onKey(keycodes[k], 0, 0);
+      }
+    }
+  }
+
   // clear buffer
 
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -191,6 +212,21 @@ void GLWorld::onRedraw()
   if (infoline.size() > 0)
   {
     renderInfoLine(infoline.c_str(), txt_rgb);
+  }
+
+  // after first redraw, apply key codes (only c and q)
+
+  if (apply_keycodes)
+  {
+    for (size_t k=0; k<keycodes.size(); k++)
+    {
+      if (keycodes[k] == 'c' || keycodes[k] == 'q')
+      {
+        onKey(keycodes[k], 0, 0);
+      }
+    }
+
+    apply_keycodes=false;
   }
 
   // swap buffer
@@ -244,7 +280,7 @@ void GLWorld::onKey(unsigned char key, int x, int y)
         out << "Camera and Window:\n";
         out << "'r'        Reset camera position and orientation.\n";
         out << "'f'        Toggle fullscreen on or off.\n";
-        out << "'c'        Capture current image to file.\n";
+        out << "'c'        Capture current image to file and print current pose.\n";
         out << "\n";
         out << "Rendering:\n";
         out << "'p'        Toggle between rendering mesh (if available) and point cloud.\n";
