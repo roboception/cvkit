@@ -1,3 +1,8 @@
+Version 2.5.0 (2022-09-12)
+--------------------------
+
+- Added setting background color, size and fov of virtual camera and applying keys to plyv
+
 Version 2.4.3 (2022-05-20)
 --------------------------
 
