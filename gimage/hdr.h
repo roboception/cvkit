@@ -55,8 +55,12 @@ class HighDynamicRangeFusionBase
 
     struct Data
     {
+      int id;
+      uint64_t timestamp;
       std::vector<ImageFloat> laplace;
       std::vector<ImageFloat> weight;
+
+      Data(int _id=-1, uint64_t _timestamp=0) : id(_id), timestamp(_timestamp) { }
     };
 
     std::vector<std::shared_ptr<Data> > list;
@@ -194,11 +198,18 @@ template<class T> class HighDynamicRangeFusion : private HighDynamicRangeFusionB
       and must capture the same scene from the same viewpoint, but they should
       be taken with different exposure times and gain values.
 
-      @param image     Input image.
-      @param max_value Maximum pixel value, used for scaling weighting functions.
+      @param image      Input image.
+      @param max_value  Maximum pixel value, used for scaling weighting functions.
+      @param id         Unique ID. If an image with this ID has already been added,
+                        then the given image replaces that one. If id < 0, then it
+                        will always be added.
+      @param timestamp  Timestamp of image, just for reporting in fuse method.
+      @param replace_id If true, then images with existing id >= 0 are replaced,
+                        otherwise they are skipped.
     */
 
-    void add(const Image<T> &image, float max_value=255)
+    void add(const Image<T> &image, float max_value=255, int id=-1, uint64_t timestamp=0,
+      bool replace_id=true)
     {
       // check that image has same size and depth as previous images
 
@@ -209,10 +220,39 @@ template<class T> class HighDynamicRangeFusion : private HighDynamicRangeFusionB
         throw std::invalid_argument("HighDynamicRangeFusion::add(): All images must have same size and depth");
       }
 
-      // create Laplace pyramid from image
+      // find existing data set with the same id
 
-      std::shared_ptr<Data> p=std::make_shared<Data>();
-      list.push_back(p);
+      int k=-1;
+      if (id >= 0)
+      {
+        for (size_t i=0; i<list.size() && k < 0; i++)
+        {
+          if (list[i]->id == id)
+          {
+            k=i;
+          }
+        }
+      }
+
+      if (k >= 0 && !replace_id)
+      {
+        return;
+      }
+
+      // add, replace or skip data set, depending on the id and replace_id
+
+      std::shared_ptr<Data> p=std::make_shared<Data>(id, timestamp);
+
+      if (k >= 0)
+      {
+        list[k]=p;
+      }
+      else
+      {
+        list.push_back(p);
+      }
+
+      // create Laplace pyramid from image
 
       createLaplacianPyramid(p->laplace, image);
 
@@ -255,15 +295,30 @@ template<class T> class HighDynamicRangeFusion : private HighDynamicRangeFusionB
     }
 
     /**
+      Return number of images that has been added until now.
+
+      @return Number of added images.
+    */
+
+    int getSize() { return static_cast<int>(list.size()); }
+
+    /**
       Performs fusion and clears all added images.
 
       @param image Output image.
       @param scale Factor for scaling pixel values into target image. Values
                    that do not fit into the target image range will be clipped.
+      @return      First (i.e. oldest) timestamp from which the fused image was
+                   created.
     */
 
-    void fuse(Image<T> &image, float scale=1.0f)
+    uint64_t fuse(Image<T> &image, float scale=1.0f)
     {
+      if (list.size() == 0)
+      {
+        return 0;
+      }
+
       // normalize weights
 
       normalizeWeights(scale);
@@ -306,6 +361,20 @@ template<class T> class HighDynamicRangeFusion : private HighDynamicRangeFusionB
       // clean intermediate data
 
       list.clear();
+
+      // find oldest time stamp
+
+      uint64_t timestamp=list[0]->timestamp;
+
+      for (size_t i=1; i<list.size(); i++)
+      {
+        if (list[i]->timestamp < timestamp)
+        {
+          timestamp=list[i]->timestamp;
+        }
+      }
+
+      return timestamp;
     }
 };
 

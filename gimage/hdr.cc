@@ -80,6 +80,11 @@ void HighDynamicRangeFusionBase::setContrastWeight(ImageFloat &wp, const ImageFl
 
 void HighDynamicRangeFusionBase::normalizeWeights(float scale)
 {
+  if (list.size() == 0)
+  {
+    return;
+  }
+
   const int w=static_cast<int>(list[0]->weight[0].getWidth());
   const int h=static_cast<int>(list[0]->weight[0].getHeight());
 
