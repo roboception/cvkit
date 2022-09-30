@@ -158,6 +158,11 @@ void ColoredPointCloud::loadPLY(PLYReader &ply)
     type=ply.getTypeOfProperty("vertex", "red");
   }
 
+  if (type == ply_none)
+  {
+    type=ply.getTypeOfProperty("vertex", "r");
+  }
+
   if (type == ply_uint16)
   {
     scale=1.0f/256;
@@ -178,6 +183,10 @@ void ColoredPointCloud::loadPLY(PLYReader &ply)
   ply.setReceiver("vertex", "red", &cr);
   ply.setReceiver("vertex", "green", &cg);
   ply.setReceiver("vertex", "blue", &cb);
+
+  ply.setReceiver("vertex", "r", &cr);
+  ply.setReceiver("vertex", "g", &cg);
+  ply.setReceiver("vertex", "b", &cb);
 
   // read data
 

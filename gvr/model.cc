@@ -156,7 +156,8 @@ Model *loadPLY(const char *name)
   int tn=static_cast<int>(ply.instancesOfElement("face"));
 
   bool pervertexcolor=ply.getTypeOfProperty("vertex", "diffuse_red") != ply_none ||
-                      ply.getTypeOfProperty("vertex", "red") != ply_none;
+                      ply.getTypeOfProperty("vertex", "red") != ply_none ||
+                      ply.getTypeOfProperty("vertex", "r") != ply_none;
 
   bool texture=(ply.getTypeOfProperty("vertex", "u") != ply_none &&
                 ply.getTypeOfProperty("vertex", "v") != ply_none) ||
