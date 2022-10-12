@@ -57,7 +57,10 @@ if (USE_3D)
 endif ()
 target_link_libraries(plycmd gvr_static ${libs})
 
-install(TARGETS imgcmd plycmd DESTINATION bin)
+add_executable(prop2octave prop2octave)
+target_link_libraries(prop2octave ${libs})
+
+install(TARGETS imgcmd plycmd prop2octave DESTINATION bin)
 
 if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
   add_executable(sv sv.cc)

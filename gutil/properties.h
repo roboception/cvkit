@@ -230,7 +230,10 @@ class Properties
     void save(std::ostream& out, const char *comment=0) const;
     void print();
 
+    void saveOctave(std::ostream& out, const char *comment=0) const;
+
   private:
+
     void load(std::istream& in, const char *name);
 
   private:

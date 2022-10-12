@@ -37,7 +37,11 @@
 #include "properties.h"
 #include "misc.h"
 
+#include <gmath/dmatrix.h>
+
 #include <fstream>
+#include <memory>
+#include <iostream>
 
 namespace gutil
 {
@@ -137,6 +141,206 @@ void Properties::load(std::istream &in)
   load(in, "stream");
 }
 
+void Properties::save(const char *name, const char *comment) const
+{
+  std::ofstream out;
+
+  try
+  {
+    out.exceptions(std::ios_base::failbit | std::ios_base::badbit | std::ios_base::eofbit);
+    out.open(name);
+
+    save(out, comment);
+
+    out.close();
+  }
+  catch (const std::ios_base::failure &ex)
+  {
+    throw IOException(ex.what());
+  }
+}
+
+void Properties::save(std::ostream& out, const char *comment) const
+{
+  if (comment != 0)
+  {
+    out << "# " << comment << std::endl;
+  }
+
+  for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); ++it)
+  {
+    out << it->first << "=" << it->second << std::endl;
+  }
+}
+
+void Properties::print()
+{
+  for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); ++it)
+  {
+    std::cout << it->first << "=" << it->second << std::endl;
+  }
+}
+
+class PropertyNode
+{
+  public:
+
+    PropertyNode(const std::string &_name)
+    {
+      if (_name.size() > 0 && std::isdigit(_name[0]))
+      {
+        // name must not begin with a digit!
+        name="x";
+      }
+
+      name.append(_name);
+    }
+
+    void addChild(const std::string &_name, const std::string &_value)
+    {
+      size_t i=_name.find_first_of('.');
+
+      if (i != std::string::npos)
+      {
+        getChild(_name.substr(0, i))->addChild(_name.substr(i+1), _value);
+      }
+      else
+      {
+        getChild(_name)->setValue(_value);
+      }
+    }
+
+    const std::string &getName() const
+    {
+      return name;
+    }
+
+    void setValue(const std::string &_value)
+    {
+      value=_value;
+    }
+
+    void saveOctave(std::ostream &out) const
+    {
+      if (list.size() > 0)
+      {
+        if (name.size() > 0)
+        {
+          // add structure element
+          out << "# name: " << name << std::endl;
+          out << "# type: scalar struct" << std::endl;
+          out << "# ndims: 2" << std::endl;
+          out << "  1 1" << std::endl;
+          out << "# length: " << list.size() << std::endl;
+        }
+
+        // store all children
+        for (size_t i=0; i<list.size(); i++)
+        {
+          list[i]->saveOctave(out);
+        }
+
+        out << std::endl;
+        out << std::endl;
+      }
+      else if (name.size() > 0 && value.size() > 0)
+      {
+        char *vp=0;
+        std::strtod(value.c_str(), &vp);
+
+        if (*vp == '\0')
+        {
+          // store scalar
+          out << "# name: " << name << std::endl;
+          out << "# type: scalar" << std::endl;
+          out << value << std::endl;
+          out << std::endl;
+          out << std::endl;
+        }
+        else
+        {
+          try
+          {
+            gmath::Matrixd M;
+            std::istringstream in(value);
+            in >> M;
+
+            if (M.rows() > 0 && M.cols() > 0)
+            {
+              if (M.rows() == 1)
+              {
+                // store vector always as column
+                gmath::Matrixd tmp=M;
+                M=gmath::transpose(tmp);
+              }
+
+              // store matrix
+              out << "# name: " << name << std::endl;
+              out << "# type: matrix" << std::endl;
+              out << "# rows: " << M.rows() << std::endl;
+              out << "# columns: " << M.cols() << std::endl;
+              out.precision(16);
+
+              for (int k=0; k<M.rows(); k++)
+              {
+                for (int i=0; i<M.cols(); i++)
+                {
+                  out << ' ' << M(k, i);
+                }
+
+                out << std::endl;
+              }
+
+              out << std::endl;
+              out << std::endl;
+            }
+          }
+          catch (...)
+          { }
+        }
+      }
+    }
+
+  private:
+
+    std::shared_ptr<PropertyNode> &getChild(const std::string &_name)
+    {
+      for (size_t i=0; i<list.size(); i++)
+      {
+        if (_name == list[i]->getName())
+        {
+          return list[i];
+        }
+      }
+
+      list.push_back(std::make_shared<PropertyNode>(_name));
+
+      return list.back();
+    }
+
+    std::string name;
+    std::string value;
+    std::vector<std::shared_ptr<PropertyNode> > list;
+};
+
+void Properties::saveOctave(std::ostream& out, const char *comment) const
+{
+  if (comment == 0)
+  {
+    comment="Converted properties";
+  }
+
+  std::shared_ptr<PropertyNode> root=std::make_shared<PropertyNode>(std::string());
+
+  for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); ++it)
+  {
+    root->addChild(it->first, it->second);
+  }
+
+  out << "# " << comment << std::endl;
+  root->saveOctave(out);
+}
+
 void Properties::load(std::istream &in, const char *name)
 {
   std::string line;
@@ -187,46 +391,6 @@ void Properties::load(std::istream &in, const char *name)
   catch (const std::ios_base::failure &ex)
   {
     throw IOException(ex.what());
-  }
-}
-
-void Properties::save(const char *name, const char *comment) const
-{
-  std::ofstream out;
-
-  try
-  {
-    out.exceptions(std::ios_base::failbit | std::ios_base::badbit | std::ios_base::eofbit);
-    out.open(name);
-
-    save(out, comment);
-
-    out.close();
-  }
-  catch (const std::ios_base::failure &ex)
-  {
-    throw IOException(ex.what());
-  }
-}
-
-void Properties::save(std::ostream& out, const char *comment) const
-{
-  if (comment != 0)
-  {
-    out << "# " << comment << std::endl;
-  }
-
-  for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); ++it)
-  {
-    out << it->first << "=" << it->second << std::endl;
-  }
-}
-
-void Properties::print()
-{
-  for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); ++it)
-  {
-    std::cout << it->first << "=" << it->second << std::endl;
   }
 }
 
