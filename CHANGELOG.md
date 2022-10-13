@@ -1,3 +1,11 @@
+Version 2.6.0 (2022-10-13)
+--------------------------
+
+- Added build jobs for Jammy
+- Added tool for converting property files to octave
+- Permit colors of ply files to be called r, g and b
+- Added storing meta data to hdr class
+
 Version 2.5.0 (2022-09-12)
 --------------------------
 
