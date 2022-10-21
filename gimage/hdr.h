@@ -115,26 +115,6 @@ template<class T> class HighDynamicRangeFusion : private HighDynamicRangeFusionB
       }
     }
 
-    void mulWellExposednessWeightU8(ImageFloat &wp, const Image<T> &image)
-    {
-      float *p=wp.getPtr(0, 0, 0);
-      for (long k=0; k<image.getHeight(); k++)
-      {
-        for (long i=0; i<image.getWidth(); i++)
-        {
-          float v=1;
-          for (int d=0; d<image.getDepth(); d++)
-          {
-            v*=gauss[image.get(i, k, d)];
-          }
-
-          // multiply distance from center intensity, weighted by Gauss
-
-          *p++ *= v;
-        }
-      }
-    }
-
     void mulSaturationWeight(ImageFloat &wp, const Image<T> &image, float max_value)
     {
       float scale=1.0f/max_value;
@@ -276,14 +256,7 @@ template<class T> class HighDynamicRangeFusion : private HighDynamicRangeFusionB
 
       if (well_exposedness)
       {
-        if (std::is_same<T, gutil::uint8>::value && max_value == 255)
-        {
-          mulWellExposednessWeightU8(p->weight[0], image);
-        }
-        else
-        {
-          mulWellExposednessWeight(p->weight[0], image, max_value);
-        }
+        mulWellExposednessWeight(p->weight[0], image, max_value);
       }
 
       // if color image, weight according to saturation
