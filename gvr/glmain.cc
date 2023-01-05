@@ -40,11 +40,15 @@
 
 #include <GL/glew.h>
 
+#ifdef INCLUDE_FLTK
+#include <FL/glut.H>
+#else
 #ifdef __APPLE__
 #include <glut.h>
 #else
 #include <GL/freeglut.h>
 #define USES_FREEGLUT
+#endif
 #endif
 
 #include <sstream>

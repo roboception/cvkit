@@ -9,7 +9,7 @@ Minimum requirements:
   requirement at the top of the main CMakeLists.txt file)
 - g++ compiler (>= 4.1.2, although older versions might work)
 - X11 or Windows for building sv.
-- OpenGL 2.1, GLEW and GLUT for building plyv.
+- OpenGL 2.1, GLEW and GLUT (or FLTK) for building plyv.
 
 Optional packages:
 

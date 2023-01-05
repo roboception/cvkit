@@ -36,6 +36,16 @@
 #include "gltext.h"
 #include "glcamera.h"
 
+#ifdef INCLUDE_FLTK
+#include <FL/glut.H>
+#else
+#ifdef __APPLE__
+#include <glut.h>
+#else
+#include <GL/glut.h>
+#endif
+#endif
+
 #include <iostream>
 
 namespace gvr

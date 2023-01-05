@@ -46,12 +46,6 @@
 
 #include <GL/glew.h>
 
-#ifdef __APPLE__
-#include <glut.h>
-#else
-#include <GL/glut.h>
-#endif
-
 namespace gvr
 {
 
