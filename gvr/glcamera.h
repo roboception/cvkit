@@ -41,12 +41,6 @@
 
 #include <GL/glew.h>
 
-#ifdef __APPLE__
-#include <glut.h>
-#else
-#include <GL/glut.h>
-#endif
-
 namespace gvr
 {
 
@@ -145,7 +139,7 @@ class GLCamera
 
     bool onKey(unsigned char key, int x, int y);
     bool onMouseMove(int x, int y);
-    bool onMouseButton(int button, int state, int x, int y);
+    bool onMouseButton(int button, bool down, int x, int y);
 };
 
 }

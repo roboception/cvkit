@@ -36,6 +36,8 @@
 #include "glmain.h"
 #include "glmisc.h"
 
+#include <gutil/misc.h>
+
 #include <GL/glew.h>
 
 #ifdef __APPLE__
@@ -44,6 +46,9 @@
 #include <GL/freeglut.h>
 #define USES_FREEGLUT
 #endif
+
+#include <sstream>
+#include <vector>
 
 #include <cstdlib>
 
@@ -83,6 +88,127 @@ void GLInitWindow(int x, int y, int w, int h, const char *title)
   glFrontFace(GL_CCW);
   glCullFace(GL_BACK);
   glEnable(GL_CULL_FACE);
+}
+
+void GLRenderInfoText(const char *p, long fg_rgb, long bg_rgb)
+{
+  const int th=15;
+  void *font=GLUT_BITMAP_9_BY_15;
+
+  // prepare for rendering in pixel coordinates
+
+  glDisable(GL_DEPTH_TEST);
+  glPushMatrix();
+  glLoadIdentity();
+  GLint size[4];
+  glGetIntegerv(GL_VIEWPORT, size);
+
+  glOrtho(0, size[2], size[3], 0, -1, 1);
+
+  // determine width and height
+
+  std::vector<std::string> list;
+
+  gutil::split(list, std::string(p), '\n', false);
+
+  int x=0, y=0;
+  int w=0, h=0;
+
+  for (size_t i=0; i<list.size(); i++)
+  {
+    if (list[i].size() > 0)
+    {
+      int s=0;
+
+      for (size_t k=0; k<list[i].size(); k++)
+      {
+        s+=glutBitmapWidth(font, list[i][k]);
+      }
+
+      w=std::max(w, s);
+    }
+
+    h+=th;
+  }
+
+  w+=4;
+  h+=4;
+
+  if (size[2] > w)
+  {
+    x+=(size[2]-w)/2;
+  }
+
+  if (size[3] > h)
+  {
+    y+=(size[3]-h)/2;
+  }
+
+  // render background and text
+
+  glColor3f(((bg_rgb>>16)&0xff)/255.0f, ((bg_rgb>>8)&0xff)/255.0f,
+            (bg_rgb&0xff)/255.0f);
+
+  glBegin(GL_POLYGON);
+  glVertex2i(x, y);
+  glVertex2i(x, y+h);
+  glVertex2i(x+w, y+h);
+  glVertex2i(x+w, y);
+  glEnd();
+
+  glColor3f(((fg_rgb>>16)&0xff)/255.0f, ((fg_rgb>>8)&0xff)/255.0f,
+            (fg_rgb&0xff)/255.0f);
+
+  for (size_t i=0; i<list.size(); i++)
+  {
+    if (list[i].size() > 0)
+    {
+      glRasterPos2i(x+2, y+static_cast<int>(i+1)*th);
+
+      for (size_t k=0; k<list[i].size(); k++)
+      {
+        glutBitmapCharacter(font, list[i][k]);
+      }
+    }
+  }
+
+  // reset settings
+
+  glPopMatrix();
+  glEnable(GL_DEPTH_TEST);
+}
+
+void GLRenderInfoLine(const char *p, long fg_rgb)
+{
+  void *font=GLUT_BITMAP_9_BY_15;
+
+  // prepare for rendering in pixel coordinates
+
+  glDisable(GL_DEPTH_TEST);
+  glPushMatrix();
+  glLoadIdentity();
+
+  GLint size[4];
+  glGetIntegerv(GL_VIEWPORT, size);
+
+  glOrtho(0, size[2], size[3], 0, -1, 1);
+
+  // render text
+
+  glColor3f(((fg_rgb>>16)&0xff)/255.0f, ((fg_rgb>>8)&0xff)/255.0f,
+            (fg_rgb&0xff)/255.0f);
+
+  glRasterPos2i(4, size[3]-4);
+
+  while (*p != '\0')
+  {
+    glutBitmapCharacter(font, *p++);
+  }
+
+  // reset settings
+
+  glPopMatrix();
+  glEnable(GL_DEPTH_TEST);
 }
 
 void GLRedisplay()
