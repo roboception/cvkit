@@ -404,6 +404,9 @@ void GLWorld::onKey(unsigned char key, int x, int y)
     case 'f':
       if (fullscreen)
       {
+#ifdef INCLUDE_FLTK
+        glut_window->fullscreen_off();
+#endif
         glutReshapeWindow(800, 600);
         redisplay=true;
         fullscreen=false;
