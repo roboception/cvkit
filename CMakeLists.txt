@@ -196,9 +196,17 @@ set(INSTALL_DEVELOPMENT 1 CACHE BOOL "Install header and libs for development wi
 find_package(JPEG)
 find_package(PNG)
 find_package(GDAL)
+
+set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL)
+
 find_package(GLUT)
 find_package(GLEW)
+
+set(FLTK_SKIP_FORMS ON)
+set(FLTK_SKIP_IMAGES ON)
+set(FLTK_SKIP_FLUID ON)
+find_package(FLTK)
 
 if (NOT WIN32 AND NOT CYGWIN)
   find_package(X11)
@@ -230,10 +238,17 @@ else ()
   set(USE_GDAL 0 CACHE BOOL "Use GDAL for loading and saving images" FORCE)
 endif ()
 
-if (OPENGL_FOUND AND GLUT_FOUND AND GLEW_FOUND)
+if (OPENGL_FOUND AND (GLUT_FOUND OR FLTK_FOUND) AND GLEW_FOUND)
   set(USE_3D 1 CACHE BOOL "Compile with support for 3D visualization")
+
+  if (GLUT_FOUND)
+    set(USE_FLTK 0 CACHE BOOL "Use FLTK as replacement of GLUT")
+  else ()
+    set(USE_FLTK 1 CACHE BOOL "Use FLTK as replacement of GLUT" FORCE)
+  endif ()
 else ()
   set(USE_3D 0 CACHE BOOL "Compile with support for 3D visualization" FORCE)
+  set(USE_FLTK 0 CACHE BOOL "Use FLTK as replacement of GLUT" FORCE)
 endif ()
 
 # - Use C++11 -

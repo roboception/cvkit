@@ -60,7 +60,12 @@ set(gvr_hh
 )
 
 if (USE_3D)
-  include_directories(${GLUT_INCLUDE_DIR})
+  if (USE_FLTK)
+    include_directories(${FLTK_INCLUDE_DIR})
+  else ()
+    include_directories(${GLUT_INCLUDE_DIR})
+  endif ()
+
   include_directories(${GLEW_INCLUDE_DIRS})
   add_definitions(-DINCLUDE_GL)
   set(gvr_src ${gvr_src}
@@ -107,6 +112,10 @@ if (USE_PNG)
   add_definitions(${PNG_DEFINITIONS})
 endif ()
 
+if (USE_FLTK)
+  add_definitions(-DINCLUDE_FLTK)
+endif ()
+
 add_library(gvr_static STATIC ${gvr_src})
 
 if (USE_PNG)
@@ -114,7 +123,12 @@ if (USE_PNG)
 endif ()
 
 if (USE_3D)
-  target_link_libraries(gvr_static ${GLUT_glut_LIBRARY})
+  if (USE_FLTK)
+    target_link_libraries(gvr_static ${FLTK_LIBRARIES})
+  else ()
+    target_link_libraries(gvr_static ${GLUT_glut_LIBRARY})
+  endif ()
+
   target_link_libraries(gvr_static ${GLEW_LIBRARIES})
   target_link_libraries(gvr_static GLEW::GLEW)
   target_link_libraries(gvr_static ${OPENGL_LIBRARIES})
@@ -133,7 +147,12 @@ if (INSTALL_DEVELOPMENT)
   endif ()
 
   if (USE_3D)
-    target_link_libraries(gvr LINK_PRIVATE ${GLUT_glut_LIBRARY})
+    if (USE_FLTK)
+      target_link_libraries(gvr LINK_PRIVATE ${FLTK_LIBRARIES})
+    else ()
+      target_link_libraries(gvr LINK_PRIVATE ${GLUT_glut_LIBRARY})
+    endif ()
+
     target_link_libraries(gvr LINK_PRIVATE ${GLEW_LIBRARIES})
     target_link_libraries(gvr LINK_PRIVATE GLEW::GLEW)
     target_link_libraries(gvr LINK_PRIVATE ${OPENGL_LIBRARIES})

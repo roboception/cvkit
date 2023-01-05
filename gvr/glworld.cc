@@ -50,10 +50,14 @@
 
 #include <GL/glew.h>
 
+#ifdef INCLUDE_FLTK
+#include <FL/glut.H>
+#else
 #ifdef __APPLE__
 #include <glut.h>
 #else
 #include <GL/glut.h>
+#endif
 #endif
 
 #ifdef INCLUDE_PNG
@@ -314,7 +318,7 @@ void GLWorld::onKey(unsigned char key, int x, int y)
         std::ostringstream out;
 
         out << "This program is based on cvkit version " << VERSION << "\n";
-        out << "Copyright (C) 2016 - 2021 Roboception GmbH\n";
+        out << "Copyright (C) 2016 - 2023 Roboception GmbH\n";
         out << "Copyright (C) 2014, 2015 Institute of Robotics and Mechatronics, German Aerospace Center\n";
         out << "Author: Heiko Hirschmueller\n";
         out << "Contact: heiko.hirschmueller@roboception.de\n";
