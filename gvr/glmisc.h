@@ -40,12 +40,6 @@
 
 #include <GL/glew.h>
 
-#ifdef __APPLE__
-#include <glut.h>
-#else
-#include <GL/glut.h>
-#endif
-
 namespace gvr
 {
 
@@ -64,14 +58,6 @@ GLuint createProgram(const GLchar *vshader[], const GLchar *fshader[]);
 
 GLint getAttributeLocation(GLuint prg, const GLchar *param);
 GLint getUniformLocation(GLuint prg, const GLchar *param);
-
-// renders a multi-line text into the middle of the window
-
-void renderInfoText(const char *p, long fg_rgb, long bg_rgb);
-
-// renders a single line of text in the lower, left corner of the window
-
-void renderInfoLine(const char *p, long fg_rgb);
 
 }
 

@@ -250,11 +250,11 @@ bool GLCamera::onKey(unsigned char key, int x, int y)
 }
 
 
-bool GLCamera::onMouseButton(int button, int state, int x, int y)
+bool GLCamera::onMouseButton(int button, bool down, int x, int y)
 {
   bool ret=false;
 
-  if (state == GLUT_DOWN)
+  if (down)
   {
     mbutton=button;
     msx=x;
@@ -269,12 +269,12 @@ bool GLCamera::onMouseButton(int button, int state, int x, int y)
 
     if (button == 3)
     {
-      mbutton=GLUT_RIGHT_BUTTON;
+      mbutton=2;
       ret=onMouseMove(x, y+40);
     }
     else if (button == 4)
     {
-      mbutton=GLUT_RIGHT_BUTTON;
+      mbutton=2;
       ret=onMouseMove(x, y-40);
     }
 
@@ -292,7 +292,7 @@ bool GLCamera::onMouseMove(int x, int y)
 
   switch (mbutton)
   {
-    case GLUT_LEFT_BUTTON:
+    case 0:
       {
         gmath::Vector3d P1, P2;
 
@@ -316,7 +316,7 @@ bool GLCamera::onMouseMove(int x, int y)
       }
       break;
 
-    case GLUT_MIDDLE_BUTTON:
+    case 1:
       {
         gmath::Vector3d TT;
 
@@ -331,7 +331,7 @@ bool GLCamera::onMouseMove(int x, int y)
       }
       break;
 
-    case GLUT_RIGHT_BUTTON:
+    case 2:
       {
         gmath::Vector3d TT;
 

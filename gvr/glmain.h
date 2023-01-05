@@ -65,6 +65,18 @@ void GLInit(int &argc, char **argv);
 void GLInitWindow(int x, int y, int w, int h, const char *title);
 
 /**
+ * Renders a multi-line text into the middle of the window
+ */
+
+void GLRenderInfoText(const char *p, long fg_rgb, long bg_rgb);
+
+/**
+ * Renders a single line of text in the lower, left corner of the window
+ */
+
+void GLRenderInfoLine(const char *p, long fg_rgb);
+
+/**
  * Mark window for redisplay.
  */
 

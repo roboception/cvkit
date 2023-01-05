@@ -206,12 +206,12 @@ void GLWorld::onRedraw()
 
   if (infotext.size() > 0)
   {
-    renderInfoText(infotext.c_str(), 0xffffff, 0x4c4c4c);
+    GLRenderInfoText(infotext.c_str(), 0xffffff, 0x4c4c4c);
   }
 
   if (infoline.size() > 0)
   {
-    renderInfoLine(infoline.c_str(), txt_rgb);
+    GLRenderInfoLine(infoline.c_str(), txt_rgb);
   }
 
   // after first redraw, apply key codes (only c and q)
@@ -625,7 +625,7 @@ void GLWorld::onMouseButton(int button, int state, int x, int y)
     }
   }
 
-  if (camera.onMouseButton(button, state, x, y))
+  if (camera.onMouseButton(button, state == GLUT_DOWN, x, y))
   {
     redisplay=true;
   }
