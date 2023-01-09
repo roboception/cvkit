@@ -1,3 +1,11 @@
+Version 2.6.1 (2023-01-09)
+--------------------------
+
+- Fixed disabling fullscreen in plyv when compiled with FLTK
+- Added possibility to compile plyv with FLTK instead of GLUT
+- Restructuring gvr for reducing dependency on glut
+- Minor code simplification
+
 Version 2.6.0 (2022-10-13)
 --------------------------
 
