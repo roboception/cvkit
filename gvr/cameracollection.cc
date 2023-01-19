@@ -207,13 +207,13 @@ void CameraCollection::addGLObjects(std::vector<GLObject *> &list)
     m.setID(ID_CAMERA_BODY);
     m.setOrigin(getOrigin());
 
-    m.resizeVertexList(5*cl.size(), false, false);
-    m.resizeTriangleList(6*cl.size());
+    m.resizeVertexList(5*static_cast<int>(cl.size()), false, false);
+    m.resizeTriangleList(6*static_cast<int>(cl.size()));
 
     for (size_t i=0; i<cl.size(); i++)
     {
-      m.setVertex(5*i, cl[i].getT());
-      m.setColor(5*i, 255, 255, 255);
+      m.setVertex(5*static_cast<int>(i), cl[i].getT());
+      m.setColor(5*static_cast<int>(i), 255, 255, 255);
 
       gmath::Vector2d p[4];
       p[0]=gmath::Vector2d(0, cl[i].getHeight());
@@ -227,25 +227,26 @@ void CameraCollection::addGLObjects(std::vector<GLObject *> &list)
       {
         cl[i].reconstructRay(V, C, p[j]);
 
-        m.setVertex(5*i+j+1, s*V+C);
-        m.setColor(5*i+j+1, 0, 0, 0);
+        m.setVertex(5*static_cast<int>(i)+j+1, s*V+C);
+        m.setColor(5*static_cast<int>(i)+j+1, 0, 0, 0);
 
         if (j < 2)
         {
-          m.setColorComp(5*i+j+1, 0, 255);
+          m.setColorComp(5*static_cast<int>(i)+j+1, 0, 255);
         }
         else
         {
-          m.setColorComp(5*i+j+1, 1, 255);
+          m.setColorComp(5*static_cast<int>(i)+j+1, 1, 255);
         }
       }
 
-      m.setTriangleIndex(6*i, 5*i+0, 5*i+2, 5*i+1);
-      m.setTriangleIndex(6*i+1, 5*i+0, 5*i+3, 5*i+2);
-      m.setTriangleIndex(6*i+2, 5*i+0, 5*i+4, 5*i+3);
-      m.setTriangleIndex(6*i+3, 5*i+0, 5*i+1, 5*i+4);
-      m.setTriangleIndex(6*i+4, 5*i+2, 5*i+3, 5*i+4);
-      m.setTriangleIndex(6*i+5, 5*i+2, 5*i+4, 5*i+1);
+      int ii=static_cast<int>(i);
+      m.setTriangleIndex(6*ii, 5*ii+0, 5*ii+2, 5*ii+1);
+      m.setTriangleIndex(6*ii+1, 5*ii+0, 5*ii+3, 5*ii+2);
+      m.setTriangleIndex(6*ii+2, 5*ii+0, 5*ii+4, 5*ii+3);
+      m.setTriangleIndex(6*ii+3, 5*ii+0, 5*ii+1, 5*ii+4);
+      m.setTriangleIndex(6*ii+4, 5*ii+2, 5*ii+3, 5*ii+4);
+      m.setTriangleIndex(6*ii+5, 5*ii+2, 5*ii+4, 5*ii+1);
     }
 
     m.recalculateNormals();
@@ -345,13 +346,13 @@ void CameraCollection::addGLObjects(std::vector<GLObject *> &list)
     m.setID(ID_CAMERA_LINK);
     m.setOrigin(getOrigin());
 
-    m.resizeVertexList(cl.size(), false, false);
+    m.resizeVertexList(static_cast<int>(cl.size()), false, false);
 
     for (size_t i=0; i<cl.size(); i++)
     {
       id.insert(std::pair<std::string,int>(cl[i].getName(), static_cast<int>(i)));
-      m.setVertex(i, cl[i].getT());
-      m.setColor(i, 255, 255, 0);
+      m.setVertex(static_cast<int>(i), cl[i].getT());
+      m.setColor(static_cast<int>(i), 255, 255, 0);
     }
 
     std::vector<unsigned int> link;
@@ -364,13 +365,13 @@ void CameraCollection::addGLObjects(std::vector<GLObject *> &list)
 
         if (it != id.end())
         {
-          link.push_back(i);
+          link.push_back(static_cast<int>(i));
           link.push_back(it->second);
         }
       }
     }
 
-    m.resizeLineList(link.size()/2);
+    m.resizeLineList(static_cast<int>(link.size())/2);
 
     for (int i=0; i<m.getLineCount(); i++)
     {
