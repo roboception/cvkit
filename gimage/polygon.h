@@ -274,18 +274,20 @@ class Polygon
 
         // remove edges if y is larger than ymax
 
-        size_t i=0;
-        while (i < used.size())
         {
-          if (y >= used[i].getYMax())
+          size_t i=0;
+          while (i < used.size())
           {
-            used.erase(used.begin()+i);
+            if (y >= used[i].getYMax())
+            {
+              used.erase(used.begin()+i);
+            }
+            else
+            {
+              i++;
+            }
           }
-          else
-          {
-            i++;
-          }
-        }
+		}
 
         if (used.size() > 0)
         {
