@@ -267,7 +267,7 @@ void PNGImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
 
   // read image completely
 
-  int rn=png_get_rowbytes(png, info);
+  int rn=static_cast<int>(png_get_rowbytes(png, info));
   img=new unsigned char [height*rn];
   row=new unsigned char * [height];
 
@@ -477,7 +477,7 @@ void PNGImageIO::load(ImageU16 &image, const char *name, int ds, long x, long y,
 
   // read image completely
 
-  int rn=png_get_rowbytes(png, info);
+  int rn=static_cast<int>(png_get_rowbytes(png, info));
   img=new unsigned char [height*rn];
   row=new unsigned char * [height];
 

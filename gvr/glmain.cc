@@ -56,6 +56,11 @@
 
 #include <cstdlib>
 
+#ifdef WIN32
+#undef min
+#undef max
+#endif
+
 namespace gvr
 {
 

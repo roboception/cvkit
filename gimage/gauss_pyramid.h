@@ -148,7 +148,7 @@ template<class T, class S> void createGaussPyramid(std::vector<Image<T> > &p, co
 
   if (n >= 2)
   {
-    n=std::floor(std::log(n)/std::log(2));
+    n=static_cast<int>(std::floor(std::log(n)/std::log(2)));
   }
   else
   {
@@ -193,11 +193,11 @@ template<class T> float expandGaussPixel(const Image<T> &image, long i, long k, 
 {
   static const float g[5][5]=
   {
-    { 0.0039062, 0.0156250, 0.0234375, 0.0156250, 0.0039062},
-    { 0.0156250, 0.0625000, 0.0937500, 0.0625000, 0.0156250},
-    { 0.0234375, 0.0937500, 0.1406250, 0.0937500, 0.0234375},
-    { 0.0156250, 0.0625000, 0.0937500, 0.0625000, 0.0156250},
-    { 0.0039062, 0.0156250, 0.0234375, 0.0156250, 0.0039062},
+    { 0.0039062f, 0.0156250f, 0.0234375f, 0.0156250f, 0.0039062f},
+    { 0.0156250f, 0.0625000f, 0.0937500f, 0.0625000f, 0.0156250f},
+    { 0.0234375f, 0.0937500f, 0.1406250f, 0.0937500f, 0.0234375f},
+    { 0.0156250f, 0.0625000f, 0.0937500f, 0.0625000f, 0.0156250f},
+    { 0.0039062f, 0.0156250f, 0.0234375f, 0.0156250f, 0.0039062f},
   };
 
   float ret;
@@ -209,8 +209,8 @@ template<class T> float expandGaussPixel(const Image<T> &image, long i, long k, 
       long ii=i>>1;
       long kk=k>>1;
 
-      ret=(image.getBounds(ii, kk, j)+image.getBounds(ii+1, kk, j)+
-           image.getBounds(ii, kk+1, j)+image.getBounds(ii+1, kk+1, j))/4;
+      ret=static_cast<float>((image.getBounds(ii, kk, j)+image.getBounds(ii+1, kk, j)+
+                             image.getBounds(ii, kk+1, j)+image.getBounds(ii+1, kk+1, j))/4);
     }
     else
     {
@@ -262,11 +262,11 @@ template<class T> float expandGaussPixelInner(const Image<T> &image, long i, lon
 {
   static const float g[5][5]=
   {
-    { 0.0039062, 0.0156250, 0.0234375, 0.0156250, 0.0039062},
-    { 0.0156250, 0.0625000, 0.0937500, 0.0625000, 0.0156250},
-    { 0.0234375, 0.0937500, 0.1406250, 0.0937500, 0.0234375},
-    { 0.0156250, 0.0625000, 0.0937500, 0.0625000, 0.0156250},
-    { 0.0039062, 0.0156250, 0.0234375, 0.0156250, 0.0039062},
+    { 0.0039062f, 0.0156250f, 0.0234375f, 0.0156250f, 0.0039062f},
+    { 0.0156250f, 0.0625000f, 0.0937500f, 0.0625000f, 0.0156250f},
+    { 0.0234375f, 0.0937500f, 0.1406250f, 0.0937500f, 0.0234375f},
+    { 0.0156250f, 0.0625000f, 0.0937500f, 0.0625000f, 0.0156250f},
+    { 0.0039062f, 0.0156250f, 0.0234375f, 0.0156250f, 0.0039062f},
   };
 
   const long w=image.getWidth();
@@ -278,7 +278,7 @@ template<class T> float expandGaussPixelInner(const Image<T> &image, long i, lon
     {
       T *p=image.getPtr(i>>1, k>>1, j);
 
-      ret=(p[0]+p[1]+p[w]+p[w+1])/4;
+      ret=static_cast<float>((p[0]+p[1]+p[w]+p[w+1])/4);
     }
     else
     {

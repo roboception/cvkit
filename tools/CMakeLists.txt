@@ -57,7 +57,7 @@ if (USE_3D)
 endif ()
 target_link_libraries(plycmd gvr_static ${libs})
 
-add_executable(prop2octave prop2octave)
+add_executable(prop2octave prop2octave.cc)
 target_link_libraries(prop2octave ${libs})
 
 install(TARGETS imgcmd plycmd prop2octave DESTINATION bin)
@@ -73,13 +73,24 @@ elseif (WIN32)
 endif ()
 
 if (USE_3D)
-  include_directories(${GLUT_INCLUDE_DIR})
+  if (USE_FLTK)
+    include_directories(${FLTK_INCLUDE_DIR})
+  else ()
+    include_directories(${GLUT_INCLUDE_DIR})
+  endif ()
+
   include_directories(${GLEW_INCLUDE_DIRS})
   add_definitions(-DINCLUDE_GL)
 
   add_executable(plyv plyv.cc)
   target_link_libraries(plyv GLEW::GLEW)
-  target_link_libraries(plyv ${GLUT_LIBRARIES})
+
+  if (USE_FLTK)
+    target_link_libraries(plyv ${FLTK_LIBRARIES})
+  else ()
+    target_link_libraries(plyv ${GLUT_LIBRARIES})
+  endif ()
+
   target_link_libraries(plyv gvr_static ${libs})
 
   if (WIN32)

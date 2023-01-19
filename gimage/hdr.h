@@ -209,7 +209,7 @@ template<class T> class HighDynamicRangeFusion : private HighDynamicRangeFusionB
         {
           if (list[i]->id == id)
           {
-            k=i;
+            k=static_cast<int>(i);
           }
         }
       }

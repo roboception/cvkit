@@ -76,7 +76,7 @@ long Polygon::getCenterX() const
       ret+=vertex[i][0];
     }
 
-    ret/=vertex.size();
+    ret/=static_cast<long>(vertex.size());
   }
 
   return ret;
@@ -93,7 +93,7 @@ long Polygon::getCenterY() const
       ret+=vertex[i][1];
     }
 
-    ret/=vertex.size();
+    ret/=static_cast<long>(vertex.size());
   }
 
   return ret;

@@ -63,7 +63,7 @@ template<class T> void createLaplacianPyramid(std::vector<ImageFloat> &p,
 
   if (n >= 2)
   {
-    n=std::floor(std::log(n)/std::log(2));
+    n=static_cast<int>(std::floor(std::log(n)/std::log(2)));
   }
   else
   {

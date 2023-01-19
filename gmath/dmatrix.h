@@ -585,12 +585,12 @@ std::basic_istream<Ch, Tr> &operator>>(std::basic_istream<Ch, Tr> &in, DMatrix<T
 
     if (in)
     {
-      int rows=elem.size();
+      int rows=static_cast<int>(elem.size());
       int cols=0;
 
       if (rows > 0)
       {
-        cols=elem.front().size();
+        cols=static_cast<int>(elem.front().size());
       }
 
       a.init(rows, cols);
