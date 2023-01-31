@@ -24,6 +24,10 @@ invented at Stanford University as an extendable format for storing vertices
 and polygons together with additional information. It is especially useful for
 scanned real-world data.
 
+**A live 3D viewer for examining the point clouds of Roboception 3D stereo
+sensors is part of the SGM®️Producer package that can be downloaded free of
+charge from the [Roboception download page](https://roboception.com/en/support/#download).**
+
 See [INSTALL.md](INSTALL.md) and [USAGE.md](USAGE.md) for more information.
 
 Acknowledgments
