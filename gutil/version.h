@@ -37,6 +37,8 @@
 #ifndef GUTIL_VERSION_H
 #define GUTIL_VERSION_H
 
-#define VERSION "2.6.1"
+#include "project_version.h"
+
+#define VERSION CVKIT_PACKAGE_VERSION
 
 #endif

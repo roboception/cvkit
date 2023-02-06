@@ -38,6 +38,8 @@
 
 #include <gutil/misc.h>
 
+#undef PACKAGE_VERSION
+
 #include <gdal.h>
 #include <cpl_string.h>
 #include <ios>

@@ -138,33 +138,39 @@ if (USE_3D)
   endif ()
 endif ()
 
-if (INSTALL_DEVELOPMENT)
-  add_library(gvr SHARED ${gvr_src})
-  target_link_libraries(gvr LINK_PRIVATE gimage gmath gutil)
+add_library(gvr SHARED ${gvr_src})
+target_link_libraries(gvr LINK_PRIVATE gimage gmath gutil)
 
-  if (USE_PNG)
-    target_link_libraries(gvr LINK_PRIVATE ${PNG_LIBRARIES})
-  endif ()
-
-  if (USE_3D)
-    if (USE_FLTK)
-      target_link_libraries(gvr LINK_PRIVATE ${FLTK_LIBRARIES})
-    else ()
-      target_link_libraries(gvr LINK_PRIVATE ${GLUT_glut_LIBRARY})
-    endif ()
-
-    target_link_libraries(gvr LINK_PRIVATE ${GLEW_LIBRARIES})
-    target_link_libraries(gvr LINK_PRIVATE GLEW::GLEW)
-    target_link_libraries(gvr LINK_PRIVATE ${OPENGL_LIBRARIES})
-
-    if (WIN32)
-      target_link_libraries(gvr LINK_PRIVATE winmm)
-    endif ()
-  endif ()
-
-  install(TARGETS gvr_static gvr EXPORT CVKITTargets
-          RUNTIME DESTINATION bin
-          LIBRARY DESTINATION lib
-          ARCHIVE DESTINATION lib)
-  install(FILES ${gvr_hh} DESTINATION include/gvr)
+if (USE_PNG)
+  target_link_libraries(gvr LINK_PRIVATE ${PNG_LIBRARIES})
 endif ()
+
+if (USE_3D)
+  if (USE_FLTK)
+    target_link_libraries(gvr LINK_PRIVATE ${FLTK_LIBRARIES})
+  else ()
+    target_link_libraries(gvr LINK_PRIVATE ${GLUT_glut_LIBRARY})
+  endif ()
+
+  target_link_libraries(gvr LINK_PRIVATE ${GLEW_LIBRARIES})
+  target_link_libraries(gvr LINK_PRIVATE GLEW::GLEW)
+  target_link_libraries(gvr LINK_PRIVATE ${OPENGL_LIBRARIES})
+
+  if (WIN32)
+    target_link_libraries(gvr LINK_PRIVATE winmm)
+  endif ()
+endif ()
+
+set_target_properties(gvr PROPERTIES SOVERSION ${abiversion})
+
+install(TARGETS gvr EXPORT PROJECTTargets COMPONENT bin
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+
+install(TARGETS gvr_static EXPORT PROJECTTargets COMPONENT dev
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+
+install(FILES ${gvr_hh} COMPONENT dev DESTINATION include/gvr)

@@ -1,0 +1,14 @@
+#include "project_version.h"
+/// project version as major.minor.patch string
+const char* @PROJECT_NAME@_runtime_project_version(){ return "@RC_PROJECT_VERSION@"; }
+/// package version as string, possibly with git commit: v1.2.3+4+g56789abc
+const char* @PROJECT_NAME@_runtime_package_version(){ return "@RC_PACKAGE_VERSION@"; }
+/// project version as integer: major * 10000 + minor * 100 + patch
+int @PROJECT_NAME@_runtime_version_int()  { return @RC_PROJECT_VERSION_INT@; }
+/// project version as integer: major
+int @PROJECT_NAME@_runtime_version_major(){ return @PACKAGE_VERSION_MAJOR@; }
+/// project version as integer: minor
+int @PROJECT_NAME@_runtime_version_minor(){ return @PACKAGE_VERSION_MINOR@; }
+/// project version as integer: patch
+int @PROJECT_NAME@_runtime_version_patch(){ return @PACKAGE_VERSION_PATCH@; }
+

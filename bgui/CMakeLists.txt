@@ -82,25 +82,31 @@ if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
   target_link_libraries(bgui_static ${X11_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 endif ()
 
-if (INSTALL_DEVELOPMENT)
-  add_library(bgui SHARED ${bgui_src})
-  target_link_libraries(bgui LINK_PRIVATE gimage gutil)
+add_library(bgui SHARED ${bgui_src})
+target_link_libraries(bgui LINK_PRIVATE gimage gutil)
 
-  if (USE_PNG)
-    target_link_libraries(bgui LINK_PRIVATE ${PNG_LIBRARIES})
-  endif ()
-
-  if (WIN32)
-    target_link_libraries(bgui LINK_PRIVATE gdi32 comctl32)
-  endif ()
-
-  if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
-    target_link_libraries(bgui LINK_PRIVATE ${X11_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-  endif ()
-
-  install(TARGETS bgui_static bgui EXPORT CVKITTargets
-          RUNTIME DESTINATION bin
-          LIBRARY DESTINATION lib
-          ARCHIVE DESTINATION lib)
-  install(FILES ${bgui_hh} DESTINATION include/bgui)
+if (USE_PNG)
+  target_link_libraries(bgui LINK_PRIVATE ${PNG_LIBRARIES})
 endif ()
+
+if (WIN32)
+  target_link_libraries(bgui LINK_PRIVATE gdi32 comctl32)
+endif ()
+
+if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
+  target_link_libraries(bgui LINK_PRIVATE ${X11_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+endif ()
+
+set_target_properties(bgui PROPERTIES SOVERSION ${abiversion})
+
+install(TARGETS bgui EXPORT PROJECTTargets COMPONENT bin
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+
+install(TARGETS bgui_static EXPORT PROJECTTargets COMPONENT dev
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+
+install(FILES ${bgui_hh} COMPONENT dev DESTINATION include/bgui)

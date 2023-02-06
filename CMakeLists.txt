@@ -31,146 +31,26 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION 2.8.9)
+cmake_minimum_required (VERSION 3.1.0)
 
 project(cvkit)
+
+include(cmake/project_version.cmake)
+include(cmake/project_dependencies.cmake)
+include(GNUInstallDirs)
+
+include(cmake/disable_psabi.cmake)
+
+# For CMake Version >= 3.0: issue FATAL_ERROR if link dependency contains
+# double-colons but is not an imported target.
+if (POLICY CMP0028)
+  cmake_policy(SET CMP0028 NEW)
+endif ()
 
 enable_testing()
 
 include_directories(${CMAKE_SOURCE_DIR})
-
-# settings for NSIS (Windows) install package
-
-set(CPACK_PACKAGE_CONTACT "Heiko Hirschmueller <heiko.hirschmueller@roboception.de>")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Computer Vision Toolkit")
-set(CPACK_PACKAGE_VENDOR "Institute of Robotics and Mechatronics, German Aerospace Center")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-set(CPACK_PACKAGE_VERSION_MAJOR "2")
-set(CPACK_PACKAGE_VERSION_MINOR "6")
-set(CPACK_PACKAGE_VERSION_PATCH "1")
-set(CVKIT_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
-
-find_program(GIT_CMD git)
-if (GIT_CMD AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
-  execute_process(COMMAND ${GIT_CMD} rev-parse --short HEAD
-          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-          OUTPUT_VARIABLE GIT_SHA1
-          OUTPUT_STRIP_TRAILING_WHITESPACE)
-  #message(STATUS "GIT_SHA1: " ${GIT_SHA1})
-  execute_process(COMMAND ${GIT_CMD} describe --match "*[0-9].[0-9]*" HEAD
-          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-          OUTPUT_VARIABLE GIT_DESCRIBE
-          ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-  #message(STATUS "GIT_DESCRIBE: " ${GIT_DESCRIBE})
-
-  if (GIT_DESCRIBE)
-    string(REGEX REPLACE "v?([0-9.]+).*" "\\1" GIT_VERSION ${GIT_DESCRIBE})
-    #message(STATUS "GIT_VERSION: " ${GIT_VERSION})
-    if (NOT GIT_DESCRIBE MATCHES ${CVKIT_VERSION})
-      message(WARNING "Version from git (${GIT_VERSION}) doesn't match cmake (${CVKIT_VERSION})")
-    endif()
-    if (GIT_DESCRIBE MATCHES ".*-g.*")
-      # convert a git describe string to usable debian version, e.g. v1.7.1-7-ge324c81 to 1.7.1+7+ge324c81
-      string(REGEX REPLACE "v?([0-9.]*)-([0-9]*)-([a-g0-9]*).*" "\\1+\\2+\\3" DEB_GIT_VERSION ${GIT_DESCRIBE})
-      set(CPACK_PACKAGE_VERSION ${DEB_GIT_VERSION})
-    else()
-      # current HEAD is git tag (i.e. releaase), directly use the version
-      set(CPACK_PACKAGE_VERSION ${GIT_VERSION})
-    endif()
-  else ()
-    set(CPACK_PACKAGE_VERSION ${CVKIT_VERSION}+g${GIT_SHA1})
-  endif ()
-  #message(STATUS "CPACK_PACKAGE_VERSION: " ${CPACK_PACKAGE_VERSION})
-endif ()
-
-if (WIN32)
-  set(CPACK_GENERATOR NSIS)
-
-  set(CPACK_NSIS_INSTALL_ROOT "C:")
-  set(CPACK_PACKAGE_INSTALL_DIRECTORY "cvkit")
-
-  list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-
-  set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-    \\\${registerExtension} '\\\$INSTDIR\\\\bin\\\\plyv.exe' '.ply' 'cvkit.plyv.ply'
-    \\\${registerExtension} '\\\$INSTDIR\\\\bin\\\\sv.exe' '.pfm' 'cvkit.sv.pfm'
-    \\\${registerExtension} '\\\$INSTDIR\\\\bin\\\\sv.exe' '.pgm' 'cvkit.sv.pgm'
-    \\\${registerExtension} '\\\$INSTDIR\\\\bin\\\\sv.exe' '.ppm' 'cvkit.sv.ppm'
-    \\\${registerExtension} '\\\$INSTDIR\\\\bin\\\\sv.exe' '.tif' 'cvkit.sv.tif'
-    \\\${registerExtension} '\\\$INSTDIR\\\\bin\\\\sv.exe' '.jpg' 'cvkit.sv.jpg'
-    \\\${registerExtension} '\\\$INSTDIR\\\\bin\\\\sv.exe' '.png' 'cvkit.sv.png'
-    \\\${registerExtension} '\\\$INSTDIR\\\\bin\\\\sv.exe' '.vrt' 'cvkit.sv.vrt'
-    System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)'
-  ")
-
-  set(CPACK_NSIS_CREATE_ICONS_EXTRA "
-    CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Example.lnk' '\\\$INSTDIR\\\\example'
-    CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Readme.lnk' '\\\$INSTDIR\\\\doc\\\\README.TXT'
-    CreateShortCut '\\\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\Usage.lnk' '\\\$INSTDIR\\\\doc\\\\USAGE.TXT'
-  ")
-
-  set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
-    \\\${unregisterExtension} '.ply' 'cvkit.plyv.ply'
-    \\\${unregisterExtension} '.pfm' 'cvkit.sv.pfm'
-    \\\${unregisterExtension} '.pgm' 'cvkit.sv.pgm'
-    \\\${unregisterExtension} '.ppm' 'cvkit.sv.ppm'
-    \\\${unregisterExtension} '.tif' 'cvkit.sv.tif'
-    \\\${unregisterExtension} '.jpg' 'cvkit.sv.jpg'
-    \\\${unregisterExtension} '.png' 'cvkit.sv.png'
-    \\\${unregisterExtension} '.vrt' 'cvkit.sv.vrt'
-    System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)'
-  ")
-
-  set(CPACK_NSIS_DELETE_ICONS_EXTRA "
-    Delete '\\\$SMPROGRAMS\\\\\$MUI_TEMP\\\\Readme.lnk'
-    Delete '\\\$SMPROGRAMS\\\\\$MUI_TEMP\\\\Usage.lnk'
-    Delete '\\\$SMPROGRAMS\\\\\$MUI_TEMP\\\\Example.lnk'
-  ")
-else (WIN32)
-  set(CPACK_GENERATOR "DEB")
-
-  find_program(DPKG_CMD dpkg)
-  if (NOT DPKG_CMD)
-    message(STATUS "Can not find dpkg in your path, default to i386.")
-    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE i386)
-  else ()
-    execute_process(COMMAND "${DPKG_CMD}" --print-architecture
-      OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-  endif ()
-
-  # add ~distribution-codename (e.g. ~trusty or ~xenial) to end of package version
-  # if lsb_release is available, take it from there or fall back to DISTRO_CODENAME env variable
-  set(DISTRO_CODENAME $ENV{DISTRO_CODENAME})
-  find_program(LSB_RELEASE_CMD lsb_release)
-  mark_as_advanced(LSB_RELEASE_CMD)
-  if (LSB_RELEASE_CMD)
-      execute_process(COMMAND "${LSB_RELEASE_CMD}" --codename --short
-              OUTPUT_VARIABLE DISTRO_CODENAME
-              OUTPUT_STRIP_TRAILING_WHITESPACE)
-  endif ()
-  if (DISTRO_CODENAME)
-      set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}-1~${DISTRO_CODENAME})
-  else ()
-      message(STATUS "Could not find lsb_release nor is DISTRO_CODENAME set.")
-  endif ()
-
-  string(TOLOWER "${PROJECT_NAME}" CPACK_PACKAGE_NAME)
-  set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
-
-  set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-
-  set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
-
-  # Generate trigger file for ldconfig
-  set(TRIGGERS_FILE "${CMAKE_CURRENT_BINARY_DIR}/triggers")
-  file(WRITE "${TRIGGERS_FILE}" "activate-noawait ldconfig\n")
-  execute_process(COMMAND chmod 644 "${TRIGGERS_FILE}")
-  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${TRIGGERS_FILE}")
-endif ()
-
-include(CPack)
+include_directories(${CMAKE_BINARY_DIR}/cvkit)
 
 # export all DLL symbols if Visual studio is used for compilation and disable
 # some warnings
@@ -186,10 +66,6 @@ endif ()
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RELEASE CACHE STRING "Build type: DEBUG or RELEASE" FORCE)
 endif ()
-
-# choose to install header and libs
-
-set(INSTALL_DEVELOPMENT 1 CACHE BOOL "Install header and libs for development with cvkit")
 
 # check for optional external packages
 
@@ -253,13 +129,7 @@ endif ()
 
 # - Use C++11 -
 
-if (CMAKE_MAJOR_VERSION VERSION_LESS "3.1.0")
-  if (NOT MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  endif ()
-else ()
-  set(CMAKE_CXX_STANDARD 11)
-endif ()
+set(CMAKE_CXX_STANDARD 11)
 
 # - Optional pthread support -
 
@@ -314,24 +184,29 @@ add_subdirectory(tools)
 
 add_subdirectory(example)
 
-# install cmake config files in lib install directory
+# declare dynamic and static libraries
 
-if (INSTALL_DEVELOPMENT)
-  export(TARGETS gutil gmath gimage bgui gvr
-    FILE "${PROJECT_BINARY_DIR}/CVKITTargets.cmake")
+set(PROJECT_LIBRARIES gimage gmath gutil bgui gvr)
 
-  set(CONF_INCLUDE_DIRS "\${CVKIT_CMAKE_DIR}/../../include")
+set(PROJECT_STATIC_LIBRARIES gimage_static gmath_static gutil_static bgui_static gvr_static)
 
-  configure_file(cmake/CVKITConfig.cmake.in
-    "${PROJECT_BINARY_DIR}/CVKITConfig.cmake" @ONLY)
+# install generated version.h file
+# the destination path might have to be adjusted for the project
 
-  configure_file(cmake/CVKITConfigVersion.cmake.in
-    "${PROJECT_BINARY_DIR}/CVKITConfigVersion.cmake" @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/project_version.h
+  COMPONENT dev
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 
-  install(FILES
-    "${PROJECT_BINARY_DIR}/CVKITConfig.cmake"
-    "${PROJECT_BINARY_DIR}/CVKITConfigVersion.cmake"
-    DESTINATION lib/cvkit)
+include(cmake/configure_link_libs.cmake)
 
-  install(EXPORT CVKITTargets DESTINATION lib/cvkit)
+# packaging
+
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Heiko Hirschmueller <heiko.hirschmueller@roboception.de>")
+
+if (WIN32)
+  include(cmake/package_win32.cmake)
+else ()
+#  set(CPACK_DEBIAN_PACKAGE_DEPENDS "")
+  include(cmake/package_debian.cmake)
 endif ()
+

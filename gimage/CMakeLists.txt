@@ -95,26 +95,32 @@ if (USE_GDAL)
   target_link_libraries(gimage_static ${GDAL_LIBRARIES})
 endif ()
 
-if (INSTALL_DEVELOPMENT)
-  add_library(gimage SHARED ${gimage_src})
-  target_link_libraries(gimage LINK_PRIVATE gmath)
-  target_link_libraries(gimage LINK_PRIVATE gutil)
+add_library(gimage SHARED ${gimage_src})
+target_link_libraries(gimage LINK_PRIVATE gmath)
+target_link_libraries(gimage LINK_PRIVATE gutil)
 
-  if (USE_JPEG)
-    target_link_libraries(gimage LINK_PRIVATE ${JPEG_LIBRARIES})
-  endif ()
-
-  if (USE_PNG)
-    target_link_libraries(gimage LINK_PRIVATE ${PNG_LIBRARIES})
-  endif ()
-
-  if (USE_GDAL)
-    target_link_libraries(gimage LINK_PRIVATE ${GDAL_LIBRARIES})
-  endif ()
-
-  install(TARGETS gimage gimage_static EXPORT CVKITTargets
-          RUNTIME DESTINATION bin
-          LIBRARY DESTINATION lib
-          ARCHIVE DESTINATION lib)
-  install(FILES ${gimage_hh} DESTINATION include/gimage)
+if (USE_JPEG)
+  target_link_libraries(gimage LINK_PRIVATE ${JPEG_LIBRARIES})
 endif ()
+
+if (USE_PNG)
+  target_link_libraries(gimage LINK_PRIVATE ${PNG_LIBRARIES})
+endif ()
+
+if (USE_GDAL)
+  target_link_libraries(gimage LINK_PRIVATE ${GDAL_LIBRARIES})
+endif ()
+
+set_target_properties(gimage PROPERTIES SOVERSION ${abiversion})
+
+install(TARGETS gimage EXPORT PROJECTTargets COMPONENT bin
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+
+install(TARGETS gimage_static EXPORT PROJECTTargets COMPONENT dev
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+
+install(FILES ${gimage_hh} COMPONENT dev DESTINATION include/gimage)

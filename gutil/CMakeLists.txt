@@ -38,6 +38,7 @@ set(gutil_src
   misc.cc
   parameter.cc
   properties.cc
+  ${CMAKE_BINARY_DIR}/cvkit/project_version.cc
 )
 
 set(gutil_hh
@@ -52,6 +53,7 @@ set(gutil_hh
   thread.h
   msgqueue.h
   version.h
+  ${CMAKE_BINARY_DIR}/cvkit/project_version.h
 )
 
 if (INCLUDE_PTHREADS)
@@ -73,16 +75,22 @@ if (INCLUDE_PTHREADS)
   target_link_libraries(gutil_static ${CMAKE_THREAD_LIBS_INIT})
 endif ()
 
-if (INSTALL_DEVELOPMENT)
-  add_library(gutil SHARED ${gutil_src})
+add_library(gutil SHARED ${gutil_src})
 
-  if (INCLUDE_PTHREADS)
-    target_link_libraries(gutil LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT})
-  endif ()
-
-  install(TARGETS gutil_static gutil EXPORT CVKITTargets
-          RUNTIME DESTINATION bin
-          LIBRARY DESTINATION lib
-          ARCHIVE DESTINATION lib)
-  install(FILES ${gutil_hh} DESTINATION include/gutil)
+if (INCLUDE_PTHREADS)
+  target_link_libraries(gutil LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 endif ()
+
+set_target_properties(gutil PROPERTIES SOVERSION ${abiversion})
+
+install(TARGETS gutil EXPORT PROJECTTargets COMPONENT bin
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+
+install(TARGETS gutil_static EXPORT PROJECTTargets COMPONENT dev
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+
+install(FILES ${gutil_hh} COMPONENT dev DESTINATION include/gutil)

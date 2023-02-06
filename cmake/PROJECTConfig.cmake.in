@@ -1,38 +1,34 @@
-# Config file for cvkit
+# Config file for @PROJECT_NAME@
 #
 # It defines the following variables:
 #
-# CVKIT_INCLUDE_DIRS          - include directory
-# CVKIT_LIBRARIES             - all libraries
+# @PROJECT_NAME_UPPER@_INCLUDE_DIRS     - include directory
+# @PROJECT_NAME_UPPER@_LIBRARIES        - all dynamic libraries
+# @PROJECT_NAME_UPPER@_STATIC_LIBRARIES - all static libraries
+#
 # CVKIT_BASE_LIBRARIES        - gutil, gmath and gimage
 # CVKIT_BGUI_LIBRARY          - bgui
 # CVKIT_GVR_LIBRARY           - gvr
-# CVKIT_STATIC_LIBRARIES      - all static libraries
 # CVKIT_STATIC_BASE_LIBRARIES - gutil_static, gmath_static and gimage_static
 # CVKIT_STATIC_BGUI_LIBRARY   - bgui_static
 # CVKIT_STATIC_GVR_LIBRARY    - gvr_static
 
-get_filename_component(CVKIT_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+@PACKAGE_INIT@
 
-set(CVKIT_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+set_and_check(@PROJECT_NAME_UPPER@_INCLUDE_DIRS "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
 
-include("${CVKIT_CMAKE_DIR}/CVKITTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME_UPPER@Targets.cmake")
+
+set(@PROJECT_NAME_UPPER@_STATIC_LIBRARIES @PROJECT_STATIC_LIBRARIES@)
+set(@PROJECT_NAME_UPPER@_LIBRARIES @PROJECT_LIBRARIES@)
 
 set(CVKIT_BASE_LIBRARIES gimage gmath gutil)
 set(CVKIT_BGUI_LIBRARY bgui)
 set(CVKIT_GVR_LIBRARY gvr)
 
-set(CVKIT_LIBRARIES
-  ${CVKIT_GVR_LIBRARY}
-  ${CVKIT_BGUI_LIBRARY}
-  ${CVKIT_BASE_LIBRARIES})
-
 set(CVKIT_STATIC_BASE_LIBRARIES gimage_static gmath_static gutil_static)
 set(CVKIT_STATIC_BGUI_LIBRARY bgui_static)
 set(CVKIT_STATIC_GVR_LIBRARY gvr_static)
 
-set(CVKIT_STATIC_LIBRARIES
-  ${CVKIT_STATIC_GVR_LIBRARY}
-  ${CVKIT_STATIC_BGUI_LIBRARY}
-  ${CVKIT_STATIC_BASE_LIBRARIES})
-
+# Find public dependencies of package
+@RC_PUBLIC_BUILD_DEPENDENCIES_STR@

@@ -73,13 +73,20 @@ set(gmath_hh
 
 add_library(gmath_static STATIC ${gmath_src})
 
-if (INSTALL_DEVELOPMENT)
-  add_library(gmath SHARED ${gmath_src})
-  target_link_libraries(gmath LINK_PRIVATE gutil)
+add_library(gmath SHARED ${gmath_src})
+target_link_libraries(gmath LINK_PRIVATE gutil)
 
-  install(TARGETS gmath_static gmath EXPORT CVKITTargets
-          RUNTIME DESTINATION bin
-          LIBRARY DESTINATION lib
-          ARCHIVE DESTINATION lib)
-  install(FILES ${gmath_hh} DESTINATION include/gmath)
-endif ()
+set_target_properties(gmath PROPERTIES SOVERSION ${abiversion})
+
+install(TARGETS gmath EXPORT PROJECTTargets COMPONENT bin
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+
+install(TARGETS gmath_static EXPORT PROJECTTargets COMPONENT dev
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+
+install(FILES ${gmath_hh} COMPONENT dev DESTINATION include/gmath)
+
