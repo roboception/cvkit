@@ -1,3 +1,9 @@
+Version 2.6.2 (2023-02-06)
+--------------------------
+
+- Refactoring of project building under Linux
+- Fixed some compiler errors and warnings under Windows
+
 Version 2.6.1 (2023-01-09)
 --------------------------
 
