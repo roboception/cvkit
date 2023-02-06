@@ -188,7 +188,7 @@ add_subdirectory(example)
 
 set(PROJECT_LIBRARIES gimage gmath gutil bgui gvr)
 
-set(PROJECT_STATIC_LIBRARIES gimage_static gmath_static gutil_static bgui_static gvr_static)
+set(PROJECT_STATIC_LIBRARIES cvkit::gimage_static cvkit::gmath_static cvkit::gutil_static cvkit::bgui_static cvkit::gvr_static)
 
 # install generated version.h file
 # the destination path might have to be adjusted for the project

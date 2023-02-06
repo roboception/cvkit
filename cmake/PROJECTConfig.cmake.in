@@ -26,9 +26,9 @@ set(CVKIT_BASE_LIBRARIES gimage gmath gutil)
 set(CVKIT_BGUI_LIBRARY bgui)
 set(CVKIT_GVR_LIBRARY gvr)
 
-set(CVKIT_STATIC_BASE_LIBRARIES gimage_static gmath_static gutil_static)
-set(CVKIT_STATIC_BGUI_LIBRARY bgui_static)
-set(CVKIT_STATIC_GVR_LIBRARY gvr_static)
+set(CVKIT_STATIC_BASE_LIBRARIES cvkit::gimage_static cvkit::gmath_static cvkit::gutil_static)
+set(CVKIT_STATIC_BGUI_LIBRARY cvkit::bgui_static)
+set(CVKIT_STATIC_GVR_LIBRARY cvkit::gvr_static)
 
 # Find public dependencies of package
 @RC_PUBLIC_BUILD_DEPENDENCIES_STR@
