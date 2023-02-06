@@ -1,3 +1,8 @@
+Version 2.6.3 (2023-02-06)
+--------------------------
+
+- Fixed cmake files for packages that use cvkit as dependencies
+
 Version 2.6.2 (2023-02-06)
 --------------------------
 
