@@ -220,14 +220,14 @@ template<class T> void readUnpacked(T *ret, uint32_t n, TiffImage<T> &tif, uint3
         {
           while (i < n)
           {
-            ret[i++]=1-((*p>>7) & 0x1);
-            if (i < n) ret[i++]=1-((*p>>6) & 0x1);
-            if (i < n) ret[i++]=1-((*p>>5) & 0x1);
-            if (i < n) ret[i++]=1-((*p>>4) & 0x1);
-            if (i < n) ret[i++]=1-((*p>>3) & 0x1);
-            if (i < n) ret[i++]=1-((*p>>2) & 0x1);
-            if (i < n) ret[i++]=1-((*p>>1) & 0x1);
-            if (i < n) ret[i++]=1-(*p & 0x1);
+            ret[i++]=static_cast<T>(1-((*p>>7) & 0x1));
+            if (i < n) ret[i++]=static_cast<T>(1-((*p>>6) & 0x1));
+            if (i < n) ret[i++]=static_cast<T>(1-((*p>>5) & 0x1));
+            if (i < n) ret[i++]=static_cast<T>(1-((*p>>4) & 0x1));
+            if (i < n) ret[i++]=static_cast<T>(1-((*p>>3) & 0x1));
+            if (i < n) ret[i++]=static_cast<T>(1-((*p>>2) & 0x1));
+            if (i < n) ret[i++]=static_cast<T>(1-((*p>>1) & 0x1));
+            if (i < n) ret[i++]=static_cast<T>(1-(*p & 0x1));
             p++;
           }
         }
@@ -235,14 +235,14 @@ template<class T> void readUnpacked(T *ret, uint32_t n, TiffImage<T> &tif, uint3
         {
           while (i < n)
           {
-            ret[i++]=(*p>>7) & 0x1;
-            if (i < n) ret[i++]=(*p>>6) & 0x1;
-            if (i < n) ret[i++]=(*p>>5) & 0x1;
-            if (i < n) ret[i++]=(*p>>4) & 0x1;
-            if (i < n) ret[i++]=(*p>>3) & 0x1;
-            if (i < n) ret[i++]=(*p>>2) & 0x1;
-            if (i < n) ret[i++]=(*p>>1) & 0x1;
-            if (i < n) ret[i++]=*p & 0x1;
+            ret[i++]=static_cast<T>((*p>>7) & 0x1);
+            if (i < n) ret[i++]=static_cast<T>((*p>>6) & 0x1);
+            if (i < n) ret[i++]=static_cast<T>((*p>>5) & 0x1);
+            if (i < n) ret[i++]=static_cast<T>((*p>>4) & 0x1);
+            if (i < n) ret[i++]=static_cast<T>((*p>>3) & 0x1);
+            if (i < n) ret[i++]=static_cast<T>((*p>>2) & 0x1);
+            if (i < n) ret[i++]=static_cast<T>((*p>>1) & 0x1);
+            if (i < n) ret[i++]=static_cast<T>(*p & 0x1);
             p++;
           }
         }
@@ -256,10 +256,10 @@ template<class T> void readUnpacked(T *ret, uint32_t n, TiffImage<T> &tif, uint3
         {
           while (i < n)
           {
-            ret[i++]=3-((*p>>6) & 0x3);
-            if (i < n) ret[i++]=3-((*p>>4) & 0x3);
-            if (i < n) ret[i++]=3-((*p>>2) & 0x3);
-            if (i < n) ret[i++]=3-(*p & 0x3);
+            ret[i++]=static_cast<T>(3-((*p>>6) & 0x3));
+            if (i < n) ret[i++]=static_cast<T>(3-((*p>>4) & 0x3));
+            if (i < n) ret[i++]=static_cast<T>(3-((*p>>2) & 0x3));
+            if (i < n) ret[i++]=static_cast<T>(3-(*p & 0x3));
             p++;
           }
         }
@@ -267,10 +267,10 @@ template<class T> void readUnpacked(T *ret, uint32_t n, TiffImage<T> &tif, uint3
         {
           while (i < n)
           {
-            ret[i++]=(*p>>6) & 0x3;
-            if (i < n) ret[i++]=(*p>>4) & 0x3;
-            if (i < n) ret[i++]=(*p>>2) & 0x3;
-            if (i < n) ret[i++]=*p & 0x3;
+            ret[i++]=static_cast<T>((*p>>6) & 0x3);
+            if (i < n) ret[i++]=static_cast<T>((*p>>4) & 0x3);
+            if (i < n) ret[i++]=static_cast<T>((*p>>2) & 0x3);
+            if (i < n) ret[i++]=static_cast<T>(*p & 0x3);
             p++;
           }
         }
@@ -284,8 +284,8 @@ template<class T> void readUnpacked(T *ret, uint32_t n, TiffImage<T> &tif, uint3
         {
           while (i < n)
           {
-            ret[i++]=15-((*p>>4) & 0xf);
-            if (i < n) ret[i++]=15-(*p & 0xf);
+            ret[i++]=static_cast<T>(15-((*p>>4) & 0xf));
+            if (i < n) ret[i++]=static_cast<T>(15-(*p & 0xf));
             p++;
           }
         }
@@ -293,8 +293,8 @@ template<class T> void readUnpacked(T *ret, uint32_t n, TiffImage<T> &tif, uint3
         {
           while (i < n)
           {
-            ret[i++]=(*p>>4) & 0xf;
-            if (i < n) ret[i++]=*p & 0xf;
+            ret[i++]=static_cast<T>((*p>>4) & 0xf);
+            if (i < n) ret[i++]=static_cast<T>(*p & 0xf);
             p++;
           }
         }
@@ -304,11 +304,11 @@ template<class T> void readUnpacked(T *ret, uint32_t n, TiffImage<T> &tif, uint3
         uint8_t *p=reinterpret_cast<uint8_t *>(tif.raw.data());
         if (tif.photometric == PHOTOMETRIC_MINISWHITE)
         {
-          for (size_t i=0; i<n; i++) ret[i]=255-p[i];
+          for (size_t i=0; i<n; i++) ret[i]=static_cast<T>(255-p[i]);
         }
         else
         {
-          for (size_t i=0; i<n; i++) ret[i]=p[i];
+          for (size_t i=0; i<n; i++) ret[i]=static_cast<T>(p[i]);
         }
       }
       else if (tif.bits == 16)
@@ -374,7 +374,7 @@ template<class T> void readRow(gimage::Image<T> &ret, uint32_t k, TiffImage<T> &
   else
   {
     tif.row.resize(tif.width*tif.depth);
-    readUnpacked(tif.row.data(), tif.row.size(), tif, row, 0);
+    readUnpacked(tif.row.data(), static_cast<uint32_t>(tif.row.size()), tif, row, 0);
 
     T *p=tif.row.data();
     for (uint32_t i=0; i<tif.width; i++)
@@ -469,9 +469,9 @@ template<class T> void loadInternal(Image<T> &image, const char *name, int ds, l
       {
         for (long i=0; i<image.getWidth(); i++)
         {
-          image.set(i, k, 0, TIFFGetR(*p));
-          image.set(i, k, 1, TIFFGetG(*p));
-          image.set(i, k, 2, TIFFGetB(*p));
+          image.set(i, k, 0, static_cast<T>(TIFFGetR(*p)));
+          image.set(i, k, 1, static_cast<T>(TIFFGetG(*p)));
+          image.set(i, k, 2, static_cast<T>(TIFFGetB(*p)));
           p++;
         }
       }
