@@ -42,6 +42,10 @@
 #include "gdal_io.h"
 #endif
 
+#ifdef INCLUDE_TIFF
+#include "tiff_io.h"
+#endif
+
 #ifdef INCLUDE_JPEG
 #include "jpeg_io.h"
 #endif
@@ -222,6 +226,10 @@ ImageIO::ImageIO()
 
 #ifdef INCLUDE_GDAL
   list.push_back(new GDALImageIO());
+#endif
+
+#ifdef INCLUDE_TIFF
+  list.push_back(new TIFFImageIO());
 #endif
 
 #ifdef INCLUDE_PNG

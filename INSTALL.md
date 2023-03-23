@@ -5,8 +5,7 @@ INSTALLING CVKIT
 Minimum requirements:
 
 - Linux with kernel version >= 2.6.27 or Windows >= XP
-- cmake (>= 2.8.9, although older version might work if you change the minimum
-  requirement at the top of the main CMakeLists.txt file)
+- cmake >= 3.1.0
 - g++ compiler (>= 4.1.2, although older versions might work)
 - X11 or Windows for building sv.
 - OpenGL 2.1, GLEW and GLUT (or FLTK) for building plyv.
@@ -15,9 +14,10 @@ Optional packages:
 
 - libjpeg for loading and saving JPG images with 8 bits per color.
 - libpng for loading and saving PNG files with 8 or 16 bits per color.
+- libtiff for loading and saving TIFF images with 8 or 16 bit integer
+  as well as 32 bit floating point values as data.
 - GDAL (www.gdal.org) version >= 2.0 is used for loading many different
-  scientific raster formats. It also supports loading and saving TIFF
-  images with 8 or 16 bit integer or 32 bit floating point values.
+  scientific raster formats (including JPEG, PNG and TIFF).
 
 If none of these libraries are available, only PGM, PPM and PFM are
 supported for loading and saving images.

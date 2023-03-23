@@ -61,6 +61,10 @@ if (MSVC)
   add_definitions("/wd4996")
 endif ()
 
+if (NOT MSVC)
+  add_definitions(-fmax-errors=5)
+endif ()
+
 # set default build type to release
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -69,6 +73,7 @@ endif ()
 
 # check for optional external packages
 
+find_package(TIFF)
 find_package(JPEG)
 find_package(PNG)
 find_package(GDAL)
@@ -95,6 +100,12 @@ if (NOT WIN32 AND NOT CYGWIN)
 endif ()
 
 # make it possible to compile without external dependencies
+
+if (TIFF_FOUND)
+  set(USE_TIFF 1 CACHE BOOL "Use TIFF for loading and saving images")
+else ()
+  set(USE_TIFF 0 CACHE BOOL "Use TIFF for loading and saving images" FORCE)
+endif ()
 
 if (JPEG_FOUND)
   set(USE_JPEG 1 CACHE BOOL "Use JPEG for loading and saving images")
@@ -209,4 +220,3 @@ else ()
 #  set(CPACK_DEBIAN_PACKAGE_DEPENDS "")
   include(cmake/package_debian.cmake)
 endif ()
-
