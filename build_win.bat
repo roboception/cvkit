@@ -63,7 +63,7 @@ if not exist "%INSTALL_PATH%\lib\glew32.lib" (
   copy glew-2.2.0\lib\Release\x64\glew32.lib %INSTALL_PATH%\lib
 )
 
-set OPT_GLEW=-DGLEW_INCLUDE_DIR="%CD%\glew-2.2.0\include" -DGLEW_SHARED_LIBRARY_RELEASE="%CD%\glew-2.2.0\lib\Release\x64\glew32.lib"
+set OPT_GLEW=-DGLEW_INCLUDE_DIR="%INSTALL_PATH%\include" -DGLEW_SHARED_LIBRARY_RELEASE="%INSTALL_PATH%\lib\glew32.lib"
 
 if not exist "zlib\" (
   git clone https://github.com/winlibs/zlib.git -b zlib-1.2.11
@@ -184,7 +184,6 @@ if %ERRORLEVEL% NEQ 0 exit /b 1
 
 cd ..\..\..
 
-
 echo ----- Building cvkit -----
 
 cd cvkit\build
@@ -194,10 +193,10 @@ if exist "build_cvkit\" (
 ) else (
   mkdir build_cvkit\
   cd build_cvkit\
-  cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="%INSTALL_PATH%" %OPT_GLUT% %OPT_GLEW% ..\..
+  cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="%INSTALL_PATH%" %OPT_GLUT% %OPT_GLEW% -DINCLUDE_DLL="%INSTALL_PATH%\bin\zlib.dll;%INSTALL_PATH%\bin\glew32.dll;%INSTALL_PATH%\bin\freeglut.dll" ..\..
 )
 
-nmake install
+nmake package
 if %ERRORLEVEL% NEQ 0 exit /b 1
 
 cd ..

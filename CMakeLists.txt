@@ -198,7 +198,6 @@ add_subdirectory(example)
 # declare dynamic and static libraries
 
 set(PROJECT_LIBRARIES gimage gmath gutil bgui gvr)
-
 set(PROJECT_STATIC_LIBRARIES cvkit::gimage_static cvkit::gmath_static cvkit::gutil_static cvkit::bgui_static cvkit::gvr_static)
 
 # install generated version.h file
