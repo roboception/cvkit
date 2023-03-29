@@ -1,3 +1,9 @@
+Version 2.6.4 (2023-03-29)
+--------------------------
+
+- Added build script for Windows
+- Added support for libtiff
+
 Version 2.6.3 (2023-02-06)
 --------------------------
 
