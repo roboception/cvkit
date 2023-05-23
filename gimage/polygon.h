@@ -180,6 +180,25 @@ class Polygon
     void add(long x, long y) { vertex.push_back(gmath::SVector<long, 2>(x, y)); }
 
     /**
+      Remove all pixels of the polygon that are located on a straight line.
+
+      @param tolerance Maximum tolerance between line and pixel to be removed.
+    */
+
+    void reduce(float tolerance=0.25f);
+
+    /**
+      Returns true if the first and last pixel are at most the tolerance
+      distance away from each other.
+
+      @param tolerance Maximum distance of first and last pixel for a closed
+                       contour.
+      @return          True if contour is closed.
+    */
+
+    bool isClosed(float tolerance=1.5f) const;
+
+    /**
       Add an offset to all vertices.
 
       @param x X offset.
@@ -403,6 +422,53 @@ class Polygon
       }
     }
 };
+
+/**
+  Extracts a polygon by starting at the given x, y coordinate and following
+  the contour of pixels with the same intensity. If a polygon is approached
+  from the outside, the order will be counter-clockwise. If it is approached
+  from the inside, the order will be clockwise. All extracted pixels
+  will be set to their bit-inverse value.
+
+  @param p     Polygon to be set to extracted contour.
+  @param mask  Mask image of same size of image. Corresponding pixel in image
+               will only be considered if mask pixel is 0. Extracted pixels
+               will be set to 255 in the mask image.
+  @param image Input image. Only the first color channel will be considered.
+  @param sx    x-coordinate of first pixel.
+  @param sy    y-coordinate of first pixel.
+  @param dir   Direction from which the first pixel is approached, between 0
+               and 7 in the order 0 = from left, 1 = from bottom/left,
+               2 = from bottom, etc.
+*/
+
+void extractContour(Polygon &p, ImageU8 &mask, const ImageU8 &image, long sx, long sy, int dir);
+
+/**
+  Extracts all lines of a minimum size as polygons from an image.
+
+  @param pl        List of polygons to be extracted.
+  @param image     Input image. Only the first color channel will be considered.
+  @param c         Color of lines.
+  @param min_size  Minimum size of contours to be returned.
+  @param closed    If true, the only closed contours are returned as polygons.
+  @param tolerance Tolerance, used for reducing vertices of polygon.
+*/
+
+void extractLines(std::vector<Polygon> &pl, const ImageU8 &image, int c, int min_size=0,
+  bool closed=true, float tolerance=0.25f);
+
+/**
+  Extracts contours of a binary image. The highest intensity is foreground, all
+  lower intensities are background. Outer contours are ordered
+  counter-clockwise, inner contours are ordered clockwise.
+
+  @param pl        List of polygons to be extracted.
+  @param image     Input image. Only the first color channel will be considered.
+  @param tolerance Tolerance, used for reducing vertices of polygon.
+*/
+
+void extractContours(std::vector<Polygon> &pl, const ImageU8 &image, float tolerance=0.25f);
 
 }
 

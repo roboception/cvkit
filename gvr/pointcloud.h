@@ -79,6 +79,13 @@ class PointCloud : public Model
       vertex[3*i+2]=v[2];
     }
 
+    void setVertex(int i, float x, float y, float z)
+    {
+      vertex[3*i]=x;
+      vertex[3*i+1]=y;
+      vertex[3*i+2]=z;
+    }
+
     float *getScanPropArray() { return scanprop; };
 
     bool hasScanProp() const { return scanprop != 0; }

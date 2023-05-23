@@ -47,6 +47,7 @@
 #include <gimage/arithmetic.h>
 #include <gimage/paint.h>
 #include <gimage/compare.h>
+#include <gimage/polygon.h>
 
 #include <gutil/parameter.h>
 #include <gutil/misc.h>
@@ -499,16 +500,21 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
         if (what == "all" || what == "mean")
         {
           double v=0;
+          int n=0;
 
           for (long k=0; k<image.getHeight(); k++)
           {
             for (long i=0; i<image.getWidth(); i++)
             {
-              v+=image.get(i, k);
+              if (image.isValid(i, k))
+              {
+                v+=image.get(i, k);
+                n++;
+              }
             }
           }
 
-          v/=image.getWidth()*image.getHeight();
+          v/=std::max(1, n);
 
           std::cout << "mean=" << v << std::endl;
         }
@@ -527,6 +533,72 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
         {
           std::cout << "depth=" << image.getDepth() << std::endl;
         }
+      }
+
+      if (p == "-extract_lines")
+      {
+        int c;
+        int min_size;
+
+        param.nextValue(c);
+        param.nextValue(min_size);
+
+        // extract all closed lines as polygons
+
+        std::vector<gimage::Polygon> pl;
+
+        gimage::ImageU8 imageu8;
+        imageu8.setImageLimited(image);
+        image.setSize(0, 0, 0);
+
+        extractLines(pl, imageu8, c, min_size, true, 0.25f);
+
+        // draw all extracted contours into a new image
+
+        imageu8.setSize(imageu8.getWidth(), imageu8.getHeight(), 1);
+        imageu8.clear();
+
+        int n=0;
+        for (size_t i=0; i<pl.size(); i++)
+        {
+          pl[i].draw(imageu8, 255);
+          n+=pl[i].count();
+        }
+
+        std::cout << "Total number of edge pixels: " << n << std::endl;
+
+        process(imageu8, param, repl);
+        break;
+      }
+
+      if (p == "-extract_contours")
+      {
+        // extract all closed lines as polygons
+
+        std::vector<gimage::Polygon> pl;
+
+        gimage::ImageU8 imageu8;
+        imageu8.setImageLimited(image);
+        image.setSize(0, 0, 0);
+
+        extractContours(pl, imageu8, 0.25f);
+
+        // draw all extracted contours into a new image
+
+        imageu8.setSize(imageu8.getWidth(), imageu8.getHeight(), 1);
+        imageu8.clear();
+
+        int n=0;
+        for (size_t i=0; i<pl.size(); i++)
+        {
+          pl[i].draw(imageu8, 255);
+          n+=pl[i].count();
+        }
+
+        std::cout << "Total number of edge pixels: " << n << std::endl;
+
+        process(imageu8, param, repl);
+        break;
       }
     }
   }
@@ -655,6 +727,12 @@ int main(int argc, char *argv[])
 
     "-print # Prints information about the image to stdout.",
     " <what> # Kind of requested information: all, min, max, mean, width, height, depth or type.",
+
+    "-extract_lines # Extracts closed lines from the first color channel of the image.",
+    " <intensity> # Intensity of contour pixel.",
+    " <min-length> # Minimum length of contour. Smaller ones are discarded.",
+
+    "-extract_contours # Extracts contours from the first color channel of the binary image. The highest intensity is foreground. All lower intensities are background.",
 
     0
   };
