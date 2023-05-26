@@ -445,7 +445,8 @@ class Polygon
 void extractContour(Polygon &p, ImageU8 &mask, const ImageU8 &image, long sx, long sy, int dir);
 
 /**
-  Extracts all lines of a minimum size as polygons from an image.
+  Extracts all lines of a minimum size as polygons from an image. The points of
+  all polygons are ordered counter-clockwise.
 
   @param pl        List of polygons to be extracted.
   @param image     Input image. Only the first color channel will be considered.

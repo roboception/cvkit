@@ -68,15 +68,24 @@ class Mesh : public PointCloud
     float getNormalComp(int i, int k) const { return normal[3*i+k]; }
     void setNormalComp(int i, int k, float x) { normal[3*i+k]=x; }
 
+    void setNormal(int i, float x, float y, float z)
+    {
+      float *n=normal+3*i;
+      n[0]=x;
+      n[1]=y;
+      n[2]=z;
+    }
+
     unsigned int *getTriangleArray() { return triangle; }
     unsigned int getTriangleIndex(int i, int c) const { return triangle[3*i+c]; }
     void setTriangleIndex(int i, int c, unsigned int v) { triangle[3*i+c]=v; }
 
     void setTriangleIndex(int i, unsigned int a, unsigned int b, unsigned int c)
     {
-      triangle[3*i]=a;
-      triangle[3*i+1]=b;
-      triangle[3*i+2]=c;
+      unsigned int *t=triangle+3*i;
+      t[0]=a;
+      t[1]=b;
+      t[2]=c;
     }
 
     void normalizeNormals();
