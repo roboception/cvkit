@@ -44,6 +44,7 @@ set(gvr_src
   multitexturedmesh.cc
   coloredlines.cc
   cameracollection.cc
+  extrusion.cc
 )
 
 set(gvr_hh
@@ -57,6 +58,7 @@ set(gvr_hh
   ply.h
   pointcloud.h
   texturedmesh.h
+  extrusion.h
 )
 
 if (USE_3D)
@@ -96,6 +98,11 @@ if (USE_3D)
     gltexturedmesh.h
     glworld.h
   )
+
+  if (OPENGL_GLU_FOUND)
+    include_directories(${OPENGL_INCLUDE_DIR})
+    add_definitions(-DINCLUDE_GLU)
+  endif ()
 endif ()
 
 if (USE_GDAL)
@@ -133,6 +140,10 @@ if (USE_3D)
   target_link_libraries(gvr_static GLEW::GLEW)
   target_link_libraries(gvr_static ${OPENGL_LIBRARIES})
 
+  if (OPENGL_GLU_FOUND)
+    target_link_libraries(gvr_static ${OPENGL_glu_LIBRARY})
+  endif ()
+
   if (WIN32)
     target_link_libraries(gvr_static winmm)
   endif ()
@@ -155,6 +166,10 @@ if (USE_3D)
   target_link_libraries(gvr LINK_PRIVATE ${GLEW_LIBRARIES})
   target_link_libraries(gvr LINK_PRIVATE GLEW::GLEW)
   target_link_libraries(gvr LINK_PRIVATE ${OPENGL_LIBRARIES})
+
+  if (OPENGL_GLU_FOUND)
+    target_link_libraries(gvr LINK_PRIVATE ${OPENGL_glu_LIBRARY})
+  endif ()
 
   if (WIN32)
     target_link_libraries(gvr LINK_PRIVATE winmm)

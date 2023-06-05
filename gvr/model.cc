@@ -41,12 +41,14 @@
 #include "coloredmesh.h"
 #include "texturedmesh.h"
 #include "multitexturedmesh.h"
+#include "extrusion.h"
 
+#include <gutil/misc.h>
+#include <gmath/linalg.h>
 #include <gimage/io.h>
 #include <gimage/size.h>
 #include <gimage/view.h>
-#include <gutil/misc.h>
-#include <gmath/linalg.h>
+#include <gimage/polygon.h>
 
 #include <set>
 
@@ -550,6 +552,35 @@ Model *loadDepth(const char *name, const char *spath, bool verbose)
   // compute normals
 
   mesh->recalculateNormals();
+
+  return mesh;
+}
+
+Model *createModelFromContours(const char *name, double scale, double height)
+{
+  // load image
+
+  gimage::ImageU8 image;
+  gimage::getImageIO().load(image, name);
+
+  // extract contours
+
+  std::vector<gimage::Polygon> pl;
+  extractContours(pl, image, 0.25f);
+
+  // create mesh from contours
+
+  Mesh *mesh=new Mesh();
+
+  try
+  {
+    createMeshFromContours(mesh, pl, scale, height);
+  }
+  catch (...)
+  {
+    delete mesh;
+    throw;
+  }
 
   return mesh;
 }

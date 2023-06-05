@@ -43,134 +43,163 @@
 
 int main(int argc, char *argv[])
 {
-  const char *def[]=
+  try
   {
-    "# plycmd <file> [<options>]",
-    "#",
-    "# The input file may be given in ply format or as depth file. In case of a depth file, optional parameters may be appended to the file name, separated by commas. Parameters are:",
-    "#",
-    "# p=<parameter file>",
-    "# i=<image file>",
-    "# ds=<s>",
-    "# x=<x>,y=<y>,w=<w>,h=<h>",
-    "# s=<max step>",
-    "#",
-    "# Options are:",
-    "#",
-    "-help # Print help and exit.",
-    "-version # Print version and exit.",
-    "-spath # Search path for finding parameter files or images that are associated with the depth image. Default is the content of the environment variable CVKIT_SPATH.",
-    " <dir list> # List of directories.",
-    "-header # Print header of ply file.",
-    "-reduce # Removes all data that is unnecessary for visualization.",
-    "-ascii # Store ply as ascii.",
-    " <file> # Output file.",
-    "-out # Store ply as binary.",
-    " <file> # Output file.",
-    0
-  };
+    const char *def[]=
+    {
+      "# plycmd <file> [<options>]",
+      "#",
+      "# The input file may be given in ply format or as depth file. In case of a depth file, optional parameters may be appended to the file name, separated by commas. Parameters are:",
+      "#",
+      "# p=<parameter file>",
+      "# i=<image file>",
+      "# ds=<s>",
+      "# x=<x>,y=<y>,w=<w>,h=<h>",
+      "# s=<max step>",
+      "#",
+      "# Options are:",
+      "#",
+      "-help # Print help and exit.",
+      "-version # Print version and exit.",
+      "-spath # Search path for finding parameter files or images that are associated with the depth image. Default is the content of the environment variable CVKIT_SPATH.",
+      " <dir list> # List of directories.",
+      "-header # Print header of ply file.",
+      "-reduce # Removes all data that is unnecessary for visualization.",
+      "-extrusion # Creates a ply file from contours of a binary image. Pixel of the brightest color are foreground, all others are background.",
+      " <scale> # Factor scaling the x/y pixel coordinates.",
+      " <height> # Height of object.",
+      "-ascii # Store ply as ascii.",
+      " <file> # Output file.",
+      "-out # Store ply as binary.",
+      " <file> # Output file.",
+      0
+    };
 
-  gutil::Parameter param(argc, argv, def);
+    gutil::Parameter param(argc, argv, def);
 
-  if (param.remaining() < 1)
-  {
-    param.printHelp(std::cout);
-    return 10;
-  }
-
-  // handle options
-
-  std::string name;
-  std::string spath;
-  bool   all=true;
-  std::string aout;
-  std::string bout;
-
-  if (getenv("CVKIT_SPATH") != 0)
-  {
-    spath=getenv("CVKIT_SPATH");
-  }
-
-  if (!param.isNextParameter())
-  {
-    param.nextString(name);
-  }
-
-  while (param.remaining() > 0)
-  {
-    std::string p;
-
-    param.nextParameter(p);
-
-    if (p == "-help")
+    if (param.remaining() < 1)
     {
       param.printHelp(std::cout);
-      return 0;
+      return 10;
     }
 
-    if (p == "-version")
+    // handle options
+
+    std::string name;
+    std::string spath;
+    bool   all=true;
+    std::string aout;
+    std::string bout;
+    double ext_scale=0;
+    double ext_height=0;
+
+    if (getenv("CVKIT_SPATH") != 0)
     {
-      std::cout << "This program is part of cvkit version " << VERSION << std::endl;
-      return 0;
+      spath=getenv("CVKIT_SPATH");
     }
 
-    if (p == "-spath")
+    if (!param.isNextParameter())
     {
-      param.nextString(spath);
+      param.nextString(name);
     }
 
-    if (p == "-header")
+    while (param.remaining() > 0)
     {
-      gvr::PLYReader ply;
+      std::string p;
 
-      if (ply.open(name.c_str()))
+      param.nextParameter(p);
+
+      if (p == "-help")
       {
-        ply.printHeader();
+        param.printHelp(std::cout);
+        return 0;
+      }
+
+      if (p == "-version")
+      {
+        std::cout << "This program is part of cvkit version " << VERSION << std::endl;
+        return 0;
+      }
+
+      if (p == "-spath")
+      {
+        param.nextString(spath);
+      }
+
+      if (p == "-header")
+      {
+        gvr::PLYReader ply;
+
+        if (ply.open(name.c_str()))
+        {
+          ply.printHeader();
+        }
+        else
+        {
+          std::cerr << "Not a ply file: " << name << std::endl;
+        }
+      }
+
+      if (p == "-reduce")
+      {
+        all=false;
+      }
+
+      if (p == "-extrusion")
+      {
+        param.nextValue(ext_scale);
+        param.nextValue(ext_height);
+      }
+
+      if (p == "-ascii")
+      {
+        param.nextString(aout);
+      }
+
+      if (p == "-out")
+      {
+        param.nextString(bout);
+      }
+    }
+
+    if (aout.size() > 0 || bout.size() > 0)
+    {
+      if (name.size() > 0)
+      {
+        gvr::Model *model=0;
+
+        if (ext_scale > 0 && ext_height > 0)
+        {
+          model=gvr::createModelFromContours(name.c_str(), ext_scale, ext_height);
+        }
+        else
+        {
+          model=gvr::loadModel(name.c_str(), spath.c_str(), true);
+        }
+
+        if (aout.size() > 0)
+        {
+          model->savePLY(aout.c_str(), all, gvr::ply_ascii);
+        }
+
+        if (bout.size() > 0)
+        {
+          model->savePLY(bout.c_str(), all, gvr::ply_binary);
+        }
+
+        delete model;
       }
       else
       {
-        std::cerr << "Not a ply file: " << name << std::endl;
+        std::cerr << "No input file given!" << std::endl;
+        return 10;
       }
     }
-
-    if (p == "-reduce")
-    {
-      all=false;
-    }
-
-    if (p == "-ascii")
-    {
-      param.nextString(aout);
-    }
-
-    if (p == "-out")
-    {
-      param.nextString(bout);
-    }
   }
-
-  if (aout.size() > 0 || bout.size() > 0)
+  catch (const std::exception &ex)
   {
-    if (name.size() > 0)
-    {
-      gvr::Model *model=gvr::loadModel(name.c_str(), spath.c_str(), true);
-
-      if (aout.size() > 0)
-      {
-        model->savePLY(aout.c_str(), all, gvr::ply_ascii);
-      }
-
-      if (bout.size() > 0)
-      {
-        model->savePLY(bout.c_str(), all, gvr::ply_binary);
-      }
-
-      delete model;
-    }
-    else
-    {
-      std::cerr << "No input file given!" << std::endl;
-      return 10;
-    }
+    std::cerr << ex.what() << std::endl;
   }
+
+  return 0;
 }

@@ -151,6 +151,10 @@ Model *loadPLY(const char *name);
 
 Model *loadDepth(const char *name, const char *spath=0, bool verbose=false);
 
+// Create a model from contours of an image
+
+Model *createModelFromContours(const char *name, double scale, double height);
+
 }
 
 #endif
