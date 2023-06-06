@@ -44,6 +44,11 @@
 #include <limits>
 #include <algorithm>
 
+#ifdef INCLUDE_GLU
+#include <GL/glu.h>
+#include <memory>
+#endif
+
 namespace gvr
 {
 
@@ -443,5 +448,273 @@ void Mesh::savePLY(const char *name, bool all, ply_encoding enc) const
 
   ply.close();
 }
+
+#ifdef INCLUDE_GLU
+
+namespace
+{
+
+struct VertexData
+{
+  GLdouble xyz[3];
+  int      index;  // vertex index
+};
+
+struct TriangleData
+{
+  int index[3]; // indices of triangle vertices
+
+  TriangleData()
+  {
+    index[0]=-1;
+    index[1]=-1;
+    index[2]=-1;
+  }
+
+  TriangleData(int a, int b, int c)
+  {
+    index[0]=a;
+    index[1]=b;
+    index[2]=c;
+  }
+};
+
+struct PolygonData
+{
+  // type of triangle order in tessalation and indices that are used depending
+  // on that type
+
+  GLenum type;
+  int tindex0;
+  int tindex1;
+  bool inverse;
+
+  // vertices and triangles with indices to vertices
+
+  int nvertex;
+  std::vector<std::shared_ptr<VertexData> > vertex;
+  std::vector<TriangleData> triangle;
+
+  PolygonData()
+  {
+    type=GL_TRIANGLES;
+    tindex0=-1;
+    tindex1=-1;
+    inverse=false;
+    nvertex=0;
+  }
+};
+
+void beginCb(GLenum type, void *user_data)
+{
+  PolygonData *pd=reinterpret_cast<PolygonData *>(user_data);
+
+  // tesselation starts
+
+  pd->type=type;
+  pd->tindex0=-1;
+  pd->tindex1=-1;
+  pd->inverse=false;
+}
+
+void combineCb(GLdouble coords[3], void *[4], GLfloat [4], void **out_data, void *user_data)
+{
+  PolygonData *pd=reinterpret_cast<PolygonData *>(user_data);
+
+  // tesselation needs to create a new point
+
+  std::shared_ptr<VertexData> vd=std::make_shared<VertexData>();
+
+  vd->index=pd->nvertex++;
+  vd->xyz[0]=coords[0];
+  vd->xyz[1]=coords[1];
+  vd->xyz[2]=coords[2];
+
+  pd->vertex.push_back(vd);
+
+  *out_data=vd.get();
+}
+
+void vertexCb(void *vertex_data, void *user_data)
+{
+  PolygonData *pd=reinterpret_cast<PolygonData *>(user_data);
+  VertexData *vd=reinterpret_cast<VertexData *>(vertex_data);
+
+  // create triangles from vertex according to type
+
+  switch (pd->type)
+  {
+    case GL_TRIANGLES: // Triangles: {0 1 2} {3 4 5} ...
+      if (pd->tindex0 < 0)
+      {
+        pd->tindex0=vd->index;
+      }
+      else if (pd->tindex1 < 0)
+      {
+        pd->tindex1=vd->index;
+      }
+      else
+      {
+        pd->triangle.push_back(TriangleData(pd->tindex0, pd->tindex1, vd->index));
+        pd->tindex0=-1;
+        pd->tindex1=-1;
+      }
+      break;
+
+    case GL_TRIANGLE_STRIP: // Triangles: {0 1 2} {2 1 3} {2 3 4} {4 3 5} ...
+      if (pd->tindex0 < 0)
+      {
+        pd->tindex0=vd->index;
+      }
+      else if (pd->tindex1 < 0)
+      {
+        pd->tindex1=vd->index;
+      }
+      else
+      {
+        if (pd->inverse)
+        {
+          pd->triangle.push_back(TriangleData(pd->tindex1, pd->tindex0, vd->index));
+        }
+        else
+        {
+          pd->triangle.push_back(TriangleData(pd->tindex0, pd->tindex1, vd->index));
+        }
+
+        pd->tindex0=pd->tindex1;
+        pd->tindex1=vd->index;
+        pd->inverse=!pd->inverse;
+      }
+      break;
+
+    case GL_TRIANGLE_FAN: // Triangle: {0 1 2} {0 2 3} {0 3 4} {0 4 5} ...
+      if (pd->tindex0 < 0)
+      {
+        pd->tindex0=vd->index;
+      }
+      else if (pd->tindex1 < 0)
+      {
+        pd->tindex1=vd->index;
+      }
+      else
+      {
+        pd->triangle.push_back(TriangleData(pd->tindex0, pd->tindex1, vd->index));
+        pd->tindex1=vd->index;
+      }
+      break;
+
+    default:
+      std::cerr << "Internal error: Unknown type" << std::endl;
+      break;
+  }
+}
+
+void endCb(void *)
+{
+  // nothing to be done here
+}
+
+}
+
+void TriangleReceiver::setPolygon(int instance, const PLYValue &value)
+{
+  PolygonData pd;
+
+  pd.nvertex=p.getVertexCount();
+
+  // get vertex coordinates of polygon
+
+  for (int i=0; i<value.getListSize(); i++)
+  {
+    std::shared_ptr<VertexData> vd=std::make_shared<VertexData>();
+
+    vd->index=static_cast<int>(value.getUnsignedInt(i));
+    vd->xyz[0]=p.getVertexComp(vd->index, 0);
+    vd->xyz[1]=p.getVertexComp(vd->index, 1);
+    vd->xyz[2]=p.getVertexComp(vd->index, 2);
+
+    pd.vertex.push_back(vd);
+  }
+
+  // triangulate outer contour with inner contours as holes for top face
+  // using tesselation function from OpenGL utility library libGLU
+
+  {
+    GLUtesselator* tobj=gluNewTess();
+    gluTessCallback(tobj, GLU_TESS_BEGIN_DATA, reinterpret_cast<GLvoid (*) ()>(&beginCb));
+    gluTessCallback(tobj, GLU_TESS_COMBINE_DATA, reinterpret_cast<GLvoid (*) ()>(&combineCb));
+    gluTessCallback(tobj, GLU_TESS_VERTEX_DATA, reinterpret_cast<GLvoid (*) ()>(&vertexCb));
+    gluTessCallback(tobj, GLU_TESS_END_DATA, reinterpret_cast<GLvoid (*) ()>(&endCb));
+
+    // outer contours counterclockwise, inner contours clockwise
+    gluTessProperty(tobj, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_NONZERO);
+    gluTessProperty(tobj, GLU_TESS_BOUNDARY_ONLY, GL_FALSE);
+    gluTessProperty(tobj, GLU_TESS_TOLERANCE, 0);
+
+    gluTessBeginPolygon(tobj, &pd);
+
+    gluTessBeginContour(tobj);
+
+    for (size_t k=0; k<pd.vertex.size(); k++)
+    {
+      gluTessVertex(tobj, pd.vertex[k]->xyz, pd.vertex[k].get());
+    }
+
+    gluTessEndContour(tobj);
+
+    gluTessEndPolygon(tobj);
+    gluDeleteTess(tobj);
+  }
+
+  // add vertices, if created during tesselation
+
+  if (pd.nvertex > p.getVertexCount())
+  {
+    int i=p.getVertexCount();
+    int k=static_cast<int>(pd.vertex.size())-(pd.nvertex-p.getVertexCount());
+
+    p.resizeVertexList(pd.nvertex, p.hasScanProp(), p.hasScanPos());
+
+    while (i < p.getVertexCount())
+    {
+      p.setVertex(i++, static_cast<float>(pd.vertex[k]->xyz[0]),
+        static_cast<float>(pd.vertex[k]->xyz[1]), static_cast<float>(pd.vertex[k]->xyz[2]));
+    }
+  }
+
+  // set first triangle as instance with given number
+
+  if (pd.triangle.size() > 0)
+  {
+    p.setTriangleIndex(instance, pd.triangle[0].index[0], pd.triangle[0].index[1],
+      pd.triangle[0].index[2]);
+
+    // add all other triangles
+
+    int k=p.getTriangleCount();
+    p.resizeTriangleList(p.getTriangleCount()+static_cast<int>(pd.triangle.size())-1);
+    for (size_t i=1; i<pd.triangle.size(); i++)
+    {
+      p.setTriangleIndex(k++, pd.triangle[i].index[0], pd.triangle[i].index[1],
+        pd.triangle[i].index[2]);
+    }
+  }
+  else
+  {
+    std::cerr << "Warning: Cannot triangulate polygon with " << pd.vertex.size() << " vertices" << std::endl;
+  }
+}
+
+#else
+
+void TriangleReceiver::setPolygon(int instance, const PLYValue &value)
+{
+  p.setTriangleIndex(instance, value.getUnsignedInt(0), value.getUnsignedInt(1),
+    value.getUnsignedInt(2));
+
+  std::cerr << "Warning: Cannot triangulate polygons in PLY file. Please recompile with GLU support." << std::endl;
+}
+
+#endif
 
 }

@@ -105,15 +105,23 @@ class TriangleReceiver : public PLYReceiver
 
     Mesh &p;
 
+    void setPolygon(int instance, const PLYValue &value);
+
   public:
 
     TriangleReceiver(Mesh &pc) : p(pc) { }
 
     void setValue(int instance, const PLYValue &value)
     {
-      p.setTriangleIndex(instance, 0, value.getUnsignedInt(0));
-      p.setTriangleIndex(instance, 1, value.getUnsignedInt(1));
-      p.setTriangleIndex(instance, 2, value.getUnsignedInt(2));
+      if (value.getListSize() == 3)
+      {
+        p.setTriangleIndex(instance, value.getUnsignedInt(0), value.getUnsignedInt(1),
+          value.getUnsignedInt(2));
+      }
+      else
+      {
+        setPolygon(instance, value);
+      }
     }
 };
 
