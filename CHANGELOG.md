@@ -1,3 +1,8 @@
+Version 2.6.6 (2023-06-06)
+--------------------------
+
+- Fixed loading and viewing ply files with polygons with more than three vertices
+
 Version 2.6.5 (2023-05-30)
 --------------------------
 
