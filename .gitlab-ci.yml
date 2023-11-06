@@ -33,12 +33,6 @@ variables:
     - amd64
     - docker
 
-.armhf_jammy_t: &armhf_jammy_job
-  image: registry.roboception.de/tools/docker_images:armhf-jammy-buildimage
-  tags:
-    - armhf
-    - docker
-
 .arm64_jammy_t: &arm64_jammy_job
   image: registry.roboception.de/tools/docker_images:jammy-buildimage
   tags:
@@ -131,12 +125,6 @@ test:jammy:amd64:
   <<: *amd64_jammy_job
   extends: .test
 
-test:jammy:armhf:
-  <<: *armhf_jammy_job
-  extends: .test
-  variables:
-    CMAKE_OPTS: "-DUSE_GDAL=off"
-
 test:jammy:arm64:
   <<: *arm64_jammy_job
   extends: .test
@@ -160,12 +148,6 @@ package_testing:focal:arm64:
 package_testing:jammy:amd64:
   <<: *amd64_jammy_job
   extends: .package_testing
-
-package_testing:jammy:armhf:
-  <<: *armhf_jammy_job
-  extends: .package_testing
-  variables:
-    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 package_testing:jammy:arm64:
   <<: *arm64_jammy_job
@@ -194,12 +176,6 @@ package_stable:focal:arm64:
 package_stable:jammy:amd64:
   <<: *amd64_jammy_job
   extends: .package_stable
-
-package_stable:jammy:armhf:
-  <<: *armhf_jammy_job
-  extends: .package_stable
-  variables:
-    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 package_stable:jammy:arm64:
   <<: *arm64_jammy_job
