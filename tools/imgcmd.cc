@@ -497,9 +497,9 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
           std::cout << "max=" << image.maxValue() << std::endl;
         }
 
-        if (what == "all" || what == "mean")
+        double mean=0;
+        if (what == "all" || what == "mean" || what == "stddev")
         {
-          double v=0;
           int n=0;
 
           for (long k=0; k<image.getHeight(); k++)
@@ -508,15 +508,42 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
             {
               if (image.isValid(i, k))
               {
-                v+=image.get(i, k);
+                mean+=image.get(i, k);
                 n++;
               }
             }
           }
 
-          v/=std::max(1, n);
+          mean/=std::max(1, n);
 
-          std::cout << "mean=" << v << std::endl;
+          if (what == "all" || what == "mean")
+          {
+            std::cout << "mean=" << mean << std::endl;
+          }
+        }
+
+        if (what == "all" || what == "stddev")
+        {
+          double stddev=0;
+          int n=0;
+
+          for (long k=0; k<image.getHeight(); k++)
+          {
+            for (long i=0; i<image.getWidth(); i++)
+            {
+              if (image.isValid(i, k))
+              {
+                double v=image.get(i, k)-mean;
+                stddev+=v*v;
+                n++;
+              }
+            }
+          }
+
+          stddev/=std::max(1, n-1);
+          stddev=std::sqrt(stddev);
+
+          std::cout << "stddev=" << stddev << std::endl;
         }
 
         if (what == "all" || what == "width")
@@ -726,7 +753,7 @@ int main(int argc, char *argv[])
     " <x> <y> # Position of pixel.",
 
     "-print # Prints information about the image to stdout.",
-    " <what> # Kind of requested information: all, min, max, mean, width, height, depth or type.",
+    " <what> # Kind of requested information: all, min, max, mean, stddev, width, height, depth or type.",
 
     "-extract_lines # Extracts closed lines from the first color channel of the image.",
     " <intensity> # Intensity of contour pixel.",
