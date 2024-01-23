@@ -94,10 +94,10 @@ template<class T> long cmp(Image<T> &diff, const Image<T> &im1,
           v=Image<T>::ptraits::invalid();
         }
 
-        if (v < 0)
-        {
-          v=-v;
-        }
+//        if (v < 0)
+//        {
+//          v=-v;
+//        }
 
         if (v > t)
         {
