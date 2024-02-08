@@ -40,6 +40,8 @@
 #include <gimage/size.h>
 #include <gimage/size.h>
 #include <gimage/gauss.h>
+#include <gimage/gabor.h>
+#include <gimage/convolution.h>
 #include <gimage/gauss_pyramid.h>
 #include <gimage/hdr.h>
 #include <gimage/noise.h>
@@ -344,6 +346,23 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
         gimage::gauss(image, s);
       }
 
+      if (p == "-gabor")
+      {
+        float s;
+        float l;
+        float t;
+
+        param.nextValue(s);
+        param.nextValue(l);
+        param.nextValue(t);
+
+        gimage::GaborKernel kernel(s, l, t);
+
+        gimage::Image<T> tmp;
+        gimage::convolve(tmp, image, kernel.get());
+        image=tmp;
+      }
+
       if (p == "-noise")
       {
         double s;
@@ -508,13 +527,15 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
             {
               if (image.isValid(i, k))
               {
-                mean+=image.get(i, k);
+// ???
+//                mean+=image.get(i, k);
+                mean+=std::abs(image.get(i, k));
                 n++;
               }
             }
           }
 
-          mean/=std::max(1, n);
+//          mean/=std::max(1, n);
 
           if (what == "all" || what == "mean")
           {
@@ -725,6 +746,11 @@ int main(int argc, char *argv[])
 
     "-gauss # Gaussian smoothing.",
     " <s> # Standard deviation, which must be >= 0.5.",
+
+    "-gabor # Gabor filtering.",
+    " <s> # Standard deviation of Gauss in pixel, e.g. 1",
+    " <l> # Wavelength of sine function in pixel, e.g. 2",
+    " <t> # Orientation in radians.",
 
     "-noise # Add Gaussian noise to the pixel values. The noise is scaled to the pixel intensity.",
     " <s> # Standard deviation at full intensity.",

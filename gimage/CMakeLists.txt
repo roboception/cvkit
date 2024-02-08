@@ -56,6 +56,8 @@ set(gimage_hh
   polygon.h
   noise.h
   gauss.h
+  gabor.h
+  convolution.h
   gauss_pyramid.h
   laplace_pyramid.h
   hdr.h

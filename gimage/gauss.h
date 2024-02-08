@@ -46,7 +46,23 @@ class GaussKernel
 {
   public:
 
+    GaussKernel()
+    {
+      kernel=0;
+      kn=0;
+      kn2=0;
+    }
+
     GaussKernel(float s)
+    {
+      kernel=0;
+      kn=0;
+      kn2=0;
+
+      set(s);
+    }
+
+    void set(float s)
     {
       s=std::max(0.5f, s);
 
@@ -77,6 +93,21 @@ class GaussKernel
     ~GaussKernel()
     {
       delete [] kernel;
+    }
+
+    ImageFloat get() const
+    {
+      ImageFloat ret(kn, kn, 1);
+
+      for (int k=0; k<kn; k++)
+      {
+        for (int i=0; i<kn; i++)
+        {
+          ret.set(i, k, 0, kernel[k]*kernel[i]);
+        }
+      }
+
+      return ret;
     }
 
     template<class T> inline float convolveHorizontal(const Image<T> &image,
@@ -161,6 +192,9 @@ class GaussKernel
 /**
   Performs Gaussian smoothing on the given image.
 
+  Note: This is faster than using the Gauss kernel for a general 2D
+  convolution.
+
   @param image Input / output image.
   @param s     Standard deviation.
 */
@@ -213,6 +247,9 @@ template<class T> void gauss(Image<T> &image, float s)
 
 /**
   Performs Gaussian smoothing without changing the source image.
+
+  Note: This is faster than using the Gauss kernel for a general 2D
+  convolution.
 
   @param target Output image.
   @param image  Input image.
