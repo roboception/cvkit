@@ -272,6 +272,22 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
         break;
       }
 
+      if (p == "-mi")
+      {
+        gimage::Image<T> image2;
+        gimage::getImageIO().load(image2, nextParameterFilename(param, repl).c_str());
+
+        gimage::ImageFloat mi;
+        float mi_value=getMutualInformation(mi, image, image2);
+
+        std::cout << "mi=" << mi_value << std::endl;
+
+        image.setSize(0, 0, 0);
+        image2.setSize(0, 0, 0);
+        process(mi, param, repl);
+        break;
+      }
+
       if (p == "-gamma")
       {
         gimage::Image<T> map;
@@ -719,6 +735,9 @@ int main(int argc, char *argv[])
     "-histimage # Computes the histogram as image.",
 
     "-corrhist # Computes the correspondence histogram with the second image.",
+    " <image2> # File name of second image in the same format as the first image.",
+
+    "-mi # Computes the Mutual Information of the first channel of both images.",
     " <image2> # File name of second image in the same format as the first image.",
 
     "-gamma # Gamma transformation.",

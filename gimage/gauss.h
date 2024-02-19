@@ -292,7 +292,7 @@ template<class T> void gauss(Image<T> &target, const Image<T> &image, float s)
       tp=target.getPtr(i, 0, d);
       for (long k=0; k<image.getHeight(); k++)
       {
-        *tp++=static_cast<T>(p[k]);
+        *tp=static_cast<T>(p[k]);
         tp+=target.getWidth();
       }
     }

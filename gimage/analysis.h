@@ -3,7 +3,8 @@
  *
  * Author: Heiko Hirschmueller
  *
- * Copyright (c) 2014, Institute of Robotics and Mechatronics, German Aerospace Center
+ * Copyright (c) 2014, Institute of Robotics and Mechatronics, German Aerospace Center,
+ *               2024, Roboception GmbH
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -201,6 +202,42 @@ class Histogram
 
     void convertToImage(ImageFloat &image) const;
 };
+
+/**
+  Computes the mutual information between two images.
+
+  @param mi      Mutual information of the intensities of the first image
+                 against the intensities of the second image as 256 x 256 pixel
+                 image.
+  @param image1  First image.
+  @param image2  Second image.
+  @param disp    Optional disparity image that corresponds with the first image
+                 and contains the disparity to the corresponding pixels of the
+                 second image.
+  @param channel Channel of image1 and image2 that is considered.
+  @return        Mutual information value.
+*/
+
+float getMutualInformationU8(ImageFloat &mi, const ImageU8 &image1, const ImageU8 &image2,
+  const ImageFloat &disp=ImageFloat(), int channel=0);
+
+template<class T> inline float getMutualInformation(ImageFloat &mi, const Image<T> &image1,
+  const Image<T> &image2, const ImageFloat &disp=ImageFloat(), int channel=0)
+{
+  gimage::ImageU8 image1u8;
+  gimage::ImageU8 image2u8;
+
+  image1u8.setImageLimited(image1);
+  image2u8.setImageLimited(image1);
+
+  return getMutualInformationU8(mi, image1u8, image2u8, disp, channel);
+}
+
+template<> inline float getMutualInformation(ImageFloat &mi, const ImageU8 &image1,
+  const ImageU8 &image2, const ImageFloat &disp, int channel)
+{
+  return getMutualInformationU8(mi, image1, image2, disp, channel);
+}
 
 }
 

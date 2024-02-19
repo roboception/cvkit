@@ -3,7 +3,8 @@
  *
  * Author: Heiko Hirschmueller
  *
- * Copyright (c) 2014, Institute of Robotics and Mechatronics, German Aerospace Center
+ * Copyright (c) 2014, Institute of Robotics and Mechatronics, German Aerospace Center,
+ *               2024, Roboception GmbH
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +35,8 @@
  */
 
 #include "analysis.h"
+#include "gauss.h"
+#include "arithmetic.h"
 
 namespace gimage
 {
@@ -172,6 +175,191 @@ void Histogram::convertToImage(ImageFloat &image) const
       }
     }
   }
+}
+
+namespace
+{
+
+inline float negLog(float &p)
+{
+  double v=-std::log(p);
+  float ret=p*v;
+
+  p=v;
+
+  return ret;
+}
+
+}
+
+float getMutualInformationU8(ImageFloat &mi, const ImageU8 &image1, const ImageU8 &image2,
+  const ImageFloat &disp, int channel)
+{
+  ImageFloat P(256, 256, 1);
+  P=0;
+
+  // For computation of mutual information, see Hirschmueller (2008, TPAMI) or
+  // Hirschmueller (2005, CVPR).
+
+  // compute joint probabilities P_I1,I2
+
+  float scale; // 1/number_of_correspondences
+
+  if (disp.getWidth() > 0 && disp.getHeight() > 0)
+  {
+    long width=std::min(std::min(image1.getWidth(), image2.getWidth()), disp.getWidth());
+    long height=std::min(std::min(image1.getHeight(), image2.getHeight()), disp.getHeight());
+    long n=0;
+
+    for (long k=0; k<height; k++)
+    {
+      for (long i=0; i<width; i++)
+      {
+        float v=disp(i, k, 0);
+
+        if (disp.isValidS(v) && v < i)
+        {
+          v=i-v; // pixel in right image
+          long ii=static_cast<long>(v); // full pixel
+          v-=ii; // fraction
+
+          // get intensity frpm right image by linear interpolation
+          v=0.5f*((1-v)*image2(i, k, channel)+v*image2(i, k, channel));
+
+          // increment corresponding cell in joint histogram
+          P(image1(i, k, channel), static_cast<int>(v+0.5f))++;
+
+          n++;
+        }
+      }
+    }
+
+    scale=1.0f/n;
+    P*=scale;
+  }
+  else
+  {
+    long width=std::min(image1.getWidth(), image2.getWidth());
+    long height=std::min(image1.getHeight(), image2.getHeight());
+
+    for (int d=0; d<P.getDepth(); d++)
+    {
+      for (long k=0; k<height; k++)
+      {
+        for (long i=0; i<width; i++)
+        {
+          // increment corresponding cell in joint histogram
+          P(image1(i, k, channel), image2(i, k, channel))++;
+        }
+      }
+    }
+
+    scale=1.0f/(width*height);
+    P*=scale;
+  }
+
+  // replace all cells with 0 by the smallest value to avoid computing log(0)
+
+  for (long k=0; k<P.getHeight(); k++)
+  {
+    for (long i=0; i<P.getWidth(); i++)
+    {
+      if (P(i, k) == 0) P(i, k)=scale;
+    }
+  }
+
+  // compute joint entropy h_I1,I2 = -Gauss_convolution(log(Gauss_convolution(P_I1,I2)))
+
+  ImageFloat Pg;
+  gauss(Pg, P, 1.0f);
+
+  double entropy=0;
+  float *pg=Pg.getPtr(0, 0);
+
+  for (long k=0; k<Pg.getHeight(); k++)
+  {
+    for (long i=0; i<Pg.getWidth(); i++)
+    {
+      entropy+=negLog(*pg);
+      pg++;
+    }
+  }
+
+  gauss(mi, Pg, 1.0f);
+
+  // sum over columns for getting probabilities of image1
+
+  ImageFloat P1(P.getWidth(), 1, 1);
+
+  for (long i=0; i<P.getWidth(); i++)
+  {
+    float sum=0;
+    for (long k=0; k<P.getHeight(); k++) sum+=P(i, k);
+    P1(i, 0)=sum;
+  }
+
+  // compute entropy for image1
+
+  GaussKernel gk(1.0f);
+
+  ImageFloat Pg1(P.getWidth(), 1, 1);
+  for (long i=0; i<P1.getWidth(); i++) Pg1(i, 0)=gk.convolveHorizontal(P1, i, 0, 0);
+
+  double entropy1=0;
+  pg=Pg1.getPtr(0, 0);
+
+  for (long i=0; i<Pg1.getWidth(); i++)
+  {
+    entropy1+=negLog(*pg);
+    pg++;
+  }
+
+  // convolve with Gauss again add to negative mi values
+
+  for (long i=0; i<Pg1.getWidth(); i++)
+  {
+    float v=gk.convolveHorizontal(Pg1, i, 0, 0);
+    for (long k=0; k<P.getHeight(); k++) mi(i, k)=v-mi(i, k);
+  }
+
+  // sum over rows for getting probabilities of image1
+
+  P1.setSize(P.getHeight(), 1, 1);
+
+  for (long k=0; k<P.getHeight(); k++)
+  {
+    float sum=0;
+    for (long i=0; i<P.getWidth(); i++) sum+=P(i, k);
+    P1(k, 0)=sum;
+  }
+
+  // compute entropy for image2
+
+  Pg1.setSize(P.getHeight(), 1, 1);
+  for (long i=0; i<Pg1.getWidth(); i++) Pg1(i, 0)=gk.convolveHorizontal(P1, i, 0, 0);
+
+  double entropy2=0;
+  pg=Pg1.getPtr(0, 0);
+
+  for (long i=0; i<Pg1.getWidth(); i++)
+  {
+    entropy2+=negLog(*pg);
+    pg++;
+  }
+
+  // convolve with Gauss again add to mi values
+
+  for (long k=0; k<Pg1.getWidth(); k++)
+  {
+    float v=gk.convolveHorizontal(Pg1, k, 0, 0);
+    for (long i=0; i<P.getWidth(); i++) mi(i, k)+=v;
+  }
+
+  // apply 1/n
+
+  mi*=scale;
+
+  return entropy1+entropy2-entropy;
 }
 
 }

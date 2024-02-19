@@ -431,6 +431,16 @@ template<class T, class traits=PixelTraits<T> > class Image
       return img[j][k][i];
     }
 
+    store_t operator()(int i, int k, int j=0) const
+    {
+      return img[j][k][i];
+    }
+
+    store_t &operator()(int i, int k, int j=0)
+    {
+      return img[j][k][i];
+    }
+
     work_t getW(long i, long k, int j=0) const
     {
       return static_cast<work_t>(img[j][k][i]);
