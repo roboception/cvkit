@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     {
       "# plycmd <file> [<options>]",
       "#",
-      "# The input file may be given in ply format or as depth file. In case of a depth file, optional parameters may be appended to the file name, separated by commas. Parameters are:",
+      "# The input file may be given in ply or stl format or as depth file. In case of a depth file, optional parameters may be appended to the file name, separated by commas. Parameters are:",
       "#",
       "# p=<parameter file>",
       "# i=<image file>",
@@ -65,12 +65,14 @@ int main(int argc, char *argv[])
       " <dir list> # List of directories.",
       "-header # Print header of ply file.",
       "-reduce # Removes all data that is unnecessary for visualization.",
+      "-mul # Multiply the given factor to all vertices.",
+      " <s> # Scaling factor.",
       "-extrusion # Creates a ply file from contours of a binary image. Pixel of the brightest color are foreground, all others are background.",
       " <scale> # Factor scaling the x/y pixel coordinates.",
       " <height> # Height of object.",
-      "-ascii # Store ply as ascii.",
+      "-ascii # Store in ascii ply format.",
       " <file> # Output file.",
-      "-out # Store ply as binary.",
+      "-out # Store in binary ply or stl format (depending on suffix).",
       " <file> # Output file.",
       0
     };
@@ -88,6 +90,7 @@ int main(int argc, char *argv[])
     std::string name;
     std::string spath;
     bool   all=true;
+    float scale=1.0f;
     std::string aout;
     std::string bout;
     double ext_scale=0;
@@ -145,6 +148,11 @@ int main(int argc, char *argv[])
         all=false;
       }
 
+      if (p == "-mul")
+      {
+        param.nextValue(scale);
+      }
+
       if (p == "-extrusion")
       {
         param.nextValue(ext_scale);
@@ -177,6 +185,11 @@ int main(int argc, char *argv[])
           model=gvr::loadModel(name.c_str(), spath.c_str(), true);
         }
 
+        if (scale != 1.0f)
+        {
+          model->scale(scale);
+        }
+
         if (aout.size() > 0)
         {
           model->savePLY(aout.c_str(), all, gvr::ply_ascii);
@@ -184,7 +197,15 @@ int main(int argc, char *argv[])
 
         if (bout.size() > 0)
         {
-          model->savePLY(bout.c_str(), all, gvr::ply_binary);
+          if (bout.size() > 4 && (bout.compare(bout.size()-4, 4, ".stl") == 0 ||
+            bout.compare(bout.size()-4, 4, ".STL") == 0))
+          {
+            model->saveSTL(bout.c_str());
+          }
+          else
+          {
+            model->savePLY(bout.c_str(), all, gvr::ply_binary);
+          }
         }
 
         delete model;

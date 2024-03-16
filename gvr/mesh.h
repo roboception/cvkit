@@ -97,6 +97,7 @@ class Mesh : public PointCloud
 
     virtual void loadPLY(PLYReader &ply);
     virtual void savePLY(const char *name, bool all=true, ply_encoding enc=ply_binary) const;
+    virtual void saveSTL(const char *name) const;
 };
 
 class TriangleReceiver : public PLYReceiver

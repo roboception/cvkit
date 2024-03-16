@@ -43,6 +43,8 @@
 #include "gltext.h"
 #endif
 
+#include "gutil/exception.h"
+
 #include <limits>
 #include <algorithm>
 
@@ -126,6 +128,16 @@ void CameraCollection::loadCamera(const char *file)
 
     cl.push_back(cam);
   }
+}
+
+void CameraCollection::scale(float s)
+{
+  for (size_t i=0; i<cl.size(); i++)
+  {
+    cl[i].setT(s*cl[i].getT());
+  }
+
+  setDefCameraRT(getDefCameraR(), s*getDefCameraT());
 }
 
 void CameraCollection::translate(const gmath::Vector3d &v)
@@ -388,12 +400,17 @@ void CameraCollection::addGLObjects(std::vector<GLObject *> &list)
 
 void CameraCollection::loadPLY(PLYReader &ply)
 {
-  assert(false);
+  throw gutil::IOException("Cannot load camera collection from PLY.");
 }
 
 void CameraCollection::savePLY(const char *name, bool all, ply_encoding enc) const
 {
-  assert(false);
+  throw gutil::IOException("Cannot store camera collection in PLY format.");
+}
+
+void CameraCollection::saveSTL(const char *name) const
+{
+  throw gutil::IOException("Cannot store camera collection in STL format. STL is a triangle format.");
 }
 
 }

@@ -43,6 +43,9 @@
 
 #include <limits>
 #include <algorithm>
+#include <fstream>
+
+#include <string.h>
 
 #ifdef INCLUDE_GLU
 #include <GL/glu.h>
@@ -447,6 +450,98 @@ void Mesh::savePLY(const char *name, bool all, ply_encoding enc) const
   }
 
   ply.close();
+}
+
+namespace
+{
+
+inline void stlWriteUint16(std::ofstream &out, uint16_t v)
+{
+  // write as little endian
+  out.put(static_cast<char>(v&0xff));
+  out.put(static_cast<char>((v>>8)&0xff));
+}
+
+inline void stlWriteUint32(std::ofstream &out, uint32_t v)
+{
+  // write as little endian
+  out.put(static_cast<char>(v&0xff));
+  out.put(static_cast<char>((v>>8)&0xff));
+  out.put(static_cast<char>((v>>16)&0xff));
+  out.put(static_cast<char>((v>>24)&0xff));
+}
+
+inline void stlWriteFloat32(std::ofstream &out, float v)
+{
+  // reinterpret and uint32 and write as little endian
+  uint32_t vi;
+  memcpy(reinterpret_cast<char *>(&vi), reinterpret_cast<char *>(&v), 4);
+  stlWriteUint32(out, vi);
+}
+
+inline void stlWriteVector3f(std::ofstream &out, const gmath::Vector3f &v)
+{
+  stlWriteFloat32(out, v[0]);
+  stlWriteFloat32(out, v[1]);
+  stlWriteFloat32(out, v[2]);
+}
+
+}
+
+void Mesh::saveSTL(const char *name) const
+{
+  std::ofstream out;
+
+  out.exceptions(std::ios_base::failbit | std::ios_base::badbit);
+  out.open(name, std::ios_base::binary);
+
+  // write header
+
+  std::string header="STL File";
+  for (size_t i=header.size(); i<80; i++) header.push_back(' ');
+  out.write(header.c_str(), 80);
+
+  // write number of triangles
+
+  stlWriteUint32(out, static_cast<uint32_t>(n));
+
+  unsigned int *tp=triangle;
+  for (int i=0; i<n; i++)
+  {
+    // get vertices
+
+    gmath::Vector3f v0=getVertex(tp[0]);
+    gmath::Vector3f v1=getVertex(tp[1]);
+    gmath::Vector3f v2=getVertex(tp[2]);
+
+    // compute normal of triangle
+
+    gmath::Vector3f vn=gmath::cross(v1-v0, v2-v0);
+    float len=gmath::norm(vn);
+
+    if (len > 0)
+    {
+      vn/=len;
+    }
+
+    // store normal
+
+    stlWriteVector3f(out, vn);
+
+    // store vertices
+
+    stlWriteVector3f(out, v0);
+    stlWriteVector3f(out, v1);
+    stlWriteVector3f(out, v2);
+
+    // store padding
+
+    stlWriteUint16(out, 0);
+
+    tp+=3;
+  }
+
+  out.close();
 }
 
 #ifdef INCLUDE_GLU

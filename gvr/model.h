@@ -93,6 +93,12 @@ class Model
     const gmath::Vector3d &getOrigin() const { return origin; }
     void setOrigin(const gmath::Vector3d &v) { origin=v; }
 
+    virtual void scale(float s)
+    {
+      origin*=s;
+      Tc*=s;
+    }
+
     virtual void translate(const gmath::Vector3d &v)
     {
       origin+=v;
@@ -109,6 +115,7 @@ class Model
 
     virtual void loadPLY(PLYReader &ply)=0;
     virtual void savePLY(const char *name, bool all=true, ply_encoding enc=ply_binary) const=0;
+    virtual void saveSTL(const char *name) const=0;
 };
 
 class FloatArrayReceiver : public PLYReceiver
@@ -146,6 +153,10 @@ Model *loadModel(const char *name, const char *spath=0, bool verbose=false);
 // Loads a model from ply
 
 Model *loadPLY(const char *name);
+
+// Loads a model from STL
+
+Model *loadSTL(const char *name);
 
 // Loads a model from depth image
 

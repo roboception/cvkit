@@ -51,6 +51,7 @@
 #include <gimage/polygon.h>
 
 #include <set>
+#include <fstream>
 
 namespace gvr
 {
@@ -138,7 +139,11 @@ Model *loadModel(const char *name, const char *spath, bool verbose)
 {
   std::string s=name;
 
-  if (s.rfind(".ply") == s.size()-4 || s.rfind(".PLY") == s.size()-4)
+  if (s.rfind(".stl") == s.size()-4 || s.rfind(".STL") == s.size()-4)
+  {
+    return loadSTL(name);
+  }
+  else if (s.rfind(".ply") == s.size()-4 || s.rfind(".PLY") == s.size()-4)
   {
     return loadPLY(name);
   }
@@ -257,6 +262,158 @@ Model *loadPLY(const char *name)
   }
 
   return model;
+}
+
+namespace
+{
+
+inline uint32_t stlReadUint32(std::ifstream &in)
+{
+  uint32_t ret;
+
+  ret=static_cast<uint32_t>(in.get());
+  ret|=static_cast<uint32_t>(in.get())<<8;
+  ret|=static_cast<uint32_t>(in.get())<<16;
+  ret|=static_cast<uint32_t>(in.get())<<24;
+
+  return ret;
+}
+
+inline float stlReadFloat32(std::ifstream &in)
+{
+  uint32_t vi=stlReadUint32(in);
+  float ret;
+
+  memcpy(reinterpret_cast<char *>(&ret), reinterpret_cast<char *>(&vi), 4);
+
+  return ret;
+}
+
+inline gmath::Vector3f stlReadVector3f(std::ifstream &in)
+{
+  gmath::Vector3f ret;
+
+  ret[0]=stlReadFloat32(in);
+  ret[1]=stlReadFloat32(in);
+  ret[2]=stlReadFloat32(in);
+
+  return ret;
+}
+
+unsigned int findOrStoreVertex(Mesh *mesh, std::vector<gmath::Vector3f> &normal,
+  int &vn, const gmath::Vector3f &v, const gmath::Vector3f &tnormal)
+{
+  unsigned int ret=0;
+
+  // try to find point v in the vertex list of mesh, but it is only considered
+  // a duplicate if the normals are the same
+
+  bool found=false;
+
+  for (int i=0; i<vn; i++)
+  {
+    if (mesh->getVertex(i) == v)
+    {
+      if (std::abs(normal[i]*tnormal-1.0f) < 1e-3f)
+      {
+        ret=static_cast<unsigned int>(i);
+        found=true;
+        break;
+      }
+    }
+  }
+
+  // add the vertex, if a duplicate cannot be found
+
+  if (!found)
+  {
+    ret=static_cast<unsigned int>(vn);
+
+    mesh->setVertex(vn, v);
+    normal[vn]=tnormal;
+    vn++;
+  }
+
+  return ret;
+}
+
+}
+
+Model *loadSTL(const char *name)
+{
+  Mesh *mesh=0;
+
+  // open file
+
+  std::ifstream in;
+
+  in.exceptions(std::ios_base::failbit | std::ios_base::badbit | std::ios_base::eofbit);
+  in.open(name, std::ios_base::binary);
+
+  // read header and number of triangles
+
+  char header[80];
+  uint32_t n;
+
+  in.read(header, 80);
+  n=stlReadUint32(in);
+
+  try
+  {
+    // create mesh
+
+    mesh=new Mesh();
+    mesh->resizeVertexList(3*n, false, false);
+    mesh->resizeTriangleList(n);
+
+    std::vector<gmath::Vector3f> normal(3*n);
+
+    // read all triangles
+
+    int vn=0;
+
+    for (uint32_t i=0; i<n; i++)
+    {
+      // read triangle normal
+
+      gmath::Vector3f tnormal=stlReadVector3f(in);
+
+      // read vertices and either find a duplicate or add them
+
+      unsigned int t0=findOrStoreVertex(mesh, normal, vn, stlReadVector3f(in), tnormal);
+      unsigned int t1=findOrStoreVertex(mesh, normal, vn, stlReadVector3f(in), tnormal);
+      unsigned int t2=findOrStoreVertex(mesh, normal, vn, stlReadVector3f(in), tnormal);
+
+      // store triangle indices
+
+      mesh->setTriangleIndex(i, t0, t1, t2);
+
+      // skip padding
+
+      in.ignore(1);
+      in.ignore(1);
+    }
+
+    // reduce list of vertices
+
+    if (vn < static_cast<int>(3*n))
+    {
+      mesh->resizeVertexList(vn, false, false);
+    }
+
+    // calculate per vertex normals
+
+    mesh->recalculateNormals();
+  }
+  catch (...)
+  {
+    delete mesh;
+    throw;
+  }
+
+  in.close();
+
+  return mesh;
 }
 
 Model *loadDepth(const char *name, const char *spath, bool verbose)

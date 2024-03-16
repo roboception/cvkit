@@ -379,6 +379,11 @@ std::basic_istream<Ch, Tr> &operator>>(std::basic_istream<Ch, Tr> &in, SVector<T
   return in;
 }
 
+typedef SVector<float, 2> Vector2f;
+typedef SVector<float, 3> Vector3f;
+typedef SVector<float, 4> Vector4f;
+typedef SVector<float, 6> Vector6f;
+
 typedef SVector<double, 2> Vector2d;
 typedef SVector<double, 3> Vector3d;
 typedef SVector<double, 4> Vector4d;

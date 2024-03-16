@@ -63,6 +63,7 @@ class CameraCollection : public Model
     void addCamera(const gmath::PinholeCamera &cam) { cl.push_back(cam); }
     void removeCamera(int i) { cl.erase(cl.begin()+i); }
 
+    virtual void scale(float s);
     virtual void translate(const gmath::Vector3d &v);
     virtual void addExtend(gmath::Vector3d &emin, gmath::Vector3d &emax) const;
 
@@ -70,6 +71,7 @@ class CameraCollection : public Model
 
     virtual void loadPLY(PLYReader &ply);
     virtual void savePLY(const char *name, bool all=true, ply_encoding enc=ply_binary) const;
+    virtual void saveSTL(const char *name) const;
 };
 
 }

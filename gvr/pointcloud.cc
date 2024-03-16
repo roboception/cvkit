@@ -39,7 +39,7 @@
 #include "glpointcloud.h"
 #endif
 
-#include <gutil/exception.h>
+#include "gutil/exception.h"
 
 #include <limits>
 #include <algorithm>
@@ -124,6 +124,31 @@ PointCloud::~PointCloud()
   delete [] vertex;
   delete [] scanprop;
   delete [] scanpos;
+}
+
+void PointCloud::scale(float s)
+{
+  gmath::Vector3d t=getOrigin();
+
+  for (int i=3*(n-1); i>=0; i-=3)
+  {
+    vertex[i]=s*(vertex[i]+static_cast<float>(t[0]));
+    vertex[i+1]=s*(vertex[i+1]+static_cast<float>(t[1]));
+    vertex[i+2]=s*(vertex[i+2]+static_cast<float>(t[2]));
+  }
+
+  if (scanpos != 0)
+  {
+    for (int i=3*(n-1); i>=0; i-=3)
+    {
+      scanpos[i]=s*(scanpos[i]+static_cast<float>(t[0]));
+      scanpos[i+1]=s*(scanpos[i+1]+static_cast<float>(t[1]));
+      scanpos[i+2]=s*(scanpos[i+2]+static_cast<float>(t[2]));
+    }
+  }
+
+  setOrigin(gmath::Vector3d(0, 0, 0));
+  setDefCameraRT(getDefCameraR(), s*(getDefCameraT()+t));
 }
 
 void PointCloud::translate(const gmath::Vector3d &v)
@@ -486,6 +511,11 @@ void PointCloud::savePLY(const char *name, bool all, ply_encoding enc) const
   }
 
   ply.close();
+}
+
+void PointCloud::saveSTL(const char *name) const
+{
+  throw gutil::IOException("Cannot store point cloud in STL format. STL is a triangle format.");
 }
 
 }

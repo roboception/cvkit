@@ -39,7 +39,7 @@
 #include "glcoloredlines.h"
 #endif
 
-#include <gutil/exception.h>
+#include "gutil/exception.h"
 
 #include <algorithm>
 
@@ -88,12 +88,17 @@ void ColoredLines::addGLObjects(std::vector<GLObject *> &list)
 
 void ColoredLines::loadPLY(PLYReader &ply)
 {
-  assert(false);
+  throw gutil::IOException("Cannot load colored lines from PLY.");
 }
 
 void ColoredLines::savePLY(const char *name, bool all, ply_encoding enc) const
 {
-  assert(false);
+  throw gutil::IOException("Cannot store colored lines in PLY format.");
+}
+
+void ColoredLines::saveSTL(const char *name) const
+{
+  throw gutil::IOException("Cannot store colored lines in STL format. STL is a triangle format.");
 }
 
 }

@@ -40,7 +40,7 @@
 #include "glcoloredpointcloud.h"
 #endif
 
-#include <gutil/exception.h>
+#include "gutil/exception.h"
 
 #include <algorithm>
 
@@ -263,6 +263,11 @@ void ColoredPointCloud::savePLY(const char *name, bool all, ply_encoding enc) co
   }
 
   ply.close();
+}
+
+void ColoredPointCloud::saveSTL(const char *name) const
+{
+  throw gutil::IOException("Cannot store colored point cloud in STL format. STL is a triangle format.");
 }
 
 }

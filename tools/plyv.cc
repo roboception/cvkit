@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     {
       "# plyv [<options>] <file> ...",
       "#",
-      "# The files may be given in ply format or as depth file. In case of a depth file, optional parameters may be appended to the file name, separated by commas. Parameters are:",
+      "# The files may be given in ply or stl format or as depth file. In case of a depth file, optional parameters may be appended to the file name, separated by commas. Parameters are:",
       "#",
       "# p=<parameter file>",
       "# i=<image file>",

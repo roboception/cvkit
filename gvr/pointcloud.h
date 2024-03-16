@@ -61,6 +61,7 @@ class PointCloud : public Model
     PointCloud(const PointCloud &p, const std::vector<bool> &vused);
     virtual ~PointCloud();
 
+    virtual void scale(float s);
     virtual void translate(const gmath::Vector3d &v);
     virtual void addExtend(gmath::Vector3d &emin, gmath::Vector3d &emax) const;
 
@@ -70,9 +71,15 @@ class PointCloud : public Model
 
     float *getVertexArray() { return vertex; };
     float getVertexComp(int i, int k) const { return vertex[3*i+k]; }
+
+    gmath::Vector3f getVertex(int i) const
+    {
+      return gmath::Vector3f(vertex[3*i], vertex[3*i+1], vertex[3*i+2]);
+    }
+
     void setVertexComp(int i, int k, float v) { vertex[3*i+k]=v; }
 
-    void setVertex(int i, const gmath::SVector<float, 3> &v)
+    void setVertex(int i, const gmath::Vector3f &v)
     {
       vertex[3*i]=v[0];
       vertex[3*i+1]=v[1];
@@ -106,6 +113,7 @@ class PointCloud : public Model
 
     virtual void loadPLY(PLYReader &ply);
     virtual void savePLY(const char *name, bool all=true, ply_encoding enc=ply_binary) const;
+    virtual void saveSTL(const char *name) const;
 };
 
 }
