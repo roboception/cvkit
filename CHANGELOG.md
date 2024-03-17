@@ -1,3 +1,17 @@
+Version 2.6.8 (2024-03-17)
+--------------------------
+
+- Added support to read and write STL files and to change scaling of point clouds with plycmd
+- Added function to compute mutual information
+- Added Gabor filter to imgcmd for testing
+- Fixed computing mean difference in cmp() function
+- Added computing standard deviation in imgcmd parameter -print
+
+Version 2.6.7 (2023-11-06)
+--------------------------
+
+- Removed build jobs for bionic and added jobs for jammy
+
 Version 2.6.6 (2023-06-06)
 --------------------------
 
