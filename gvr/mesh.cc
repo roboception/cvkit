@@ -39,11 +39,14 @@
 #include "glmesh.h"
 #endif
 
-#include <gutil/exception.h>
+#include "gmath/pose.h"
+#include "gutil/exception.h"
 
 #include <limits>
 #include <algorithm>
 #include <fstream>
+#include <sstream>
+#include <iomanip>
 
 #include <string.h>
 
@@ -495,11 +498,17 @@ void Mesh::saveSTL(const char *name) const
   out.exceptions(std::ios_base::failbit | std::ios_base::badbit);
   out.open(name, std::ios_base::binary);
 
-  // write header
+  // write header with camera definition
 
-  std::string header="STL File";
-  for (size_t i=header.size(); i<80; i++) header.push_back(' ');
-  out.write(header.c_str(), 80);
+  std::ostringstream header;
+
+  header << "campose=";
+  gmath::Vector6d pose=gmath::getPose(getDefCameraR(), getDefCameraT());
+  header << std::setprecision(5) << pose;
+
+  while (header.tellp() < 80) header << ' ';
+
+  out.write(header.str().c_str(), 80);
 
   // write number of triangles
 

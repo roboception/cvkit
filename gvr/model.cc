@@ -45,6 +45,7 @@
 
 #include <gutil/misc.h>
 #include <gmath/linalg.h>
+#include <gmath/pose.h>
 #include <gimage/io.h>
 #include <gimage/size.h>
 #include <gimage/view.h>
@@ -52,6 +53,7 @@
 
 #include <set>
 #include <fstream>
+#include <sstream>
 
 namespace gvr
 {
@@ -310,6 +312,8 @@ unsigned int findOrStoreVertex(Mesh *mesh, std::vector<gmath::Vector3f> &normal,
 
   bool found=false;
 
+/* this can take far too long for big models, so we skip finding duplicates for now
+
   for (int i=0; i<vn; i++)
   {
     if (mesh->getVertex(i) == v)
@@ -322,6 +326,7 @@ unsigned int findOrStoreVertex(Mesh *mesh, std::vector<gmath::Vector3f> &normal,
       }
     }
   }
+*/
 
   // add the vertex, if a duplicate cannot be found
 
@@ -350,12 +355,39 @@ Model *loadSTL(const char *name)
   in.exceptions(std::ios_base::failbit | std::ios_base::badbit | std::ios_base::eofbit);
   in.open(name, std::ios_base::binary);
 
-  // read header and number of triangles
+  // read header
 
-  char header[80];
+  gmath::Matrix33d Rc;
+  gmath::Vector3d Tc;
+  bool has_campose=false;
+
+  {
+    char header[81];
+
+    in.read(header, 80);
+    header[80]='\0';
+
+    std::string sheader(header);
+
+    if (sheader.compare(0, 8, "campose=") == 0)
+    {
+      std::istringstream in(sheader.substr(8));
+
+      gmath::Vector6d pose;
+      in >> pose;
+
+      if (in.good())
+      {
+        Rc=gmath::getRotation(pose);
+        Tc=gmath::getTranslation(pose);
+        has_campose=true;
+      }
+    }
+  }
+
+  // read number of trinagles
+
   uint32_t n;
-
-  in.read(header, 80);
   n=stlReadUint32(in);
 
   try
@@ -363,6 +395,12 @@ Model *loadSTL(const char *name)
     // create mesh
 
     mesh=new Mesh();
+
+    if (has_campose)
+    {
+      mesh->setDefCameraRT(Rc, Tc);
+    }
+
     mesh->resizeVertexList(3*n, false, false);
     mesh->resizeTriangleList(n);
 
