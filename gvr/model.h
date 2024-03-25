@@ -148,7 +148,7 @@ class UInt8Receiver : public PLYReceiver
 
 // Loads a model from ply or from depth image
 
-Model *loadModel(const char *name, const char *spath=0, bool verbose=false);
+Model *loadModel(const char *name, const char *spath=0, bool verbose=false, bool merge_double_vertices=false);
 
 // Loads a model from ply
 
@@ -156,7 +156,7 @@ Model *loadPLY(const char *name);
 
 // Loads a model from STL
 
-Model *loadSTL(const char *name);
+Model *loadSTL(const char *name, bool merge_double_vertices);
 
 // Loads a model from depth image
 

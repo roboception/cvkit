@@ -220,99 +220,102 @@ void PointCloud::addExtend(gmath::Vector3d &emin, gmath::Vector3d &emax) const
       }
     }
 
-    // divide range of each coordinate into two halves compute number of points
-    // in each halve
-
-    int nxmin=0;
-    int nymin=0;
-    int nzmin=0;
-    int m=0;
-
-    float xmean=(xmax+xmin)/2;
-    float ymean=(ymax+ymin)/2;
-    float zmean=(zmax+zmin)/2;
-
-    for (int i=3*(n-1); i>=0; i-=3)
+    if (xmax >= xmin && ymax >= ymin && zmax >= zmin)
     {
-      float x=vertex[i];
-      float y=vertex[i+1];
-      float z=vertex[i+2];
+      // divide range of each coordinate into two halves compute number of points
+      // in each halve
 
-      if (x >= pxmin && x < pxmax && y >= pymin && y < pymax && z >= pzmin && z < pzmax)
+      int nxmin=0;
+      int nymin=0;
+      int nzmin=0;
+      int m=0;
+
+      float xmean=(xmax+xmin)/2;
+      float ymean=(ymax+ymin)/2;
+      float zmean=(zmax+zmin)/2;
+
+      for (int i=3*(n-1); i>=0; i-=3)
       {
-        if (vertex[i] < xmean)
+        float x=vertex[i];
+        float y=vertex[i+1];
+        float z=vertex[i+2];
+
+        if (x >= pxmin && x < pxmax && y >= pymin && y < pymax && z >= pzmin && z < pzmax)
         {
-          nxmin++;
-        }
+          if (vertex[i] < xmean)
+          {
+            nxmin++;
+          }
 
-        if (vertex[i+1] < ymean)
-        {
-          nymin++;
-        }
+          if (vertex[i+1] < ymean)
+          {
+            nymin++;
+          }
 
-        if (vertex[i+2] < zmean)
-        {
-          nzmin++;
-        }
+          if (vertex[i+2] < zmean)
+          {
+            nzmin++;
+          }
 
-        m++;
-      }
-    }
-
-    pxmin=xmin;
-    pxmax=xmax;
-    pymin=ymin;
-    pymax=ymax;
-    pzmin=zmin;
-    pzmax=zmax;
-
-    if (2*m > n)
-    {
-      // reduce range and try again if one half contains less than 1/100 of the
-      // points
-
-      if (pxmax > pxmin)
-      {
-        if (nxmin*100 < m)
-        {
-          pxmin=xmean;
-          repeat=true;
-        }
-
-        if ((m-nxmin)*100 < m)
-        {
-          pxmax=xmean;
-          repeat=true;
+          m++;
         }
       }
 
-      if (pymax > pymin)
+      pxmin=xmin;
+      pxmax=xmax;
+      pymin=ymin;
+      pymax=ymax;
+      pzmin=zmin;
+      pzmax=zmax;
+
+      if (2*m > n)
       {
-        if (nymin*100 < m)
+        // reduce range and try again if one half contains less than 1/100 of the
+        // points
+
+        if (pxmax > pxmin)
         {
-          pymin=ymean;
-          repeat=true;
+          if (nxmin*100 < m)
+          {
+            pxmin=xmean;
+            repeat=true;
+          }
+
+          if ((m-nxmin)*100 < m)
+          {
+            pxmax=xmean;
+            repeat=true;
+          }
         }
 
-        if ((m-nymin)*100 < m)
+        if (pymax > pymin)
         {
-          pymax=ymean;
-          repeat=true;
-        }
-      }
+          if (nymin*100 < m)
+          {
+            pymin=ymean;
+            repeat=true;
+          }
 
-      if (pzmax > pzmin)
-      {
-        if (nzmin*100 < m)
-        {
-          pzmin=zmean;
-          repeat=true;
+          if ((m-nymin)*100 < m)
+          {
+            pymax=ymean;
+            repeat=true;
+          }
         }
 
-        if ((m-nzmin)*100 < m)
+        if (pzmax > pzmin)
         {
-          pzmax=zmean;
-          repeat=true;
+          if (nzmin*100 < m)
+          {
+            pzmin=zmean;
+            repeat=true;
+          }
+
+          if ((m-nzmin)*100 < m)
+          {
+            pzmax=zmean;
+            repeat=true;
+          }
         }
       }
     }

@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
       "-spath # Search path for finding parameter files or images that are associated with the depth image. Default is the content of the environment variable CVKIT_SPATH.",
       " <dir list> # List of directories.",
       "-header # Print header of ply file.",
+      "-merge # Merge double vertices. This only applies to STL files. Loading can take much longer.",
       "-reduce # Removes all data that is unnecessary for visualization.",
       "-mul # Multiply the given factor to all vertices.",
       " <s> # Scaling factor.",
@@ -89,6 +90,7 @@ int main(int argc, char *argv[])
 
     std::string name;
     std::string spath;
+    bool   merge=false;
     bool   all=true;
     float scale=1.0f;
     std::string aout;
@@ -143,6 +145,11 @@ int main(int argc, char *argv[])
         }
       }
 
+      if (p == "-merge")
+      {
+        merge=true;
+      }
+
       if (p == "-reduce")
       {
         all=false;
@@ -182,7 +189,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-          model=gvr::loadModel(name.c_str(), spath.c_str(), true);
+          model=gvr::loadModel(name.c_str(), spath.c_str(), true, merge);
         }
 
         if (scale != 1.0f)

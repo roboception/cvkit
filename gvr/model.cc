@@ -137,13 +137,13 @@ void UInt8Receiver::setValue(int instance, const PLYValue &value)
   array[3*instance+offset]=static_cast<unsigned char>(scale*value.getFloat());
 }
 
-Model *loadModel(const char *name, const char *spath, bool verbose)
+Model *loadModel(const char *name, const char *spath, bool verbose, bool merge_double_vertices)
 {
   std::string s=name;
 
   if (s.rfind(".stl") == s.size()-4 || s.rfind(".STL") == s.size()-4)
   {
-    return loadSTL(name);
+    return loadSTL(name, merge_double_vertices);
   }
   else if (s.rfind(".ply") == s.size()-4 || s.rfind(".PLY") == s.size()-4)
   {
@@ -302,49 +302,100 @@ inline gmath::Vector3f stlReadVector3f(std::ifstream &in)
   return ret;
 }
 
-unsigned int findOrStoreVertex(Mesh *mesh, std::vector<gmath::Vector3f> &normal,
-  int &vn, const gmath::Vector3f &v, const gmath::Vector3f &tnormal)
+struct VertexNormalIndex
 {
-  unsigned int ret=0;
-
-  // try to find point v in the vertex list of mesh, but it is only considered
-  // a duplicate if the normals are the same
-
-  bool found=false;
-
-/* this can take far too long for big models, so we skip finding duplicates for now
-
-  for (int i=0; i<vn; i++)
+  VertexNormalIndex(const gmath::Vector3f &v, const gmath::Vector3f &tnormal, uint32_t _index)
   {
-    if (mesh->getVertex(i) == v)
+    x=v[0];
+    y=v[1];
+    z=v[2];
+    nx=tnormal[0];
+    ny=tnormal[1];
+    nz=tnormal[2];
+    index=_index;
+  }
+
+  float x, y, z;
+  float nx, ny, nz;
+  uint32_t index;
+};
+
+bool operator<(const VertexNormalIndex &a, const VertexNormalIndex &b)
+{
+  float eps=0.1f;
+
+  if (a.x < b.x)
+  {
+    return true;
+  }
+  else if (a.x == b.x)
+  {
+    if (a.y < b.y)
     {
-      if (std::abs(normal[i]*tnormal-1.0f) < 1e-3f)
+      return true;
+    }
+    else if (a.y == b.y)
+    {
+      if (a.z < b.z)
       {
-        ret=static_cast<unsigned int>(i);
-        found=true;
-        break;
+        return true;
+      }
+      else if (a.z == b.z)
+      {
+        if (a.nx < b.nx-eps)
+        {
+          return true;
+        }
+        else if (a.nx < b.nx+eps)
+        {
+          if (a.ny < b.ny-eps)
+          {
+            return true;
+          }
+          else if (a.ny < b.ny+eps)
+          {
+            if (a.nz < b.nz-eps)
+            {
+              return true;
+            }
+          }
+        }
       }
     }
   }
-*/
+
+  return false;
+}
+
+unsigned int findOrStoreVertex(Mesh *mesh, std::set<VertexNormalIndex> &vni,
+  int &vn, const gmath::Vector3f &v, const gmath::Vector3f &normal)
+{
+  // try to find point v in the vertex list of mesh, but it is only considered
+  // a duplicate if the normals are the same
+
+
+  VertexNormalIndex p(v, normal, vn);
+  std::set<VertexNormalIndex>::iterator it=vni.find(p);
 
   // add the vertex, if a duplicate cannot be found
 
-  if (!found)
+  if (it != vni.end())
   {
-    ret=static_cast<unsigned int>(vn);
-
-    mesh->setVertex(vn, v);
-    normal[vn]=tnormal;
-    vn++;
+    return it->index;
   }
+  else
+  {
+    vni.insert(p);
+    mesh->setVertex(vn, v);
+    vn++;
 
-  return ret;
+    return p.index;
+  }
 }
 
 }
 
-Model *loadSTL(const char *name)
+Model *loadSTL(const char *name, bool merge_double_vertices)
 {
   Mesh *mesh=0;
 
@@ -404,7 +455,7 @@ Model *loadSTL(const char *name)
     mesh->resizeVertexList(3*n, false, false);
     mesh->resizeTriangleList(n);
 
-    std::vector<gmath::Vector3f> normal(3*n);
+    std::set<VertexNormalIndex> vni;
 
     // read all triangles
 
@@ -418,9 +469,24 @@ Model *loadSTL(const char *name)
 
       // read vertices and either find a duplicate or add them
 
-      unsigned int t0=findOrStoreVertex(mesh, normal, vn, stlReadVector3f(in), tnormal);
-      unsigned int t1=findOrStoreVertex(mesh, normal, vn, stlReadVector3f(in), tnormal);
-      unsigned int t2=findOrStoreVertex(mesh, normal, vn, stlReadVector3f(in), tnormal);
+      unsigned int t0, t1, t2;
+
+      if (merge_double_vertices)
+      {
+        t0=findOrStoreVertex(mesh, vni, vn, stlReadVector3f(in), tnormal);
+        t1=findOrStoreVertex(mesh, vni, vn, stlReadVector3f(in), tnormal);
+        t2=findOrStoreVertex(mesh, vni, vn, stlReadVector3f(in), tnormal);
+      }
+      else
+      {
+        t0=vn++;
+        t1=vn++;
+        t2=vn++;
+
+        mesh->setVertex(t0, stlReadVector3f(in));
+        mesh->setVertex(t1, stlReadVector3f(in));
+        mesh->setVertex(t2, stlReadVector3f(in));
+      }
 
       // store triangle indices
 

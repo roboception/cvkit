@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
       {
         // load model
 
-        gvr::Model *model=gvr::loadModel(file.c_str(), spath.c_str(), true);
+        gvr::Model *model=gvr::loadModel(file.c_str(), spath.c_str(), true, false);
 
         if (model != 0)
         {
