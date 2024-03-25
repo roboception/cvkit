@@ -1,3 +1,9 @@
+Version 2.6.9 (2024-03-24)
+--------------------------
+
+- Make merging duplicate vertices during loading STL files faster and optional
+- Added camera pose in comment line of STL files
+
 Version 2.6.8 (2024-03-17)
 --------------------------
 
