@@ -36,6 +36,7 @@
 #define GIMAGE_GABOR_H
 
 #include "image.h"
+#include "gmath/linalg.h"
 
 namespace gimage
 {
@@ -98,7 +99,7 @@ class GaborKernel
 
           double gs=std::exp(-(a*a+g*g*b*b)/(2*s*s));
 
-          a=2*M_PI*a/l+p;
+          a=2*gmath::pi*a/l+p;
 
           *rep=static_cast<float>(gs*std::cos(a));
           *imp=static_cast<float>(gs*std::sin(a));
