@@ -43,7 +43,8 @@ cd ..\..\..
 echo ----- Clone all missing repositories -----
 
 if not exist "FreeGLUT\" (
-  git clone https://github.com/dcnieho/FreeGLUT.git -b 349a23dcc1264a76deb79962d1c90462ad0c6f50
+  git clone https://github.com/dcnieho/FreeGLUT.git
+  git checkout 349a23dcc1264a76deb79962d1c90462ad0c6f50
 )
 
 if not exist "glew-2.2.0\" (

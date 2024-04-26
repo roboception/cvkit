@@ -99,7 +99,7 @@ if (USE_3D)
     glworld.h
   )
 
-  if (OPENGL_GLU_FOUND)
+  if (OPENGL_GLU_FOUND AND NOT WIN32)
     include_directories(${OPENGL_INCLUDE_DIR})
     add_definitions(-DINCLUDE_GLU)
   endif ()
@@ -146,6 +146,7 @@ if (USE_3D)
 
   if (WIN32)
     target_link_libraries(gvr_static winmm)
+    target_link_libraries(gvr_static gdiplus)
   endif ()
 endif ()
 
@@ -173,6 +174,7 @@ if (USE_3D)
 
   if (WIN32)
     target_link_libraries(gvr LINK_PRIVATE winmm)
+    target_link_libraries(gvr LINK_PRIVATE gdiplus)
   endif ()
 endif ()
 

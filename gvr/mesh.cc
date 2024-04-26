@@ -745,10 +745,17 @@ void TriangleReceiver::setPolygon(int instance, const PLYValue &value)
 
   {
     GLUtesselator* tobj=gluNewTess();
+#ifdef WIN32
+    gluTessCallback(tobj, GLU_TESS_BEGIN_DATA, reinterpret_cast<void (__stdcall *) ()>(&beginCb));
+    gluTessCallback(tobj, GLU_TESS_COMBINE_DATA, reinterpret_cast<void (__stdcall *) ()>(&combineCb));
+    gluTessCallback(tobj, GLU_TESS_VERTEX_DATA, reinterpret_cast<void (__stdcall *) ()>(&vertexCb));
+    gluTessCallback(tobj, GLU_TESS_END_DATA, reinterpret_cast<void (__stdcall *) ()>(&endCb));
+#else
     gluTessCallback(tobj, GLU_TESS_BEGIN_DATA, reinterpret_cast<GLvoid (*) ()>(&beginCb));
     gluTessCallback(tobj, GLU_TESS_COMBINE_DATA, reinterpret_cast<GLvoid (*) ()>(&combineCb));
     gluTessCallback(tobj, GLU_TESS_VERTEX_DATA, reinterpret_cast<GLvoid (*) ()>(&vertexCb));
     gluTessCallback(tobj, GLU_TESS_END_DATA, reinterpret_cast<GLvoid (*) ()>(&endCb));
+#endif
 
     // outer contours counterclockwise, inner contours clockwise
     gluTessProperty(tobj, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_NONZERO);
