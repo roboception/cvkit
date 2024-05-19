@@ -162,7 +162,7 @@ template<class T> class TiffImage
   @param row     Row to be loaded
 */
 
-template<class T> void readUnpacked(T *ret, uint32_t n, TiffImage<T> &tif, uint32_t row, uint16 sample)
+template<class T> void readUnpacked(T *ret, uint32_t n, TiffImage<T> &tif, uint32_t row, uint16_t sample)
 {
   if (tif.bits != 8*sizeof(T) || tif.is_float != std::is_floating_point<T>::value ||
     n*sizeof(T) < tif.raw_size || tif.photometric == PHOTOMETRIC_MINISWHITE)
@@ -363,7 +363,7 @@ template<class T> void readUnpacked(T *ret, uint32_t n, TiffImage<T> &tif, uint3
 */
 
 template<class T> void readRow(gimage::Image<T> &ret, uint32_t k, TiffImage<T> &tif, uint32_t row,
-  uint16 d)
+  uint16_t d)
 {
   ret.setSize(tif.width, tif.height, tif.depth);
 
