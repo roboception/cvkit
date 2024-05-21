@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=sv
+Comment=Simple image viewer
+Exec=sv %F
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=sv
+MimeType=image/jpeg;image/png;image/tif;image/pgm;image/ppm;image/pfm
+Categories=Utility;

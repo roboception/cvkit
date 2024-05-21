@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=plyv
+Comment=3D viewer for disparity and PLY files
+Exec=plyv %F
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=plyv
+MimeType=model/stl;model/ply
+Categories=Utility;
