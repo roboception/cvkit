@@ -33,17 +33,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <gvr/model.h>
-#include <gvr/cameracollection.h>
-#include <gvr/glmain.h>
-#include <gvr/glworld.h>
-#include <gmath/svector.h>
-#include <gmath/camera.h>
-#include <gmath/linalg.h>
-#include <gutil/parameter.h>
-#include <gutil/exception.h>
-#include <gutil/version.h>
-#include <gutil/misc.h>
+#include "gvr/model.h"
+#include "gvr/cameracollection.h"
+#include "gvr/glmain.h"
+#include "gvr/glworld.h"
+#include "gmath/svector.h"
+#include "gmath/camera.h"
+#include "gmath/linalg.h"
+#include "gutil/parameter.h"
+#include "gutil/exception.h"
+#include "gutil/version.h"
+#include "gutil/misc.h"
+#include "bgui/messagewindow.h"
 
 #include <cstdlib>
 
@@ -146,7 +147,7 @@ int main(int argc, char *argv[])
 
     if (param.remaining() < 1)
     {
-      gutil::showError("No PLY files given");
+      bgui::MessageWindow win("Error", "No disparity image, PLY or STL file given on the command line", 500, 100);
       param.printHelp(std::cout);
       return 10;
     }

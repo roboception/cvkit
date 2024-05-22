@@ -107,7 +107,7 @@ if (USE_3D)
     target_link_libraries(plyv ${GLUT_LIBRARIES})
   endif ()
 
-  target_link_libraries(plyv gvr_static ${libs})
+  target_link_libraries(plyv gvr_static bgui_static ${libs})
 
   if (WIN32)
     target_link_libraries(plyv gdi32 "-Wl,--subsystem,windows")

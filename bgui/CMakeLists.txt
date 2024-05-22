@@ -37,6 +37,7 @@ set(bgui_src
   imagewindow.cc
   fileimagewindow.cc
   listimagewindow.cc
+  messagewindow.cc
 )
 
 set(bgui_hh
@@ -46,6 +47,7 @@ set(bgui_hh
   imageadapter.h
   imagewindow.h
   listimagewindow.h
+  messagewindow.h
 )
 
 if (USE_GDAL)

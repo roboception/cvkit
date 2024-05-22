@@ -33,11 +33,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <gutil/parameter.h>
-#include <bgui/fileimagewindow.h>
-#include <gutil/exception.h>
-#include <gutil/version.h>
-#include <gutil/misc.h>
+#include "gutil/parameter.h"
+#include "bgui/fileimagewindow.h"
+#include "gutil/exception.h"
+#include "gutil/version.h"
+#include "gutil/misc.h"
+#include "bgui/messagewindow.h"
 
 #include <string>
 #include <set>
@@ -231,7 +232,7 @@ int main(int argc, char *argv[])
 
     if (param.remaining() < 1)
     {
-      gutil::showError("No image files give");
+      bgui::MessageWindow win("Error", "No image files give on the command line", 400, 100);
       param.printHelp(std::cout);
       return 10;
     }

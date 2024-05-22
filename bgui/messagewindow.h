@@ -3,7 +3,7 @@
  *
  * Author: Heiko Hirschmueller
  *
- * Copyright (c) 2014, Institute of Robotics and Mechatronics, German Aerospace Center
+ * Copyright (c) 2024, Roboception GmbH
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,90 +33,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "exception.h"
+#ifndef BGUI_MESSAGEWINDOW_H
+#define BGUI_MESSAGEWINDOW_H
 
-#if defined(DEBUG) && defined(__GNUC__)
-#include <execinfo.h>
-#include <sstream>
-#endif
+#include "basewindow.h"
 
-#include <cstdlib>
-#include <iostream>
-
-#ifdef WIN32
-#include <windows.h>
-#endif
-
-namespace gutil
+namespace bgui
 {
 
-void showError(const char *text)
+/**
+ * Simple window for showing a text message. The constructor blocks, until the
+ * Window is closed.
+ */
+
+class MessageWindow : public BaseWindow
 {
-#ifdef WIN32
-  MessageBox(NULL, TEXT(text), TEXT("Exception"), MB_ICONERROR | MB_OK);
-#else
-  std::cerr << text << std::endl;
-#endif
+  public:
+
+    MessageWindow(const char *title, const char *message, int w, int h);
+    virtual ~MessageWindow();
+
+    void onKey(char c, SpecialKey key, int x, int y);
+};
+
 }
-
-Exception::Exception(const std::string &type, const std::string &message): s(type+": "+message)
-{
-#if defined(DEBUG) && defined(__GNUC__)
-  std::ostringstream os;
-  void *ptr[64];
-  int nptr=backtrace(ptr, 64);
-  char **sym=backtrace_symbols(ptr, nptr);
-
-  for (int i=1; i<nptr-1; i++)
-  {
-    os << sym[i] << "\n";
-  }
-
-  if (nptr > 1)
-  {
-    os << sym[nptr-1];
-  }
-
-  free(sym);
-
-  bt=os.str();
-#endif
-}
-
-void Exception::print() const
-{
-  showError(s.c_str());
-
-#if defined(DEBUG) && defined(__GNUC__)
-  size_t s0=0;
-
-  while (s0 != std::string::npos)
-  {
-    if (bt[s0] == '\n')
-    {
-      s0++;
-    }
-
-    size_t e0=bt.find_first_of(" \t(", s0);
-    size_t s1=bt.find_first_of("[", e0);
-    size_t e1=bt.find_first_of("]", s1);
-
-    if (e0 != std::string::npos && s1 != std::string::npos &&
-        e1 != std::string::npos)
-    {
-      std::string cmd="addr2line -e "+bt.substr(s0, e0-s0)+" "+
-                      bt.substr(s1+1, e1-s1-1);
-
-      if (system(cmd.c_str()) == -1)
-      {
-        std::cerr << cmd << " failed!" << std::endl;
-      }
-    }
-
-    s0=bt.find_first_of("\n", e1);
-  }
 
 #endif
-}
-
-}
