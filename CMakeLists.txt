@@ -127,19 +127,18 @@ endif ()
 
 if (OPENGL_FOUND AND (GLUT_FOUND OR FLTK_FOUND) AND GLEW_FOUND)
   set(USE_3D 1 CACHE BOOL "Compile with support for 3D visualization")
-
-  if (GLUT_FOUND)
-    set(USE_FLTK 0 CACHE BOOL "Use FLTK as replacement of GLUT")
-  else ()
-    set(USE_FLTK 1 CACHE BOOL "Use FLTK as replacement of GLUT" FORCE)
-  endif ()
 else ()
   set(USE_3D 0 CACHE BOOL "Compile with support for 3D visualization" FORCE)
-  set(USE_FLTK 0 CACHE BOOL "Use FLTK as replacement of GLUT" FORCE)
 endif ()
 
-if (USE_FLTK)
-  add_definitions(-DINCLUDE_FLTK)
+if (FLTK_FOUND)
+  if (GLUT_FOUND)
+    set(USE_FLTK 0 CACHE BOOL "Use FLTK for creating windows and as replacement of GLUT")
+  else ()
+    set(USE_FLTK 1 CACHE BOOL "Use FLTK for creating windows and as replacement of GLUT" FORCE)
+  endif ()
+else ()
+  set(USE_FLTK 0 CACHE BOOL "Use FLTK for creating windos and as replacement of GLUT" FORCE)
 endif ()
 
 # - Use C++11 -
@@ -170,6 +169,10 @@ endif ()
 
 if (APPLE)
   add_definitions(-Wno-deprecated-declarations)
+endif ()
+
+if (USE_FLTK)
+  add_definitions(-DINCLUDE_FLTK)
 endif ()
 
 # - Optional list of DLLs that are installed and included in package -

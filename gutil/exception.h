@@ -42,8 +42,6 @@
 namespace gutil
 {
 
-void showError(const char *text);
-
 class Exception : public std::exception
 {
   private:

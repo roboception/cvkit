@@ -62,19 +62,30 @@ target_link_libraries(prop2octave ${libs})
 
 install(TARGETS imgcmd plycmd prop2octave DESTINATION bin)
 
-if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
+if (WIN32)
+  add_executable(sv WIN32 sv.cc win_main.cc)
+  target_link_libraries(sv bgui_static ${libs})
+
+  if (USE_FLTK)
+    target_link_libraries(sv ${FLTK_LIBRARIES})
+  endif ()
+
+  target_link_libraries(sv bgui_static comctl32)
+  install(TARGETS sv DESTINATION bin)
+elseif ((X11_FOUND OR FLTK_FOUND) AND CMAKE_USE_PTHREADS_INIT)
   add_executable(sv sv.cc)
   target_link_libraries(sv bgui_static ${libs})
+
+  if (USE_FLTK)
+    target_link_libraries(sv ${FLTK_LIBRARIES})
+  endif ()
+
   install(TARGETS sv DESTINATION bin)
   install(FILES resources/sv.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
   install(FILES resources/sv_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/32x32/apps RENAME sv.png)
   install(FILES resources/sv_64.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps RENAME sv.png)
   install(FILES resources/sv_128.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps RENAME sv.png)
   install(FILES resources/sv_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/pixmaps RENAME sv.png)
-elseif (WIN32)
-  add_executable(sv WIN32 sv.cc win_main.cc)
-  target_link_libraries(sv bgui_static ${libs} comctl32)
-  install(TARGETS sv DESTINATION bin)
 endif ()
 
 if (USE_3D)

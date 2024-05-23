@@ -44,6 +44,16 @@
 #include <set>
 #include <fstream>
 
+#ifdef INCLUDE_FLTK
+#include <FL/Fl.H>
+#include <FL/Fl_Pixmap.H>
+#include <FL/Fl_RGB_Image.H>
+#include <FL/fl_ask.H>
+#include "resources/sv_128.xpm"
+#elif defined(WIN32)
+#include <windows.h>
+#endif
+
 int main(int argc, char *argv[])
 {
   try
@@ -232,7 +242,11 @@ int main(int argc, char *argv[])
 
     if (param.remaining() < 1)
     {
+#ifdef INCLUDE_FLTK
+      fl_alert("No image files give on the command line");
+#else
       bgui::MessageWindow win("Error", "No image files give on the command line", 400, 100);
+#endif
       param.printHelp(std::cout);
       return 10;
     }
@@ -328,11 +342,24 @@ int main(int argc, char *argv[])
   }
   catch (gutil::Exception &ex)
   {
-    ex.print();
+#ifdef INCLUDE_FLTK
+    fl_alert("%s", ex.what());
+#elif defined(WIN32)
+    MessageBox(NULL, TEXT(ex.what()), TEXT("Exception"), MB_ICONERROR | MB_OK);
+#else
+    std::cerr << ex.what() << std::endl;
+#endif
   }
   catch (...)
   {
-    gutil::showError("An unknown exception occured");
+    const char *msg="An unknown exception occured";
+#ifdef INCLUDE_FLTK
+    fl_alert("%s", msg);
+#elif defined(WIN32)
+    MessageBox(NULL, TEXT(msg), TEXT("Exception"), MB_ICONERROR | MB_OK);
+#else
+    std::cerr << msg << std::endl;
+#endif
   }
 
   return 0;

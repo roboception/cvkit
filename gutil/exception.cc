@@ -43,21 +43,8 @@
 #include <cstdlib>
 #include <iostream>
 
-#ifdef WIN32
-#include <windows.h>
-#endif
-
 namespace gutil
 {
-
-void showError(const char *text)
-{
-#ifdef WIN32
-  MessageBox(NULL, TEXT(text), TEXT("Exception"), MB_ICONERROR | MB_OK);
-#else
-  std::cerr << text << std::endl;
-#endif
-}
 
 Exception::Exception(const std::string &type, const std::string &message): s(type+": "+message)
 {
@@ -85,7 +72,7 @@ Exception::Exception(const std::string &type, const std::string &message): s(typ
 
 void Exception::print() const
 {
-  showError(s.c_str());
+  std::cerr << s << std::endl;
 
 #if defined(DEBUG) && defined(__GNUC__)
   size_t s0=0;
