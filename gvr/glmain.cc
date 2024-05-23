@@ -102,7 +102,11 @@ void GLInitWindow(int x, int y, int w, int h, const char *title)
 void GLRenderInfoText(const char *p, long fg_rgb, long bg_rgb)
 {
   const int th=15;
+#ifdef INCLUDE_FLTK
+  void *font=GLUT_BITMAP_8_BY_13;
+#else
   void *font=GLUT_BITMAP_9_BY_15;
+#endif
 
   // prepare for rendering in pixel coordinates
 
@@ -129,10 +133,14 @@ void GLRenderInfoText(const char *p, long fg_rgb, long bg_rgb)
     {
       int s=0;
 
+#ifdef INCLUDE_FLTK
+      s=11*list[i].size();
+#else
       for (size_t k=0; k<list[i].size(); k++)
       {
         s+=glutBitmapWidth(font, list[i][k]);
       }
+#endif
 
       w=std::max(w, s);
     }
@@ -189,7 +197,11 @@ void GLRenderInfoText(const char *p, long fg_rgb, long bg_rgb)
 
 void GLRenderInfoLine(const char *p, long fg_rgb)
 {
+#ifdef INCLUDE_FLTK
+  void *font=GLUT_BITMAP_8_BY_13;
+#else
   void *font=GLUT_BITMAP_9_BY_15;
+#endif
 
   // prepare for rendering in pixel coordinates
 
