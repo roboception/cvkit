@@ -48,6 +48,14 @@
 
 #include <cstdlib>
 
+#ifdef INCLUDE_FLTK
+#include <FL/Fl.H>
+#include <FL/Fl_Pixmap.H>
+#include <FL/Fl_RGB_Image.H>
+#include <FL/glut.H>
+#include "resources/plyv_128.xpm"
+#endif
+
 int main(int argc, char *argv[])
 {
   try
@@ -155,6 +163,13 @@ int main(int argc, char *argv[])
     // initialization
 
     gvr::GLInitWindow(-1, -1, width, height, "plyv");
+
+#ifdef INCLUDE_FLTK
+    Fl_Pixmap icon_xpm(plyv_128);
+    Fl_RGB_Image icon_rgb(&icon_xpm, FL_GRAY);
+    glut_window->icon(&icon_rgb);
+    glut_window->xclass("plyv");
+#endif
 
     gvr::GLWorld          world(width, height, hfov, keycodes);
     gvr::CameraCollection camlist;

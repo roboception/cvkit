@@ -119,10 +119,6 @@ if (USE_PNG)
   add_definitions(${PNG_DEFINITIONS})
 endif ()
 
-if (USE_FLTK)
-  add_definitions(-DINCLUDE_FLTK)
-endif ()
-
 add_library(gvr_static STATIC ${gvr_src})
 
 if (USE_PNG)

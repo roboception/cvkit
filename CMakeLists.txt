@@ -138,6 +138,10 @@ else ()
   set(USE_FLTK 0 CACHE BOOL "Use FLTK as replacement of GLUT" FORCE)
 endif ()
 
+if (USE_FLTK)
+  add_definitions(-DINCLUDE_FLTK)
+endif ()
+
 # - Use C++11 -
 
 set(CMAKE_CXX_STANDARD 11)
