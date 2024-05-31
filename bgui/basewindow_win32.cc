@@ -91,10 +91,10 @@ void drawInfoText(HWND hwnd, HDC hdc, BaseWindowData *p)
 {
   HFONT fixed_font=static_cast<HFONT>(GetStockObject(ANSI_FIXED_FONT));
   HFONT old_font=static_cast<HFONT>(SelectObject(hdc, fixed_font));
-  
+
   SetBkColor(hdc, 0x000000);
   SetTextColor(hdc, 0xffffff);
-  
+
   if (p->text.size() > 0)
   {
     SetTextAlign(hdc, TA_TOP | TA_LEFT);
@@ -187,7 +187,7 @@ void drawInfoText(HWND hwnd, HDC hdc, BaseWindowData *p)
       }
     }
   }
-  
+
   if (old_font != 0)
   {
     SelectObject(hdc, old_font);
@@ -609,6 +609,11 @@ BaseWindow::~BaseWindow()
   }
 
   delete p;
+}
+
+void BaseWindow::setIcon(const gimage::ImageU8 &icon)
+{
+  // not yet implemented for Windows
 }
 
 void BaseWindow::setVisible(bool show)

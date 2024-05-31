@@ -133,12 +133,12 @@ endif ()
 
 if (FLTK_FOUND)
   if (GLUT_FOUND)
-    set(USE_FLTK 0 CACHE BOOL "Use FLTK for creating windows and as replacement of GLUT")
+    set(USE_FLTK 0 CACHE BOOL "Use FLTK as replacement of GLUT")
   else ()
-    set(USE_FLTK 1 CACHE BOOL "Use FLTK for creating windows and as replacement of GLUT" FORCE)
+    set(USE_FLTK 1 CACHE BOOL "Use FLTK as replacement of GLUT" FORCE)
   endif ()
 else ()
-  set(USE_FLTK 0 CACHE BOOL "Use FLTK for creating windos and as replacement of GLUT" FORCE)
+  set(USE_FLTK 0 CACHE BOOL "Use FLTK as replacement of GLUT" FORCE)
 endif ()
 
 # - Use C++11 -

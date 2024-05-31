@@ -219,6 +219,16 @@ void BasicImageIO::save(const ImageFloat &image, const char *name) const
   throw gutil::IOException("Saving this image type is not implemented! ("+std::string(name)+")");
 }
 
+bool BasicImageIO::handles(gutil::uint8 *data, size_t length) const
+{
+  return false;
+}
+
+void BasicImageIO::load(ImageU8 &image, gutil::uint8 *data, size_t length) const
+{
+  throw gutil::IOException("Loading from memory is not implemented");
+}
+
 ImageIO::ImageIO()
 {
   list.push_back(new PNMImageIO());
@@ -718,6 +728,20 @@ void ImageIO::save(const ImageU16 &image, const char *name) const
 void ImageIO::save(const ImageFloat &image, const char *name) const
 {
   getBasicImageIO(name, false).save(image, name);
+}
+
+void ImageIO::load(ImageU8 &image, gutil::uint8 *data, size_t length)
+{
+  for (std::vector<BasicImageIO *>::const_iterator it=list.begin(); it<list.end(); ++it)
+  {
+    if ((*it)->handles(data, length))
+    {
+      (*it)->load(image, data, length);
+      return;
+    }
+  }
+
+  throw gutil::IOException("Loading images from memory is not implemented");
 }
 
 const BasicImageIO &ImageIO::getBasicImageIO(const char *name, bool reading) const

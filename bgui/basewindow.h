@@ -58,6 +58,10 @@ class BaseWindow
     BaseWindow(const char *title, int w, int h);
     virtual ~BaseWindow();
 
+    // set icon for this window
+
+    void setIcon(const gimage::ImageU8 &icon);
+
     // showing and hiding the window (only works as long as it is not closed)
 
     void setVisible(bool show=true);

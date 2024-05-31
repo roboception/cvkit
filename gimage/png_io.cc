@@ -94,7 +94,7 @@ void PNGImageIO::loadHeader(const char *name, long &width, long &height,
   if (png == 0)
   {
     fclose(in);
-    throw gutil::IOException("Cannot allocate hangle for reading PNG files");
+    throw gutil::IOException("Cannot allocate handle for reading PNG files");
   }
 
   png_infop info=png_create_info_struct(png);
@@ -167,7 +167,7 @@ void PNGImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
   if (png == 0)
   {
     fclose(in);
-    throw gutil::IOException("Cannot allocate hangle for reading PNG files");
+    throw gutil::IOException("Cannot allocate handle for reading PNG files");
   }
 
   png_infop info=png_create_info_struct(png);
@@ -388,7 +388,7 @@ void PNGImageIO::load(ImageU16 &image, const char *name, int ds, long x, long y,
   if (png == 0)
   {
     fclose(in);
-    throw gutil::IOException("Cannot allocate hangle for reading PNG files");
+    throw gutil::IOException("Cannot allocate handle for reading PNG files");
   }
 
   png_infop info=png_create_info_struct(png);
@@ -621,7 +621,7 @@ void PNGImageIO::save(const ImageU8 &image, const char *name) const
   if (png == 0)
   {
     fclose(out);
-    throw gutil::IOException("Cannot allocate hangle for writing PNG files");
+    throw gutil::IOException("Cannot allocate handle for writing PNG files");
   }
 
   png_infop info=png_create_info_struct(png);
@@ -734,7 +734,7 @@ void PNGImageIO::save(const ImageU16 &image, const char *name) const
   if (png == 0)
   {
     fclose(out);
-    throw gutil::IOException("Cannot allocate hangle for writing PNG files");
+    throw gutil::IOException("Cannot allocate handle for writing PNG files");
   }
 
   png_infop info=png_create_info_struct(png);
@@ -825,6 +825,167 @@ void PNGImageIO::save(const ImageU16 &image, const char *name) const
   fclose(out);
 
   png_destroy_write_struct(&png, &info);
+}
+
+bool PNGImageIO::handles(gutil::uint8 *data, size_t length) const
+{
+  return !png_sig_cmp(reinterpret_cast<png_bytep>(data), 0, length);
+}
+
+namespace
+{
+
+struct PNGReadData
+{
+  gutil::uint8 *data;
+  size_t length;
+  size_t i;
+};
+
+void readPNGData(png_structp png_ptr, png_bytep data, png_size_t length)
+{
+  PNGReadData *dp=reinterpret_cast<PNGReadData *>(png_get_io_ptr(png_ptr));
+
+  if (dp->i < dp->length)
+  {
+    if (dp->i+length > dp->length)
+    {
+      length=dp->length-dp->i;
+    }
+
+    memcpy(data, dp->data+dp->i, length);
+    dp->i+=length;
+  }
+}
+
+}
+
+void PNGImageIO::load(ImageU8 &image, gutil::uint8 *data, size_t length) const
+{
+  if (!handles(data, length))
+  {
+    throw gutil::IOException("Can only load PNG image format");
+  }
+
+  png_structp png=png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
+
+  if (png == 0)
+  {
+    throw gutil::IOException("Cannot allocate handle for reading PNG files");
+  }
+
+  PNGReadData dp;
+  dp.data=data;
+  dp.length=length;
+  dp.i=0;
+
+  png_set_read_fn(png, &dp, readPNGData);
+
+  png_infop info=png_create_info_struct(png);
+
+  if (info == 0)
+  {
+    png_destroy_read_struct(&png, static_cast<png_infopp>(0), static_cast<png_infopp>(0));
+    throw gutil::IOException("Cannot allocate PNG info structure");
+  }
+
+  png_infop end=png_create_info_struct(png);
+
+  if (end == 0)
+  {
+    png_destroy_read_struct(&png, &info, static_cast<png_infopp>(0));
+    throw gutil::IOException("Cannot allocate PNG info structure");
+  }
+
+  unsigned char *img=0;
+  unsigned char **row=0;
+
+  if (setjmp(png_jmpbuf(png)))
+  {
+    delete [] img;
+    delete [] row;
+
+    png_destroy_read_struct(&png, &info, &end);
+    throw gutil::IOException("Cannot read PNG image from memory");
+  }
+
+  // read header data
+
+  png_read_info(png, info);
+
+  long width=static_cast<long>(png_get_image_width(png, info));
+  long height=static_cast<long>(png_get_image_height(png, info));
+
+  int depth=1;
+  int color=png_get_color_type(png, info);
+
+  if (color == PNG_COLOR_TYPE_PALETTE || color == PNG_COLOR_TYPE_RGB)
+  {
+    depth=3;
+  }
+
+  if (color == PNG_COLOR_TYPE_RGB_ALPHA)
+  {
+    depth=4;
+  }
+
+  image.setSize(width, height, depth);
+  image.clear();
+
+  // transform palette images to RGB
+
+  if (color == PNG_COLOR_TYPE_PALETTE)
+  {
+    png_set_palette_to_rgb(png);
+  }
+
+  // make sure that there are 8 Bits per color channel
+
+  int bits=png_get_bit_depth(png, info);
+
+  if (bits > 8)
+  {
+    png_destroy_read_struct(&png, &info, &end);
+    throw gutil::IOException("PNG image with <= 8 bits expected");
+  }
+
+  if (color == PNG_COLOR_TYPE_GRAY && bits < 8)
+  {
+    png_set_expand_gray_1_2_4_to_8(png);
+  }
+
+  // read image completely
+
+  int rn=static_cast<int>(png_get_rowbytes(png, info));
+  img=new unsigned char [height*rn];
+  row=new unsigned char * [height];
+
+  for (int k=0; k<height; k++)
+  {
+    row[k]=img+k*rn;
+  }
+
+  png_read_image(png, static_cast<png_bytepp>(row));
+
+  for (long k=0; k<height; k++)
+  {
+    int j=0;
+
+    for (long i=0; i<width; i++)
+    {
+      for (int d=0; d<depth; d++)
+      {
+        image.set(i, k, d, static_cast<ImageU8::store_t>(row[k][j++]));
+      }
+    }
+  }
+
+  // close data set
+
+  delete [] row;
+  delete [] img;
+
+  png_destroy_read_struct(&png, &info, &end);
 }
 
 }

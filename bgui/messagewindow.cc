@@ -42,9 +42,7 @@ MessageWindow::MessageWindow(const char *title, const char *message, int w, int 
   BaseWindow(title, w, h)
 {
   setInfoText(message);
-
   setVisible();
-  waitForClose();
 }
 
 MessageWindow::~MessageWindow()

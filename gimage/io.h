@@ -87,6 +87,9 @@ class BasicImageIO
     virtual void save(const ImageU8 &image, const char *name) const;
     virtual void save(const ImageU16 &image, const char *name) const;
     virtual void save(const ImageFloat &image, const char *name) const;
+
+    virtual bool handles(gutil::uint8 *data, size_t length) const;
+    virtual void load(ImageU8 &image, gutil::uint8 *data, size_t length) const;
 };
 
 /**
@@ -128,6 +131,8 @@ class ImageIO
     void save(const ImageU8 &image, const char *name) const;
     void save(const ImageU16 &image, const char *name) const;
     void save(const ImageFloat &image, const char *name) const;
+
+    void load(ImageU8 &image, gutil::uint8 *data, size_t length);
 
   private:
 

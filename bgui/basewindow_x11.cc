@@ -667,6 +667,56 @@ BaseWindow::~BaseWindow()
   delete p;
 }
 
+void BaseWindow::setIcon(const gimage::ImageU8 &icon)
+{
+  if (icon.getWidth() > 0 && icon.getHeight() > 0)
+  {
+    std::vector<unsigned long> image(2+icon.getWidth()*icon.getHeight());
+
+    int j=0;
+    image[j++]=static_cast<unsigned long>(icon.getWidth());
+    image[j++]=static_cast<unsigned long>(icon.getHeight());
+
+    for (long k=0; k<icon.getHeight(); k++)
+    {
+      for (long i=0; i<icon.getWidth(); i++)
+      {
+        unsigned long r, g, b, a;
+
+        r=icon.get(i, k, 0);
+        if (icon.getDepth() >= 3)
+        {
+          g=icon.get(i, k, 1);
+          b=icon.get(i, k, 2);
+
+          if (icon.getDepth() >= 4)
+          {
+            a=icon.get(i, k, 3);
+          }
+          else
+          {
+            a=255;
+          }
+        }
+        else
+        {
+          g=r;
+          b=r;
+          a=255;
+        }
+
+        image[j++]=(a<<24)|(r<<16)|(g<<8)|b;
+      }
+    }
+
+    // icon is 32 bit ARGB as unsigned long (even on 64 bit systems)
+
+    XChangeProperty(p->display, p->window,
+      XInternAtom(p->display, "_NET_WM_ICON", 0), XA_CARDINAL, 32, PropModeReplace,
+      reinterpret_cast<unsigned char*>(image.data()), image.size());
+  }
+}
+
 void BaseWindow::setVisible(bool show)
 {
   pthread_mutex_lock(&(p->mutex));

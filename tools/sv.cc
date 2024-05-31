@@ -35,10 +35,13 @@
 
 #include "gutil/parameter.h"
 #include "bgui/fileimagewindow.h"
+#include "gimage/image.h"
+#include "gimage/io.h"
 #include "gutil/exception.h"
 #include "gutil/version.h"
 #include "gutil/misc.h"
 #include "bgui/messagewindow.h"
+#include "resources/sv_128.inl"
 
 #include <string>
 #include <set>
@@ -49,7 +52,6 @@
 #include <FL/Fl_Pixmap.H>
 #include <FL/Fl_RGB_Image.H>
 #include <FL/fl_ask.H>
-#include "resources/sv_128.xpm"
 #elif defined(WIN32)
 #include <windows.h>
 #endif
@@ -238,6 +240,17 @@ int main(int argc, char *argv[])
       }
     }
 
+    // try to load icon
+
+    gimage::ImageU8 icon;
+
+    try
+    {
+      gimage::getImageIO().load(icon, sv_128_png, sv_128_png_len);
+    }
+    catch (const std::exception &)
+    { }
+
     // collect files
 
     if (param.remaining() < 1)
@@ -246,6 +259,8 @@ int main(int argc, char *argv[])
       fl_alert("No image files give on the command line");
 #else
       bgui::MessageWindow win("Error", "No image files give on the command line", 400, 100);
+      win.setIcon(icon);
+      win.waitForClose();
 #endif
       param.printHelp(std::cout);
       return 10;
@@ -338,6 +353,7 @@ int main(int argc, char *argv[])
     bgui::FileImageWindow win(list, first, watch, x, y, w, h, size_max, scale,
                               imin, imax, vmin, vmax, kp, map, channel, viewcmd.c_str());
 
+    win.setIcon(icon);
     win.waitForClose();
   }
   catch (gutil::Exception &ex)

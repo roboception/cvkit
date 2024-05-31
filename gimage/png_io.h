@@ -62,6 +62,9 @@ class PNGImageIO : public BasicImageIO
 
     void save(const ImageU8 &image, const char *name) const;
     void save(const ImageU16 &image, const char *name) const;
+
+    bool handles(gutil::uint8 *data, size_t length) const;
+    void load(ImageU8 &image, gutil::uint8 *data, size_t length) const;
 };
 
 }
