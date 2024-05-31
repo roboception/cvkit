@@ -1,3 +1,9 @@
+Version 2.6.10 (2024-05-31)
+---------------------------
+
+- Added desktop files and icons for sv and plyv under Linux to make graphically opening images and 3D data with this tools more easiy
+- Showing error about missing parameters for sv and plyv in a Window under Linux
+
 Version 2.6.9 (2024-03-24)
 --------------------------
 
