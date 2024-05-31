@@ -554,7 +554,7 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
     wm_hints->input=True;
 
     class_hints->res_name=const_cast<char *>("bwindow");
-    class_hints->res_class=const_cast<char *>("bgui");
+    class_hints->res_class=const_cast<char *>(title);
 
     XSetWMProperties(p->display, p->window, &windowname, &iconname,
                      0, 0, size_hints, wm_hints, class_hints);
