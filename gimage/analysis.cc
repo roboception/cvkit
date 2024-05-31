@@ -183,9 +183,9 @@ namespace
 inline float negLog(float &p)
 {
   double v=-std::log(p);
-  float ret=p*v;
+  float ret=static_cast<float>(p*v);
 
-  p=v;
+  p=static_cast<float>(v);
 
   return ret;
 }
@@ -359,7 +359,7 @@ float getMutualInformationU8(ImageFloat &mi, const ImageU8 &image1, const ImageU
 
   mi*=scale;
 
-  return entropy1+entropy2-entropy;
+  return static_cast<float>(entropy1+entropy2-entropy);
 }
 
 }

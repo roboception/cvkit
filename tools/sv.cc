@@ -54,6 +54,8 @@
 #include <FL/fl_ask.H>
 #elif defined(WIN32)
 #include <windows.h>
+#undef min
+#undef max
 #endif
 
 int main(int argc, char *argv[])
@@ -257,8 +259,10 @@ int main(int argc, char *argv[])
     {
 #ifdef INCLUDE_FLTK
       fl_alert("No image files give on the command line");
+#elif defined(WIN32)
+    MessageBox(NULL, TEXT("No image files given on the command line"), TEXT("Error"), MB_ICONERROR | MB_OK);
 #else
-      bgui::MessageWindow win("Error", "No image files give on the command line", 400, 100);
+      bgui::MessageWindow win("Error", "No image files given on the command line", 400, 100);
       win.setIcon(icon);
       win.waitForClose();
 #endif

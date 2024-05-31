@@ -160,8 +160,11 @@ int main(int argc, char *argv[])
     {
 #ifdef INCLUDE_FLTK
       fl_alert("No disparity image, PLY or STL file given on the command line");
+#elif defined(WIN32)
+    MessageBox(NULL, TEXT("No disparity image, PLY or STL file given on the command line"), TEXT("Error"), MB_ICONERROR | MB_OK);
 #else
       bgui::MessageWindow win("Error", "No disparity image, PLY or STL file given on the command line", 500, 100);
+      win.waitForClose();
 #endif
       param.printHelp(std::cout);
       return 10;

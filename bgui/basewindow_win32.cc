@@ -465,7 +465,7 @@ LRESULT CALLBACK mainProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
   }
   catch (...)
   {
-    gutil::showError("An unknown exception occured");
+    MessageBox(NULL, TEXT("An unknown exception occured"), TEXT("Exception"), MB_ICONERROR | MB_OK);
     exit(10);
   }
 
