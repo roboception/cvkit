@@ -68,6 +68,7 @@ if (WIN32)
 
   if (USE_FLTK)
     target_link_libraries(sv ${FLTK_LIBRARIES})
+    target_link_libraries(sv gdiplus)
   endif ()
 
   target_link_libraries(sv bgui_static comctl32)
