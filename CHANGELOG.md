@@ -1,3 +1,9 @@
+Version 2.6.12 (2024-10-10)
+---------------------------
+
+- Fixed building with FLTK under Windows
+- Fixed compiling with SSE2 support under Windows
+
 Version 2.6.11 (2024-06-03)
 ---------------------------
 
