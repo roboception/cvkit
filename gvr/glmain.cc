@@ -134,7 +134,7 @@ void GLRenderInfoText(const char *p, long fg_rgb, long bg_rgb)
       int s=0;
 
 #ifdef INCLUDE_FLTK
-      s=11*list[i].size();
+      s=static_cast<int>(11*list[i].size());
 #else
       for (size_t k=0; k<list[i].size(); k++)
       {

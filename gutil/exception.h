@@ -55,6 +55,14 @@ class Exception : public std::exception
 
     Exception(const std::string &type, const std::string &message);
 
+    Exception(const Exception &e)
+    {
+      s=e.s;
+#if defined(DEBUG) && defined(__GNUC__)
+      bt=e.bt;
+#endif
+    }
+
     virtual ~Exception() throw() { }
 
     virtual const char *what() const throw()
