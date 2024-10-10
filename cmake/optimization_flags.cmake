@@ -43,7 +43,7 @@ endif ()
 
 if (USE_SSE2)
   if (MSVC)
-    add_definitions(/arch:SSE2)
+    add_definitions(-D__SSE2__)
   else ()
     add_definitions(-msse2)
   endif ()
