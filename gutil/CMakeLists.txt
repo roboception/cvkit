@@ -66,7 +66,13 @@ if (INCLUDE_PTHREADS)
 else ()
   set(gutil_src ${gutil_src} thread_cpp11.cc)
   set(gutil_src ${gutil_src} barrier_cpp11.cc)
-  set(gutil_src ${gutil_src} semaphore_cpp11.cc)
+
+# The implementation with Windows semaphore functions is slower that the c++11 implementation
+#  if (MSVC)
+#    set(gutil_src ${gutil_src} semaphore_win32.cc)
+#  else ()
+    set(gutil_src ${gutil_src} semaphore_cpp11.cc)
+#  endif ()
 endif ()
 
 add_library(gutil_static STATIC ${gutil_src})
