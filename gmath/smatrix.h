@@ -96,6 +96,15 @@ template<class T, int nrows, int ncols> class SMatrix
       }
     }
 
+    SMatrix(const SMatrix<T, nrows, ncols> &a)
+    {
+      for (int k=0; k<nrows; k++)
+        for (int i=0; i<ncols; i++)
+        {
+          v[k][i]=a(k, i);
+        }
+    }
+
     template<class S> SMatrix(const SMatrix<S, nrows, ncols> &a)
     {
       for (int k=0; k<nrows; k++)

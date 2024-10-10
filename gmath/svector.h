@@ -122,6 +122,14 @@ template<class T, int n> class SVector
       v[5]=v5;
     }
 
+    SVector(const SVector<T, n> &a)
+    {
+      for (int i=0; i<n; i++)
+      {
+        v[i]=static_cast<T>(a[i]);
+      }
+    }
+
     template<class S> SVector(const SVector<S, n> &a)
     {
       for (int i=0; i<n; i++)
