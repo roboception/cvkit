@@ -20,21 +20,21 @@ if ("${ARCHITECTURE}" STREQUAL "arm") # Preselect settings for Odroid or Tegra K
     set(USE_AVX 0 CACHE BOOL "Compile for AVX (x86) using -mavx")
     set(USE_AVX2 0 CACHE BOOL "Compile for AVX2 (x86) using -mavx2")
     set(USE_ARMV7_CA15 1 CACHE BOOL "Compile for ARM V7 Cortex-A15 using -mcpu=cortex-a15 -mfpu=neon")
-    set(USE_ARMV8_AARCH64 0 CACHE BOOL "Compile for ARM V8.2 64 bit using -mcpu=armv8.2-a")
-elseif ("${ARCHITECTURE}" STREQUAL "aarch64") # Preselect settings for ARM v8.2 like Jetson Xavier and Odroid HC4
+    set(USE_ARMV8_AARCH64 0 CACHE BOOL "Compile for ARM V8.0 64 bit using -mcpu=armv8-a")
+elseif ("${ARCHITECTURE}" STREQUAL "aarch64") # Preselect settings for ARM v8.0 like Jetson Xavier and Odroid HC4
     set(USE_SSE2 0 CACHE BOOL "Compile for SSE2 (x86) using -msse2")
     set(USE_SSE4.2 0 CACHE BOOL "Compile for SSE4.2 (x86) using -mpopcnt -msse4.2")
     set(USE_AVX 0 CACHE BOOL "Compile for AVX (x86) using -mavx")
     set(USE_AVX2 0 CACHE BOOL "Compile for AVX2 (x86) using -mavx2")
     set(USE_ARMV7_CA15 0 CACHE BOOL "Compile for ARM V7 Cortex-A15 using -mcpu=cortex-a15 -mfpu=neon")
-    set(USE_ARMV8_AARCH64 1 CACHE BOOL "Compile for ARM V8.2 64 bit using -mcpu=armv8.2-a")
+    set(USE_ARMV8_AARCH64 1 CACHE BOOL "Compile for ARM V8.0 64 bit using -mcpu=armv8-a")
 else () # Preselect settings for intel architecture
     set(USE_SSE2 1 CACHE BOOL "Compile for SSE2 (x86) using -msse2")
     set(USE_SSE4.2 1 CACHE BOOL "Compile for SSE4.2 (x86) using -mpopcnt -msse4.2")
     set(USE_AVX 0 CACHE BOOL "Compile for AVX (x86) using -mavx")
     set(USE_AVX2 0 CACHE BOOL "Compile for AVX2 (x86) using -mavx2")
     set(USE_ARMV7_CA15 0 CACHE BOOL "Compile for ARM V7 Cortex-A15 using -mcpu=cortex-a15 -mfpu=neon")
-    set(USE_ARMV8_AARCH64 0 CACHE BOOL "Compile for ARM V8.2 64 bit using -mcpu=armv8.2-a")
+    set(USE_ARMV8_AARCH64 0 CACHE BOOL "Compile for ARM V8.0 64 bit using -mcpu=armv8-a")
 endif ()
 
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -80,7 +80,7 @@ if (USE_ARMV7_CA15)
 endif ()
 
 if (USE_ARMV8_AARCH64)
-    add_definitions(-march=armv8.2-a -D__ARM_NEON__)
+    add_definitions(-march=armv8-a -D__ARM_NEON__)
 endif ()
 
 if (UNROLL_LOOPS)

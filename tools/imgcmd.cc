@@ -543,15 +543,13 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
             {
               if (image.isValid(i, k))
               {
-// ???
-//                mean+=image.get(i, k);
-                mean+=std::abs(image.get(i, k));
+                mean+=image.get(i, k);
                 n++;
               }
             }
           }
 
-//          mean/=std::max(1, n);
+          mean/=std::max(1, n);
 
           if (what == "all" || what == "mean")
           {
