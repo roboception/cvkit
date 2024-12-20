@@ -34,11 +34,20 @@
  */
 
 #include "linalg.h"
+#include "minpack.h"
 
 #include <cmath>
+#include <vector>
 
 namespace gmath
 {
+
+Matrix33d ensureRotation(const Matrix33d &R)
+{
+  Vector3d n;
+  double phi=recoverAngleAxis(R, n);
+  return createR(n, phi);
+}
 
 Matrix33d createRx(double a)
 {
@@ -399,11 +408,77 @@ double recoverAngleAxis(const Matrix33d &R, Vector3d &n)
   return phi;
 }
 
-Matrix33d ensureRotation(const Matrix33d &R)
+namespace
 {
-  Vector3d n;
-  double phi=recoverAngleAxis(R, n);
-  return createR(n, phi);
+
+int averageAngleAxisOpt(int n, double x[], int m, double fvec[], void *up)
+{
+  Vector3d *v=reinterpret_cast<Vector3d *>(up);
+  Vector3d tmp;
+
+  Matrix33d Ra=transpose(createR(Vector3d(x[0], x[1], x[2])));
+
+  for (int i=0; i<m; i++)
+  {
+    Matrix33d R=createR(v[i]);
+    fvec[i]=recoverAngleAxis(Ra*R, tmp);
+  }
+
+  return 0;
+}
+
+}
+
+Vector3d averageAngleAxis(int n, Vector3d v[])
+{
+  if (n <= 0)
+  {
+    return Vector3d();
+  }
+
+  if (n == 1)
+  {
+    return v[0];
+  }
+
+  if (n == 2)
+  {
+    Matrix33d R0=createR(v[0]);
+    Matrix33d R1=createR(v[1]);
+
+    Vector3d N;
+    double phi=recoverAngleAxis(transpose(R1)*R0, N);
+    Matrix33d R=R1*createR(N, phi/2);
+
+    return recoverAngleAxis(R);
+  }
+
+  // for all n >= 3
+
+  double x[3]={0, 0, 0};
+  std::vector<double> fvec(n);
+
+  // naiv averaging as start value
+
+  for (int i=0; i<n; i++)
+  {
+    x[0]+=v[i][0];
+    x[1]+=v[i][1];
+    x[2]+=v[i][2];
+  }
+
+  x[0]/=n;
+  x[1]/=n;
+  x[2]/=n;
+
+  // optimize
+
+  if (slmdif(averageAngleAxisOpt, n, 3, x, fvec.data(), v, 1e-9, 1e-9))
+  {
+    return Vector3d(x[0], x[1], x[2]);
+  }
+
+  return Vector3d();
 }
 
 double transformGaussJordan(Matrixd &a)

@@ -68,8 +68,40 @@ Matrix33d createRz(double a);
 Matrix33d createR(double ax, double ay, double az);
 bool recoverEuler(const Matrix33d &R, double &ax, double &ay, double &az, bool tolerant=false);
 
+/**
+ * Conversion between rotation matrix and rotation in angle axis form with
+ * explicit angle and unit axis.
+ */
+
 Matrix33d createR(const Vector3d &n, double phi);
 double recoverAngleAxis(const Matrix33d &R, Vector3d &n);
+
+/**
+ * Conversion between rotation matrix and rotation in angle axis form with
+ * length of vector as angle.
+ */
+
+inline Matrix33d createR(const Vector3d &n)
+{
+  // works, because n will be normalized in the createR() function that is called
+  return createR(n, norm(n));
+}
+
+inline Vector3d recoverAngleAxis(const Matrix33d &R)
+{
+  Vector3d v;
+  double phi=recoverAngleAxis(R, v);
+  return v*phi;
+}
+
+/**
+ * Computes the average rotation as the rotation that with the lowest difference
+ * rotation to all given rotations.
+ *
+ * All rotations are expected in angle axis form.
+ */
+
+Vector3d averageAngleAxis(int n, Vector3d v[]);
 
 /**
  * Returns a skew symmetric 3x3 matrix that is constructed by the elements of
@@ -187,10 +219,12 @@ inline void svToZero(Vectord &w, double t=1e-15)
   // set all elements below threshold to zero
 
   for (int i=0; i<w.size(); i++)
+  {
     if (w[i]/wmax <= t)
     {
       w[i]=0;
     }
+  }
 }
 
 /**
@@ -212,10 +246,12 @@ inline Matrixd mul(const Matrixd &u, const Vectord &w, const Matrixd &v)
   }
 
   for (int k=mm; k<u.cols(); k++)
+  {
     for (int i=0; i<v.rows(); i++)
     {
       wv(k, i)=0;
     }
+  }
 
   return u*wv;
 }
@@ -241,10 +277,12 @@ mul(const SMatrix<T, m, m> &u, const SVector<T, nn> &w,
   }
 
   for (int k=mm; k<u.cols(); k++)
+  {
     for (int i=0; i<v.rows(); i++)
     {
       wv(k, i)=0;
     }
+  }
 
   return u*wv;
 }
