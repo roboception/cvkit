@@ -1,3 +1,10 @@
+Version 2.6.13 (2024-12-20)
+---------------------------
+
+- Adding a few functions for working with rotations in angle axis format
+- Fixed computing mean and stddev in imgcmd tool
+- Added implementation of semaphore class with native windows functions
+
 Version 2.6.12 (2024-10-10)
 ---------------------------
 
