@@ -47,6 +47,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <cstdint>
 
 #include <string.h>
 
