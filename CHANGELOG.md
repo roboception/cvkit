@@ -1,3 +1,9 @@
+Version 2.6.15 (2024-12-21)
+---------------------------
+
+- Added some convenience functions for pose conversions
+- Fixed averaging rotations
+
 Version 2.6.14 (2024-12-20)
 ---------------------------
 
