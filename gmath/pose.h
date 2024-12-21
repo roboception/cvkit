@@ -70,6 +70,11 @@ inline Matrix33d getRotation(const Vector6d &pose)
   return Matrix33d();
 }
 
+inline Vector3d getRotationAngleAxis(const Vector6d &pose)
+{
+  return Vector3d(pose[3], pose[4], pose[5]);
+}
+
 inline Vector3d getTranslation(const Vector6d &pose)
 {
   return Vector3d(pose[0], pose[1], pose[2]);
@@ -89,6 +94,11 @@ inline Vector6d getPose(const Matrix33d &R, const Vector3d &T)
   }
 
   return pose;
+}
+
+inline Vector6d getPose(const Vector3d &R, const Vector3d &T)
+{
+  return Vector6d(T[0], T[1], T[2], R[0], R[1], R[2]);
 }
 
 inline Vector6d getPose(const Matrix34d &RT)
