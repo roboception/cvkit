@@ -455,21 +455,14 @@ Vector3d averageAngleAxis(int n, Vector3d v[])
 
   // for all n >= 3
 
-  double x[3]={0, 0, 0};
+  double x[3];
   std::vector<double> fvec(n);
 
-  // naiv averaging as start value
+  // taking first rotation as start value
 
-  for (int i=0; i<n; i++)
-  {
-    x[0]+=v[i][0];
-    x[1]+=v[i][1];
-    x[2]+=v[i][2];
-  }
-
-  x[0]/=n;
-  x[1]/=n;
-  x[2]/=n;
+  x[0]=v[0][0];
+  x[1]=v[0][1];
+  x[2]=v[0][2];
 
   // optimize
 
