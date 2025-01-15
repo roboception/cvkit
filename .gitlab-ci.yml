@@ -45,8 +45,8 @@ variables:
     - armhf
     - docker
 
-.amd64_jammy_t: &amd64_nobel_job
-  image: registry.roboception.de/tools/docker_images:nobel-buildimage
+.amd64_jammy_t: &amd64_noble_job
+  image: registry.roboception.de/tools/docker_images:noble-buildimage
   tags:
     - amd64
     - docker
@@ -145,8 +145,8 @@ test:jammy:armhf:
   <<: *armhf_jammy_job
   extends: .test
 
-test:nobel:amd64:
-  <<: *amd64_nobel_job
+test:noble:amd64:
+  <<: *amd64_noble_job
   extends: .test
 
 # Deploy testing (only on master)
@@ -177,8 +177,8 @@ package_testing:jammy:armhf:
   <<: *armhf_jammy_job
   extends: .package_testing
 
-package_testing:nobel:amd64:
-  <<: *amd64_nobel_job
+package_testing:noble:amd64:
+  <<: *amd64_noble_job
   extends: .package_testing
 
 ################
@@ -213,6 +213,6 @@ package_stable:jammy:armhf:
   <<: *armhf_jammy_job
   extends: .package_stable
 
-package_stable:nobel:amd64:
-  <<: *amd64_nobel_job
+package_stable:noble:amd64:
+  <<: *amd64_noble_job
   extends: .package_stable
