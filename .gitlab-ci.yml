@@ -45,6 +45,12 @@ variables:
     - armhf
     - docker
 
+.amd64_jammy_t: &amd64_nobel_job
+  image: registry.roboception.de/tools/docker_images:nobel-buildimage
+  tags:
+    - amd64
+    - docker
+
 #############
 # Templates
 #############
@@ -93,7 +99,7 @@ variables:
 #### Jobs ####
 ##############
 gen_dox:
-  <<: *amd64_focal_job
+  <<: *amd64_jammy_job
   stage: deploy
   script:
     - apt-get update -yq && apt-get install -y doxygen ncftp
@@ -139,6 +145,10 @@ test:jammy:armhf:
   <<: *armhf_jammy_job
   extends: .test
 
+test:nobel:amd64:
+  <<: *amd64_nobel_job
+  extends: .test
+
 # Deploy testing (only on master)
 #################################
 package_testing:focal:amd64:
@@ -165,6 +175,10 @@ package_testing:jammy:arm64:
 
 package_testing:jammy:armhf:
   <<: *armhf_jammy_job
+  extends: .package_testing
+
+package_testing:nobel:amd64:
+  <<: *amd64_nobel_job
   extends: .package_testing
 
 ################
@@ -197,4 +211,8 @@ package_stable:jammy:arm64:
 
 package_stable:jammy:armhf:
   <<: *armhf_jammy_job
+  extends: .package_stable
+
+package_stable:nobel:amd64:
+  <<: *amd64_nobel_job
   extends: .package_stable
