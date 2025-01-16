@@ -176,7 +176,7 @@ template<class T> class Polynomial
     {
       increase(i+1);
 
-      for (int k=used; k<i; k++)
+      for (int k=used; k<i && k<len; k++)
       {
         c[k]=0;
       }
