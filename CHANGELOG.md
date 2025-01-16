@@ -1,3 +1,9 @@
+Version 2.6.16 (2025-01-16)
+---------------------------
+
+- Workaround for avoiding wrong compiler warning for gcc >= 11.4
+- Added CI build job for noble
+
 Version 2.6.15 (2024-12-21)
 ---------------------------
 
