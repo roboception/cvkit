@@ -424,6 +424,8 @@ void GLWorld::onKey(unsigned char key, int x, int y)
         int w=camera.getWidth();
         int h=camera.getHeight();
 
+        w=(w&~3);
+
         gimage::ImageU8 image(w, h, 3);
         unsigned char *pixel=new unsigned char [w*h];
 
