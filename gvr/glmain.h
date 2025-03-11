@@ -74,7 +74,7 @@ void GLRenderInfoText(const char *p, long fg_rgb, long bg_rgb);
  * Renders a single line of text in the lower, left corner of the window
  */
 
-void GLRenderInfoLine(const char *p, long fg_rgb);
+void GLRenderInfoLine(const char *p, long fg_rgb, long bg_rgb);
 
 /**
  * Mark window for redisplay.

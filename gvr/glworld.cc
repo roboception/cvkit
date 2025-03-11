@@ -215,7 +215,7 @@ void GLWorld::onRedraw()
 
   if (infoline.size() > 0)
   {
-    GLRenderInfoLine(infoline.c_str(), txt_rgb);
+    GLRenderInfoLine(infoline.c_str(), txt_rgb, 0x4c4c4c);
   }
 
   // after first redraw, apply key codes (only c and q)

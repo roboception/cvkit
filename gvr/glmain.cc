@@ -55,6 +55,7 @@
 #include <vector>
 
 #include <cstdlib>
+#include <cstring>
 
 #ifdef WIN32
 #undef min
@@ -195,8 +196,9 @@ void GLRenderInfoText(const char *p, long fg_rgb, long bg_rgb)
   glEnable(GL_DEPTH_TEST);
 }
 
-void GLRenderInfoLine(const char *p, long fg_rgb)
+void GLRenderInfoLine(const char *p, long fg_rgb, long bg_rgb)
 {
+  const int th=15;
 #ifdef INCLUDE_FLTK
   void *font=GLUT_BITMAP_8_BY_13;
 #else
@@ -213,6 +215,33 @@ void GLRenderInfoLine(const char *p, long fg_rgb)
   glGetIntegerv(GL_VIEWPORT, size);
 
   glOrtho(0, size[2], size[3], 0, -1, 1);
+
+  // determine width and height
+
+  int x=0, y=size[3]-th-2;
+  int w=4, h=th+2;
+  size_t n=strlen(p);
+
+#ifdef INCLUDE_FLTK
+  w=static_cast<int>(11*n);
+#else
+  for (size_t k=0; k<n; k++)
+  {
+    w+=glutBitmapWidth(font, p[k]);
+  }
+#endif
+
+  // render background
+
+  glColor3f(((bg_rgb>>16)&0xff)/255.0f, ((bg_rgb>>8)&0xff)/255.0f,
+            (bg_rgb&0xff)/255.0f);
+
+  glBegin(GL_POLYGON);
+  glVertex2i(x, y);
+  glVertex2i(x, y+h);
+  glVertex2i(x+w, y+h);
+  glVertex2i(x+w, y);
+  glEnd();
 
   // render text
 
