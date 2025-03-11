@@ -1,3 +1,9 @@
+Version 2.6.17 (2025-03-11)
+---------------------------
+
+- Rendering background for info line in plyv to improve readability
+- Fixed crashing when capturing images in plyv
+
 Version 2.6.16 (2025-01-16)
 ---------------------------
 
