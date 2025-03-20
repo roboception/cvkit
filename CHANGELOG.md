@@ -1,3 +1,8 @@
+Version 2.6.18 (2025-03-20)
+---------------------------
+
+- Automatically scale resulting HDR image into 8 bit
+
 Version 2.6.17 (2025-03-11)
 ---------------------------
 
