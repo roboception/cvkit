@@ -129,6 +129,81 @@ template<class T> void createLaplacianPyramid(std::vector<ImageFloat> &p,
   }
 }
 
+template<class T> void convertCollapsedImage(Image<T> &image, const ImageFloat &p)
+{
+  image.setImageLimited(p);
+}
+
+template<>
+inline void convertCollapsedImage(ImageU8 &image, const ImageFloat &p)
+{
+  // compute histogram with range -128 to 255+128
+
+  std::vector<int> hist(512, 0);
+
+  for (long k=0; k<p.getHeight(); k++)
+  {
+    for (long i=0; i<p.getWidth(); i++)
+    {
+      for (int d=0; d<p.getDepth(); d++)
+      {
+        int v=static_cast<int>(p.get(i, k, d))+128;
+
+        if (v < 0) v=0;
+        if (v > 511) v=511;
+
+        hist[v]++;
+      }
+    }
+  }
+
+  // determine imin / imax value with small percentile
+
+  int vp=std::min(100, static_cast<int>(p.getWidth()*p.getHeight()/1000));
+
+  int sum=0;
+  int imin=0;
+  while (imin < 511 && sum+hist[imin] < vp) sum+=hist[imin++];
+
+  sum=0;
+  int imax=511;
+  while (imax > imin && sum+hist[imax] < vp) sum+=hist[imax--];
+
+  imin-=128;
+  imax-=128;
+
+  // bias imin / imax towards 0 / 255
+
+  if (imax-imin < 255)
+  {
+    if (imin > 0) imin=std::max(0, imax-255);
+    if (imax < 255) imax=std::min(255, imin+255);
+  }
+
+  // map imin / imax to 0 / 255
+
+  image.setSize(p.getWidth(), p.getHeight(), p.getDepth());
+
+  float offset=imin;
+  float scale=255.0f/(imax-imin);
+
+  for (long k=0; k<p.getHeight(); k++)
+  {
+    for (long i=0; i<p.getWidth(); i++)
+    {
+      for (int d=0; d<p.getDepth(); d++)
+      {
+        int v=static_cast<int>(scale*(p.get(i, k, d)-offset));
+
+        if (v < 0) v=0;
+        if (v > 255) v=255;
+
+        image.set(i, k, d, static_cast<gutil::uint8>(v));
+      }
+    }
+  }
+}
+
 /**
   Collapse a Laplacian pyramid into an image.
 
@@ -194,7 +269,7 @@ template<class T> void collapseLaplacianPyramid(Image<T> &image, std::vector<Ima
 
   // image at level 0 is result
 
-  image.setImageLimited(p[0]);
+  convertCollapsedImage(image, p[0]);
 }
 
 }

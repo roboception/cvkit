@@ -409,9 +409,6 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
 
       if (p == "-hdr")
       {
-        float scale;
-        param.nextValue(scale);
-
         gimage::HighDynamicRangeFusion<T> hdr;
 
         hdr.add(image, std::min(65535.0f, static_cast<float>(image.absMaxValue())));
@@ -430,7 +427,7 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
           hdr.add(tmp, std::min(65535.0f, static_cast<float>(image.absMaxValue())));
         }
 
-        hdr.fuse(image, scale);
+        hdr.fuse(image);
       }
 
       if (p == "-cmp")
@@ -779,7 +776,6 @@ int main(int argc, char *argv[])
     " <from> <to> # Range.",
 
     "-hdr # Fuses all given image into one high dynamic range image.",
-    " <scale> # Factor for scaling pixel values. Default: 1.0",
     " <image 1>,... # Comma separated list of images.",
 
     "-cmp # Compares images with some tolerance. The result is printed and given as image with absolute differences.",
