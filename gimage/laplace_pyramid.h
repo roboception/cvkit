@@ -184,7 +184,7 @@ inline void convertCollapsedImage(ImageU8 &image, const ImageFloat &p)
 
   image.setSize(p.getWidth(), p.getHeight(), p.getDepth());
 
-  float offset=imin;
+  float offset=static_cast<float>(imin);
   float scale=255.0f/(imax-imin);
 
   for (long k=0; k<p.getHeight(); k++)

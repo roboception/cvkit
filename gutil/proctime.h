@@ -53,7 +53,7 @@ class ProcTime
 {
   private:
 
-    ULONGLONG tstart;
+    LONGLONG tstart;
     double total;
 
   public:
@@ -66,14 +66,23 @@ class ProcTime
 
     void start()
     {
-      tstart=GetTickCount64();
+      LARGE_INTEGER current;
+      QueryPerformanceCounter(&current);
+      tstart=current.QuadPart;
     }
 
     void stop()
     {
-      ULONGLONG tend=GetTickCount64();
-      total+=static_cast<double>(tend-tstart)/1000.0;
-      tstart=tend;
+      LARGE_INTEGER current;
+      QueryPerformanceCounter(&current);
+
+      LARGE_INTEGER frequency;
+      QueryPerformanceFrequency(&frequency);
+
+      double diff=static_cast<double>(current.QuadPart-tstart)/frequency.QuadPart;
+
+      total+=diff;
+      tstart=current.QuadPart;
     }
 
     void clear()
@@ -88,12 +97,24 @@ class ProcTime
 
     static double monotonic()
     {
-      return static_cast<double>(GetTickCount64())/1000.0;
+      LARGE_INTEGER current;
+      QueryPerformanceCounter(&current);
+
+      LARGE_INTEGER frequency;
+      QueryPerformanceFrequency(&frequency);
+
+      return static_cast<double>(current.QuadPart)/frequency.QuadPart;
     }
 
     static double current()
     {
-      return static_cast<double>(GetTickCount64())/1000.0;
+      LARGE_INTEGER current;
+      QueryPerformanceCounter(&current);
+
+      LARGE_INTEGER frequency;
+      QueryPerformanceFrequency(&frequency);
+
+      return static_cast<double>(current.QuadPart)/frequency.QuadPart;
     }
 };
 
