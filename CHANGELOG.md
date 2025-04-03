@@ -1,3 +1,8 @@
+Version 2.6.19 (2025-04-03)
+---------------------------
+
+- Improved ProcTime under Windows to use high precision timer
+
 Version 2.6.18 (2025-03-20)
 ---------------------------
 
