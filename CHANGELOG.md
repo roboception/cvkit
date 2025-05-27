@@ -1,3 +1,8 @@
+Version 2.6.20 (2025-05-27)
+---------------------------
+
+- Added convenience initializer to Polygon class
+
 Version 2.6.19 (2025-04-03)
 ---------------------------
 
