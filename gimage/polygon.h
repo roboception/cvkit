@@ -111,6 +111,24 @@ class Polygon
 
   public:
 
+    Polygon() {}
+
+    Polygon(std::initializer_list<long> xy_pairs) { init(xy_pairs); }
+
+    /**
+      Initialization from a constant list of xy values.
+    */
+
+    void init(std::initializer_list<long> xy_pairs)
+    {
+      const long *p=xy_pairs.begin();
+      while (p != xy_pairs.end())
+      {
+        long x=*p++;
+        if (p != xy_pairs.end()) vertex.push_back(gmath::SVector<long, 2>(x, *p++));
+      }
+    }
+
     /**
       Returns the number of vertices.
 
