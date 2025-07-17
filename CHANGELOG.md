@@ -1,3 +1,8 @@
+Version 2.6.21 (2025-07-17)
+---------------------------
+
+- Added function for computing a homography
+
 Version 2.6.20 (2025-05-27)
 ---------------------------
 
