@@ -51,6 +51,7 @@ set(gmath_src
   minpack/enorm.c
   estimatedplane.cc
   idw.cc
+  homography.cc
 )
 
 set(gmath_hh
@@ -69,6 +70,7 @@ set(gmath_hh
   minpack.h
   estimatedplane.h
   idw.h
+  homography.h
 )
 
 add_library(gmath_static STATIC ${gmath_src})
@@ -89,4 +91,3 @@ install(TARGETS gmath_static EXPORT PROJECTTargets COMPONENT dev
         ARCHIVE DESTINATION lib)
 
 install(FILES ${gmath_hh} COMPONENT dev DESTINATION include/gmath)
-
