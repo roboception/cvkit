@@ -94,7 +94,7 @@ if (NOT WIN32 AND NOT CYGWIN)
   find_path(INOTIFY_DIR sys/inotify.h)
 
   if (INOTIFY_DIR)
-    include_directories(INOTIFY_DIR)
+    include_directories(${INOTIFY_DIR})
     add_definitions(-DINCLUDE_INOTIFY)
   endif ()
 endif ()

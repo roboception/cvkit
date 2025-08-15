@@ -63,7 +63,7 @@ set(gvr_hh
 
 if (USE_3D)
   if (USE_FLTK)
-    include_directories(${FLTK_INCLUDE_DIR})
+    include_directories(${FLTK_INCLUDE_DIRS})
   else ()
     include_directories(${GLUT_INCLUDE_DIR})
   endif ()
