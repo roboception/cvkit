@@ -74,6 +74,10 @@ if (WIN32)
   target_link_libraries(sv bgui_static comctl32)
   install(TARGETS sv DESTINATION bin)
 elseif (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
+  if (USE_FLTK)
+    include_directories(${FLTK_INCLUDE_DIRS})
+  endif ()
+
   add_executable(sv sv.cc)
   target_link_libraries(sv bgui_static ${libs})
 
