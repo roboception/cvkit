@@ -52,6 +52,8 @@
 #include <FL/Fl_Pixmap.H>
 #include <FL/Fl_RGB_Image.H>
 #include <FL/fl_ask.H>
+#undef min
+#undef max
 #elif defined(WIN32)
 #include <windows.h>
 #undef min
