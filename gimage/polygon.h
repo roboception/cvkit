@@ -296,6 +296,11 @@ class Polygon
       std::vector<VEdge> edge, used;
       getVEdges(edge);
 
+      if (edge.size() == 0)
+      {
+        return; // polygon with height <= 1 pixel is ignored
+      }
+
       // go line by line through y range of polygon
 
       for (long y=std::max(0l, edge[0].getYMin()); y<image.getHeight() &&
@@ -374,6 +379,11 @@ class Polygon
 
       std::vector<VEdge> edge, used;
       getVEdges(edge);
+
+      if (edge.size() == 0)
+      {
+        return; // polygon with height <= 1 pixel is ignored
+      }
 
       // fill everything above and below the polygon
 
