@@ -1,3 +1,10 @@
+Version 2.6.22 (2026-01-15)
+---------------------------
+
+- Fixed crash if polygon with <= 1 pixel height is drawn
+- Fixed compile issue under Windows
+- Fixed some paths for building
+
 Version 2.6.21 (2025-07-17)
 ---------------------------
 
