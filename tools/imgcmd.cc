@@ -676,6 +676,8 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
 
 int main(int argc, char *argv[])
 {
+  int ret=0;
+
   // command line definition
 
   const char *def[]=
@@ -808,7 +810,7 @@ int main(int argc, char *argv[])
   if (param.remaining() < 1)
   {
     param.printHelp(std::cout);
-    return 10;
+    return 1;
   }
 
   // check if the first two parameters are -help or -version
@@ -832,7 +834,7 @@ int main(int argc, char *argv[])
     else
     {
       std::cerr << "The first parameter must be the image file name!" << std::endl;
-      return 10;
+      return 1;
     }
   }
 
@@ -937,11 +939,12 @@ int main(int argc, char *argv[])
         }
         catch (const gutil::Exception &ex)
         {
+          ret=2;
           ex.print();
         }
       }
     }
   }
 
-  return 0;
+  return ret;
 }
