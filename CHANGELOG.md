@@ -1,3 +1,8 @@
+Version 2.6.24 (2026-03-03)
+---------------------------
+
+- Revision of some classes and adding some convenience methods
+
 Version 2.6.23 (2026-01-22)
 ---------------------------
 
