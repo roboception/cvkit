@@ -45,8 +45,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <vector>
-
-#include <assert.h>
+#include <exception>
 
 namespace gmath
 {
@@ -72,7 +71,11 @@ template<class T> class DVector
 
     void checkDimension(int m) const
     {
-      assert(n == m);
+      if (n != m)
+      {
+        throw std::invalid_argument("DVector: Size mismatch: "+std::to_string(n)+" != "
+          +std::to_string(m));
+      }
     }
 
   public:
@@ -212,7 +215,7 @@ template<class T> class DVector
     {
       SVector<S, m> ret;
 
-      assert(m == n);
+      checkDimension(m);
 
       for (int i=0; i<m; i++)
       {
@@ -344,6 +347,18 @@ template<class T> class DVector
       return ret;
     }
 
+    T norm() const
+    {
+      T ret=0;
+
+      for (int i=0; i<n; i++)
+      {
+        ret+=v[i]*v[i];
+      }
+
+      return static_cast<T>(sqrt(ret));
+    }
+
     bool operator==(const DVector<T> &a) const
     {
       if (n != a.n)
@@ -352,10 +367,12 @@ template<class T> class DVector
       }
 
       for (int i=0; i<n; i++)
+      {
         if (v[i] != a.v[i])
         {
           return false;
         }
+      }
 
       return true;
     }
@@ -368,10 +385,12 @@ template<class T> class DVector
       }
 
       for (int i=0; i<n; i++)
+      {
         if (v[i] != a.v[i])
         {
           return true;
         }
+      }
 
       return false;
     }
@@ -393,8 +412,11 @@ template<class T> inline DVector<T> cross(const DVector<T> &a, const DVector<T> 
 {
   DVector<T> ret(a.size());
 
-  assert(a.size() == 3);
-  assert(b.size() == 3);
+  if (a.size() != 3 || b.size() != 3)
+  {
+    throw std::invalid_argument("DVector::cross: Vectors must be of size 3: "+
+      std::to_string(a.size())+" != "+std::to_string(b.size()));
+  }
 
   ret[0]=a[1]*b[2]-a[2]*b[1];
   ret[1]=a[2]*b[0]-a[0]*b[2];
@@ -405,14 +427,7 @@ template<class T> inline DVector<T> cross(const DVector<T> &a, const DVector<T> 
 
 template<class T> inline T norm(const DVector<T> &a)
 {
-  T ret=0;
-
-  for (int i=0; i<a.size(); i++)
-  {
-    ret+=a[i]*a[i];
-  }
-
-  return sqrt(ret);
+  return a.norm();
 }
 
 template<class T, class Ch, class Tr>

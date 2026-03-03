@@ -47,8 +47,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <vector>
-
-#include <assert.h>
+#include <exception>
 
 namespace gmath
 {
@@ -74,8 +73,11 @@ template<class T> class DMatrix
 
     void checkDimension(int r, int c) const
     {
-      assert(nrows == r);
-      assert(ncols == c);
+      if (nrows != r || ncols != c)
+      {
+        throw std::invalid_argument("DMatrix: Size mismatch: "+std::to_string(r)+", "+
+          std::to_string(c)+" != "+std::to_string(nrows)+", "+std::to_string(ncols));
+      }
     }
 
   public:
@@ -148,10 +150,12 @@ template<class T> class DMatrix
       v=new T[n];
 
       for (int k=0; k<r; k++)
+      {
         for (int i=0; i<c; i++)
         {
           v[k*c+i]=a(k, i);
         }
+      }
     }
 
     ~DMatrix()
@@ -160,7 +164,7 @@ template<class T> class DMatrix
     }
 
     /**
-     * Initialisation with identity matrix.
+     * Initialisation with identity matrix of given size.
      */
 
     void init(int rows=0, int cols=0)
@@ -296,14 +300,15 @@ template<class T> class DMatrix
     {
       SMatrix<S, r, c> ret;
 
-      assert(nrows == r);
-      assert(ncols == c);
+      checkDimension(r, c);
 
       for (int k=0; k<r; k++)
+      {
         for (int i=0; i<c; i++)
         {
           ret(k, i)=static_cast<S>(v[k*c+i]);
         }
+      }
 
       return ret;
     }
@@ -389,10 +394,12 @@ template<class T> class DMatrix
       checkDimension(nrows, a.size());
 
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           ret[k]+=v[k*ncols+i]*a[i];
         }
+      }
 
       return ret;
     }
@@ -419,24 +426,53 @@ template<class T> class DMatrix
       return ret;
     }
 
+    DMatrix<T> transpose() const
+    {
+      DMatrix<T> ret(ncols, nrows);
+
+      for (int k=0; k<nrows; k++)
+      {
+        for (int i=0; i<ncols; i++)
+        {
+          ret(i, k)=v[k*ncols+i];
+        }
+      }
+
+      return ret;
+    }
+
     bool operator==(const DMatrix<T> &a) const
     {
+      if (n != a.n)
+      {
+        return false;
+      }
+
       for (int i=0; i<n; i++)
+      {
         if (v[i] != a.v[i])
         {
           return false;
         }
+      }
 
       return true;
     }
 
     bool operator!=(const DMatrix<T> &a) const
     {
+      if (n != a.n)
+      {
+        return true;
+      }
+
       for (int i=0; i<n; i++)
+      {
         if (v[i] != a.v[i])
         {
           return true;
         }
+      }
 
       return false;
     }
@@ -446,7 +482,11 @@ template<class T> DMatrix<T> inline operator*(const DMatrix<T> &a, const DMatrix
 {
   DMatrix<T> ret(a.rows(), b.cols());
 
-  assert(a.cols() == b.rows());
+  if (a.cols() != b.rows())
+  {
+    throw std::invalid_argument("DMatrix: Size mismatch: "+std::to_string(a.cols())
+      +" != "+std::to_string(b.rows()));
+  }
 
   for (int k=0; k<a.rows(); k++)
   {
@@ -474,13 +514,19 @@ template<class T> inline DVector<T> operator*(const DVector<T> &a,
 {
   DVector<T> ret(b.cols());
 
-  assert(a.size() == b.rows());
+  if (a.size() != b.rows())
+  {
+    throw std::invalid_argument("DMatrix: Size mismatch: "+std::to_string(a.size())
+      +" != "+std::to_string(b.rows()));
+  }
 
   for (int i=0; i<b.cols(); i++)
+  {
     for (int k=0; k<b.rows(); k++)
     {
       ret[i]+=a[k]*b(k, i);
     }
+  }
 
   return ret;
 }
@@ -490,25 +536,19 @@ template<class S, class T> DMatrix<T> inline operator*(S s, const DMatrix<T> &a)
   DMatrix<T> ret(a.rows(), a.cols());
 
   for (int k=0; k<ret.rows(); k++)
+  {
     for (int i=0; i<ret.cols(); i++)
     {
       ret(k, i)=s*a(k, i);
     }
+  }
 
   return ret;
 }
 
 template<class T> inline DMatrix<T> transpose(const DMatrix<T> &a)
 {
-  DMatrix<T> ret(a.cols(), a.rows());
-
-  for (int k=0; k<ret.rows(); k++)
-    for (int i=0; i<ret.cols(); i++)
-    {
-      ret(k, i)=a(i, k);
-    }
-
-  return ret;
+  return a.transpose();
 }
 
 template<class T, class Ch, class Tr>
@@ -596,10 +636,12 @@ std::basic_istream<Ch, Tr> &operator>>(std::basic_istream<Ch, Tr> &in, DMatrix<T
       a.init(rows, cols);
 
       for (int k=0; k<rows; k++)
+      {
         for (int i=0; i<cols; i++)
         {
           a(k, i)=elem[k][i];
         }
+      }
     }
   }
   else

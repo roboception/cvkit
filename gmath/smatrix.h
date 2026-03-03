@@ -78,10 +78,12 @@ template<class T, int nrows, int ncols> class SMatrix
     SMatrix()
     {
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           v[k][i]=0;
         }
+      }
 
       int n=nrows;
 
@@ -99,19 +101,46 @@ template<class T, int nrows, int ncols> class SMatrix
     SMatrix(const SMatrix<T, nrows, ncols> &a)
     {
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           v[k][i]=a(k, i);
         }
+      }
     }
 
     template<class S> SMatrix(const SMatrix<S, nrows, ncols> &a)
     {
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
-          v[k][i]=a(k, i);
+          v[k][i]=static_cast<T>(a(k, i));
         }
+      }
+    }
+
+    template <typename S=int, typename=typename std::enable_if<nrows == 2 && ncols == 2, S>::type>
+    SMatrix(T a00, T a01, T a10, T a11)
+    {
+      v[0][0]=a00;
+      v[0][1]=a01;
+      v[1][0]=a10;
+      v[1][1]=a11;
+    }
+
+    template <typename S=int, typename=typename std::enable_if<nrows == 3 && ncols == 3, S>::type>
+    SMatrix(T a00, T a01, T a02, T a10, T a11, T a12, T a20, T a21, T a22)
+    {
+      v[0][0]=a00;
+      v[0][1]=a01;
+      v[0][2]=a02;
+      v[1][0]=a10;
+      v[1][1]=a11;
+      v[1][2]=a12;
+      v[2][0]=a20;
+      v[2][1]=a21;
+      v[2][2]=a22;
     }
 
     int rows() const
@@ -177,10 +206,12 @@ template<class T, int nrows, int ncols> class SMatrix
     SMatrix<T, nrows, ncols> &operator=(const SMatrix<T, nrows, ncols> &a)
     {
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           v[k][i]=a.v[k][i];
         }
+      }
 
       return *this;
     }
@@ -188,10 +219,12 @@ template<class T, int nrows, int ncols> class SMatrix
     SMatrix<T, nrows, ncols> &operator=(T s)
     {
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           v[k][i]=s;
         }
+      }
 
       return *this;
     }
@@ -199,10 +232,12 @@ template<class T, int nrows, int ncols> class SMatrix
     SMatrix<T, nrows, ncols> &operator+=(const SMatrix<T, nrows, ncols> &a)
     {
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           v[k][i]+=a.v[k][i];
         }
+      }
 
       return *this;
     }
@@ -212,10 +247,12 @@ template<class T, int nrows, int ncols> class SMatrix
       SMatrix<T, nrows, ncols> ret;
 
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           ret.v[k][i]=v[k][i]+a.v[k][i];
         }
+      }
 
       return ret;
     }
@@ -223,10 +260,12 @@ template<class T, int nrows, int ncols> class SMatrix
     SMatrix<T, nrows, ncols> &operator-=(const SMatrix<T, nrows, ncols> &a)
     {
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           v[k][i]-=a.v[k][i];
         }
+      }
 
       return *this;
     }
@@ -236,10 +275,12 @@ template<class T, int nrows, int ncols> class SMatrix
       SMatrix<T, nrows, ncols> ret;
 
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           ret.v[k][i]=v[k][i]-a.v[k][i];
         }
+      }
 
       return ret;
     }
@@ -247,10 +288,12 @@ template<class T, int nrows, int ncols> class SMatrix
     SMatrix<T, nrows, ncols> &operator*=(T s)
     {
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           v[k][i]*=s;
         }
+      }
 
       return *this;
     }
@@ -260,10 +303,12 @@ template<class T, int nrows, int ncols> class SMatrix
       SMatrix<T, nrows, ncols> ret;
 
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           ret.v[k][i]=s*v[k][i];
         }
+      }
 
       return ret;
     }
@@ -273,10 +318,12 @@ template<class T, int nrows, int ncols> class SMatrix
       SVector<T, nrows> ret;
 
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           ret[k]+=v[k][i]*a[i];
         }
+      }
 
       return ret;
     }
@@ -284,10 +331,12 @@ template<class T, int nrows, int ncols> class SMatrix
     SMatrix<T, nrows, ncols> &operator/=(T s)
     {
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           v[k][i]/=s;
         }
+      }
 
       return *this;
     }
@@ -297,10 +346,27 @@ template<class T, int nrows, int ncols> class SMatrix
       SMatrix<T, nrows, ncols> ret;
 
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
         {
           ret.v[k][i]=v[k][i]/s;
         }
+      }
+
+      return ret;
+    }
+
+    SMatrix<T, ncols, nrows> transpose() const
+    {
+      SMatrix<T, ncols, nrows> ret;
+
+      for (int k=0; k<nrows; k++)
+      {
+        for (int i=0; i<ncols; i++)
+        {
+          ret(i, k)=v[k][i];
+        }
+      }
 
       return ret;
     }
@@ -308,11 +374,15 @@ template<class T, int nrows, int ncols> class SMatrix
     bool operator==(const SMatrix<T, nrows, ncols> &a) const
     {
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
+        {
           if (v[k][i] != a.v[k][i])
           {
             return false;
           }
+        }
+      }
 
       return true;
     }
@@ -320,11 +390,15 @@ template<class T, int nrows, int ncols> class SMatrix
     bool operator!=(const SMatrix<T, nrows, ncols> &a) const
     {
       for (int k=0; k<nrows; k++)
+      {
         for (int i=0; i<ncols; i++)
+        {
           if (v[k][i] != a.v[k][i])
           {
             return true;
           }
+        }
+      }
 
       return false;
     }
@@ -356,52 +430,46 @@ template<class T, int n, int m, int u> inline SMatrix<T, n, m> operator*(const S
  * The resulting vector is implicitly transposed again, i.e. c'=a'*b
  */
 
-template<class T, int nrows, int ncols> inline SVector<T, ncols> operator*
-(const SVector<T, nrows> &a,
- const SMatrix<T, nrows, ncols> &b)
+template<class T, int nrows, int ncols> inline
+SVector<T, ncols> operator*(const SVector<T, nrows> &a, const SMatrix<T, nrows, ncols> &b)
 {
   SVector<T, ncols> ret;
 
   for (int i=0; i<ncols; i++)
+  {
     for (int k=0; k<nrows; k++)
     {
       ret[i]+=a[k]*b(k, i);
     }
+  }
 
   return ret;
 }
 
-template<class S, class T, int nrows, int ncols> inline SMatrix<T, nrows, ncols> operator*(S s,
-    const SMatrix<T, nrows, ncols> &a)
+template<class S, class T, int nrows, int ncols> inline
+SMatrix<T, nrows, ncols> operator*(S s, const SMatrix<T, nrows, ncols> &a)
 {
   SMatrix<T, nrows, ncols> ret;
 
   for (int k=0; k<nrows; k++)
+  {
     for (int i=0; i<ncols; i++)
     {
       ret(k, i)=s*a(k, i);
     }
+  }
 
   return ret;
 }
 
-template<class T, int nrows, int ncols> inline SMatrix<T, nrows, ncols> transpose(
-  const SMatrix<T, ncols, nrows> &a)
+template<class T, int ncols, int nrows> inline
+SMatrix<T, ncols, nrows> transpose(const SMatrix<T, nrows, ncols> &a)
 {
-  SMatrix<T, nrows, ncols> ret;
-
-  for (int k=0; k<nrows; k++)
-    for (int i=0; i<ncols; i++)
-    {
-      ret(k, i)=a(i, k);
-    }
-
-  return ret;
+  return a.transpose();
 }
 
 template<class T, int nrows, int ncols, class Ch, class Tr>
-std::basic_ostream<Ch, Tr> &operator<<(std::basic_ostream<Ch, Tr> &out,
-                                       const SMatrix<T, nrows, ncols> &a)
+std::basic_ostream<Ch, Tr> &operator<<(std::basic_ostream<Ch, Tr> &out, const SMatrix<T, nrows, ncols> &a)
 {
   out << "[";
 

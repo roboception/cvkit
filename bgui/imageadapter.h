@@ -43,6 +43,7 @@
 
 #include <cmath>
 #include <limits>
+#include <assert.h>
 
 namespace bgui
 {

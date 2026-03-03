@@ -312,7 +312,10 @@ const
     throw gutil::IOException("Cannot reconstruct point with unknown rho");
   }
 
-  assert(std::isfinite(d));
+  if (!std::isfinite(d))
+  {
+    throw gutil::IOException("Cannot reconstruct point at infinite distance");
+  }
 
   Vector3d Pc;
   reconstructLocal(Pc, p);

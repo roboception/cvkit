@@ -67,7 +67,7 @@ template<class T> Image<T> &operator+=(Image<T> &image, typename Image<T>::work_
   return image;
 }
 
-template<class T> Image<T> &operator+=(Image<T> &image, Image<T> &image2)
+template<class T> Image<T> &operator+=(Image<T> &image, const Image<T> &image2)
 {
   if (image.getWidth() != image2.getWidth() || image.getHeight() != image2.getHeight() ||
     image.getDepth() != image2.getDepth())
@@ -122,7 +122,7 @@ template<class T> Image<T> &operator-=(Image<T> &image, typename Image<T>::work_
   return image;
 }
 
-template<class T> Image<T> &operator-=(Image<T> &image, Image<T> &image2)
+template<class T> Image<T> &operator-=(Image<T> &image, const Image<T> &image2)
 {
   if (image.getWidth() != image2.getWidth() || image.getHeight() != image2.getHeight() ||
     image.getDepth() != image2.getDepth())

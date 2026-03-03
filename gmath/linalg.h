@@ -297,7 +297,10 @@ inline Matrixd inv(const Matrixd &a)
   Matrixd u, v;
   Vectord w;
 
-  assert(a.rows() == a.cols());
+  if (a.rows() != a.cols())
+  {
+    throw gutil::InvalidArgumentException("Only square matrices can be inverted");
+  }
 
   svd(a, u, w, v, true);
 

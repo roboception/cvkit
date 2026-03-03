@@ -173,7 +173,7 @@ void Properties::save(std::ostream& out, const char *comment) const
   }
 }
 
-void Properties::print()
+void Properties::print() const
 {
   for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); ++it)
   {

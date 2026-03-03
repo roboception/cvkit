@@ -574,7 +574,10 @@ double transformGaussJordan(Matrixd &a)
 
 double det(const Matrixd &a)
 {
-  assert(a.rows() == a.cols());
+  if (a.rows() != a.cols())
+  {
+    throw gutil::InvalidArgumentException("Determinant can only be computed from square matrices");
+  }
 
   Matrixd b(a);
   return transformGaussJordan(b);
@@ -584,7 +587,10 @@ Matrix33d inv(const Matrix33d &a)
 {
   double d=det(a);
 
-  assert(d != 0);
+  if (d == 0)
+  {
+    throw gutil::InvalidArgumentException("Matrixces with det() == 0 cannot be inverted");
+  }
 
   d=1.0/d;
 

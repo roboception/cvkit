@@ -42,7 +42,6 @@
 #include <cmath>
 #include <stdexcept>
 #include <sstream>
-#include <assert.h>
 
 namespace gmath
 {
@@ -83,37 +82,33 @@ template<class T, int n> class SVector
       }
     }
 
+    template <typename S=int, typename=typename std::enable_if<n == 2, S>::type>
     SVector(T v0, T v1)
     {
-      assert(n == 2);
-
       v[0]=v0;
       v[1]=v1;
     }
 
+    template <typename S=int, typename=typename std::enable_if<n == 3, S>::type>
     SVector(T v0, T v1, T v2)
     {
-      assert(n == 3);
-
       v[0]=v0;
       v[1]=v1;
       v[2]=v2;
     }
 
+    template <typename S=int, typename=typename std::enable_if<n == 4, S>::type>
     SVector(T v0, T v1, T v2, T v3)
     {
-      assert(n == 4);
-
       v[0]=v0;
       v[1]=v1;
       v[2]=v2;
       v[3]=v3;
     }
 
+    template <typename S=int, typename=typename std::enable_if<n == 6, S>::type>
     SVector(T v0, T v1, T v2, T v3, T v4, T v5)
     {
-      assert(n == 6);
-
       v[0]=v0;
       v[1]=v1;
       v[2]=v2;
@@ -126,7 +121,7 @@ template<class T, int n> class SVector
     {
       for (int i=0; i<n; i++)
       {
-        v[i]=static_cast<T>(a[i]);
+        v[i]=a[i];
       }
     }
 
@@ -285,6 +280,18 @@ template<class T, int n> class SVector
       return ret;
     }
 
+    T norm() const
+    {
+      T ret=0;
+
+      for (int i=0; i<n; i++)
+      {
+        ret+=v[i]*v[i];
+      }
+
+      return static_cast<T>(sqrt(ret));
+    }
+
     bool operator==(const SVector<T, n> &a) const
     {
       for (int i=0; i<n; i++)
@@ -333,14 +340,7 @@ template<class T> inline SVector<T, 3> cross(const SVector<T, 3> &a, const SVect
 
 template<class T, int n> inline T norm(const SVector<T, n> &a)
 {
-  T ret=0;
-
-  for (int i=0; i<n; i++)
-  {
-    ret+=a[i]*a[i];
-  }
-
-  return sqrt(ret);
+  return a.norm();
 }
 
 template<class T, int n, class Ch, class Tr>

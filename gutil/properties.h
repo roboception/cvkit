@@ -149,19 +149,41 @@ class Properties
       }
     }
 
-    std::string getString(const char *key)
+    std::string &operator[](const char *key) // creates key/value if it does not exist
+    {
+      return data[key];
+    }
+
+    std::string getString(const char *key) // exists for backwards compatibility
     {
       std::string value;
       getString(key, value, "");
       return value;
     }
 
-    int getInteger(const char *key)
+    int getInteger(const char *key) // exists for backwards compatibility
     {
       return std::stoi(getString(key));
     }
 
-    double getDouble(const char *key)
+    double getDouble(const char *key) // exists for backwards compatibility
+    {
+      return std::stod(getString(key));
+    }
+
+    std::string getString(const char *key) const
+    {
+      std::string value;
+      getString(key, value, "");
+      return value;
+    }
+
+    int getInteger(const char *key) const
+    {
+      return std::stoi(getString(key));
+    }
+
+    double getDouble(const char *key) const
     {
       return std::stod(getString(key));
     }
@@ -228,7 +250,7 @@ class Properties
     void load(std::istream& in);
     void save(const char *name, const char *comment=0) const;
     void save(std::ostream& out, const char *comment=0) const;
-    void print();
+    void print() const;
 
     void saveOctave(std::ostream& out, const char *comment=0) const;
 
