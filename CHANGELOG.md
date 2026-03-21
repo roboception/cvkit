@@ -1,3 +1,8 @@
+Version 2.6.25 (2026-03-21)
+---------------------------
+
+- Added Turbo color encoding for disparity images and replaced JET in sv tool
+
 Version 2.6.24 (2026-03-03)
 ---------------------------
 
