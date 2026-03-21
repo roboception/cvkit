@@ -202,6 +202,15 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
         image=tmp;
       }
 
+      if (p == "-turbo")
+      {
+        gimage::ImageU8 image8;
+
+        gimage::imageToTurbo(image8, image);
+        process(image8, param, repl);
+        break;
+      }
+
       if (p == "-jet")
       {
         gimage::ImageU8 image8;
@@ -720,6 +729,8 @@ int main(int argc, char *argv[])
     " I|R|G|B # Channel, I means intensity.",
 
     "-color # Makes a color image from an intensity image by putting the value into R, G and B.",
+
+    "-turbo # Makes a color image from an intensity image using Turbo encoding.",
 
     "-jet # Makes a color image from an intensity image using JET encoding.",
 

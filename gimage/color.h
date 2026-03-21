@@ -300,6 +300,71 @@ void imageToJET(ImageU8 &ret, const Image<T> &image, double imin=0, double imax=
 }
 
 /**
+ * Turbo color definition. The array has a size of [256][3] and defines the
+ * mapping from 8 bit intensity values to 8 bit RGB values.
+ *
+ * Copyright 2019 Google LLC.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Author: Anton Mikhailov
+ * https://research.google/blog/turbo-an-improved-rainbow-colormap-for-visualization/
+ */
+
+extern const uint8_t turbo_srgb[256][3];
+
+/**
+ * Returns an 8 bit color image from an intensity image or from color channel 0
+ * of a color image using Turbo color encoding.
+ */
+
+template<class T>
+void imageToTurbo(ImageU8 &ret, const Image<T> &image, double imin=0, double imax=-1)
+{
+
+  ret.setSize(image.getWidth(), image.getHeight(), 3);
+
+  if (imax <= imin)
+  {
+    imin=image.minValue();
+    imax=image.maxValue();
+  }
+
+  double irange=imax-imin;
+
+  if (irange <= 0)
+  {
+    ret.clear();
+    return;
+  }
+
+  for (long k=0; k<image.getHeight(); k++)
+  {
+    for (long i=0; i<image.getWidth(); i++)
+    {
+      if (image.isValid(i, k))
+      {
+        double v=image.get(i, k, 0);
+
+        v=255*(v-imin)/irange;
+        v=std::max(0.0, std::min(255.0, v));
+
+        int vi=static_cast<int>(v+0.5);
+
+        ret.set(i, k, 0, turbo_srgb[vi][0]);
+        ret.set(i, k, 1, turbo_srgb[vi][1]);
+        ret.set(i, k, 2, turbo_srgb[vi][2]);
+      }
+      else
+      {
+        ret.set(i, k, 0, 0);
+        ret.set(i, k, 1, 0);
+        ret.set(i, k, 2, 0);
+      }
+    }
+  }
+}
+
+/**
  * Returns an image of one component of a multi-component image.
  */
 

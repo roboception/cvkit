@@ -40,6 +40,7 @@
 
 #include <gutil/exception.h>
 #include <gimage/size.h>
+#include <gimage/color.h>
 
 #include <cmath>
 #include <limits>
@@ -435,6 +436,71 @@ template<class T> class ImageAdapter : public ImageAdapterBase
               rgb.set(i, k, 0, static_cast<char>(255*r+0.5));
               rgb.set(i, k, 1, static_cast<char>(255*g+0.5));
               rgb.set(i, k, 2, static_cast<char>(255*b+0.5));
+
+              xf+=step;
+              i++;
+            }
+          }
+          else if (map == map_turbo)
+          {
+            // map greyscale image using turbo encoding
+
+            while (xf < iw && i < rgb.getWidth())
+            {
+              float xs=static_cast<float>(R(0, 0)*xf+R(0, 1)*yf+R(0, 2));
+              float ys=static_cast<float>(R(1, 0)*xf+R(1, 1)*yf+R(1, 2));
+
+              double  v=getPixel(xs, ys, ir);
+              uint8_t r=0.0;
+              uint8_t g=0.0;
+              uint8_t b=0.0;
+
+              if (image->isValid(static_cast<long>(xs), static_cast<long>(ys)))
+              {
+                if (v >= imin)
+                {
+                  if (v <= imax)
+                  {
+                    v=(v-imin)/irange;
+
+                    if (gamma != 1.0)
+                    {
+                      // pow() can be extremly slow and linear lookup tables would be
+                      // very big for data with higher radiometric depth, thats why we
+                      // only allow a gamma with root of 2 and 4.
+
+                      if (static_cast<int>(gamma+0.5) == 2)
+                      {
+                        v=sqrt(v);
+                      }
+                      else if (static_cast<int>(gamma+0.5) >= 3)
+                      {
+                        v=sqrt(sqrt(r));
+                      }
+                    }
+                  }
+                  else
+                  {
+                    v=1.0;
+                  }
+                }
+                else
+                {
+                  v=0;
+                }
+
+                v=std::max(0.0, std::min(255.0, 255*v));
+
+                int vi=static_cast<int>(v+0.5);
+
+                r=gimage::turbo_srgb[vi][0];
+                g=gimage::turbo_srgb[vi][1];
+                b=gimage::turbo_srgb[vi][2];
+              }
+
+              rgb.set(i, k, 0, r);
+              rgb.set(i, k, 1, g);
+              rgb.set(i, k, 2, b);
 
               xf+=step;
               i++;

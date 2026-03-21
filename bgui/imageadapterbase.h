@@ -51,7 +51,7 @@ namespace bgui
  * an the fly, when the image data is accessed.
  */
 
-enum mapping {map_raw, map_jet, map_rainbow};
+enum mapping {map_raw, map_turbo, map_jet, map_rainbow};
 
 class ImageAdapterBase
 {

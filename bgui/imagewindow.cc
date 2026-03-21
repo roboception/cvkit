@@ -81,7 +81,7 @@ std::string createHelpText()
   out << "'t'            Switches smoothing by trilinear filtering on or off.\n";
   out << "'a'            Scale such that currently visible part of the image uses full contrast\n";
   out << "'b', 'w'       Scale such that pixel at current mouse position is black or white\n";
-  out << "'m'            Switching between raw, jet and rainbow mapping for greyscale images\n";
+  out << "'m'            Switching between raw, turbo and rainbow mapping for greyscale images\n";
   out << "'1', '2', '4'  Setting the corresponding value as gamma factor\n";
 
   return out.str();
@@ -765,9 +765,10 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
         switch (adapt->getMapping())
         {
           case map_raw:
-            adapt->setMapping(map_jet);
+            adapt->setMapping(map_turbo);
             break;
 
+          case map_turbo:
           case map_jet:
             adapt->setMapping(map_rainbow);
             break;

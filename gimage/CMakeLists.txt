@@ -41,6 +41,7 @@ set(gimage_src
   view.cc
   polygon.cc
   hdr.cc
+  color.cc
 )
 
 set(gimage_hh
