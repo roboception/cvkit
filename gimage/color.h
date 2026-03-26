@@ -313,13 +313,6 @@ void imageToJET(ImageU8 &ret, const Image<T> &image, double imin=0, double imax=
 extern const uint8_t turbo_srgb[256][3];
 
 /**
-  Get Turbo color from floating point value between 0 and 1. This is the
-  polynomial approximation.
-*/
-
-void getTurboValue(uint8_t &r, uint8_t &g, uint8_t &b, float value);
-
-/**
  * Returns an 8 bit color image from an intensity image or from color channel 0
  * of a color image using Turbo color encoding.
  */
