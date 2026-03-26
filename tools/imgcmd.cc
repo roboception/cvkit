@@ -205,7 +205,6 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
       if (p == "-turbo")
       {
         gimage::ImageU8 image8;
-
         gimage::imageToTurbo(image8, image);
         process(image8, param, repl);
         break;

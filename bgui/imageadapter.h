@@ -491,11 +491,17 @@ template<class T> class ImageAdapter : public ImageAdapterBase
 
                 v=std::max(0.0, std::min(255.0, 255*v));
 
-                int vi=static_cast<int>(v+0.5);
+                int v0=static_cast<int>(v);
+                int v1=std::min(255, v0+1);
+                int v1f=static_cast<int>(256*(v-v0)+0.5f);
+                int v0f=256-v1f;
 
-                r=gimage::turbo_srgb[vi][0];
-                g=gimage::turbo_srgb[vi][1];
-                b=gimage::turbo_srgb[vi][2];
+                // interpolate linear between indexed values to make coloring more
+                // smooth in some cases
+
+                r=static_cast<uint8_t>((gimage::turbo_srgb[v0][0]*v0f+gimage::turbo_srgb[v1][0]*v1f)>>8);
+                g=static_cast<uint8_t>((gimage::turbo_srgb[v0][1]*v0f+gimage::turbo_srgb[v1][1]*v1f)>>8);
+                b=static_cast<uint8_t>((gimage::turbo_srgb[v0][2]*v0f+gimage::turbo_srgb[v1][2]*v1f)>>8);
               }
 
               rgb.set(i, k, 0, r);

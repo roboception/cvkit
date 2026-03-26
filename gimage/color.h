@@ -313,6 +313,13 @@ void imageToJET(ImageU8 &ret, const Image<T> &image, double imin=0, double imax=
 extern const uint8_t turbo_srgb[256][3];
 
 /**
+  Get Turbo color from floating point value between 0 and 1. This is the
+  polynomial approximation.
+*/
+
+void getTurboValue(uint8_t &r, uint8_t &g, uint8_t &b, float value);
+
+/**
  * Returns an 8 bit color image from an intensity image or from color channel 0
  * of a color image using Turbo color encoding.
  */
@@ -343,16 +350,22 @@ void imageToTurbo(ImageU8 &ret, const Image<T> &image, double imin=0, double ima
     {
       if (image.isValid(i, k))
       {
-        double v=image.get(i, k, 0);
+        float v=static_cast<float>(image.get(i, k, 0));
 
         v=255*(v-imin)/irange;
-        v=std::max(0.0, std::min(255.0, v));
+        v=std::max(0.0f, std::min(255.0f, v));
 
-        int vi=static_cast<int>(v+0.5);
+        int v0=static_cast<int>(v);
+        int v1=std::min(255, v0+1);
+        int v1f=static_cast<int>(256*(v-v0)+0.5f);
+        int v0f=256-v1f;
 
-        ret.set(i, k, 0, turbo_srgb[vi][0]);
-        ret.set(i, k, 1, turbo_srgb[vi][1]);
-        ret.set(i, k, 2, turbo_srgb[vi][2]);
+        // interpolate linear between indexed values to make coloring more
+        // smooth in some cases
+
+        ret.set(i, k, 0, static_cast<uint8_t>((turbo_srgb[v0][0]*v0f+turbo_srgb[v1][0]*v1f)>>8));
+        ret.set(i, k, 1, static_cast<uint8_t>((turbo_srgb[v0][1]*v0f+turbo_srgb[v1][1]*v1f)>>8));
+        ret.set(i, k, 2, static_cast<uint8_t>((turbo_srgb[v0][2]*v0f+turbo_srgb[v1][2]*v1f)>>8));
       }
       else
       {

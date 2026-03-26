@@ -12,6 +12,8 @@
 
 #include "color.h"
 
+#include <algorithm>
+
 namespace gimage
 {
 
