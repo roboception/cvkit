@@ -1,3 +1,8 @@
+Version 2.6.26 (2026-03-26)
+---------------------------
+
+- Improved Turbo color encoding by interpolating between neighboring values
+
 Version 2.6.25 (2026-03-21)
 ---------------------------
 
