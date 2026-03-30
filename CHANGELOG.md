@@ -1,3 +1,8 @@
+Version 2.6.27 (2026-03-30)
+---------------------------
+
+- Added some convenience methods to Properties class
+
 Version 2.6.26 (2026-03-26)
 ---------------------------
 
