@@ -71,6 +71,22 @@ bool Properties::operator == (const Properties &p) const
   return ret;
 }
 
+std::vector<std::string> Properties::getKeysWithPrefix(const char *prefix)
+{
+  std::string pfx=prefix;
+  std::vector<std::string> ret;
+
+  for (std::map<std::string, std::string>::const_iterator it=data.begin(); it!=data.end(); ++it)
+  {
+    if (it->first.size() >= pfx.size() && it->first.compare(0, pfx.size(), pfx) == 0)
+    {
+      ret.push_back(it->first);
+    }
+  }
+
+  return ret;
+}
+
 void Properties::getString(const char *key, std::string &value,
                            const char *defvalue) const
 {

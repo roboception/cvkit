@@ -81,6 +81,8 @@ class Properties
       return !(operator == (p));
     }
 
+    std::vector<std::string> getKeysWithPrefix(const char *prefix);
+
     void getString(const char *key, std::string &value, const char *defvalue=0)
     const;
 
@@ -169,6 +171,13 @@ class Properties
     double getDouble(const char *key) // exists for backwards compatibility
     {
       return std::stod(getString(key));
+    }
+
+    std::string getExistingString(const char *key) const
+    {
+      std::string value;
+      getString(key, value, 0); // throws exception if it does not exist
+      return value;
     }
 
     std::string getString(const char *key) const
