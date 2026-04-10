@@ -300,17 +300,12 @@ void imageToJET(ImageU8 &ret, const Image<T> &image, double imin=0, double imax=
 }
 
 /**
- * Turbo color definition. The array has a size of [256][3] and defines the
- * mapping from 8 bit intensity values to 8 bit RGB values.
- *
- * Copyright 2019 Google LLC.
- * SPDX-License-Identifier: Apache-2.0
- *
- * Author: Anton Mikhailov
- * https://research.google/blog/turbo-an-improved-rainbow-colormap-for-visualization/
+ * Returns an 8 bit color value from a float value between 0 and 1 by
+ * interpolation of values from the Turbo lookup table. The value v is
+ * limited to the range between 0 and 1.
  */
 
-extern const uint8_t turbo_srgb[256][3];
+void getTurboValue(uint8_t &r, uint8_t &g, uint8_t &b, float v);
 
 /**
  * Returns an 8 bit color image from an intensity image or from color channel 0
@@ -320,7 +315,6 @@ extern const uint8_t turbo_srgb[256][3];
 template<class T>
 void imageToTurbo(ImageU8 &ret, const Image<T> &image, double imin=0, double imax=-1)
 {
-
   ret.setSize(image.getWidth(), image.getHeight(), 3);
 
   if (imax <= imin)
@@ -343,22 +337,13 @@ void imageToTurbo(ImageU8 &ret, const Image<T> &image, double imin=0, double ima
     {
       if (image.isValid(i, k))
       {
-        float v=static_cast<float>(image.get(i, k, 0));
+        uint8_t r, g, b;
 
-        v=255*(v-imin)/irange;
-        v=std::max(0.0f, std::min(255.0f, v));
+        getTurboValue(r, g, b, static_cast<float>((image.get(i, k, 0)-imin)/irange));
 
-        int v0=static_cast<int>(v);
-        int v1=std::min(255, v0+1);
-        int v1f=static_cast<int>(256*(v-v0)+0.5f);
-        int v0f=256-v1f;
-
-        // interpolate linear between indexed values to make coloring more
-        // smooth in some cases
-
-        ret.set(i, k, 0, static_cast<uint8_t>((turbo_srgb[v0][0]*v0f+turbo_srgb[v1][0]*v1f)>>8));
-        ret.set(i, k, 1, static_cast<uint8_t>((turbo_srgb[v0][1]*v0f+turbo_srgb[v1][1]*v1f)>>8));
-        ret.set(i, k, 2, static_cast<uint8_t>((turbo_srgb[v0][2]*v0f+turbo_srgb[v1][2]*v1f)>>8));
+        ret.set(i, k, 0, r);
+        ret.set(i, k, 1, g);
+        ret.set(i, k, 2, b);
       }
       else
       {

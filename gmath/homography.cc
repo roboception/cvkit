@@ -55,11 +55,11 @@ Matrix33d getHomography(const std::vector<Vector2d> &q, const std::vector<Vector
       std::to_string(p.size()));
   }
 
-  Matrixd M(2*p.size(), 9);
+  Matrixd M(static_cast<int>(2*p.size()), 9);
 
   for (size_t i=0; i<p.size(); i++)
   {
-    int k=2*i;
+    int k=static_cast<int>(2*i);
     M(k, 0)=p[i][0];
     M(k, 1)=p[i][1];
     M(k, 2)=1;

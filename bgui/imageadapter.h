@@ -451,9 +451,9 @@ template<class T> class ImageAdapter : public ImageAdapterBase
               float ys=static_cast<float>(R(1, 0)*xf+R(1, 1)*yf+R(1, 2));
 
               double  v=getPixel(xs, ys, ir);
-              uint8_t r=0.0;
-              uint8_t g=0.0;
-              uint8_t b=0.0;
+              uint8_t r=0;
+              uint8_t g=0;
+              uint8_t b=0;
 
               if (image->isValid(static_cast<long>(xs), static_cast<long>(ys)))
               {
@@ -489,19 +489,7 @@ template<class T> class ImageAdapter : public ImageAdapterBase
                   v=0;
                 }
 
-                v=std::max(0.0, std::min(255.0, 255*v));
-
-                int v0=static_cast<int>(v);
-                int v1=std::min(255, v0+1);
-                int v1f=static_cast<int>(256*(v-v0)+0.5f);
-                int v0f=256-v1f;
-
-                // interpolate linear between indexed values to make coloring more
-                // smooth in some cases
-
-                r=static_cast<uint8_t>((gimage::turbo_srgb[v0][0]*v0f+gimage::turbo_srgb[v1][0]*v1f)>>8);
-                g=static_cast<uint8_t>((gimage::turbo_srgb[v0][1]*v0f+gimage::turbo_srgb[v1][1]*v1f)>>8);
-                b=static_cast<uint8_t>((gimage::turbo_srgb[v0][2]*v0f+gimage::turbo_srgb[v1][2]*v1f)>>8);
+                gimage::getTurboValue(r, g, b, static_cast<float>(v));
               }
 
               rgb.set(i, k, 0, r);
