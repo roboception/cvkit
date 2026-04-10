@@ -1,3 +1,8 @@
+Version 2.6.28 (2026-04-10)
+---------------------------
+
+- Fixed compile bugs under Windows by providing access to Turbo color table through function
+
 Version 2.6.27 (2026-03-30)
 ---------------------------
 
