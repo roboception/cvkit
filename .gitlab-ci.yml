@@ -15,16 +15,16 @@ variables:
     - amd64
     - docker
 
-.armhf_focal_t: &armhf_focal_job
-  image: registry.roboception.de/tools/docker_images:armhf-focal-buildimage
-  tags:
-    - armhf
-    - docker
-
 .arm64_focal_t: &arm64_focal_job
   image: registry.roboception.de/tools/docker_images:focal-buildimage
   tags:
     - arm64
+    - docker
+
+.armhf_focal_t: &armhf_focal_job
+  image: registry.roboception.de/tools/docker_images:armhf-focal-buildimage
+  tags:
+    - armhf
     - docker
 
 .amd64_jammy_t: &amd64_jammy_job
@@ -45,10 +45,16 @@ variables:
     - armhf
     - docker
 
-.amd64_jammy_t: &amd64_noble_job
+.amd64_noble_t: &amd64_noble_job
   image: registry.roboception.de/tools/docker_images:noble-buildimage
   tags:
     - amd64
+    - docker
+
+.arm64_noble_t: &arm64_noble_job
+  image: registry.roboception.de/tools/docker_images:noble-buildimage
+  tags:
+    - arm64
     - docker
 
 #############
@@ -59,10 +65,14 @@ variables:
   variables:
     CMAKE_OPTS: ""
   script:
+    - echo -e "\e[0Ksection_start:`date +%s`:build\r\e[0KBuild"
     - mkdir build && cd build
     - cmake $CMAKE_OPTS ..
     - make -j 4
+    - echo -e "\e[0Ksection_end:`date +%s`:build\r\e[0K"
+    - echo -e "\e[0Ksection_start:`date +%s`:test\r\e[0KTest"
     - CTEST_OUTPUT_ON_FAILURE=1 make test
+    - echo -e "\e[0Ksection_end:`date +%s`:test\r\e[0K"
 
 # Debian packaging
 .package:
@@ -70,12 +80,16 @@ variables:
   variables:
     CMAKE_OPTS: ""
   script:
+    - echo -e "\e[0Ksection_start:`date +%s`:build\r\e[0KBuild"
     - mkdir build && cd build
     - cmake $CMAKE_OPTS ..
     - make -j 4
     - make package
+    - echo -e "\e[0Ksection_end:`date +%s`:build\r\e[0K"
+    - echo -e "\e[0Ksection_start:`date +%s`:upload\r\e[0KUpload debian package"
     - if [ -z "$APT_REPO" ]; then export APT_REPO=testing; fi
     - upload_deb.sh $DISTRO_CODENAME-$APT_REPO *.deb
+    - echo -e "\e[0Ksection_end:`date +%s`:upload\r\e[0K"
 
 .package_testing:
   extends: .package
@@ -149,6 +163,10 @@ test:noble:amd64:
   <<: *amd64_noble_job
   extends: .test
 
+test:noble:arm64:
+  <<: *arm64_noble_job
+  extends: .test
+
 # Deploy testing (only on master)
 #################################
 package_testing:focal:amd64:
@@ -179,6 +197,10 @@ package_testing:jammy:armhf:
 
 package_testing:noble:amd64:
   <<: *amd64_noble_job
+  extends: .package_testing
+
+package_testing:noble:arm64:
+  <<: *arm64_noble_job
   extends: .package_testing
 
 ################
@@ -216,3 +238,8 @@ package_stable:jammy:armhf:
 package_stable:noble:amd64:
   <<: *amd64_noble_job
   extends: .package_stable
+
+package_stable:noble:arm64:
+  <<: *arm64_noble_job
+  extends: .package_stable
+
