@@ -45,6 +45,7 @@
 
 #include <GLUT/glut.h>
 
+#include <iostream>
 #include <sstream>
 #include <vector>
 #include <chrono>
@@ -375,9 +376,19 @@ void GLInitWindow(int x, int y, int w, int h, const char *title)
 
   glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
 
+  // diagnostics
+
+  std::cerr << "GL Vendor:   " << glGetString(GL_VENDOR) << std::endl;
+  std::cerr << "GL Renderer: " << glGetString(GL_RENDERER) << std::endl;
+  std::cerr << "GL Version:  " << glGetString(GL_VERSION) << std::endl;
+  std::cerr << "GLSL:        " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+
+  GLfloat pt_range[2];
+  glGetFloatv(GL_POINT_SIZE_RANGE, pt_range);
+  std::cerr << "Point size range: " << pt_range[0] << " - " << pt_range[1] << std::endl;
+
   // settings for drawing
 
-  glEnable(GL_PROGRAM_POINT_SIZE);
   glEnable(GL_DEPTH_TEST);
 
   glFrontFace(GL_CCW);

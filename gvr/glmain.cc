@@ -92,7 +92,11 @@ void GLInitWindow(int x, int y, int w, int h, const char *title)
 
   // settings for drawing
 
+  // macOS Metal GL 2.1: gl_PointSize in vertex shaders is broken;
+  // use glPointSize() in draw functions instead (see glpointcloud.cc)
+#ifndef __APPLE__
   glEnable(GL_PROGRAM_POINT_SIZE);
+#endif
   glEnable(GL_DEPTH_TEST);
 
   glFrontFace(GL_CCW);

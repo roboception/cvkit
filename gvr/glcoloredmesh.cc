@@ -39,6 +39,8 @@
 
 #include "coloredmesh.h"
 
+#include <algorithm>
+
 namespace gvr
 {
 
@@ -229,6 +231,10 @@ void GLColoredMesh::draw(const GLCamera &cam)
   }
 
   glUniform1f(pf, static_cast<GLfloat>(cam.getFocalLength()*ps));
+
+#ifdef __APPLE__
+  glPointSize(std::max(1.0f, static_cast<GLfloat>(ps*2)));
+#endif
 #endif
 
   glEnableVertexAttribArray(pvertex);

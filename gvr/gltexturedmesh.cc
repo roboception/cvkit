@@ -39,6 +39,7 @@
 
 #include "texturedmesh.h"
 
+#include <algorithm>
 #include <gimage/image.h>
 #include <gimage/io.h>
 
@@ -341,6 +342,10 @@ void GLTexturedMesh::draw(const GLCamera &cam)
   }
 
   glUniform1f(pf, static_cast<GLfloat>(cam.getFocalLength()*ps));
+
+#ifdef __APPLE__
+  glPointSize(std::max(1.0f, static_cast<GLfloat>(ps*2)));
+#endif
 #endif
 
   glUniform1i(pid, 0);

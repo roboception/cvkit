@@ -39,6 +39,8 @@
 
 #include "pointcloud.h"
 
+#include <algorithm>
+
 namespace gvr
 {
 
@@ -144,15 +146,22 @@ GLPointCloud::GLPointCloud(PointCloud &p) : GLObject(p.getID())
   glBufferData(GL_ARRAY_BUFFER, p.getVertexCount()*3*sizeof(float),
                p.getVertexArray(), GL_STATIC_DRAW);
 
-  bsize=0;
-
-  if (p.hasScanProp())
   {
     float *s=new float [p.getVertexCount()];
 
-    for (int i=p.getVertexCount()-1; i>=0; i--)
+    if (p.hasScanProp())
     {
-      s[i]=p.getScanSize(i);
+      for (int i=p.getVertexCount()-1; i>=0; i--)
+      {
+        s[i]=p.getScanSize(i);
+      }
+    }
+    else
+    {
+      for (int i=p.getVertexCount()-1; i>=0; i--)
+      {
+        s[i]=1.0f;
+      }
     }
 
     glGenBuffers(1, &bsize);
@@ -201,6 +210,12 @@ void GLPointCloud::draw(const GLCamera &cam)
   }
 
   glUniform1f(pf, static_cast<GLfloat>(cam.getFocalLength()*ps));
+
+  // macOS Metal GL 2.1: gl_PointSize in vertex shaders is ignored
+  // (GL_PROGRAM_POINT_SIZE is broken), so we use glPointSize() instead
+#ifdef __APPLE__
+  glPointSize(std::max(1.0f, static_cast<GLfloat>(ps*2)));
+#endif
 
   glEnableVertexAttribArray(pvertex);
   glBindBuffer(GL_ARRAY_BUFFER, bvertex);
