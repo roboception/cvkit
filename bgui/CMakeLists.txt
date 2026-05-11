@@ -64,7 +64,7 @@ if (USE_PNG)
   add_definitions(${PNG_DEFINITIONS})
 endif ()
 
-if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
+if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT AND NOT (APPLE AND USE_COCOA))
   add_definitions(-DINCLUDE_X11)
   include_directories(${X11_INCLUDE_DIR})
   set(bgui_src ${bgui_src} basewindow_x11.cc)
@@ -74,14 +74,22 @@ if (WIN32)
   set(bgui_src ${bgui_src} basewindow_win32.cc)
 endif ()
 
+if (APPLE AND USE_COCOA)
+  set(bgui_src ${bgui_src} basewindow_cocoa.mm)
+endif ()
+
 add_library(bgui_static STATIC ${bgui_src})
 
 if (USE_PNG)
   target_link_libraries(bgui_static ${PNG_LIBRARIES})
 endif ()
 
-if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
+if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT AND NOT (APPLE AND USE_COCOA))
   target_link_libraries(bgui_static ${X11_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+endif ()
+
+if (APPLE AND USE_COCOA)
+  target_link_libraries(bgui_static "-framework Cocoa" ${CMAKE_THREAD_LIBS_INIT})
 endif ()
 
 add_library(bgui SHARED ${bgui_src})
@@ -95,8 +103,12 @@ if (WIN32)
   target_link_libraries(bgui LINK_PRIVATE gdi32 comctl32)
 endif ()
 
-if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT)
+if (X11_FOUND AND CMAKE_USE_PTHREADS_INIT AND NOT (APPLE AND USE_COCOA))
   target_link_libraries(bgui LINK_PRIVATE ${X11_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+endif ()
+
+if (APPLE AND USE_COCOA)
+  target_link_libraries(bgui LINK_PRIVATE "-framework Cocoa" ${CMAKE_THREAD_LIBS_INIT})
 endif ()
 
 set_target_properties(bgui PROPERTIES SOVERSION ${abiversion})
