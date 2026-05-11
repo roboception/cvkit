@@ -78,6 +78,10 @@ find_package(JPEG)
 find_package(PNG)
 find_package(GDAL)
 
+if (APPLE)
+  option(USE_COCOA "Use native Cocoa backend instead of X11 on macOS" ON)
+endif ()
+
 set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL)
 
@@ -92,10 +96,6 @@ set(FLTK_SKIP_FORMS ON)
 set(FLTK_SKIP_IMAGES ON)
 set(FLTK_SKIP_FLUID ON)
 find_package(FLTK)
-
-if (APPLE)
-  option(USE_COCOA "Use native Cocoa backend instead of X11 on macOS" ON)
-endif ()
 
 if (NOT WIN32 AND NOT CYGWIN)
   if (NOT (APPLE AND USE_COCOA))
