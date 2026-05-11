@@ -38,6 +38,8 @@
 
 #ifdef INCLUDE_FLTK
 #include <FL/glut.H>
+#elif defined(INCLUDE_GLFW) && defined(__APPLE__)
+#include <GLUT/glut.h>
 #else
 #ifdef __APPLE__
 #include <glut.h>

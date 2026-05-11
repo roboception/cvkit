@@ -123,6 +123,8 @@ if (USE_3D)
 
   if (USE_FLTK)
     target_link_libraries(plyv ${FLTK_LIBRARIES})
+  elseif (APPLE AND USE_COCOA AND glfw3_FOUND)
+    target_link_libraries(plyv glfw "-framework GLUT")
   else ()
     target_link_libraries(plyv ${GLUT_LIBRARIES})
   endif ()

@@ -52,7 +52,7 @@
 
 #ifdef INCLUDE_FLTK
 #include <FL/glut.H>
-#else
+#elif !defined(INCLUDE_GLFW)
 #ifdef __APPLE__
 #include <glut.h>
 #else
@@ -235,7 +235,7 @@ void GLWorld::onRedraw()
 
   // swap buffer
 
-  glutSwapBuffers();
+  GLSwapBuffers();
 }
 
 void GLWorld::onReshape(int w, int h)
@@ -407,13 +407,13 @@ void GLWorld::onKey(unsigned char key, int x, int y)
 #ifdef INCLUDE_FLTK
         glut_window->fullscreen_off();
 #endif
-        glutReshapeWindow(800, 600);
+        GLSetWindowSize(800, 600);
         redisplay=true;
         fullscreen=false;
       }
       else
       {
-        glutFullScreen();
+        GLSetFullscreen(true);
         fullscreen=true;
       }
 
@@ -556,7 +556,7 @@ void GLWorld::onKey(unsigned char key, int x, int y)
 
   if (redisplay)
   {
-    glutPostRedisplay();
+    GLRedisplay();
   }
 }
 
@@ -564,7 +564,7 @@ void GLWorld::onMouseButton(int button, int state, int x, int y)
 {
   bool redisplay=false;
 
-  if (state == GLUT_DOWN)
+  if (state == GLM_BUTTON_DOWN)
   {
     if (infotext.size() > 0)
     {
@@ -578,7 +578,7 @@ void GLWorld::onMouseButton(int button, int state, int x, int y)
       redisplay=true;
     }
 
-    mod=glutGetModifiers();
+    mod=GLGetModifiers();
 
     // check for double click
 
@@ -587,7 +587,7 @@ void GLWorld::onMouseButton(int button, int state, int x, int y)
     if (mt.elapsed() < 0.5 && mod == 0 && mb == button &&
         std::abs(static_cast<double>(x-mx)) <= 1 && std::abs(static_cast<double>(y-my)) <= 1)
     {
-      mod=GLUT_ACTIVE_CTRL;
+      mod=GLM_MOD_CTRL;
     }
 
     mt.clear();
@@ -597,8 +597,8 @@ void GLWorld::onMouseButton(int button, int state, int x, int y)
     mx=x;
     my=y;
 
-    if (button == GLUT_LEFT_BUTTON && (mod == GLUT_ACTIVE_SHIFT ||
-                                       mod == GLUT_ACTIVE_CTRL))
+    if (button == GLM_BUTTON_LEFT && (mod == GLM_MOD_SHIFT ||
+                                       mod == GLM_MOD_CTRL))
     {
       // read z-buffer and convert to world coordinate system
 
@@ -610,7 +610,7 @@ void GLWorld::onMouseButton(int button, int state, int x, int y)
         gmath::Vector3d P=camera.pixel2World(x, y, d);
         std::ostringstream out;
 
-        if (mod == GLUT_ACTIVE_CTRL)
+        if (mod == GLM_MOD_CTRL)
         {
           out << "Setting rotation center to: " << offset+P;
 
@@ -634,14 +634,14 @@ void GLWorld::onMouseButton(int button, int state, int x, int y)
     }
   }
 
-  if (camera.onMouseButton(button, state == GLUT_DOWN, x, y))
+  if (camera.onMouseButton(button, state == GLM_BUTTON_DOWN, x, y))
   {
     redisplay=true;
   }
 
   if (redisplay)
   {
-    glutPostRedisplay();
+    GLRedisplay();
   }
 }
 
@@ -649,7 +649,7 @@ void GLWorld::onMouseMove(int x, int y)
 {
   bool redisplay=false;
 
-  if (mb == GLUT_LEFT_BUTTON && mod == GLUT_ACTIVE_SHIFT)
+  if (mb == GLM_BUTTON_LEFT && mod == GLM_MOD_SHIFT)
   {
     float d;
     glReadPixels(x, camera.getHeight()-y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &d);
@@ -680,7 +680,7 @@ void GLWorld::onMouseMove(int x, int y)
 
   if (redisplay)
   {
-    glutPostRedisplay();
+    GLRedisplay();
   }
 }
 

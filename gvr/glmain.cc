@@ -387,4 +387,27 @@ void GLLeaveMainLoop()
 #endif
 }
 
+void GLSwapBuffers()
+{
+  glutSwapBuffers();
+}
+
+int GLGetModifiers()
+{
+  return glutGetModifiers();
+}
+
+void GLSetWindowSize(int w, int h)
+{
+  glutReshapeWindow(w, h);
+}
+
+void GLSetFullscreen(bool enable)
+{
+  if (enable)
+  {
+    glutFullScreen();
+  }
+}
+
 }

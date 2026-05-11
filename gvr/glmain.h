@@ -102,6 +102,22 @@ void GLMainLoop(GLListener &listener);
 
 void GLLeaveMainLoop();
 
+void GLSwapBuffers();
+int GLGetModifiers();
+void GLSetWindowSize(int w, int h);
+void GLSetFullscreen(bool enable);
+
+const int GLM_BUTTON_LEFT = 0;
+const int GLM_BUTTON_MIDDLE = 1;
+const int GLM_BUTTON_RIGHT = 2;
+const int GLM_BUTTON_SCROLL_UP = 3;
+const int GLM_BUTTON_SCROLL_DOWN = 4;
+const int GLM_BUTTON_DOWN = 0;
+const int GLM_BUTTON_UP = 1;
+const int GLM_MOD_SHIFT = 1;
+const int GLM_MOD_CTRL = 2;
+const int GLM_MOD_ALT = 4;
+
 }
 
 #endif
