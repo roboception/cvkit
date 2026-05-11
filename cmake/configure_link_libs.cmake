@@ -1,10 +1,8 @@
 # This cmake code creates the configuration that is found and used by
 # find_package() of another cmake project
 
-# Do not Error on non-existent target in get_target_property.
-if (POLICY CMP0045)
-  cmake_policy(SET CMP0045 OLD)
-endif ()
+# Skip non-existent targets in the static library loop below.
+# CMP0045 OLD is no longer supported by modern CMake.
 
 
 if (NOT PROJECT_NAME_UPPER)
@@ -26,11 +24,19 @@ endif ()
 # dependencies also to the INTERFACE_LINK_LIBRARIES of the static libraries
 
 foreach (LIB ${PROJECT_STATIC_LIBRARIES})
+  if (NOT TARGET ${LIB})
+    continue()
+  endif ()
+
   get_target_property(LIB_DEPS ${LIB} INTERFACE_LINK_LIBRARIES)
 
   if (LIB_DEPS)
     set(ADD_LIB_DEBS)
     foreach (DEP ${LIB_DEPS})
+      if (NOT TARGET ${DEP})
+        continue()
+      endif ()
+
       get_target_property(DEP_DEP ${DEP} INTERFACE_LINK_LIBRARIES)
 
       if (NOT DEP_DEP)

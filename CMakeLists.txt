@@ -31,7 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION 3.1.0)
+cmake_minimum_required (VERSION 3.1.0...3.13)
 
 project(cvkit)
 
@@ -205,7 +205,7 @@ add_subdirectory(example)
 # declare dynamic and static libraries
 
 set(PROJECT_LIBRARIES gimage gmath gutil bgui gvr)
-set(PROJECT_STATIC_LIBRARIES cvkit::gimage_static cvkit::gmath_static cvkit::gutil_static cvkit::bgui_static cvkit::gvr_static)
+set(PROJECT_STATIC_LIBRARIES gimage_static gmath_static gutil_static bgui_static gvr_static)
 
 # install generated version.h file
 # the destination path might have to be adjusted for the project

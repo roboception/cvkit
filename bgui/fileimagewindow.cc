@@ -42,6 +42,8 @@
 
 #include <fstream>
 
+// #define CROP_BLACK_BORDERS
+
 namespace bgui
 {
 
@@ -260,6 +262,8 @@ void FileImageWindow::updateTitle()
   }
 }
 
+#ifdef CROP_BLACK_BORDERS
+
 namespace
 {
 
@@ -297,14 +301,15 @@ bool isImageColumnEmpty(const gimage::ImageU8 &image, long i)
 
 }
 
+#endif
+
 void FileImageWindow::saveContent(const char *basename)
 {
   gimage::ImageU8 image;
 
   getContent(image);
 
-  // strip black borders from image
-
+#ifdef CROP_BLACK_BORDERS
   long k0=0;
 
   while (k0 < image.getHeight() && isImageRowEmpty(image, k0))
@@ -340,7 +345,10 @@ void FileImageWindow::saveContent(const char *basename)
     {
       image=cropImage(image, i0, k0, i1-i0+1, k1-k0+1);
     }
-
+#else
+  if (image.getWidth() > 0 && image.getHeight() > 0)
+  {
+#endif
     // find file name that is not used
 
     std::string base=basename;

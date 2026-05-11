@@ -132,7 +132,6 @@ if (USE_3D)
     target_link_libraries(gvr_static ${GLUT_glut_LIBRARY})
   endif ()
 
-  target_link_libraries(gvr_static ${GLEW_LIBRARIES})
   target_link_libraries(gvr_static GLEW::GLEW)
   target_link_libraries(gvr_static ${OPENGL_LIBRARIES})
 
@@ -160,7 +159,6 @@ if (USE_3D)
     target_link_libraries(gvr LINK_PRIVATE ${GLUT_glut_LIBRARY})
   endif ()
 
-  target_link_libraries(gvr LINK_PRIVATE ${GLEW_LIBRARIES})
   target_link_libraries(gvr LINK_PRIVATE GLEW::GLEW)
   target_link_libraries(gvr LINK_PRIVATE ${OPENGL_LIBRARIES})
 
