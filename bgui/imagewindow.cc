@@ -40,8 +40,6 @@
 
 #include <algorithm>
 
-#define ALLOW_SMALL_ZOOM
-
 #ifdef INCLUDE_PNG
 #include <png.h>
 #endif
@@ -539,11 +537,8 @@ void ImageWindow::onMousePressed(Button b, int x, int y, int state)
         double xx=(x+imx)/s;
         double yy=(y+imy)/s;
         int    w, h;
-        long   iw, ih;
 
         adapt->setScale(1.0);
-        iw=adapt->getWidth();
-        ih=adapt->getHeight();
 
         getSize(w, h);
 
@@ -552,29 +547,6 @@ void ImageWindow::onMousePressed(Button b, int x, int y, int state)
         s/=2;
 
         adapt->setScale(s);
-
-#ifndef ALLOW_SMALL_ZOOM
-        if (s < 1)
-        {
-          if (adapt->getWidth() < w && adapt->getHeight() < h)
-          {
-            s=static_cast<double>(w)/iw;
-            adapt->setScale(s);
-
-            if (adapt->getHeight() > h)
-            {
-              s=static_cast<double>(h)/ih;
-              adapt->setScale(s);
-            }
-          }
-
-          if (s > 1)
-          {
-            s=1;
-            adapt->setScale(s);
-          }
-        }
-#endif
 
         imx=static_cast<long>(xx*s-x);
         imy=static_cast<long>(yy*s-y);
