@@ -1,3 +1,9 @@
+Version 2.6.69 (2026-05-05)
+---------------------------
+
+- Need to continue counting at 69, due to mismatch in the version before
+- Also build for arm64 under noble on CI
+
 Version 2.6.28 (2026-04-10)
 ---------------------------
 
