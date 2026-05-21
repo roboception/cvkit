@@ -45,6 +45,12 @@ variables:
     - arm64
     - docker
 
+.armhf_noble_t: &armhf_noble_job
+  image: registry.roboception.de/tools/docker_images:armhf-noble-buildimage
+  tags:
+    - armhf
+    - docker
+
 #############
 # Templates
 #############
@@ -147,6 +153,10 @@ test:noble:arm64:
   <<: *arm64_noble_job
   extends: .test
 
+test:noble:armhf:
+  <<: *armhf_noble_job
+  extends: .test
+
 # Deploy testing (only on master)
 #################################
 package_testing:focal:armhf:
@@ -173,6 +183,10 @@ package_testing:noble:amd64:
 
 package_testing:noble:arm64:
   <<: *arm64_noble_job
+  extends: .package_testing
+
+package_testing:noble:armhf:
+  <<: *armhf_noble_job
   extends: .package_testing
 
 ################
@@ -207,3 +221,6 @@ package_stable:noble:arm64:
   <<: *arm64_noble_job
   extends: .package_stable
 
+package_stable:noble:armhf:
+  <<: *armhf_noble_job
+  extends: .package_stable
