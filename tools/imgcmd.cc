@@ -47,6 +47,7 @@
 #include <gimage/noise.h>
 #include <gimage/analysis.h>
 #include <gimage/arithmetic.h>
+#include <gimage/segmentation.h>
 #include <gimage/paint.h>
 #include <gimage/compare.h>
 #include <gimage/polygon.h>
@@ -667,6 +668,88 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
         process(imageu8, param, repl);
         break;
       }
+
+      if (p == "-segseeds")
+      {
+        // seeded minimum barrier segmentation; seeds are given as a comma
+        // separated list of x:y:label triplets
+
+        std::string list;
+        param.nextString(list);
+
+        std::vector<gimage::Seed> seeds;
+
+        size_t pos=0;
+        while (pos < list.size())
+        {
+          size_t end=list.find(',', pos);
+          if (end == std::string::npos) end=list.size();
+
+          std::string item=list.substr(pos, end-pos);
+          size_t c0=item.find(':');
+          size_t c1=item.find(':', c0+1);
+
+          if (c0 == std::string::npos || c1 == std::string::npos)
+          {
+            throw gutil::InvalidArgumentException("Seed must be given as x:y:label");
+          }
+
+          long x=std::stol(item.substr(0, c0));
+          long y=std::stol(item.substr(c0+1, c1-c0-1));
+          long label=std::stol(item.substr(c1+1));
+
+          seeds.push_back(gimage::Seed(x, y, static_cast<gutil::uint32>(label)));
+
+          pos=end+1;
+        }
+
+        gimage::ImageU8 imageu8;
+        imageu8.setImageLimited(image);
+        image.setSize(0, 0, 0);
+
+        gimage::ImageU32 seg;
+        barrierSegmentation(seg, imageu8, seeds);
+
+        std::cout << "Segmented from " << seeds.size() << " seeds" << std::endl;
+
+        // the io layer cannot store uint32, so labels are narrowed to 16 bit
+        // (saturated) for saving and further processing
+
+        gimage::ImageU16 label;
+        label.setImageLimited(seg);
+
+        process(label, param, repl);
+        break;
+      }
+
+      if (p == "-segthresh")
+      {
+        // segmentation using every pixel as seed and merging by threshold
+
+        int threshold;
+        long minsize;
+
+        param.nextValue(threshold);
+        param.nextValue(minsize);
+
+        gimage::ImageU8 imageu8;
+        imageu8.setImageLimited(image);
+        image.setSize(0, 0, 0);
+
+        gimage::ImageU32 seg;
+        gutil::uint32 num=barrierSegmentation(seg, imageu8, threshold, minsize);
+
+        std::cout << "Number of segments: " << num << std::endl;
+
+        // the io layer cannot store uint32, so labels are narrowed to 16 bit
+        // (saturated) for saving and further processing
+
+        gimage::ImageU16 label;
+        label.setImageLimited(seg);
+
+        process(label, param, repl);
+        break;
+      }
     }
   }
   catch (gutil::Exception &ex)
@@ -811,6 +894,13 @@ int main(int argc, char *argv[])
     " <min-length> # Minimum length of contour. Smaller ones are discarded.",
 
     "-extract_contours # Extracts contours from the first color channel of the binary image. The highest intensity is foreground. All lower intensities are background.",
+
+    "-segseeds # Seeded minimum barrier segmentation. The image is converted to 8 bit. The result is a label image with the label of the seed that reaches each pixel with the smallest barrier. Labels are narrowed to 16 bit (saturated) for saving.",
+    " <x:y:label,...> # Comma separated list of seeds, each given as column, row and label (> 0).",
+
+    "-segthresh # Segmentation that uses every pixel as seed and merges neighbours by barrier. The image is converted to 8 bit. The result is a label image with consecutive labels starting at 1. Labels are narrowed to 16 bit (saturated) for saving.",
+    " <threshold> # Maximum intensity difference across a border for merging two neighbours.",
+    " <minsize> # Minimum number of pixels per segment. Smaller segments are merged into a neighbour. Use 0 to disable.",
 
     0
   };

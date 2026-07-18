@@ -38,6 +38,7 @@ set(gimage_src
   pnm_io.cc
   raw_io.cc
   analysis.cc
+  segmentation.cc
   view.cc
   polygon.cc
   hdr.cc
@@ -47,6 +48,7 @@ set(gimage_src
 set(gimage_hh
   analysis.h
   arithmetic.h
+  segmentation.h
   color.h
   image.h
   io.h
