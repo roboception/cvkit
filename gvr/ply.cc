@@ -1105,6 +1105,7 @@ PLYProperty::~PLYProperty()
   delete value;
 }
 
+/*
 PLYProperty &PLYProperty::operator=(const PLYProperty &p)
 {
   if (this != &p)
@@ -1130,6 +1131,7 @@ PLYProperty &PLYProperty::operator=(const PLYProperty &p)
 
   return *this;
 }
+*/
 
 PLYProperty PLYProperty::fromString(const std::string &s, ply_encoding encoding)
 {

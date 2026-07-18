@@ -43,6 +43,7 @@
 
 #include <limits>
 #include <algorithm>
+#include <cassert>
 
 namespace gvr
 {

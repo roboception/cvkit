@@ -48,6 +48,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cstdint>
+#include <cassert>
 
 #include <string.h>
 

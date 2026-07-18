@@ -1,5 +1,6 @@
 build
 .idea
+*.bak
 pack_src
 todo.txt
 

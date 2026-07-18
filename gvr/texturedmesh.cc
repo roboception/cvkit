@@ -44,6 +44,7 @@
 
 #include <gutil/misc.h>
 #include <gutil/exception.h>
+#include <cassert>
 
 namespace gvr
 {

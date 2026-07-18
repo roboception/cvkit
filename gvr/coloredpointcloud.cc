@@ -43,6 +43,7 @@
 #include "gutil/exception.h"
 
 #include <algorithm>
+#include <cassert>
 
 namespace gvr
 {

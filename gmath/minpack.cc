@@ -50,7 +50,7 @@
 
 extern "C"
 {
-  int lmdif_cvkit(S_fp fct, integer *m, integer *n, doublereal *x,
+  int lmdif_cvkit(lmdif_fp fct, integer *m, integer *n, doublereal *x,
                   doublereal *fvec, doublereal *ftol, doublereal *xtol, doublereal *
                   gtol, integer *maxfev, doublereal *epsfct, doublereal *diag, integer *
                   mode, doublereal *factor, integer *nprint, integer *info, integer *
@@ -58,7 +58,7 @@ extern "C"
                   qtf, doublereal *wa1, doublereal *wa2, doublereal *wa3, doublereal *
                   wa4, void *up);
 
-  int lmder_cvkit(S_fp fct, integer *m, integer *n, doublereal *x,
+  int lmder_cvkit(lmder_fp fct, integer *m, integer *n, doublereal *x,
                   doublereal *fvec, doublereal *fjac, integer *ldfjac, doublereal *ftol,
                   doublereal *xtol, doublereal *gtol, integer *maxfev, doublereal *
                   diag, integer *mode, doublereal *factor, integer *nprint, integer *
@@ -110,7 +110,7 @@ bool slmdif(lmdifFct fct, int m, int n, double x[], double fvec[], void *up,
     dtmp=adtmp=static_cast<double *>(calloc(5*n+m*n+m, sizeof(double)));
   }
 
-  lmdif_cvkit(reinterpret_cast<S_fp>(fct), &mp, &np, x, fvec, &ftol, &xtol, &gtol, &maxfevl, &epsfct,
+  lmdif_cvkit(fct, &mp, &np, x, fvec, &ftol, &xtol, &gtol, &maxfevl, &epsfct,
               dtmp, &model, &factor, &nprint, &info, &nfevl, dtmp+n, &ldfjacl, ltmp,
               dtmp+n+m*n, dtmp+2*n+n*m, dtmp+3*n+n*m, dtmp+4*n+n*m, dtmp+5*n+n*m, up);
 
@@ -149,7 +149,7 @@ bool slmder(lmderFct fct, int m, int n, double x[], double fvec[], void *up,
     dtmp=adtmp=static_cast<double *>(calloc(5*n+m, sizeof(double)));
   }
 
-  lmder_cvkit(reinterpret_cast<S_fp>(fct), &mp, &np, x, fvec, dtmp+n, &ldfjacl, &ftol, &xtol, &gtol,
+  lmder_cvkit(fct, &mp, &np, x, fvec, dtmp+n, &ldfjacl, &ftol, &xtol, &gtol,
               &maxfevl, dtmp, &model, &factor, &nprint, &info, &nfevl, &njevl, ltmp,
               dtmp+n+m*n, dtmp+2*n+m*n, dtmp+3*n+m*n, dtmp+4*n+m*n, dtmp+5*n+m*n, up);
 
