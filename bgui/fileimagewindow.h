@@ -41,6 +41,9 @@
 #include <string>
 #include <vector>
 #include <limits>
+#include <thread>
+#include <chrono>
+#include <mutex>
 
 namespace bgui
 {
@@ -70,6 +73,13 @@ class FileImageWindow : public ImageWindow
     std::string directory;
     bool watch_directory;
 
+    // Slideshow state
+    bool slideshow_active;
+    int slideshow_interval; // in seconds: 5 or 10
+    bool slideshow_stop_requested;
+    std::thread *slideshow_thread;
+    std::mutex slideshow_mutex;
+
     void load(unsigned int &pos, bool down=true, int w=-1, int h=-1,
               bool size_max=false);
 
@@ -80,6 +90,7 @@ class FileImageWindow : public ImageWindow
     void saveContent(const char *basename);
 
     void refreshFileList();
+    void slideshowThreadFunc();
 
   public:
 

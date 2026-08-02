@@ -61,6 +61,7 @@ std::string createHelpText(bool incl_view)
   out << "Files:\n";
   out << "<cursor left>  Load previous image\n";
   out << "<cursor right> Load next image\n";
+  out << "'S'            Start/stop slideshow (5s -> 10s -> off)\n";
 #ifdef INCLUDE_INOTIFY
   out << "'u'            Reload current image and toggle watching the current image for changes\n";
 #else
@@ -262,7 +263,7 @@ void FileImageWindow::updateTitle()
        adapt->getOriginalHeight() << "x" << adapt->getOriginalDepth() <<
        " " << adapt->getOriginalType();
 
-    if (watch_file || kp != keep_none)
+    if (watch_file || kp != keep_none || slideshow_active)
     {
       os << " -";
 
@@ -279,6 +280,16 @@ void FileImageWindow::updateTitle()
       if (kp == keep_all)
       {
         os << " " << "keep_all";
+      }
+      
+      if (slideshow_active)
+      {
+        // Add space only if there are other options before slideshow
+        if (watch_file || kp != keep_none)
+        {
+          os << " ";
+        }
+        os << "Slideshow " << slideshow_interval << "s";
       }
     }
 
@@ -441,6 +452,10 @@ FileImageWindow::FileImageWindow(const std::vector<std::string> &files, int firs
   wid=-1;
   watch_directory=watch_dir;
   directory=dir;
+  slideshow_active=false;
+  slideshow_interval=5;
+  slideshow_stop_requested=false;
+  slideshow_thread=nullptr;
 
   if (w <= 0 || h <= 0)
   {
@@ -459,7 +474,19 @@ FileImageWindow::FileImageWindow(const std::vector<std::string> &files, int firs
 }
 
 FileImageWindow::~FileImageWindow()
-{ }
+{
+  // Stop slideshow thread if running
+  if (slideshow_thread != nullptr)
+  {
+    {
+      std::lock_guard<std::mutex> lock(slideshow_mutex);
+      slideshow_stop_requested = true;
+    }
+    slideshow_thread->join();
+    delete slideshow_thread;
+    slideshow_thread = nullptr;
+  }
+}
 
 void FileImageWindow::refreshFileList()
 {
@@ -515,6 +542,66 @@ void FileImageWindow::refreshFileList()
   }
   catch (const std::exception &)
   {
+  }
+}
+
+void FileImageWindow::slideshowThreadFunc()
+{
+  while (true)
+  {
+    // Sleep for 1 second at a time to allow quick stopping and interval changes
+    int sleep_seconds = 0;
+    {
+      std::lock_guard<std::mutex> lock(slideshow_mutex);
+      if (slideshow_stop_requested)
+      {
+        slideshow_stop_requested = false;
+        return;
+      }
+      sleep_seconds = slideshow_interval;
+    }
+
+    for (int i = 0; i < sleep_seconds; i++)
+    {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      
+      {
+        std::lock_guard<std::mutex> lock(slideshow_mutex);
+        if (slideshow_stop_requested)
+        {
+          slideshow_stop_requested = false;
+          return;
+        }
+      }
+    }
+
+    // Check again before loading next image
+    {
+      std::lock_guard<std::mutex> lock(slideshow_mutex);
+      if (slideshow_stop_requested)
+      {
+        slideshow_stop_requested = false;
+        return;
+      }
+
+      // Load next image
+      if (current + 1 < list.size())
+      {
+        current++;
+      }
+      else if (list.size() > 0)
+      {
+        // Wrap around to first image
+        current = 0;
+      }
+      else
+      {
+        return; // No images to load
+      }
+    }
+    
+    // Load the image (outside mutex to avoid holding it during GUI operations)
+    load(current, true);
   }
 }
 
@@ -581,6 +668,60 @@ void FileImageWindow::onKey(char c, SpecialKey key, int x, int y)
 
   switch (c)
   {
+    case 'S': /* start/stop slideshow or change interval */
+      {
+        bool need_join = false;
+        
+        {
+          std::lock_guard<std::mutex> lock(slideshow_mutex);
+          
+          if (slideshow_active)
+          {
+            // If already active, check current interval
+            if (slideshow_interval == 5)
+            {
+              // Change to 10 seconds - just change the interval, thread will pick it up
+              slideshow_interval = 10;
+            }
+            else if (slideshow_interval == 10)
+            {
+              // Stop slideshow - set flag and request thread to stop
+              slideshow_active = false;
+              slideshow_stop_requested = true;
+              need_join = true;
+              slideshow_interval = 5; // Reset to default for next start
+            }
+          }
+          else
+          {
+            // Start slideshow with 5 seconds
+            slideshow_active = true;
+            slideshow_interval = 5;
+            slideshow_stop_requested = false;
+            slideshow_thread = new std::thread(&FileImageWindow::slideshowThreadFunc, this);
+          }
+        }
+        
+        // Join the thread outside the mutex to avoid deadlock
+        if (need_join)
+        {
+          std::thread *thread_to_join = nullptr;
+          {
+            std::lock_guard<std::mutex> lock(slideshow_mutex);
+            thread_to_join = slideshow_thread;
+            slideshow_thread = nullptr;
+          }
+          if (thread_to_join != nullptr)
+          {
+            thread_to_join->join();
+            delete thread_to_join;
+          }
+        }
+        
+        updateTitle();
+      }
+      break;
+
     case 'u': /* update image and toggle watch flag */
 #ifdef INCLUDE_INOTIFY
       watch_file=!watch_file;
