@@ -317,14 +317,14 @@ int main(int argc, char *argv[])
 
           for (std::set<std::string>::iterator it=content.begin(); it != content.end(); ++it)
           {
-            // Skip "." and ".." directory entries
+            // Skip "." and ".." directory entries and .bak files
             std::string filename = *it;
             size_t last_slash = filename.find_last_of("/\\");
             if (last_slash != std::string::npos)
             {
               filename = filename.substr(last_slash + 1);
             }
-            if (filename != "." && filename != "..")
+            if (filename != "." && filename != ".." && (filename.size() < 4 || filename.substr(filename.size()-4) != ".bak"))
             {
               list.push_back(*it);
             }

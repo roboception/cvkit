@@ -474,14 +474,14 @@ void FileImageWindow::refreshFileList()
     std::vector<std::string> new_list;
     for (const auto &file : content)
     {
-      // Skip "." and ".." directory entries
+      // Skip "." and ".." directory entries and .bak files
       std::string filename = file;
       size_t last_slash = filename.find_last_of("/\\");
       if (last_slash != std::string::npos)
       {
         filename = filename.substr(last_slash + 1);
       }
-      if (filename != "." && filename != "..")
+      if (filename != "." && filename != ".." && (filename.size() < 4 || filename.substr(filename.size()-4) != ".bak"))
       {
         new_list.push_back(file);
       }
