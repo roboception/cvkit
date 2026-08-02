@@ -67,12 +67,19 @@ class FileImageWindow : public ImageWindow
     bool    watch_file;
     int     wid;
 
+    std::string directory;
+    bool watch_directory;
+
     void load(unsigned int &pos, bool down=true, int w=-1, int h=-1,
               bool size_max=false);
+
+    ImageAdapterBase *loadImageAt(unsigned int pos);
 
     void updateTitle();
 
     void saveContent(const char *basename);
+
+    void refreshFileList();
 
   public:
 
@@ -81,7 +88,8 @@ class FileImageWindow : public ImageWindow
                     bool size_max=false, double init_scale=0, double init_min=0,
                     double init_max=0, double valid_min=-std::numeric_limits<float>::max(),
                     double valid_max=std::numeric_limits<float>::max(),
-                    keep k=keep_none, mapping m=map_raw, int c=-1, const char *viewcmd=0);
+                    keep k=keep_none, mapping m=map_raw, int c=-1, const char *viewcmd=0,
+                    bool watch_dir=false, const std::string &dir="");
     virtual ~FileImageWindow();
 
     virtual void onKey(char c, SpecialKey key, int x, int y);

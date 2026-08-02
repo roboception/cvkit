@@ -78,6 +78,8 @@ int main(int argc, char *argv[])
     bool watch=false;
     std::vector<std::string> list;
     int first=0;
+    bool single_file_start=false;
+    std::string directory="";
 
     const char *def[]=
     {
@@ -279,6 +281,9 @@ int main(int argc, char *argv[])
       list.push_back(file);
     }
 
+    // Track if originally only one file was given on command line
+    single_file_start = (list.size() == 1);
+
     // if exactly one file is given, get all files of that directory for
     // convenience
 
@@ -291,25 +296,38 @@ int main(int argc, char *argv[])
       if (!in.fail())
       {
         std::string name=list[0];
-        std::string dir="";
 
+        // Extract directory path
         size_t i=name.find_last_of("\\/");
-
         if (i != name.npos)
         {
-          dir=name.substr(0, i+1);
+          directory=name.substr(0, i+1);
+        }
+        else
+        {
+          directory = "./";
         }
 
         try
         {
           std::set<std::string> content;
-          gutil::getFileList(content, dir, "");
+          gutil::getFileList(content, directory, "");
 
           list.clear();
 
           for (std::set<std::string>::iterator it=content.begin(); it != content.end(); ++it)
           {
-            list.push_back(*it);
+            // Skip "." and ".." directory entries
+            std::string filename = *it;
+            size_t last_slash = filename.find_last_of("/\\");
+            if (last_slash != std::string::npos)
+            {
+              filename = filename.substr(last_slash + 1);
+            }
+            if (filename != "." && filename != "..")
+            {
+              list.push_back(*it);
+            }
           }
 
           sort(list.begin(), list.end());
@@ -357,7 +375,8 @@ int main(int argc, char *argv[])
 #endif
 
     bgui::FileImageWindow win(list, first, watch, x, y, w, h, size_max, scale,
-                              imin, imax, vmin, vmax, kp, map, channel, viewcmd.c_str());
+                              imin, imax, vmin, vmax, kp, map, channel, viewcmd.c_str(),
+                              single_file_start, directory);
 
     win.setIcon(icon);
     win.waitForClose();

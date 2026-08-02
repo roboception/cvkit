@@ -37,10 +37,13 @@
 #include "imageadapter.h"
 
 #include <gutil/exception.h>
+#include <gutil/misc.h>
 #include <gimage/io.h>
 #include <gimage/view.h>
 
 #include <fstream>
+#include <set>
+#include <algorithm>
 
 // #define CROP_BLACK_BORDERS
 
@@ -79,81 +82,108 @@ std::string createHelpText(bool incl_view)
 
 }
 
+ImageAdapterBase *FileImageWindow::loadImageAt(unsigned int pos)
+{
+  gimage::ImageU8    *imageu8=0;
+
+  try
+  {
+    imageu8=new gimage::ImageU8();
+    gimage::getImageIO().load(*imageu8, list[pos].c_str());
+    return new ImageAdapter<unsigned char>(imageu8, vmin, vmax, true);
+  }
+  catch (const gutil::Exception &)
+  {
+    gimage::ImageU16   *imageu16=0;
+
+    delete imageu8;
+    imageu8=0;
+
+    try
+    {
+      imageu16=new gimage::ImageU16();
+      gimage::getImageIO().load(*imageu16, list[pos].c_str());
+      return new ImageAdapter<unsigned short>(imageu16, vmin, vmax, true);
+    }
+    catch (const gutil::Exception &)
+    {
+      gimage::ImageFloat *imagefloat=0;
+
+      delete imageu16;
+      imageu16=0;
+
+      try
+      {
+        imagefloat=new gimage::ImageFloat();
+        gimage::getImageIO().load(*imagefloat, list[pos].c_str());
+        return new ImageAdapter<float>(imagefloat, vmin, vmax, true);
+      }
+      catch (const gutil::Exception &)
+      {
+        delete imagefloat;
+        imagefloat=0;
+        std::cerr << "Cannot load image: " << list[pos] << std::endl;
+        return 0;
+      }
+    }
+  }
+  return 0;
+}
+
 void FileImageWindow::load(unsigned int &pos, bool down, int w, int h, bool size_max)
 {
   ImageAdapterBase *adapt=0;
 
-  // load image and store in adatper
-
-  while (adapt == 0 && pos < list.size())
+  // Try to load image at current position
+  if (pos < list.size())
   {
-    gimage::ImageU8    *imageu8=0;
-
-    try
+    adapt = loadImageAt(pos);
+  }
+  
+  // If loading failed, try to find a loadable image in the direction of navigation
+  if (adapt == 0 && pos < list.size())
+  {
+    if (down)
     {
-      imageu8=new gimage::ImageU8();
-      gimage::getImageIO().load(*imageu8, list[pos].c_str());
-      adapt=new ImageAdapter<unsigned char>(imageu8, vmin, vmax, true);
-      imageu8=0;
-    }
-    catch (const gutil::Exception &)
-    {
-      gimage::ImageU16   *imageu16=0;
-
-      delete imageu8;
-      imageu8=0;
-
-      try
+      // Moving forward: try next images (starting from pos+1)
+      unsigned int search_pos = pos + 1;
+      while (adapt == 0 && search_pos < list.size())
       {
-        imageu16=new gimage::ImageU16();
-        gimage::getImageIO().load(*imageu16, list[pos].c_str());
-        adapt=new ImageAdapter<unsigned short>(imageu16, vmin, vmax, true);
-        imageu16=0;
-      }
-      catch (const gutil::Exception &)
-      {
-        gimage::ImageFloat *imagefloat=0;
-
-        delete imageu16;
-        imageu16=0;
-
-        try
+        adapt = loadImageAt(search_pos);
+        if (adapt != 0)
         {
-          imagefloat=new gimage::ImageFloat();
-          gimage::getImageIO().load(*imagefloat, list[pos].c_str());
-          adapt=new ImageAdapter<float>(imagefloat, vmin, vmax, true);
-          imagefloat=0;
+          pos = search_pos;
         }
-        catch (const gutil::Exception &)
+        else
         {
-          delete imagefloat;
-          imagefloat=0;
-
-          std::cerr << "Cannot load image: " << list[pos] << std::endl;
-
-          if (down)
+          search_pos++;
+        }
+      }
+    }
+    else
+    {
+      // Moving backward: try previous images (starting from pos-1)
+      if (pos > 0)
+      {
+        // Use signed int for search to handle all positions correctly
+        int search_pos = static_cast<int>(pos) - 1;
+        while (adapt == 0 && search_pos >= 0)
+        {
+          adapt = loadImageAt(static_cast<unsigned int>(search_pos));
+          if (adapt != 0)
           {
-            list.erase(list.begin()+pos);
-
-            if (pos > 0 && pos >= list.size())
-            {
-              pos--;
-            }
+            pos = static_cast<unsigned int>(search_pos);
           }
           else
           {
-            list.erase(list.begin()+pos);
-
-            if (pos > 0)
-            {
-              pos--;
-            }
+            search_pos--;
           }
         }
       }
     }
   }
-
+  
+  
   // watch file
 
   if (watch_file)
@@ -381,7 +411,8 @@ void FileImageWindow::saveContent(const char *basename)
 FileImageWindow::FileImageWindow(const std::vector<std::string> &files, int firstfile,
                                  bool watch, int x, int y, int w, int h, bool size_max, double init_scale,
                                  double init_min, double init_max, double valid_min, double valid_max, keep k,
-                                 mapping m, int c, const char *viewcmd)
+                                 mapping m, int c, const char *viewcmd,
+                                 bool watch_dir, const std::string &dir)
 {
   if (files.empty())
   {
@@ -408,6 +439,8 @@ FileImageWindow::FileImageWindow(const std::vector<std::string> &files, int firs
   channel=c;
   watch_file=watch;
   wid=-1;
+  watch_directory=watch_dir;
+  directory=dir;
 
   if (w <= 0 || h <= 0)
   {
@@ -428,11 +461,70 @@ FileImageWindow::FileImageWindow(const std::vector<std::string> &files, int firs
 FileImageWindow::~FileImageWindow()
 { }
 
+void FileImageWindow::refreshFileList()
+{
+  if (!watch_directory || directory.empty())
+    return;
+
+  try
+  {
+    std::set<std::string> content;
+    gutil::getFileList(content, directory, "");
+
+    std::vector<std::string> new_list;
+    for (const auto &file : content)
+    {
+      // Skip "." and ".." directory entries
+      std::string filename = file;
+      size_t last_slash = filename.find_last_of("/\\");
+      if (last_slash != std::string::npos)
+      {
+        filename = filename.substr(last_slash + 1);
+      }
+      if (filename != "." && filename != "..")
+      {
+        new_list.push_back(file);
+      }
+    }
+    std::sort(new_list.begin(), new_list.end());
+
+    std::string current_file = (current < list.size()) ? list[current] : "";
+    std::vector<std::string> old_list = list;
+
+    list = new_list;
+
+    if (!current_file.empty())
+    {
+      for (size_t k = 0; k < list.size(); k++)
+      {
+        if (list[k] == current_file)
+        {
+          current = static_cast<unsigned int>(k);
+          return;
+        }
+      }
+    }
+
+    // Current file not found in new list - adjust index if needed
+    if (current >= list.size() && !list.empty())
+    {
+      // Index is too large, limit to last valid index
+      current = static_cast<unsigned int>(list.size() - 1);
+    }
+    // If list is empty, current stays as is (will be handled by caller)
+  }
+  catch (const std::exception &)
+  {
+  }
+}
+
 void FileImageWindow::onKey(char c, SpecialKey key, int x, int y)
 {
   switch (key)
   {
     case k_home: /* load first image */
+      if (watch_directory)
+        refreshFileList();
       if (current > 0)
       {
         current=0;
@@ -443,6 +535,8 @@ void FileImageWindow::onKey(char c, SpecialKey key, int x, int y)
       break;
 
     case k_end: /* load last image */
+      if (watch_directory)
+        refreshFileList();
       if (list.size() > 0)
       {
         current=static_cast<unsigned int>(list.size()-1);
@@ -453,6 +547,8 @@ void FileImageWindow::onKey(char c, SpecialKey key, int x, int y)
       break;
 
     case k_left: /* load previous image */
+      if (watch_directory)
+        refreshFileList();
       if (current > 0)
       {
         current--;
@@ -463,6 +559,8 @@ void FileImageWindow::onKey(char c, SpecialKey key, int x, int y)
       break;
 
     case k_right: /* load next image */
+      if (watch_directory)
+        refreshFileList();
       current++;
 
       if (current < list.size())
