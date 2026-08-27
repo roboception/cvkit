@@ -399,7 +399,7 @@ template<class T> Image<T> resizeImageBilinear(const Image<T> &image, long w, lo
   {
     for (long i=0; i<w; i++)
     {
-      image.getBilinear(v, i*fx, k*fy);
+      image.getBilinear(v, (i+0.5)*fx, (k+0.5)*fy);
 
       for (int d=0; d<image.getDepth(); d++)
       {
