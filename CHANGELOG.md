@@ -1,3 +1,14 @@
+Version 2.6.70 (2026-08-27)
+---------------------------
+
+- Fixed half pixel shift in resizeImageBilinear function
+- In fileimagewindow that is used by sv
+  - added 'S' key to sv for slide show
+  - refreshing list of images whenever switching images to also see new images
+- Added minimum distance barrier segmentation
+- In imagewindow, allow zooming out even if image is smaller than window
+- Fixed various build issues for macOS
+
 Version 2.6.69 (2026-05-05)
 ---------------------------
 
