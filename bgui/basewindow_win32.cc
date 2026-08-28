@@ -485,6 +485,14 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
 
   p->base=this;
   p->hinstance=GetModuleHandle(NULL);
+  p->hwnd=0;
+  p->bitmap=0;
+
+  // everything that is allocated from here on must be released if the
+  // construction fails, because the destructor is not called in that case
+
+  try
+  {
 
   // initialise common controls
 
@@ -590,11 +598,31 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
 
   if (p->bitmap == 0)
   {
+    ReleaseDC(p->hwnd, hdc);
     MessageBox(NULL, TEXT("Cannot create bitmap"), TEXT("Error"), MB_ICONERROR | MB_OK);
     throw WindowsException("Cannot create bitmap");
   }
 
   ReleaseDC(p->hwnd, hdc);
+
+  }
+  catch (...)
+  {
+    if (p->bitmap != 0)
+    {
+      DeleteObject(p->bitmap);
+    }
+
+    if (p->hwnd != 0)
+    {
+      DestroyWindow(p->hwnd);
+    }
+
+    delete p;
+    bp=p=0;
+
+    throw;
+  }
 }
 
 BaseWindow::~BaseWindow()
@@ -667,6 +695,17 @@ bool BaseWindow::isClosed()
   return p->hwnd == 0;
 }
 
+void BaseWindow::stopEventLoop()
+{
+  // the message loop runs in the main thread, i.e. destroying the window is
+  // sufficient for making sure that no further callback is invoked
+
+  if (p->hwnd != 0)
+  {
+    sendClose();
+  }
+}
+
 void BaseWindow::getContent(gimage::ImageU8 &image)
 {
   int w=0, h=0;
@@ -709,6 +748,9 @@ void BaseWindow::getDisplaySize(int &w, int &h)
 
 void BaseWindow::getSize(int &w, int &h)
 {
+  w=0;
+  h=0;
+
   if (p->hwnd != 0)
   {
     RECT rect;
@@ -775,8 +817,8 @@ void BaseWindow::setPosition(int x, int y)
 {
   if (p->hwnd != 0)
   {
-    x=std::min(x, 0);
-    y=std::min(y, 0);
+    x=std::max(x, 0);
+    y=std::max(y, 0);
 
     RECT drect;
     GetClientRect(GetDesktopWindow(), &drect);

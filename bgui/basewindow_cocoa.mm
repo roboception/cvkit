@@ -573,6 +573,10 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
 
 BaseWindow::~BaseWindow()
 {
+  // derived classes are expected to have done this already, see stopEventLoop()
+
+  stopEventLoop();
+
   @autoreleasepool
   {
     for (auto &kv : p->fileWatches)
@@ -583,12 +587,6 @@ BaseWindow::~BaseWindow()
     for (auto &kv : p->watchFds)
     {
       close(kv.second);
-    }
-
-    if (!p->closed)
-    {
-      [p->window setDelegate:nil];
-      [p->window close];
     }
 
     pthread_mutex_destroy(&p->mutex);
@@ -767,6 +765,25 @@ void BaseWindow::waitForClose()
 bool BaseWindow::isClosed()
 {
   return p->closed;
+}
+
+void BaseWindow::stopEventLoop()
+{
+  // the event loop runs in the main thread, i.e. detaching the delegate and
+  // the view is sufficient for making sure that no further callback is
+  // invoked on the object that is currently being destroyed
+
+  @autoreleasepool
+  {
+    if (!p->closed)
+    {
+      [p->window setDelegate:nil];
+      [p->window close];
+      p->closed=true;
+    }
+
+    p->running=false;
+  }
 }
 
 void BaseWindow::getContent(gimage::ImageU8 &image)

@@ -70,14 +70,28 @@ void *ptfct(void *fa)
 {
   ThreadData *p=reinterpret_cast<ThreadData *>(fa);
 
-  if (p->tfct != 0)
-  {
-    p->tfct->run();
-  }
+  // an exception must not leave the thread function, because that would
+  // terminate the whole process
 
-  if (p->pfct != 0)
+  try
   {
-    p->pfct->run(p->start, p->end, p->step);
+    if (p->tfct != 0)
+    {
+      p->tfct->run();
+    }
+
+    if (p->pfct != 0)
+    {
+      p->pfct->run(p->start, p->end, p->step);
+    }
+  }
+  catch (const std::exception &ex)
+  {
+    std::cerr << "Exception in thread: " << ex.what() << std::endl;
+  }
+  catch (...)
+  {
+    std::cerr << "Unknown exception in thread" << std::endl;
   }
 
   return 0;

@@ -40,6 +40,7 @@
 #include <gutil/misc.h>
 
 #include <limits>
+#include <cmath>
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
@@ -66,7 +67,7 @@ std::string readPNMToken(std::istream &in)
 
   while (!in.eof())
   {
-    while (!in.eof() && isspace(c))
+    while (!in.eof() && isspace(static_cast<unsigned char>(c)))
     {
       in.get(c);
     }
@@ -86,7 +87,7 @@ std::string readPNMToken(std::istream &in)
 
   // reading a token until white space or start of comment
 
-  while (!in.eof() && !isspace(c) && c != '#')
+  while (!in.eof() && !isspace(static_cast<unsigned char>(c)) && c != '#')
   {
     s << c;
     in.get(c);
@@ -144,7 +145,7 @@ std::istream::pos_type readPNMHeader(const char *name, int &ncomp, long &maxval,
       maxval=atol(readPNMToken(in).c_str());
     }
 
-    if (width == 0 || height == 0 || (maxval == 0 && scale== 0))
+    if (width <= 0 || height <= 0 || maxval < 0 || (maxval == 0 && scale== 0))
     {
       std::ostringstream ss;
       ss << "Invalid PNM image (" << width << " " << height << " " << maxval;
@@ -878,11 +879,19 @@ void PNMImageIO::save(const ImageFloat &image, const char *name) const
 
   s=image.maxValue();
 
-  if (s > 0)
+  if (s > 0 && std::isfinite(s))
   {
     s=1/s;
   }
   else
+  {
+    s=1;
+  }
+
+  // a scale of 0 cannot be stored, because the header would be rejected when
+  // reading the file again
+
+  if (s == 0 || !std::isfinite(s))
   {
     s=1;
   }

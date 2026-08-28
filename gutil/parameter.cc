@@ -85,14 +85,14 @@ void printDescription(std::ostream &out, std::string descr, size_t col, size_t n
 
   while (i < descr.size())
   {
-    while (i<descr.size() && isspace(descr[i]))
+    while (i<descr.size() && isspace(static_cast<unsigned char>(descr[i])))
     {
       i++;
     }
 
     size_t k=i;
 
-    while (k < descr.size() && !isspace(descr[k]))
+    while (k < descr.size() && !isspace(static_cast<unsigned char>(descr[k])))
     {
       k++;
     }

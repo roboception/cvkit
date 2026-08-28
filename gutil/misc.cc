@@ -70,7 +70,7 @@ void gutil::trim(std::string &s)
 
   pos=0;
 
-  while (pos < s.size() && isspace(s[pos]))
+  while (pos < s.size() && isspace(static_cast<unsigned char>(s[pos])))
   {
     pos++;
   }
@@ -82,7 +82,7 @@ void gutil::trim(std::string &s)
 
   pos=s.size();
 
-  while (pos > 0 && isspace(s[pos-1]))
+  while (pos > 0 && isspace(static_cast<unsigned char>(s[pos-1])))
   {
     pos--;
   }

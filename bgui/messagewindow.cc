@@ -46,7 +46,9 @@ MessageWindow::MessageWindow(const char *title, const char *message, int w, int 
 }
 
 MessageWindow::~MessageWindow()
-{ }
+{
+  stopEventLoop();
+}
 
 void MessageWindow::onKey(char c, SpecialKey key, int x, int y)
 {

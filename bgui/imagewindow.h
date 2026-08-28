@@ -42,6 +42,7 @@
 #include <gimage/image.h>
 
 #include <limits>
+#include <mutex>
 
 namespace bgui
 {
@@ -69,6 +70,20 @@ class ImageWindow : public BaseWindow
   protected:
 
     void addHelpText(const std::string &text);
+
+    /**
+     * Protects the image adapter and the view parameters. The event callbacks
+     * are invoked from the event loop, which may run in its own thread, while
+     * other threads (e.g. the slide show of FileImageWindow) may replace the
+     * adapter at the same time. Every event callback and everything that
+     * changes the adapter must hold this mutex.
+     *
+     * It is recursive, because derived classes call the implementation of
+     * their base class, which locks it again. It must not be held while
+     * joining a thread that may try to lock it.
+     */
+
+    std::recursive_mutex event_mutex;
 
   public:
 

@@ -189,6 +189,11 @@ template<class T> class DVector
 
     DVector<T> &operator=(const DVector<T> &a)
     {
+      if (this == &a)
+      {
+        return *this;
+      }
+
       if (v != 0)
       {
         delete [] v;

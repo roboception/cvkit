@@ -152,10 +152,17 @@ ListImageWindow::ListImageWindow(double init_min, double init_max,
 
 ListImageWindow::~ListImageWindow()
 {
+  // the event loop must be stopped before the adapters are deleted, because
+  // event callbacks like onResize() use them
+
+  stopEventLoop();
+
   for (size_t i=0; i<list.size(); i++)
   {
     delete list[i];
   }
+
+  list.clear();
 }
 
 void ListImageWindow::add(const gimage::ImageU8 &image, const std::string &s, bool copy)
@@ -277,6 +284,8 @@ void ListImageWindow::add(const gimage::ImageFloat &image, const std::string &s,
 
 void ListImageWindow::onKey(char c, SpecialKey key, int x, int y)
 {
+  std::lock_guard<std::recursive_mutex> lock(event_mutex);
+
   switch (key)
   {
     case k_left: /* load previous image */

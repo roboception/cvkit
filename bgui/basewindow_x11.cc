@@ -81,6 +81,8 @@ struct BaseWindowData
   pthread_mutex_t mutex;
   pthread_t       thread;
   bool            running;
+  bool            started;
+  bool            joined;
 };
 
 namespace
@@ -404,7 +406,7 @@ void *eventLoop(void *arg)
   {
 #ifdef INCLUDE_INOTIFY
 
-    if (XPending(p->display) == 0 && p->inotify_fd != 0)
+    if (XPending(p->display) == 0 && p->inotify_fd >= 0)
     {
       // wait for X11 and inotify events at the same time
 
@@ -455,10 +457,13 @@ void *eventLoop(void *arg)
     }
   }
 
-  p->running=false;
-
   XUnmapWindow(p->display, p->window);
   XFlush(p->display);
+
+  // this must be the last statement, because the main thread may start to
+  // destroy the window as soon as running is false
+
+  p->running=false;
 
   return 0;
 }
@@ -484,13 +489,30 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
   p=new BaseWindowData();
   p->parent=this;
 
+  p->display=0;
+  p->window=0;
+  p->gc=0;
+  p->font=0;
+  p->image=0;
+  p->started=false;
+  p->joined=false;
+  p->running=false;
+#ifdef INCLUDE_INOTIFY
+  p->inotify_fd=-1;
+#endif
+
+  // everything that is allocated from here on must be released if the
+  // construction fails, because the destructor is not called in that case
+
+  try
+  {
+
   // connect to X server
 
   p->display=XOpenDisplay(0);
 
   if (p->display == 0)
   {
-    delete p;
     throw X11Exception("Cannot connect to X display");
   }
 
@@ -531,6 +553,7 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
 
     if (XStringListToTextProperty(const_cast<char **>(&title), 1, &iconname) == 0)
     {
+      XFree(windowname.value);
       throw X11Exception("Allocation for icon name failed");
     }
 
@@ -540,6 +563,12 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
 
     if (size_hints == 0 || wm_hints == 0 || class_hints == 0)
     {
+      XFree(size_hints);
+      XFree(wm_hints);
+      XFree(class_hints);
+      XFree(windowname.value);
+      XFree(iconname.value);
+
       throw X11Exception("Allocation failed");
     }
 
@@ -589,6 +618,11 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
 
   p->font=XQueryFont(p->display, XGContextFromGC(p->gc));
 
+  if (p->font == 0)
+  {
+    throw X11Exception("Cannot query font");
+  }
+
   // create XImage buffer
 
   {
@@ -620,9 +654,10 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
   }
 
 #ifdef INCLUDE_INOTIFY
-  // initialise inotify pointer
+  // initialise inotify file descriptor (-1 means not initialised, 0 is a
+  // valid file descriptor)
 
-  p->inotify_fd=0;
+  p->inotify_fd=-1;
 #endif
 
   // init mutex and start event loop
@@ -632,26 +667,66 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
     throw X11Exception("Cannot initialize mutex");
   }
 
+  p->started=false;
+  p->joined=false;
+
   if (pthread_create(&(p->thread), 0, eventLoop, p) == 0)
   {
     p->running=true;
+    p->started=true;
   }
   else
   {
+    pthread_mutex_destroy(&(p->mutex));
     throw X11Exception("Cannot create event thread");
+  }
+
+  }
+  catch (...)
+  {
+    if (p->image != 0)
+    {
+      XDestroyImage(p->image);
+    }
+
+    if (p->display != 0)
+    {
+      if (p->font != 0)
+      {
+        XFreeFontInfo(0, p->font, 1);
+      }
+
+      if (p->gc != 0)
+      {
+        XFreeGC(p->display, p->gc);
+      }
+
+      if (p->window != 0)
+      {
+        XDestroyWindow(p->display, p->window);
+      }
+
+      XCloseDisplay(p->display);
+    }
+
+    delete p;
+    p=0;
+
+    throw;
   }
 }
 
 BaseWindow::~BaseWindow()
 {
-  sendClose();
-  waitForClose();
+  // derived classes are expected to have done this already, see stopEventLoop()
+
+  stopEventLoop();
 
   pthread_mutex_destroy(&(p->mutex));
 
 #ifdef INCLUDE_INOTIFY
 
-  if (p->inotify_fd != 0)
+  if (p->inotify_fd >= 0)
   {
     close(p->inotify_fd);
   }
@@ -743,12 +818,12 @@ int BaseWindow::addFileWatch(const char *path)
 #ifdef INCLUDE_INOTIFY
   int ret=-1;
 
-  if (p->inotify_fd == 0)
+  if (p->inotify_fd < 0)
   {
     p->inotify_fd=inotify_init1(IN_NONBLOCK);
   }
 
-  if (p->inotify_fd != 0)
+  if (p->inotify_fd >= 0)
   {
     ret=inotify_add_watch(p->inotify_fd, path, IN_CLOSE_WRITE);
   }
@@ -763,7 +838,7 @@ void BaseWindow::removeFileWatch(int watchid)
 {
 #ifdef INCLUDE_INOTIFY
 
-  if (p->inotify_fd != 0 && watchid >= 0)
+  if (p->inotify_fd >= 0 && watchid >= 0)
   {
     inotify_rm_watch(p->inotify_fd, watchid);
   }
@@ -801,11 +876,23 @@ void BaseWindow::sendClose()
 
 void BaseWindow::waitForClose()
 {
-  if (p->running)
+  // the thread must be joined even if running is already false, because the
+  // event loop sets it shortly before it returns and may still use the
+  // display connection at that point
+
+  if (p->started && !p->joined)
   {
     pthread_join(p->thread, 0);
-    p->running=false;
+    p->joined=true;
   }
+
+  p->running=false;
+}
+
+void BaseWindow::stopEventLoop()
+{
+  sendClose();
+  waitForClose();
 }
 
 bool BaseWindow::isClosed()
@@ -1011,12 +1098,15 @@ inline void getShiftFromMask(unsigned long mask, int &left_shift,
 {
   int s=0;
 
-  while ((mask & (1<<s)) == 0 && s < 32)
+  // the range must be checked before shifting, because a shift by 32 or more
+  // is undefined
+
+  while (s < 32 && (mask & (1ul<<s)) == 0)
   {
     s++;
   }
 
-  while ((mask & (1<<s)) != 0 && s < 32)
+  while (s < 32 && (mask & (1ul<<s)) != 0)
   {
     s++;
   }

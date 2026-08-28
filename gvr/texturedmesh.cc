@@ -83,6 +83,22 @@ TexturedMesh::TexturedMesh(const MultiTexturedMesh &p, int t, const std::vector<
     uv[i]=-1;
   }
 
+  // A vertex that is used with more than one texture coordinate has to be
+  // duplicated. The duplicates are only collected here and appended in one
+  // step below, because growing the vertex list one by one would reallocate
+  // and copy all vertex arrays for every single duplicate, which takes
+  // quadratic time for larger meshes.
+
+  struct Duplicate
+  {
+    int   src;  // index of the vertex to be copied
+    float u, v; // texture coordinate of the copy
+  };
+
+  std::vector<Duplicate> dup;
+
+  const int n0=getVertexCount();
+
   int ii=0;
 
   for (int i=0; i<p.getTriangleCount(); i++)
@@ -104,40 +120,57 @@ TexturedMesh::TexturedMesh(const MultiTexturedMesh &p, int t, const std::vector<
           }
           else if (uv[2*k] != u || uv[2*k+1] != v)
           {
-            int vn=getVertexCount();
-            resizeVertexList(vn+1, hasScanProp(), hasScanPos());
+            Duplicate d;
+            d.src=k;
+            d.u=u;
+            d.v=v;
 
-            setVertexComp(vn, 0, getVertexComp(k, 0));
-            setVertexComp(vn, 1, getVertexComp(k, 1));
-            setVertexComp(vn, 2, getVertexComp(k, 2));
+            dup.push_back(d);
 
-            if (hasScanProp())
-            {
-              setScanSize(vn, getScanSize(k));
-              setScanError(vn, getScanError(k));
-              setScanConf(vn, getScanConf(k));
-            }
-
-            if (hasScanPos())
-            {
-              setScanPosComp(vn, 0, getScanPosComp(k, 0));
-              setScanPosComp(vn, 1, getScanPosComp(k, 1));
-              setScanPosComp(vn, 2, getScanPosComp(k, 2));
-            }
-
-            setNormalComp(vn, 0, getNormalComp(k, 0));
-            setNormalComp(vn, 1, getNormalComp(k, 1));
-            setNormalComp(vn, 2, getNormalComp(k, 2));
-
-            uv[2*vn]=u;
-            uv[2*vn+1]=v;
-
-            setTriangleIndex(ii, c, vn);
+            setTriangleIndex(ii, c, n0+static_cast<int>(dup.size())-1);
           }
         }
       }
 
       ii++;
+    }
+  }
+
+  // append all duplicated vertices at once
+
+  if (dup.size() > 0)
+  {
+    resizeVertexList(n0+static_cast<int>(dup.size()), hasScanProp(), hasScanPos());
+
+    for (size_t j=0; j<dup.size(); j++)
+    {
+      const int vn=n0+static_cast<int>(j);
+      const int k=dup[j].src;
+
+      setVertexComp(vn, 0, getVertexComp(k, 0));
+      setVertexComp(vn, 1, getVertexComp(k, 1));
+      setVertexComp(vn, 2, getVertexComp(k, 2));
+
+      if (hasScanProp())
+      {
+        setScanSize(vn, getScanSize(k));
+        setScanError(vn, getScanError(k));
+        setScanConf(vn, getScanConf(k));
+      }
+
+      if (hasScanPos())
+      {
+        setScanPosComp(vn, 0, getScanPosComp(k, 0));
+        setScanPosComp(vn, 1, getScanPosComp(k, 1));
+        setScanPosComp(vn, 2, getScanPosComp(k, 2));
+      }
+
+      setNormalComp(vn, 0, getNormalComp(k, 0));
+      setNormalComp(vn, 1, getNormalComp(k, 1));
+      setNormalComp(vn, 2, getNormalComp(k, 2));
+
+      uv[2*vn]=dup[j].u;
+      uv[2*vn+1]=dup[j].v;
     }
   }
 }
@@ -149,14 +182,19 @@ TexturedMesh::~TexturedMesh()
 
 void TexturedMesh::resizeVertexList(int vn, bool with_scanprop, bool with_scanpos)
 {
-  float *p=new float [2*vn];
+  checkElementCount(vn, "vertices");
 
-  for (int i=2*std::min(getVertexCount(), vn)-1; i>=0; i--)
+  const long en=2l*vn;
+  const long keep=(uv != 0 ? 2l*std::min(getVertexCount(), vn) : 0);
+
+  float *p=new float [en];
+
+  for (long i=keep-1; i>=0; i--)
   {
     p[i]=uv[i];
   }
 
-  for (int i=2*std::min(getVertexCount(), vn); i<2*vn; i++)
+  for (long i=keep; i<en; i++)
   {
     p[i]=0;
   }
@@ -179,7 +217,7 @@ void TexturedMesh::addGLObjects(std::vector<GLObject *> &list)
 
 void TexturedMesh::loadPLY(PLYReader &ply)
 {
-  int vn=static_cast<int>(ply.instancesOfElement("vertex"));
+  int vn=checkElementCount(ply.instancesOfElement("vertex"), "vertices");
 
   setOriginFromPLY(ply);
 
@@ -276,7 +314,7 @@ void TexturedMesh::loadPLY(PLYReader &ply)
 
   // set receiver for triangles
 
-  int tn=static_cast<int>(ply.instancesOfElement("face"));
+  int tn=checkElementCount(ply.instancesOfElement("face"), "faces");
 
   resizeTriangleList(tn);
 

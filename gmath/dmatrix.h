@@ -262,6 +262,11 @@ template<class T> class DMatrix
 
     DMatrix<T> &operator=(const DMatrix<T> &a)
     {
+      if (this == &a)
+      {
+        return *this;
+      }
+
       if (v != 0)
       {
         delete [] v;

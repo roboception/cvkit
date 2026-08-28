@@ -101,7 +101,13 @@ class Parameter
 
     void previous()
     {
-      pos=std::max(static_cast<size_t>(0), pos-1);
+      // pos is unsigned, i.e. pos-1 would wrap around instead of being
+      // limited by std::max()
+
+      if (pos > 0)
+      {
+        pos--;
+      }
     }
 
     /**

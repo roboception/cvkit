@@ -134,14 +134,19 @@ Mesh::~Mesh()
 
 void Mesh::resizeVertexList(int vn, bool with_scanprop, bool with_scanpos)
 {
-  float *p=new float [3*vn];
+  checkElementCount(vn, "vertices");
 
-  for (int i=3*std::min(getVertexCount(), vn)-1; i>=0; i--)
+  const long en=3l*vn;
+  const long keep=(normal != 0 ? 3l*std::min(getVertexCount(), vn) : 0);
+
+  float *p=new float [en];
+
+  for (long i=keep-1; i>=0; i--)
   {
     p[i]=normal[i];
   }
 
-  for (int i=3*std::min(getVertexCount(), vn); i<3*vn; i++)
+  for (long i=keep; i<en; i++)
   {
     p[i]=0;
   }
@@ -155,11 +160,21 @@ void Mesh::resizeVertexList(int vn, bool with_scanprop, bool with_scanpos)
 
 void Mesh::resizeTriangleList(int tn)
 {
-  unsigned int *p=new unsigned int [3*tn];
+  checkElementCount(tn, "triangles");
 
-  for (int i=3*std::min(n, tn)-1; i>=0; i--)
+  const long en=3l*tn;
+  const long keep=(triangle != 0 ? 3l*std::min(n, tn) : 0);
+
+  unsigned int *p=new unsigned int [en];
+
+  for (long i=keep-1; i>=0; i--)
   {
     p[i]=triangle[i];
+  }
+
+  for (long i=keep; i<en; i++)
+  {
+    p[i]=0;
   }
 
   delete [] triangle;
@@ -297,7 +312,7 @@ void Mesh::addGLObjects(std::vector<GLObject *> &list)
 
 void Mesh::loadPLY(PLYReader &ply)
 {
-  int vn=static_cast<int>(ply.instancesOfElement("vertex"));
+  int vn=checkElementCount(ply.instancesOfElement("vertex"), "vertices");
 
   setOriginFromPLY(ply);
 
@@ -347,7 +362,7 @@ void Mesh::loadPLY(PLYReader &ply)
 
   // set receiver for triangles
 
-  int tn=static_cast<int>(ply.instancesOfElement("face"));
+  int tn=checkElementCount(ply.instancesOfElement("face"), "faces");
 
   resizeTriangleList(tn);
 

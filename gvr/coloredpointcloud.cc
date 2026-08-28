@@ -78,14 +78,19 @@ ColoredPointCloud::~ColoredPointCloud()
 
 void ColoredPointCloud::resizeVertexList(int vn, bool with_scanprop, bool with_scanpos)
 {
-  unsigned char *p=new unsigned char [3*vn];
+  checkElementCount(vn, "vertices");
 
-  for (int i=3*std::min(getVertexCount(), vn)-1; i>=0; i--)
+  const long en=3l*vn;
+  const long keep=(rgb != 0 ? 3l*std::min(getVertexCount(), vn) : 0);
+
+  unsigned char *p=new unsigned char [en];
+
+  for (long i=keep-1; i>=0; i--)
   {
     p[i]=rgb[i];
   }
 
-  for (int i=3*std::min(getVertexCount(), vn); i<3*vn; i++)
+  for (long i=keep; i<en; i++)
   {
     p[i]=0;
   }
@@ -108,7 +113,7 @@ void ColoredPointCloud::addGLObjects(std::vector<GLObject *> &list)
 
 void ColoredPointCloud::loadPLY(PLYReader &ply)
 {
-  int vn=static_cast<int>(ply.instancesOfElement("vertex"));
+  int vn=checkElementCount(ply.instancesOfElement("vertex"), "vertices");
 
   setOriginFromPLY(ply);
 

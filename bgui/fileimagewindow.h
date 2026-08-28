@@ -73,12 +73,11 @@ class FileImageWindow : public ImageWindow
     std::string directory;
     bool watch_directory;
 
-    // Slideshow state
+    // Slideshow state, protected by ImageWindow::event_mutex
     bool slideshow_active;
     int slideshow_interval; // in seconds: 5 or 10
     bool slideshow_stop_requested;
     std::thread *slideshow_thread;
-    std::mutex slideshow_mutex;
 
     void load(unsigned int &pos, bool down=true, int w=-1, int h=-1,
               bool size_max=false);

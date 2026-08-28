@@ -58,6 +58,31 @@
 namespace gvr
 {
 
+int checkElementCount(long n, const char *what)
+{
+  // PLYReader::instancesOfElement() returns -1 if the element is not part of
+  // the file at all, which is normal and handled by the callers
+
+  if (n == -1)
+  {
+    return -1;
+  }
+
+  // the resize methods allocate up to 3 float or int values per element, thus
+  // the element count must stay well below the range of int
+
+  const long maxn=(1l<<28);
+
+  if (n < 0 || n > maxn)
+  {
+    std::ostringstream out;
+    out << "Invalid number of " << what << ": " << n;
+    throw gutil::IOException(out.str());
+  }
+
+  return static_cast<int>(n);
+}
+
 void Model::setOriginFromPLY(PLYReader &ply)
 {
   std::vector<std::string> comment;
@@ -161,8 +186,8 @@ Model *loadPLY(const char *name)
 
   // determine data type
 
-  int vn=static_cast<int>(ply.instancesOfElement("vertex"));
-  int tn=static_cast<int>(ply.instancesOfElement("face"));
+  int vn=checkElementCount(ply.instancesOfElement("vertex"), "vertices");
+  int tn=checkElementCount(ply.instancesOfElement("face"), "faces");
 
   bool pervertexcolor=ply.getTypeOfProperty("vertex", "diffuse_red") != ply_none ||
                       ply.getTypeOfProperty("vertex", "red") != ply_none ||
@@ -218,7 +243,15 @@ Model *loadPLY(const char *name)
 
     // load from PLY into the allocated data set
 
-    model->loadPLY(ply);
+    try
+    {
+      model->loadPLY(ply);
+    }
+    catch (...)
+    {
+      delete model;
+      throw;
+    }
   }
 
   // optionally try to guess the name of the texture from the file name

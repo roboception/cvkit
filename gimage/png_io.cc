@@ -271,7 +271,7 @@ void PNGImageIO::load(ImageU8 &image, const char *name, int ds, long x, long y,
   img=new unsigned char [height*rn];
   row=new unsigned char * [height];
 
-  for (int k=0; k<height; k++)
+  for (long k=0; k<height; k++)
   {
     row[k]=img+k*rn;
   }
@@ -475,18 +475,27 @@ void PNGImageIO::load(ImageU16 &image, const char *name, int ds, long x, long y,
     png_set_strip_alpha(png);
   }
 
+  // the transformations above change the number of bytes per row, thus the
+  // info structure must be updated before asking for the row size
+
+  png_read_update_info(png, info);
+
   // read image completely
 
   int rn=static_cast<int>(png_get_rowbytes(png, info));
   img=new unsigned char [height*rn];
   row=new unsigned char * [height];
 
-  for (int k=0; k<height; k++)
+  for (long k=0; k<height; k++)
   {
     row[k]=img+k*rn;
   }
 
   png_read_image(png, static_cast<png_bytepp>(row));
+
+  // number of bytes that are used per color channel
+
+  const int bpc=(bits < 16 ? 1 : 2);
 
   // load downscaled part?
 
@@ -508,7 +517,7 @@ void PNGImageIO::load(ImageU16 &image, const char *name, int ds, long x, long y,
 
       for (long kk=0; kk<ds && kk+(y+k)*ds<height; kk++)
       {
-        int  jj=std::max(0l, x)*ds*depth;
+        int  jj=static_cast<int>(std::max(0l, x))*ds*depth*bpc;
         long j=std::max(0l, -x)*depth;
 
         for (long i=std::max(0l, -x); i<w && (x+i)*ds<width; i++)
@@ -554,7 +563,7 @@ void PNGImageIO::load(ImageU16 &image, const char *name, int ds, long x, long y,
         {
           if (nline[j] > 0)
           {
-            image.set(i, k, d, static_cast<ImageU8::store_t>((vline[j]+nline[j]/2)/nline[j]));
+            image.set(i, k, d, static_cast<ImageU16::store_t>((vline[j]+nline[j]/2)/nline[j]));
           }
 
           j++;
@@ -954,13 +963,18 @@ void PNGImageIO::load(ImageU8 &image, gutil::uint8 *data, size_t length) const
     png_set_expand_gray_1_2_4_to_8(png);
   }
 
+  // the transformations above change the number of bytes per row, thus the
+  // info structure must be updated before asking for the row size
+
+  png_read_update_info(png, info);
+
   // read image completely
 
   int rn=static_cast<int>(png_get_rowbytes(png, info));
   img=new unsigned char [height*rn];
   row=new unsigned char * [height];
 
-  for (int k=0; k<height; k++)
+  for (long k=0; k<height; k++)
   {
     row[k]=img+k*rn;
   }

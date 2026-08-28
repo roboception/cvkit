@@ -1239,17 +1239,27 @@ PLYElement *PLYElement::fromString(const std::string &s)
 
   gutil::split(list, s);
 
-  if (list[0].compare("element") == 0)
+  if (list.size() >= 3 && list[0].compare("element") == 0)
   {
-    long n;
+    long n=-1;
     std::istringstream in(list[2]);
     in >> n;
 
+    if (in.fail() || n < 0)
+    {
+      throw gutil::IOException("Invalid number of instances in PLY element definition: "+s);
+    }
+
     return new PLYElement(list[1], n);
   }
-  else if (list[0].compare("comment") == 0)
+  else if (list.size() >= 1 && list[0].compare("comment") == 0)
   {
-    return new PLYElement(s.substr(8), -1);
+    if (s.size() > 8)
+    {
+      return new PLYElement(s.substr(8), -1);
+    }
+
+    return new PLYElement(std::string(), -1);
   }
   else
   {
@@ -1292,6 +1302,14 @@ void PLYElement::readData(std::streambuf *in)
 {
   for (long i=0; i<size; i++)
   {
+    // stop if the file is shorter than announced in the header, because the
+    // receivers write into arrays that were allocated according to the header
+
+    if (in->sgetc() == std::streambuf::traits_type::eof())
+    {
+      throw gutil::IOException("Unexpected end of PLY file while reading element: "+name);
+    }
+
     for (size_t k=0; k<list.size(); k++)
     {
       list[k].readData(in, i);

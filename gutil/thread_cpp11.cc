@@ -62,14 +62,48 @@ Thread::Thread()
 
 Thread::~Thread()
 {
-  delete reinterpret_cast<std::thread *>(p);
+  // destroying a joinable std::thread terminates the process, i.e. it must be
+  // joined first
+
+  join();
+}
+
+namespace
+{
+
+/*
+  An exception must not leave the thread function, because that would
+  terminate the whole process.
+*/
+
+template<class F> void runGuarded(F fct)
+{
+  try
+  {
+    fct();
+  }
+  catch (const std::exception &ex)
+  {
+    std::cerr << "Exception in thread: " << ex.what() << std::endl;
+  }
+  catch (...)
+  {
+    std::cerr << "Unknown exception in thread" << std::endl;
+  }
+}
+
 }
 
 void Thread::create(ThreadFunction &fct)
 {
   join();
 
-  p=reinterpret_cast<ThreadData *>(new std::thread(&ThreadFunction::run, &fct));
+  ThreadFunction *f=&fct;
+
+  p=reinterpret_cast<ThreadData *>(new std::thread([f]()
+  {
+    runGuarded([f]() { f->run(); });
+  }));
 }
 
 void Thread::create(ParallelFunction &fct, long start, long end, long step,
@@ -77,8 +111,12 @@ void Thread::create(ParallelFunction &fct, long start, long end, long step,
 {
   join();
 
-  p=reinterpret_cast<ThreadData *>(new std::thread(&ParallelFunction::run, &fct,
-                                   start, end, step));
+  ParallelFunction *f=&fct;
+
+  p=reinterpret_cast<ThreadData *>(new std::thread([f, start, end, step]()
+  {
+    runGuarded([f, start, end, step]() { f->run(start, end, step); });
+  }));
 }
 
 void Thread::join()

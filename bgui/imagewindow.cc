@@ -255,15 +255,25 @@ ImageWindow::ImageWindow(const gimage::ImageFloat &image, int x, int y, int w, i
 
 ImageWindow::~ImageWindow()
 {
+  // the event loop must be stopped before the adapter is deleted, because
+  // event callbacks like onResize() use it
+
+  stopEventLoop();
+
   if (del)
   {
     delete adapt;
   }
+
+  adapt=0;
+  del=false;
 }
 
 void ImageWindow::setAdapter(ImageAdapterBase *adapter, bool delete_on_close,
                              keep k, int w, int h, bool size_max)
 {
+  std::lock_guard<std::recursive_mutex> lock(event_mutex);
+
   showinfo=false;
   updateInfo();
 
@@ -463,12 +473,16 @@ void ImageWindow::visibleImagePart(long &x, long &y, long &w, long &h)
 
 void ImageWindow::onResize(int w, int h)
 {
+  std::lock_guard<std::recursive_mutex> lock(event_mutex);
+
   redrawImage(false);
   updateInfo();
 }
 
 void ImageWindow::onMousePressed(Button b, int x, int y, int state)
 {
+  std::lock_guard<std::recursive_mutex> lock(event_mutex);
+
   switch (b)
   {
     case button1:
@@ -567,6 +581,8 @@ void ImageWindow::onMouseReleased(Button b, int x, int y, int state)
 
 void ImageWindow::onMouseMove(int x, int y, int state)
 {
+  std::lock_guard<std::recursive_mutex> lock(event_mutex);
+
   // if left button is pressed, then perform panning
 
   if (state == button1mask)
@@ -590,6 +606,8 @@ void ImageWindow::onMouseMove(int x, int y, int state)
 
 void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
 {
+  std::lock_guard<std::recursive_mutex> lock(event_mutex);
+
   lastkey=c;
 
   if (c != 'h' && c != 'v')
@@ -701,7 +719,10 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
         {
           double v=adapt->getIntensityOfPixel(x+imx, y+imy);
 
-          if (std::isfinite(v))
+          // the minimum must stay below the maximum, otherwise the intensity
+          // range would become empty or negative
+
+          if (std::isfinite(v) && v < adapt->getMaxIntensity())
           {
             adapt->setMinIntensity(v);
             redrawImage();
@@ -724,7 +745,10 @@ void ImageWindow::onKey(char c, SpecialKey key, int x, int y)
         {
           double v=adapt->getIntensityOfPixel(x+imx, y+imy);
 
-          if (std::isfinite(v))
+          // the maximum must stay above the minimum, otherwise the intensity
+          // range would become empty or negative
+
+          if (std::isfinite(v) && v > adapt->getMinIntensity())
           {
             adapt->setMaxIntensity(v);
             redrawImage();

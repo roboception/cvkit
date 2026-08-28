@@ -54,6 +54,19 @@ const int ID_CAMERA_RANGE=1;
 const int ID_CAMERA_LINK=2;
 const int ID_MODEL_START=3;
 
+/**
+ * Checks the number of vertices, triangles, lines or textures before it is
+ * used for allocating memory. The counts are taken from file headers, i.e.
+ * they must not be trusted. Negative values and values that would overflow
+ * the size computations of the resize methods are rejected.
+ *
+ * @param n    Number of elements.
+ * @param what Name of the element for the error message.
+ * @return     The checked count, narrowed to int.
+ */
+
+int checkElementCount(long n, const char *what);
+
 class GLObject;
 
 class Model

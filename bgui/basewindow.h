@@ -73,6 +73,20 @@ class BaseWindow
     void waitForClose(); // waits for the window to be closed
     bool isClosed();
 
+    /**
+     * Closes the window and makes sure that the event loop has finished, i.e.
+     * that no further event callback can be invoked.
+     *
+     * The event loop may run in its own thread and calls virtual methods like
+     * onResize() or onKey() of the most derived class. Every class that
+     * derives from BaseWindow and that owns data which is used by these
+     * callbacks must therefore call this method as first statement of its
+     * destructor. Otherwise, the event loop may access members that have
+     * already been destroyed. The method may be called more than once.
+     */
+
+    void stopEventLoop();
+
     // capturing events
 
     enum Button {button1, button2, button3, button4, button5};

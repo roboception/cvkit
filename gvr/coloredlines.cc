@@ -65,11 +65,21 @@ void ColoredLines::resizeVertexList(int vn, bool with_scanprop, bool with_scanpo
 
 void ColoredLines::resizeLineList(int ln)
 {
-  unsigned int *p=new unsigned int [(ln<<1)];
+  checkElementCount(ln, "lines");
 
-  for (int i=2*std::min(n, ln)-1; i>=0; i--)
+  const long en=2l*ln;
+  const long keep=(line != 0 ? 2l*std::min(n, ln) : 0);
+
+  unsigned int *p=new unsigned int [en];
+
+  for (long i=keep-1; i>=0; i--)
   {
     p[i]=line[i];
+  }
+
+  for (long i=keep; i<en; i++)
+  {
+    p[i]=0;
   }
 
   delete [] line;

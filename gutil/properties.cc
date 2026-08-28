@@ -56,7 +56,7 @@ bool Properties::operator == (const Properties &p) const
     {
       std::map<std::string, std::string>::const_iterator pit=p.data.find(it->first);
 
-      if (pit == data.end() || it->second != pit->second)
+      if (pit == p.data.end() || it->second != pit->second)
       {
         ret=false;
         break;
@@ -135,14 +135,7 @@ void Properties::getStringVector(const char *key, std::vector<std::string> &valu
 
 void Properties::putString(const char *key, const std::string &value)
 {
-  std::map<std::string, std::string>::iterator it=data.find(key);
-
-  if (it != data.end())
-  {
-    data.erase(key);
-  }
-
-  data.insert(std::pair<std::string, std::string>(key, value));
+  data[key]=value;
 }
 
 void Properties::load(const char *name)
@@ -395,7 +388,13 @@ void Properties::load(std::istream &in, const char *name)
           trim(key);
           trim(value);
 
-          data.insert(std::pair<std::string,std::string>(key, value));
+          // an already existing key must be overwritten, like putString()
+          // does, because several property files are loaded on top of each
+          // other, from the most general to the most specific one (see
+          // gimage::loadViewProperties() and PNMImageIO::load()), i.e. later
+          // definitions must win
+
+          data[key]=value;
         }
         else
         {

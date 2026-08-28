@@ -475,17 +475,30 @@ FileImageWindow::FileImageWindow(const std::vector<std::string> &files, int firs
 
 FileImageWindow::~FileImageWindow()
 {
-  // Stop slideshow thread if running
-  if (slideshow_thread != nullptr)
+  // Stop slideshow thread if running. The mutex must not be held while
+  // joining, because the thread may be waiting for it.
+
+  std::thread *thread_to_join=nullptr;
+
   {
-    {
-      std::lock_guard<std::mutex> lock(slideshow_mutex);
-      slideshow_stop_requested = true;
-    }
-    slideshow_thread->join();
-    delete slideshow_thread;
-    slideshow_thread = nullptr;
+    std::lock_guard<std::recursive_mutex> lock(event_mutex);
+
+    slideshow_active=false;
+    slideshow_stop_requested=true;
+
+    thread_to_join=slideshow_thread;
+    slideshow_thread=nullptr;
   }
+
+  if (thread_to_join != nullptr)
+  {
+    thread_to_join->join();
+    delete thread_to_join;
+  }
+
+  // no further event callback may run after this point
+
+  stopEventLoop();
 }
 
 void FileImageWindow::refreshFileList()
@@ -552,10 +565,9 @@ void FileImageWindow::slideshowThreadFunc()
     // Sleep for 1 second at a time to allow quick stopping and interval changes
     int sleep_seconds = 0;
     {
-      std::lock_guard<std::mutex> lock(slideshow_mutex);
+      std::lock_guard<std::recursive_mutex> lock(event_mutex);
       if (slideshow_stop_requested)
       {
-        slideshow_stop_requested = false;
         return;
       }
       sleep_seconds = slideshow_interval;
@@ -564,49 +576,58 @@ void FileImageWindow::slideshowThreadFunc()
     for (int i = 0; i < sleep_seconds; i++)
     {
       std::this_thread::sleep_for(std::chrono::seconds(1));
-      
+
       {
-        std::lock_guard<std::mutex> lock(slideshow_mutex);
+        std::lock_guard<std::recursive_mutex> lock(event_mutex);
         if (slideshow_stop_requested)
         {
-          slideshow_stop_requested = false;
           return;
         }
       }
     }
 
-    // Check again before loading next image
+    // Switch to and load the next image. This must happen under the mutex,
+    // because load() replaces the image adapter, which is used by the event
+    // callbacks that run in the event loop.
+
     {
-      std::lock_guard<std::mutex> lock(slideshow_mutex);
+      std::lock_guard<std::recursive_mutex> lock(event_mutex);
+
       if (slideshow_stop_requested)
       {
-        slideshow_stop_requested = false;
         return;
       }
 
-      // Load next image
+      if (list.size() == 0)
+      {
+        return; // No images to load
+      }
+
       if (current + 1 < list.size())
       {
         current++;
       }
-      else if (list.size() > 0)
+      else
       {
         // Wrap around to first image
         current = 0;
       }
-      else
-      {
-        return; // No images to load
-      }
+
+      load(current, true);
     }
-    
-    // Load the image (outside mutex to avoid holding it during GUI operations)
-    load(current, true);
   }
 }
 
 void FileImageWindow::onKey(char c, SpecialKey key, int x, int y)
 {
+  // a thread that has to be joined must be joined after the mutex has been
+  // released, because the thread itself may be waiting for the mutex
+
+  std::thread *thread_to_join=nullptr;
+
+  {
+  std::lock_guard<std::recursive_mutex> lock(event_mutex);
+
   switch (key)
   {
     case k_home: /* load first image */
@@ -670,54 +691,35 @@ void FileImageWindow::onKey(char c, SpecialKey key, int x, int y)
   {
     case 'S': /* start/stop slideshow or change interval */
       {
-        bool need_join = false;
-        
+        if (slideshow_active)
         {
-          std::lock_guard<std::mutex> lock(slideshow_mutex);
-          
-          if (slideshow_active)
+          // If already active, check current interval
+          if (slideshow_interval == 5)
           {
-            // If already active, check current interval
-            if (slideshow_interval == 5)
-            {
-              // Change to 10 seconds - just change the interval, thread will pick it up
-              slideshow_interval = 10;
-            }
-            else if (slideshow_interval == 10)
-            {
-              // Stop slideshow - set flag and request thread to stop
-              slideshow_active = false;
-              slideshow_stop_requested = true;
-              need_join = true;
-              slideshow_interval = 5; // Reset to default for next start
-            }
+            // Change to 10 seconds - just change the interval, thread will pick it up
+            slideshow_interval = 10;
           }
-          else
+          else if (slideshow_interval == 10)
           {
-            // Start slideshow with 5 seconds
-            slideshow_active = true;
-            slideshow_interval = 5;
-            slideshow_stop_requested = false;
-            slideshow_thread = new std::thread(&FileImageWindow::slideshowThreadFunc, this);
-          }
-        }
-        
-        // Join the thread outside the mutex to avoid deadlock
-        if (need_join)
-        {
-          std::thread *thread_to_join = nullptr;
-          {
-            std::lock_guard<std::mutex> lock(slideshow_mutex);
+            // Stop slideshow - request the thread to stop and join it below,
+            // after the mutex has been released
+            slideshow_active = false;
+            slideshow_stop_requested = true;
+            slideshow_interval = 5; // Reset to default for next start
+
             thread_to_join = slideshow_thread;
             slideshow_thread = nullptr;
           }
-          if (thread_to_join != nullptr)
-          {
-            thread_to_join->join();
-            delete thread_to_join;
-          }
         }
-        
+        else
+        {
+          // Start slideshow with 5 seconds
+          slideshow_active = true;
+          slideshow_interval = 5;
+          slideshow_stop_requested = false;
+          slideshow_thread = new std::thread(&FileImageWindow::slideshowThreadFunc, this);
+        }
+
         updateTitle();
       }
       break;
@@ -842,10 +844,19 @@ void FileImageWindow::onKey(char c, SpecialKey key, int x, int y)
   }
 
   ImageWindow::onKey(c, key, x, y);
+  }
+
+  if (thread_to_join != nullptr)
+  {
+    thread_to_join->join();
+    delete thread_to_join;
+  }
 }
 
 void FileImageWindow::onFileChanged(int watchid)
 {
+  std::lock_guard<std::recursive_mutex> lock(event_mutex);
+
   if (watchid == wid)
   {
     load(current, true);

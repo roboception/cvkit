@@ -335,14 +335,22 @@ void PointCloud::addExtend(gmath::Vector3d &emin, gmath::Vector3d &emax) const
 
 void PointCloud::resizeVertexList(int vn, bool with_scanprop, bool with_scanpos)
 {
-  float *p=new float [3*vn];
+  checkElementCount(vn, "vertices");
 
-  for (int i=3*std::min(n, vn)-1; i>=0; i--)
+  // the number of elements must be computed as long, because 3*vn overflows
+  // for large vertex counts, which would lead to a too small allocation
+
+  const long en=3l*vn;
+  const long keep=3l*std::min(n, vn);
+
+  float *p=new float [en];
+
+  for (long i=keep-1; i>=0; i--)
   {
     p[i]=vertex[i];
   }
 
-  for (int i=3*std::min(n, vn); i<3*vn; i++)
+  for (long i=keep; i<en; i++)
   {
     p[i]=0;
   }
@@ -354,14 +362,17 @@ void PointCloud::resizeVertexList(int vn, bool with_scanprop, bool with_scanpos)
 
   if (with_scanprop)
   {
-    p=new float [3*vn];
+    p=new float [en];
 
-    for (int i=3*std::min(n, vn)-1; i>=0; i--)
+    if (scanprop != 0)
     {
-      p[i]=scanprop[i];
+      for (long i=keep-1; i>=0; i--)
+      {
+        p[i]=scanprop[i];
+      }
     }
 
-    for (int i=std::min(n, vn); i<vn; i++)
+    for (long i=(scanprop != 0 ? std::min(n, vn) : 0); i<vn; i++)
     {
       p[3*i]=0;
       p[3*i+1]=0;
@@ -376,14 +387,21 @@ void PointCloud::resizeVertexList(int vn, bool with_scanprop, bool with_scanpos)
 
   if (with_scanpos)
   {
-    p=new float [3*vn];
+    p=new float [en];
 
-    for (int i=3*std::min(n, vn)-1; i>=0; i--)
+    long start=0;
+
+    if (scanpos != 0)
     {
-      p[i]=scanpos[i];
+      for (long i=keep-1; i>=0; i--)
+      {
+        p[i]=scanpos[i];
+      }
+
+      start=keep;
     }
 
-    for (int i=3*std::min(n, vn); i<3*vn; i++)
+    for (long i=start; i<en; i++)
     {
       p[i]=0;
     }
@@ -407,7 +425,7 @@ void PointCloud::addGLObjects(std::vector<GLObject *> &list)
 
 void PointCloud::loadPLY(PLYReader &ply)
 {
-  int vn=static_cast<int>(ply.instancesOfElement("vertex"));
+  int vn=checkElementCount(ply.instancesOfElement("vertex"), "vertices");
 
   setOriginFromPLY(ply);
 

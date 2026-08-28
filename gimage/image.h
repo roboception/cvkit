@@ -169,7 +169,10 @@ template<class T, class traits=PixelTraits<T> > class Image
 
       setSize(a.getWidth(), a.getHeight(), a.getDepth());
 
-      memcpy(pixel, a.pixel, n*sizeof(T));
+      if (pixel != 0)
+      {
+        memcpy(pixel, a.pixel, n*sizeof(T));
+      }
     }
 
     Image(Image<T> &&a) noexcept
@@ -246,6 +249,13 @@ template<class T, class traits=PixelTraits<T> > class Image
 
     void setSize(long w, long h, long d)
     {
+      if (w < 0 || h < 0 || d < 0)
+      {
+        std::ostringstream os;
+        os << "Invalid image size: " << w << "x" << h << "x" << d;
+        throw std::invalid_argument(os.str());
+      }
+
       if (width != w || height != h || depth != d)
       {
         if (n < 0)
@@ -268,7 +278,7 @@ template<class T, class traits=PixelTraits<T> > class Image
           delete [] img;
         }
 
-        depth=d;
+        depth=static_cast<int>(d);
         width=w;
         height=h;
         n=width*height*depth;
@@ -281,9 +291,32 @@ template<class T, class traits=PixelTraits<T> > class Image
         {
           long m=height*depth;
 
-          pixel=new T[n];
-          row=new T*[m];
-          img=new T **[depth];
+          // if an allocation fails, then the object must be left in a valid
+          // (i.e. empty) state, because the destructor is not called if this
+          // is invoked from a constructor
+
+          try
+          {
+            pixel=new T[n];
+            row=new T*[m];
+            img=new T **[depth];
+          }
+          catch (...)
+          {
+            delete [] pixel;
+            delete [] row;
+            delete [] img;
+
+            pixel=0;
+            row=0;
+            img=0;
+            width=0;
+            height=0;
+            depth=0;
+            n=0;
+
+            throw;
+          }
 
           row[0]=pixel;
 
@@ -304,9 +337,15 @@ template<class T, class traits=PixelTraits<T> > class Image
 
     Image<T> &operator=(const Image<T> &a)
     {
-      setSize(a.getWidth(), a.getHeight(), a.getDepth());
+      if (this != &a)
+      {
+        setSize(a.getWidth(), a.getHeight(), a.getDepth());
 
-      memcpy(pixel, a.pixel, std::abs(n)*sizeof(T));
+        if (pixel != 0)
+        {
+          memcpy(pixel, a.pixel, std::abs(n)*sizeof(T));
+        }
+      }
 
       return *this;
     }
@@ -337,6 +376,11 @@ template<class T, class traits=PixelTraits<T> > class Image
 
     void clear()
     {
+      if (pixel == 0)
+      {
+        return;
+      }
+
       store_t inv=ptraits::limit(ptraits::invalid());
 
       if (inv == 0)
@@ -529,6 +573,18 @@ template<class T, class traits=PixelTraits<T> > class Image
       j=std::max(0, j);
       j=std::min(depth-1, j);
 
+      // bilinear interpolation needs at least two rows and columns
+
+      if (width < 2 || height < 2)
+      {
+        if (width > 0 && height > 0)
+        {
+          ret=getBounds(static_cast<long>(x), static_cast<long>(y), j);
+        }
+
+        return ret;
+      }
+
       x-=0.5f;
       y-=0.5f;
 
@@ -579,6 +635,23 @@ template<class T, class traits=PixelTraits<T> > class Image
     {
       long    i, k;
       store_t p0, p1, p2, p3;
+
+      // bilinear interpolation needs at least two rows and columns
+
+      if (width < 2 || height < 2)
+      {
+        for (int j=0; j<depth; j++)
+        {
+          p[j]=ptraits::invalid();
+
+          if (width > 0 && height > 0)
+          {
+            p[j]=getBounds(static_cast<long>(x), static_cast<long>(y), j);
+          }
+        }
+
+        return;
+      }
 
       x-=0.5f;
       y-=0.5f;
@@ -820,8 +893,15 @@ template<class T, class traits=PixelTraits<T> > class Image
 
     void setImage(const Image<T> &a)
     {
-      setSize(a.getWidth(), a.getHeight(), a.getDepth());
-      memcpy(pixel, a.getPtr(0, 0, 0), std::abs(n)*sizeof(T));
+      if (this != &a)
+      {
+        setSize(a.getWidth(), a.getHeight(), a.getDepth());
+
+        if (pixel != 0)
+        {
+          memcpy(pixel, a.getPtr(0, 0, 0), std::abs(n)*sizeof(T));
+        }
+      }
     }
 
     void setInvalid(long i, long k, long j)

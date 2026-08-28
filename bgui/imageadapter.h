@@ -58,6 +58,12 @@ template<class T> class ImageAdapter : public ImageAdapterBase
     double                         vmin, vmax;
     std::vector<gimage::Image<T> > mipmap;
 
+    // copying is not allowed, because the image may be owned by this object,
+    // which would lead to a double free
+
+    ImageAdapter(const ImageAdapter<T> &);
+    ImageAdapter<T> &operator=(const ImageAdapter<T> &);
+
   public:
 
     ImageAdapter(const gimage::Image<T> *im, double valid_min=-std::numeric_limits<float>::max(),
@@ -348,7 +354,13 @@ template<class T> class ImageAdapter : public ImageAdapterBase
     void copyInto(gimage::ImageU8 &rgb, long x, long y) const
     {
       const double step=1/scale;
-      const double irange=imax-imin;
+
+      // imin and imax can be set individually (e.g. by the keys 'b' and 'w'),
+      // i.e. the range may be empty or negative, which must not lead to a
+      // division by 0 or negative intensities
+
+      const double irange=std::max(1e-12, imax-imin);
+
       int ir=0, ig=1, ib=2;
       long iw=image->getWidth();
       long ih=image->getHeight();
@@ -475,7 +487,7 @@ template<class T> class ImageAdapter : public ImageAdapterBase
                       }
                       else if (static_cast<int>(gamma+0.5) >= 3)
                       {
-                        v=sqrt(sqrt(r));
+                        v=sqrt(sqrt(v));
                       }
                     }
                   }
@@ -534,7 +546,7 @@ template<class T> class ImageAdapter : public ImageAdapterBase
                       }
                       else if (static_cast<int>(gamma+0.5) >= 3)
                       {
-                        v=sqrt(sqrt(r));
+                        v=sqrt(sqrt(v));
                       }
                     }
                   }

@@ -433,7 +433,7 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
           std::string name=slist[i];
           gutil::trim(name);
           gimage::getImageIO().load(tmp, name.c_str());
-          hdr.add(tmp, std::min(65535.0f, static_cast<float>(image.absMaxValue())));
+          hdr.add(tmp, std::min(65535.0f, static_cast<float>(tmp.absMaxValue())));
         }
 
         hdr.fuse(image);
@@ -507,6 +507,14 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
         param.nextValue(x);
         param.nextValue(y);
 
+        if (x < 0 || x >= image.getWidth() || y < 0 || y >= image.getHeight())
+        {
+          std::ostringstream out;
+          out << "Pixel (" << x << ", " << y << ") is outside the image of size "
+              << image.getWidth() << "x" << image.getHeight();
+          throw gutil::InvalidArgumentException(out.str());
+        }
+
         std::cout << "image(" << x << ", " << y << "):";
 
         for (int d=0; d<image.getDepth(); d++)
@@ -520,7 +528,7 @@ template<class T> void process(gimage::Image<T> &image, gutil::Parameter param,
       if (p == "-print")
       {
         std::string what;
-        param.nextString(what, "all|type|min|max|mean|width|height|depth");
+        param.nextString(what, "all|type|min|max|mean|stddev|width|height|depth");
 
         if (what == "all" || what == "type")
         {

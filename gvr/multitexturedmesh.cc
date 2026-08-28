@@ -66,9 +66,13 @@ void MultiTexturedMesh::resizeTextureList(int n)
 
 void MultiTexturedMesh::resizeTriangleList(int tn)
 {
+  checkElementCount(tn, "triangles");
+
+  const long keep=(uvt != 0 ? std::min(getTriangleCount(), tn) : 0);
+
   UVT *p=new UVT [tn];
 
-  for (int i=std::min(getTriangleCount(), tn)-1; i>=0; i--)
+  for (long i=keep-1; i>=0; i--)
   {
     p[i]=uvt[i];
   }
@@ -135,7 +139,7 @@ void MultiTexturedMesh::addGLObjects(std::vector<GLObject *> &list)
 
 void MultiTexturedMesh::loadPLY(PLYReader &ply)
 {
-  int vn=static_cast<int>(ply.instancesOfElement("vertex"));
+  int vn=checkElementCount(ply.instancesOfElement("vertex"), "vertices");
 
   setOriginFromPLY(ply);
 
@@ -224,7 +228,7 @@ void MultiTexturedMesh::loadPLY(PLYReader &ply)
 
   // set receiver for triangles
 
-  int tn=static_cast<int>(ply.instancesOfElement("face"));
+  int tn=checkElementCount(ply.instancesOfElement("face"), "faces");
 
   resizeTriangleList(tn);
 
