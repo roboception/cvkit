@@ -1,3 +1,9 @@
+Version 2.6.71 (2026-09-15)
+---------------------------
+
+- Speeded up downscaleImage() and resizeImageBilinear()
+- Fixed crashes, memory leaks and wrong results found in a code review
+
 Version 2.6.70 (2026-08-27)
 ---------------------------
 
