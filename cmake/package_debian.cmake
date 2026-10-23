@@ -1,5 +1,5 @@
 # general cpack variables
-set(CPACK_PACKAGE_CONTACT "Roboception <support@roboception.de>")
+set(CPACK_PACKAGE_CONTACT "Roboception GmbH <support@roboception.de>")
 set(CPACK_PACKAGE_VENDOR "Roboception GmbH, Munich, Germany")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Roboception ${PROJECT_NAME} package")
 
@@ -92,6 +92,114 @@ endif()
 
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 message(STATUS "CPACK_PACKAGE_FILE_NAME: " ${CPACK_PACKAGE_FILE_NAME})
+
+# The maintainer is used as supplier in SBOMs, which must be the company and
+# not an individual. Therefore, it cannot be overwritten by the project.
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
+
+if (NOT CPACK_DEBIAN_PACKAGE_HOMEPAGE)
+    set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://www.roboception.com")
+endif ()
+
+###############################################
+# copyright file in machine readable format
+# (https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/)
+###############################################
+
+# License as SPDX identifier, which can be set by the project before including
+# this file. All licenses other than the default require RC_PACKAGE_LICENSE_FILE
+# with the license text, e.g. for an open source project:
+# set(RC_PACKAGE_LICENSE "BSD-3-Clause")
+# set(RC_PACKAGE_LICENSE_FILE "${PROJECT_SOURCE_DIR}/LICENSE")
+if (NOT RC_PACKAGE_LICENSE)
+    set(RC_PACKAGE_LICENSE "LicenseRef-Roboception")
+endif ()
+
+if (RC_PACKAGE_LICENSE_FILE)
+    file(READ "${RC_PACKAGE_LICENSE_FILE}" RC_LICENSE_TEXT)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${RC_PACKAGE_LICENSE_FILE}")
+elseif (RC_PACKAGE_LICENSE STREQUAL "LicenseRef-Roboception")
+    set(RC_LICENSE_TEXT
+"All rights reserved.
+This software is proprietary to Roboception GmbH. Use, copying and
+distribution are only permitted under the terms of a license agreement
+with Roboception GmbH.")
+else ()
+    message(FATAL_ERROR "RC_PACKAGE_LICENSE_FILE must be given for license ${RC_PACKAGE_LICENSE}")
+endif ()
+
+# The license text must be indented by one space and empty lines must be
+# replaced by a single dot, otherwise the copyright file cannot be parsed.
+string(STRIP "${RC_LICENSE_TEXT}" RC_LICENSE_TEXT)
+string(REGEX REPLACE "[ \t\r]*\n" "\n" RC_LICENSE_TEXT "${RC_LICENSE_TEXT}")
+string(REPLACE "\n\n" "\n.\n" RC_LICENSE_TEXT "${RC_LICENSE_TEXT}")
+string(REPLACE "\n\n" "\n.\n" RC_LICENSE_TEXT "${RC_LICENSE_TEXT}")
+string(REPLACE "\n" "\n " RC_LICENSE_TEXT "${RC_LICENSE_TEXT}")
+
+# copyright years default to the years of the first commit and of the build
+if (NOT RC_COPYRIGHT_YEARS)
+    string(TIMESTAMP RC_BUILD_YEAR "%Y")
+    set(RC_COPYRIGHT_YEARS ${RC_BUILD_YEAR})
+
+    find_program(GIT_CMD git)
+    mark_as_advanced(GIT_CMD)
+    if (GIT_CMD)
+        execute_process(COMMAND ${GIT_CMD} log --max-parents=0 --format=%ad --date=format:%Y HEAD
+                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                OUTPUT_VARIABLE RC_FIRST_YEARS
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                ERROR_QUIET)
+        string(REGEX MATCHALL "[0-9]+" RC_FIRST_YEARS "${RC_FIRST_YEARS}")
+        if (RC_FIRST_YEARS)
+            list(SORT RC_FIRST_YEARS)
+            list(GET RC_FIRST_YEARS 0 RC_FIRST_YEAR)
+            if (RC_FIRST_YEAR LESS RC_BUILD_YEAR)
+                set(RC_COPYRIGHT_YEARS "${RC_FIRST_YEAR}-${RC_BUILD_YEAR}")
+            endif ()
+        endif ()
+    endif ()
+endif ()
+
+# Copyright holders including years, which can be set by the project if
+# Roboception GmbH is not the only holder, e.g.:
+# set(RC_COPYRIGHT_HOLDERS "2016-2026 Roboception GmbH"
+#   "2014, 2015 Institute of Robotics and Mechatronics, German Aerospace Center")
+if (NOT RC_COPYRIGHT_HOLDERS)
+    set(RC_COPYRIGHT_HOLDERS "${RC_COPYRIGHT_YEARS} Roboception GmbH")
+endif ()
+
+# multiple holders must be given as continuation lines, i.e. indented
+string(REPLACE ";" "\n " RC_COPYRIGHT_TEXT "${RC_COPYRIGHT_HOLDERS}")
+
+# Third party code that is contained in the package must be described by
+# additional Files paragraphs in a file that can be set by the project, e.g.:
+# set(RC_COPYRIGHT_EXTRA_FILE "${PROJECT_SOURCE_DIR}/copyright_extra")
+set(RC_COPYRIGHT_EXTRA "")
+if (RC_COPYRIGHT_EXTRA_FILE)
+    file(READ "${RC_COPYRIGHT_EXTRA_FILE}" RC_COPYRIGHT_EXTRA)
+    string(STRIP "${RC_COPYRIGHT_EXTRA}" RC_COPYRIGHT_EXTRA)
+    set(RC_COPYRIGHT_EXTRA "${RC_COPYRIGHT_EXTRA}\n\n")
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${RC_COPYRIGHT_EXTRA_FILE}")
+endif ()
+
+set(COPYRIGHT_FILE "${CMAKE_CURRENT_BINARY_DIR}/copyright")
+file(WRITE "${COPYRIGHT_FILE}"
+"Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ${PROJECT_NAME}
+Upstream-Contact: ${CPACK_PACKAGE_CONTACT}
+
+Files: *
+Copyright: ${RC_COPYRIGHT_TEXT}
+License: ${RC_PACKAGE_LICENSE}
+
+${RC_COPYRIGHT_EXTRA}License: ${RC_PACKAGE_LICENSE}
+ ${RC_LICENSE_TEXT}
+")
+
+# absolute path, since the install prefix may be e.g. /opt/ros/<distro>
+install(FILES "${COPYRIGHT_FILE}"
+        COMPONENT bin
+        DESTINATION /usr/share/doc/${CPACK_PACKAGE_NAME})
 
 #########################################
 ## things you might need to change ??? ##

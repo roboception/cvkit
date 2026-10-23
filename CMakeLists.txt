@@ -228,7 +228,12 @@ include(cmake/configure_link_libs.cmake)
 
 # packaging
 
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Heiko Hirschmueller <heiko.hirschmueller@roboception.de>")
+set(RC_PACKAGE_LICENSE "BSD-3-Clause")
+set(RC_PACKAGE_LICENSE_FILE "${PROJECT_SOURCE_DIR}/LICENSE")
+string(TIMESTAMP BUILD_YEAR "%Y")
+set(RC_COPYRIGHT_HOLDERS "2016-${BUILD_YEAR} Roboception GmbH"
+  "2014, 2015 Institute of Robotics and Mechatronics, German Aerospace Center")
+set(RC_COPYRIGHT_EXTRA_FILE "${PROJECT_SOURCE_DIR}/copyright_extra")
 
 if (WIN32)
   include(cmake/package_win32.cmake)

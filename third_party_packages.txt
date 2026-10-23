@@ -1,5 +1,0 @@
-minpack
-gdal
-jpeg
-png
-

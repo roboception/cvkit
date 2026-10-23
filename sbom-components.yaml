@@ -1,0 +1,61 @@
+# Declaration of all third party code that is contained in the debian package
+# of this project for creating SBOMs.
+#
+# sbom_class:
+#   A: only own code, dynamically linked against Ubuntu or ROS packages
+#   B: self compiled or repackaged open source software
+#   C: own code that embeds third party code, e.g. as git submodules, copied
+#      sources, header-only libraries, statically linked libraries or binary
+#      blobs
+#
+# For classes B and C, all third party components must be listed, e.g.:
+#
+# components:
+#   - name: opencv
+#     version: 4.10.0
+#     supplier: OpenCV team
+#     purl: pkg:github/opencv/opencv@4.10.0
+#     cpe: cpe:2.3:a:opencv:opencv:4.10.0:*:*:*:*:*:*:*
+#     license: Apache-2.0
+#     source: https://github.com/opencv/opencv/archive/4.10.0.tar.gz
+#     patches:
+#       - debian/patches/0001-example.patch
+
+sbom_class: C
+components:
+  # gmath/minpack: Fortran sources translated to C by f2c and compiled into
+  # libgmath. Netlib does not provide versions, therefore the date of the
+  # copyright notice is used.
+  - name: minpack
+    version: "1999"
+    supplier: University of Chicago, Argonne National Laboratory
+    purl: pkg:generic/netlib/minpack@1999
+    license: Minpack
+    source: https://www.netlib.org/minpack/
+
+  # gmath/minpack/f2c.h: header of the f2c runtime that is required by the
+  # translated minpack sources
+  - name: f2c.h
+    version: "20000121"
+    supplier: AT&T, Lucent Technologies, and Bellcore
+    purl: pkg:generic/netlib/f2c@20000121
+    license: LicenseRef-f2c
+    source: https://www.netlib.org/f2c/
+
+  # gmath/linalg.cc: SVD implementation adapted from JAMA. The adapted
+  # version is not known, therefore the last release is given.
+  - name: jama
+    version: 1.0.3
+    supplier: The MathWorks and the National Institute of Standards and Technology (NIST)
+    purl: pkg:generic/nist/jama@1.0.3
+    license: LicenseRef-public-domain
+    source: https://math.nist.gov/javanumerics/jama/
+    modified: true
+
+  # gimage/color.cc: Turbo colormap
+  - name: turbo-colormap
+    version: "2019"
+    supplier: Google LLC
+    purl: pkg:generic/google/turbo-colormap@2019
+    license: Apache-2.0
+    source: https://gist.github.com/mikhailov-work/6a308c20e494d9e0ccc29036b28faa7a

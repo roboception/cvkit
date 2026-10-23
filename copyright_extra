@@ -1,0 +1,104 @@
+Files: gmath/minpack/*
+Copyright: 1999 University of Chicago
+License: Minpack
+
+Files: gmath/minpack/f2c.h
+Copyright: 1990-1997 AT&T, Lucent Technologies, and Bellcore
+License: LicenseRef-f2c
+
+Files: gmath/linalg.cc
+Copyright: Roboception GmbH
+ Institute of Robotics and Mechatronics, German Aerospace Center
+ The MathWorks and the National Institute of Standards and Technology (NIST)
+License: BSD-3-Clause and public-domain
+Comment: The SVD implementation is adapted from JAMA, a Java Matrix Library
+ (https://math.nist.gov/javanumerics/jama), which is in the public domain.
+
+Files: gimage/color.cc
+Copyright: Roboception GmbH
+ 2019 Google LLC
+License: BSD-3-Clause and Apache-2.0
+Comment: The Turbo colormap is from Google under Apache-2.0
+ (https://research.google/blog/turbo-an-improved-rainbow-colormap-for-visualization/).
+
+License: Minpack
+ Redistribution and use in source and binary forms, with or
+ without modification, are permitted provided that the
+ following conditions are met:
+ .
+ 1. Redistributions of source code must retain the above
+ copyright notice, this list of conditions and the following
+ disclaimer.
+ .
+ 2. Redistributions in binary form must reproduce the above
+ copyright notice, this list of conditions and the following
+ disclaimer in the documentation and/or other materials
+ provided with the distribution.
+ .
+ 3. The end-user documentation included with the
+ redistribution, if any, must include the following
+ acknowledgment:
+ .
+    "This product includes software developed by the
+    University of Chicago, as Operator of Argonne National
+    Laboratory.
+ .
+ Alternately, this acknowledgment may appear in the software
+ itself, if and wherever such third-party acknowledgments
+ normally appear.
+ .
+ 4. WARRANTY DISCLAIMER. THE SOFTWARE IS SUPPLIED "AS IS"
+ WITHOUT WARRANTY OF ANY KIND. THE COPYRIGHT HOLDER, THE
+ UNITED STATES, THE UNITED STATES DEPARTMENT OF ENERGY, AND
+ THEIR EMPLOYEES: (1) DISCLAIM ANY WARRANTIES, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO ANY IMPLIED WARRANTIES
+ OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE
+ OR NON-INFRINGEMENT, (2) DO NOT ASSUME ANY LEGAL LIABILITY
+ OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS, OR
+ USEFULNESS OF THE SOFTWARE, (3) DO NOT REPRESENT THAT USE OF
+ THE SOFTWARE WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS, (4)
+ DO NOT WARRANT THAT THE SOFTWARE WILL FUNCTION
+ UNINTERRUPTED, THAT IT IS ERROR-FREE OR THAT ANY ERRORS WILL
+ BE CORRECTED.
+ .
+ 5. LIMITATION OF LIABILITY. IN NO EVENT WILL THE COPYRIGHT
+ HOLDER, THE UNITED STATES, THE UNITED STATES DEPARTMENT OF
+ ENERGY, OR THEIR EMPLOYEES: BE LIABLE FOR ANY INDIRECT,
+ INCIDENTAL, CONSEQUENTIAL, SPECIAL OR PUNITIVE DAMAGES OF
+ ANY KIND OR NATURE, INCLUDING BUT NOT LIMITED TO LOSS OF
+ PROFITS OR LOSS OF DATA, FOR ANY REASON WHATSOEVER, WHETHER
+ SUCH LIABILITY IS ASSERTED ON THE BASIS OF CONTRACT, TORT
+ (INCLUDING NEGLIGENCE OR STRICT LIABILITY), OR OTHERWISE,
+ EVEN IF ANY OF SAID PARTIES HAS BEEN WARNED OF THE
+ POSSIBILITY OF SUCH LOSS OR DAMAGES.
+
+License: LicenseRef-f2c
+ Permission to use, copy, modify, and distribute this software
+ and its documentation for any purpose and without fee is hereby
+ granted, provided that the above copyright notice appear in all
+ copies and that both that the copyright notice and this
+ permission notice and warranty disclaimer appear in supporting
+ documentation, and that the names of AT&T, Bell Laboratories,
+ Lucent or Bellcore or any of their entities not be used in
+ advertising or publicity pertaining to distribution of the
+ software without specific, written prior permission.
+ .
+ AT&T, Lucent and Bellcore disclaim all warranties with regard to
+ this software, including all implied warranties of
+ merchantability and fitness.  In no event shall AT&T, Lucent or
+ Bellcore be liable for any special, indirect or consequential
+ damages or any damages whatsoever resulting from loss of use,
+ data or profits, whether in an action of contract, negligence or
+ other tortious action, arising out of or in connection with the
+ use or performance of this software.
+
+License: public-domain
+ This software is a cooperative product of The MathWorks and the National
+ Institute of Standards and Technology (NIST) which has been released to the
+ public domain. Neither The MathWorks nor NIST assumes any responsibility
+ whatsoever for its use by other parties, and makes no guarantees, expressed
+ or implied, about its quality, reliability, or any other characteristic.
+
+License: Apache-2.0
+ On Debian systems, the complete text of the Apache License, Version 2.0
+ can be found in /usr/share/common-licenses/Apache-2.0.
