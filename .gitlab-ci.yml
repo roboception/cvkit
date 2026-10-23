@@ -51,6 +51,18 @@ variables:
     - armhf
     - docker
 
+.amd64_noble_t: &amd64_resolute_job
+  image: registry.roboception.de/tools/docker_images:resolute-buildimage
+  tags:
+    - amd64
+    - docker
+
+.arm64_resolute_t: &arm64_resolute_job
+  image: registry.roboception.de/tools/docker_images:resolute-buildimage
+  tags:
+    - arm64
+    - docker
+
 #############
 # Templates
 #############
@@ -140,10 +152,14 @@ test:jammy:amd64:
 test:jammy:arm64:
   <<: *arm64_jammy_job
   extends: .test
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 test:jammy:armhf:
   <<: *armhf_jammy_job
   extends: .test
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 test:noble:amd64:
   <<: *amd64_noble_job
@@ -152,10 +168,24 @@ test:noble:amd64:
 test:noble:arm64:
   <<: *arm64_noble_job
   extends: .test
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 test:noble:armhf:
   <<: *armhf_noble_job
   extends: .test
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
+
+test:resolute:amd64:
+  <<: *amd64_resolute_job
+  extends: .test
+
+test:resolute:arm64:
+  <<: *arm64_resolute_job
+  extends: .test
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 # Deploy testing (only on master)
 #################################
@@ -172,10 +202,14 @@ package_testing:jammy:amd64:
 package_testing:jammy:arm64:
   <<: *arm64_jammy_job
   extends: .package_testing
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 package_testing:jammy:armhf:
   <<: *armhf_jammy_job
   extends: .package_testing
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 package_testing:noble:amd64:
   <<: *amd64_noble_job
@@ -184,10 +218,24 @@ package_testing:noble:amd64:
 package_testing:noble:arm64:
   <<: *arm64_noble_job
   extends: .package_testing
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 package_testing:noble:armhf:
   <<: *armhf_noble_job
   extends: .package_testing
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
+
+package_testing:resolute:amd64:
+  <<: *amd64_resolute_job
+  extends: .package_testing
+
+package_testing:resolute:arm64:
+  <<: *arm64_resolute_job
+  extends: .package_testing
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 ################
 # Stable builds
@@ -208,10 +256,14 @@ package_stable:jammy:amd64:
 package_stable:jammy:arm64:
   <<: *arm64_jammy_job
   extends: .package_stable
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 package_stable:jammy:armhf:
   <<: *armhf_jammy_job
   extends: .package_stable
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 package_stable:noble:amd64:
   <<: *amd64_noble_job
@@ -220,7 +272,22 @@ package_stable:noble:amd64:
 package_stable:noble:arm64:
   <<: *arm64_noble_job
   extends: .package_stable
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
 
 package_stable:noble:armhf:
   <<: *armhf_noble_job
   extends: .package_stable
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
+
+package_stable:resolute:amd64:
+  <<: *amd64_resolute_job
+  extends: .package_stable
+
+package_stable:resolute:arm64:
+  <<: *arm64_resolute_job
+  extends: .package_stable
+  variables:
+    CMAKE_OPTS: "-DUSE_GDAL=off"
+
