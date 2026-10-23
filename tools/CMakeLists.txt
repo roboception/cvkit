@@ -138,6 +138,9 @@ if (USE_3D)
   install(TARGETS plyv DESTINATION bin)
 endif ()
 
+add_executable(test_tensor test_tensor.cc)
+target_link_libraries(test_tensor gmath_static)
+
 if (WIN32)
   if (INCLUDE_DLL)
     install(PROGRAMS ${INCLUDE_DLL} DESTINATION bin)

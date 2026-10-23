@@ -52,6 +52,7 @@ set(gmath_src
   estimatedplane.cc
   idw.cc
   homography.cc
+  tensor.cc
 )
 
 set(gmath_hh
@@ -71,6 +72,7 @@ set(gmath_hh
   estimatedplane.h
   idw.h
   homography.h
+  tensor.h
 )
 
 add_library(gmath_static STATIC ${gmath_src})

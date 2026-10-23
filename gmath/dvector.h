@@ -46,6 +46,7 @@
 #include <sstream>
 #include <vector>
 #include <exception>
+#include <initializer_list>
 
 namespace gmath
 {
@@ -117,6 +118,14 @@ template<class T> class DVector
       v[3]=v3;
     }
 
+    DVector(std::initializer_list<T> list)
+    {
+      n=0;
+      v=0;
+
+      init(list);
+    }
+
     DVector(const DVector<T> &a)
     {
       n=a.size();
@@ -168,6 +177,29 @@ template<class T> class DVector
         for (int i=0; i<n; i++)
         {
           v[i]=0;
+        }
+      }
+    }
+
+    void init(std::initializer_list<T> list)
+    {
+      if (v != 0)
+      {
+        delete [] v;
+      }
+
+      n=static_cast<int>(list.size());
+
+      v=0;
+
+      if (list.size() > 0)
+      {
+        v=new T[n];
+
+        int i=0;
+        for (const T *it=list.begin(); it != list.end(); it++)
+        {
+          v[i++]=*it;
         }
       }
     }
