@@ -1,5 +1,13 @@
 before_script:
   - export DISTRO_CODENAME=`lsb_release -cs` && echo Using distro $DISTRO_CODENAME
+  - echo -e "\e[0Ksection_start:`date +%s`:install_debs\r\e[0KInstall dependencies"
+  - export DEBIAN_FRONTEND=noninteractive
+  - echo "deb http://apt.roboception.de/backports $DISTRO_CODENAME main" > /etc/apt/sources.list.d/roboception-backports.list
+  - echo "deb http://apt.roboception.de/stable $DISTRO_CODENAME main" > /etc/apt/sources.list.d/roboception-stable.list
+  - if [ "$TESTING_DEBS" = "true" ]; then echo "deb http://apt.roboception.de/testing $DISTRO_CODENAME main" > /etc/apt/sources.list.d/roboception-testing.list ; fi
+  - curl -fsSL http://apt.roboception.de/archive.key -o /etc/apt/trusted.gpg.d/roboception.asc
+  - apt-get update -yq && apt-get install -y --no-install-recommends lintian git rc-sbom-tools
+  - echo -e "\e[0Ksection_end:`date +%s`:install_debs\r\e[0K"
 
 variables:
   GET_SOURCES_ATTEMPTS: "3"
@@ -104,6 +112,7 @@ variables:
   except:
     - tags
   variables:
+    TESTING_DEBS: "true"
     APT_REPO: "testing"
 
 .package_stable:

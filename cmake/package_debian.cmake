@@ -201,6 +201,25 @@ install(FILES "${COPYRIGHT_FILE}"
         COMPONENT bin
         DESTINATION /usr/share/doc/${CPACK_PACKAGE_NAME})
 
+###############################################
+# SBOM fragment, see rc_sbom_tools
+###############################################
+
+# The fragment describes the third party code in the package. It is created
+# by rc-sbom-tools at the end of the installation, therefore this file must be
+# included after all subdirectories have been added.
+if (EXISTS "${PROJECT_SOURCE_DIR}/sbom-components.yaml")
+    find_file(RC_SBOM_CMAKE rc_sbom.cmake PATHS /usr/share/rc_sbom_tools NO_DEFAULT_PATH)
+    mark_as_advanced(RC_SBOM_CMAKE)
+    if (RC_SBOM_CMAKE)
+        include(${RC_SBOM_CMAKE})
+    elseif (DEFINED ENV{CI})
+        message(FATAL_ERROR "rc-sbom-tools must be installed for creating the SBOM fragment of the package")
+    else ()
+        message(WARNING "rc-sbom-tools not installed, the package will not contain an SBOM fragment")
+    endif ()
+endif ()
+
 #########################################
 ## things you might need to change ??? ##
 #########################################

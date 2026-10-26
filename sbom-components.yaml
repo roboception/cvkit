@@ -18,8 +18,12 @@
 #     cpe: cpe:2.3:a:opencv:opencv:4.10.0:*:*:*:*:*:*:*
 #     license: Apache-2.0
 #     source: https://github.com/opencv/opencv/archive/4.10.0.tar.gz
+#     modified: true     # if the source code has been changed
 #     patches:
 #       - debian/patches/0001-example.patch
+#
+# Statically linked libraries must not be listed, since they are determined
+# with their versions from the link commands when the SBOM fragment is created.
 
 sbom_class: C
 components:
