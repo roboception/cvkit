@@ -51,7 +51,7 @@ variables:
     - armhf
     - docker
 
-.amd64_noble_t: &amd64_resolute_job
+.amd64_resolute_t: &amd64_resolute_job
   image: registry.roboception.de/tools/docker_images:resolute-buildimage
   tags:
     - amd64
