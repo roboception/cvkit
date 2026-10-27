@@ -1,3 +1,10 @@
+Version 2.6.72 (2026-10-27)
+---------------------------
+
+- Added license, copyright and third party information to debian package for SBOMs
+- Added some tensor functionality
+- Added build jobs for resolute
+
 Version 2.6.71 (2026-09-15)
 ---------------------------
 
