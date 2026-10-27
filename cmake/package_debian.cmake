@@ -208,15 +208,19 @@ install(FILES "${COPYRIGHT_FILE}"
 # The fragment describes the third party code in the package. It is created
 # by rc-sbom-tools at the end of the installation, therefore this file must be
 # included after all subdirectories have been added.
+#
+# rc-sbom-tools is only available internally. It is only required in the CI
+# of our GitLab, since other CI systems, e.g. for public repositories on
+# GitHub, also set the variable CI.
 if (EXISTS "${PROJECT_SOURCE_DIR}/sbom-components.yaml")
     find_file(RC_SBOM_CMAKE rc_sbom.cmake PATHS /usr/share/rc_sbom_tools NO_DEFAULT_PATH)
     mark_as_advanced(RC_SBOM_CMAKE)
     if (RC_SBOM_CMAKE)
         include(${RC_SBOM_CMAKE})
-    elseif (DEFINED ENV{CI})
+    elseif ("$ENV{CI_SERVER_HOST}" STREQUAL "gitlab.roboception.de")
         message(FATAL_ERROR "rc-sbom-tools must be installed for creating the SBOM fragment of the package")
     else ()
-        message(WARNING "rc-sbom-tools not installed, the package will not contain an SBOM fragment")
+        message(STATUS "rc-sbom-tools not found, the package will not contain an SBOM fragment")
     endif ()
 endif ()
 
