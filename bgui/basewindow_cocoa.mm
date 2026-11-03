@@ -558,6 +558,7 @@ BaseWindow::BaseWindow(const char *title, int w, int h)
                                               backing:NSBackingStoreBuffered
                                                 defer:NO];
 
+    [p->window setReleasedWhenClosed:NO];
     [p->window setTitle:[NSString stringWithUTF8String:title]];
     [p->window setMinSize:NSMakeSize(10, 10)];
     [p->window center];
