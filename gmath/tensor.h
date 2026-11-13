@@ -789,7 +789,7 @@ template<class T> class Tensor
       int n_k=0;
       if (k >= 0)
       {
-        n_k=value_.size()/n;
+        n_k=static_cast<int>(value_.size()/n);
         n*=n_k;
       }
 
@@ -902,7 +902,7 @@ template<class T> class Tensor
             k=static_cast<int>(rank_)+k;
             if (k < 0)
             {
-              throw std::invalid_argument("Tensor::setTransposed(): Index >= "+std::to_string(-rank_)
+              throw std::invalid_argument("Tensor::setTransposed(): Index >= "+std::to_string(-static_cast<int>(rank_))
                 +" expected, but "+std::to_string(index[i])+" given");
             }
           }
@@ -1154,7 +1154,7 @@ template<class T> class Tensor
 
       for (size_t i=0; i<shape_[0]; i++)
       {
-        v[i]=value_[i];
+        v[static_cast<int>(i)]=value_[i];
       }
 
       return v;
@@ -1175,7 +1175,7 @@ template<class T> class Tensor
       {
         for (size_t i=0; i<shape_[1]; i++)
         {
-          M(k, i)=value_[j++];
+          M(static_cast<int>(k), static_cast<int>(i))=value_[j++];
         }
       }
 
@@ -1543,7 +1543,7 @@ template<class T> class Tensor
 
     T average() const
     {
-      return sum()/value_.size();
+      return sum()/static_cast<T>(value_.size());
     }
 
     // ========== min, max, sum and average over given dimension ==========
@@ -1658,7 +1658,7 @@ template<class T> class Tensor
 
     Tensor<T> average(int dim) const
     {
-      return sum(dim)/Tensor<T>(shape(dim));
+      return sum(dim)/Tensor<T>(static_cast<T>(shape(dim)));
     }
 };
 
@@ -1763,7 +1763,7 @@ std::basic_ostream<Ch, Tr> &operator<<(std::basic_ostream<Ch, Tr> &out, const Te
 
   for (size_t i=0; i<a.rank(); i++)
   {
-    out << a.shape(i);
+    out << a.shape(static_cast<int>(i));
     if (i+1 < a.rank()) out << ' ';
   }
 

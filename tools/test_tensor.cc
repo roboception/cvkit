@@ -370,7 +370,7 @@ int main(int argc, const char *argv[])
 
     {
       gmath::Tensord T1(gmath::Vectord({2*2, 3*3, 4*4, 5*5}));
-      T1.apply(sqrt);
+      T1.apply([](double v) { return std::sqrt(v); });
       ret=check("Apply", T1, "{4}[2 3 4 5]") && ret;
     }
 
