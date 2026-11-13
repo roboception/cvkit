@@ -28,24 +28,27 @@ set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}-0+${STAMP}")
 set(CPACK_GENERATOR "DEB")
 #set(CPACK_DEBIAN_PACKAGE_DEBUG ON)
 
-if (NOT CPACK_DEBIAN_PACKAGE_ARCHITECTURE)
-# if architecture is already set (e.g. to "all"), this is not needed
-# add ~distribution-codename (e.g. ~trusty or ~xenial) to end of package version
+# add ~distribution-codename (e.g. ~jammy or ~noble) to end of package version
 # if lsb_release is available, take it from there or fall back to DISTRO_CODENAME env variable
-    set(DISTRO_CODENAME $ENV{DISTRO_CODENAME})
-    find_program(LSB_RELEASE_CMD lsb_release)
-    mark_as_advanced(LSB_RELEASE_CMD)
-    if (LSB_RELEASE_CMD)
-        execute_process(COMMAND "${LSB_RELEASE_CMD}" --codename --short
-                OUTPUT_VARIABLE DISTRO_CODENAME
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
-    endif ()
-    if (DISTRO_CODENAME)
-        set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}~${DISTRO_CODENAME})
-    else ()
-        message(STATUS "Could not find lsb_release nor is DISTRO_CODENAME set.")
-    endif ()
+# This is also needed for architecture independent packages (i.e. "all"),
+# since the apt repository stores the packages of all distributions in one
+# pool, where the same file name with different content breaks publishing.
+set(DISTRO_CODENAME $ENV{DISTRO_CODENAME})
+find_program(LSB_RELEASE_CMD lsb_release)
+mark_as_advanced(LSB_RELEASE_CMD)
+if (LSB_RELEASE_CMD)
+    execute_process(COMMAND "${LSB_RELEASE_CMD}" --codename --short
+            OUTPUT_VARIABLE DISTRO_CODENAME
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif ()
+if (DISTRO_CODENAME)
+    set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}~${DISTRO_CODENAME})
+else ()
+    message(STATUS "Could not find lsb_release nor is DISTRO_CODENAME set.")
+endif ()
 
+# if architecture is already set (e.g. to "all"), this is not needed
+if (NOT CPACK_DEBIAN_PACKAGE_ARCHITECTURE)
     find_program(DPKG_CMD dpkg)
     mark_as_advanced(DPKG_CMD)
     if (NOT DPKG_CMD)
@@ -196,10 +199,20 @@ ${RC_COPYRIGHT_EXTRA}License: ${RC_PACKAGE_LICENSE}
  ${RC_LICENSE_TEXT}
 ")
 
-# absolute path, since the install prefix may be e.g. /opt/ros/<distro>
+# Debian expects the copyright file in /usr/share/doc/<package>, also if the
+# install prefix of the package is e.g. /opt/ros/<distro> or /opt/<package>.
+# Other install prefixes are used for builds that are not packaged, e.g. a
+# local build without root permissions or the source package of
+# rc_sgm_producer, and get it relative to the prefix.
+if ("${CMAKE_INSTALL_PREFIX}" MATCHES "^/usr/?$" OR "${CMAKE_INSTALL_PREFIX}" MATCHES "^/opt/")
+    set(RC_DOC_INSTALL_DIR "/usr/share/doc/${CPACK_PACKAGE_NAME}")
+else ()
+    set(RC_DOC_INSTALL_DIR "share/doc/${CPACK_PACKAGE_NAME}")
+endif ()
+
 install(FILES "${COPYRIGHT_FILE}"
         COMPONENT bin
-        DESTINATION /usr/share/doc/${CPACK_PACKAGE_NAME})
+        DESTINATION ${RC_DOC_INSTALL_DIR})
 
 ###############################################
 # SBOM fragment, see rc_sbom_tools
@@ -211,13 +224,19 @@ install(FILES "${COPYRIGHT_FILE}"
 #
 # rc-sbom-tools is only available internally. It is only required in the CI
 # of our GitLab, since other CI systems, e.g. for public repositories on
-# GitHub, also set the variable CI.
-if (EXISTS "${PROJECT_SOURCE_DIR}/sbom-components.yaml")
+# GitHub, also set the variable CI. Projects whose packages are built outside
+# of the CI for distribution set RC_SBOM_REQUIRED, so that their packages
+# cannot lack the SBOM fragment.
+#
+# The fragment is only created for the install prefixes of packages, see the
+# copyright file above, since rc_sbom.cmake writes into /usr/share and
+# expects that all statically linked libraries come from Debian packages.
+if (EXISTS "${PROJECT_SOURCE_DIR}/sbom-components.yaml" AND IS_ABSOLUTE "${RC_DOC_INSTALL_DIR}")
     find_file(RC_SBOM_CMAKE rc_sbom.cmake PATHS /usr/share/rc_sbom_tools NO_DEFAULT_PATH)
     mark_as_advanced(RC_SBOM_CMAKE)
     if (RC_SBOM_CMAKE)
         include(${RC_SBOM_CMAKE})
-    elseif ("$ENV{CI_SERVER_HOST}" STREQUAL "gitlab.roboception.de")
+    elseif (RC_SBOM_REQUIRED OR "$ENV{CI_SERVER_HOST}" STREQUAL "gitlab.roboception.de")
         message(FATAL_ERROR "rc-sbom-tools must be installed for creating the SBOM fragment of the package")
     else ()
         message(STATUS "rc-sbom-tools not found, the package will not contain an SBOM fragment")
